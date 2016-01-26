@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.oneops</groupId>
   <artifactId>circuit-oneops-1</artifactId>
-  <version>5.0.136-SNAPSHOT</version>
+  <version>5.0.136</version>
   <name>circuit-oneops-1</name>
   <properties>
     <plugin.release.version>2.2.1</plugin.release.version>
@@ -18,7 +18,7 @@
         <version>1.4.1</version>
         <dependencies>
           <dependency>
-            <groupId>{enforce.rule.group}</groupId>
+            <groupId>com.walmart.platform.devtools</groupId>
             <artifactId>release-enforcer-client</artifactId>
             <version>0.2.1</version>
           </dependency>
@@ -32,11 +32,11 @@
             <phase>package</phase>
             <configuration>
               <rules>
-                <JdkCompilerCompatibilityRule implementation="${jdk.compiler.compatibility.class}" />
-                <blacklistRule implementation="{backlist.rule.class}">
+                <JdkCompilerCompatibilityRule implementation="com.walmart.platform.devtools.release_enforcer_client.maven.enforcer.rule.JdkCompilerCompatibilityRule" />
+                <blacklistRule implementation="com.walmart.platform.devtools.release_enforcer_client.maven.enforcer.rule.BlacklistRule">
                   <isSkippableRule>false</isSkippableRule>
                 </blacklistRule>
-                <pppVersionRule implementation="${parent.pom.version.class}" />
+                <pppVersionRule implementation="com.walmart.platform.devtools.release_enforcer_client.maven.enforcer.rule.PlatformParentPomVersionRule" />
               </rules>
             </configuration>
           </execution>
@@ -137,7 +137,7 @@
     <connection>${scm.field}</connection>
     <developerConnection>${scm.field} </developerConnection>
     <url>${scm.field}</url>
-    <tag>circuit-oneops-1-5.0.135</tag>
+    <tag>circuit-oneops-1-5.0.136</tag>
   </scm>
   <pluginRepositories>
     <pluginRepository>
@@ -152,4 +152,3 @@
     </pluginRepository>
   </pluginRepositories>
 </project>
-
