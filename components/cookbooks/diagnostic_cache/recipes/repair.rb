@@ -1,0 +1,1 @@
+Chef::Log.info("diagnostic_cache::repair")

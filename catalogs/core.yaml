@@ -1,0 +1,5119 @@
+--- !ruby/object:Chef::Catalog 
+cis: !map:Mash 
+  28718: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 28718
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: ""
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: ""
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: cd db && ./autoinstall-db.sh
+          repository: git@github.com:kloopz/kloopz-cms.git
+          persist: "[]"
+          as_user: root
+          environment: "{}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: db-kloopzdb-schema
+    prefix_options: &id001 {}
+
+  24576: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Database
+      ciId: 24576
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          username: kloopz
+          password: "::ENCRYPTED::5ddfd4248f5d8ea6cc19017ffab4039527dcb1e2c12488d84cc6ad69e38837512dfee763409324814b2129bb0a7e0c87da5e694b91c6d04d4404738cc0f4296b"
+          dbname: kloopzapp
+          extra: ""
+        prefix_options: {}
+
+      ciName: db-database
+    prefix_options: *id001
+  24690: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.File
+      ciId: 24690
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          path: /kloopz/keys/key.pem
+          exec_cmd: chmod 400 /kloopz/keys/key.pem
+          content: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAgKrIKmq3aNQez5x2LxxsFpDYWE5GsP9OudTK7m8XAnan41Pj20rgqrun3n8A
+            1OAJ7OH4MRb1NraUuK2vN7AORdgneSb3wxWsiuS8wZCTXDed5AjP98SIJ9BBIxTvNKP1N+SqUcRU
+            AndMTka6GsP62Vha10RbqIQgtE38wnspUU+58RfUaeUtNOl5c7ka7PU9UlQN0uPYxvg3GAYMSows
+            R389k9igE82Um2/iC43yyyE5ykNftt1l07aCCsind/XF3e/ZQZKFTCJCiDZDVLzvyH0a5hFGSb+O
+            Y1naiK4AGS7AhmCTjxeCOSrjpfn1/NYePjgEWgeNmZmgqvWfpkFKlwIDAQABAoIBADpqTvpC/QYQ
+            1/Q1+sokw0XzeOWOlDWjk+B2pbNeqDmsGUjyO07CTgH1tJ8lVgFPvfHYHdBbtfSjLB40bIqB2dkH
+            69PrRy1A19cvRiszMlP5xCtVfOXmSlKZEBmXVYq2rYw0usbotaNw+inHnpKsS2UF4ig9lseJRTfW
+            +FxrgjSxsj+euhvyAzEiYsvEfxOBqLB3coSJW5vxbEoDLXzznGXO6BNON4STCEkIe0v7ewlDPRZw
+            RPIfkc5VGacsq3Wnu4c+93AZA6IsKWkM3whHtC6H4vvQQea+YKv3UAQZUbgUoxRI9rpaySFHkBhX
+            aucssFjwQrIgC/zmlN3GDmgbdkECgYEAxVg15++Pomm+63CGVXqVB8sjyQAsKvaXrRluzNkoMhe9
+            7DiqSsLwPKC64/zWt7OwAPKPLZejLar76U0kse6zsoEVTS5WcDHxyhLLG9EVoBJZaVKrfWLsnhWr
+            vWIx9aLZ+eo9/yQmSNz/wb/xvi+J5rxSTVpKVCjYijaWI7TWdPECgYEApuj1hpW6VeMWspPjKS7Y
+            oJxnkO7npykb05AErSQv4LTzA8yGq75jKT4RnnbeIPsiFJsWIWjsgnr0//wrtK1iWOQRbx9cvr5W
+            BYAVwGDRlj5+Qyf1dHRbAWwWHidIJM//brjNh73Rr8iJfO2xmb5UmeMvUMx4h60QBZIZnnpFmAcC
+            gYBv6HHJMMRW6Xhmssy6tGTGop+MYBir1GJ2urFmYM62eVguGIQZGSp6dvsERmDMk4z/PI2M4Syb
+            vRZVWnWwoRgt5Z1awygpP2lJmhark4mb2EvzufmdhPeBPfDB2GlUTiEl43t8r9c2AnzWNi60Fukw
+            eyKA0u7Lgs4osoO5g9cJQQKBgCp+UswB4J+vIf8y8XlxqMszJpbai/Wd3Ky/FMGz3dCaoOgNsReW
+            cA528+thHepNpX6TgU3eNaB+h1OIsuPb5Jb28Y1V8bnKIYJi+qawv4s9u82DJdWRLf4ts2/X1mEw
+            5zocKI9vfyv+pSo+JaIbt9Q557jtZZ49LEAO0yDqxj8PAoGBAJlzxooc+ygi/CChq3kr+EbYBYjD
+            JQ8bluFxCbHckaR7Obog5qYUNrsudBZwk/hUITikFWQ66u0434RZXHaK8Q6a8GqxLyldiN4dGNs4
+            ZJH9Cpp8h5BWMstGHqlVALZpOipa2ppFDEjx8A6Fhu9wk0vBRd1jTAOSbcIAzSME60KE
+            -----END RSA PRIVATE KEY-----
+        prefix_options: {}
+
+      ciName: gw-private-key
+    prefix_options: *id001
+  24519: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24519
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: ""
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: ""
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            mvn='mvn -q -B'
+            d="$( pwd )"
+            
+            # cmsdal
+            cd $d/kloopz-cms-web/kloopz-cmsdal
+            $mvn clean install -Dmaven.test.skip=true
+          repository: git@github.com:kloopz/kloopz-cms.git
+          persist: "[]"
+          as_user: root
+          environment: "{}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: amq-cmsdal
+    prefix_options: *id001
+  24557: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Platform
+      ciId: 24557
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: packer
+          major_version: "1"
+          description: Data Acquisition Database
+          pack: cassandra
+          version: "0.4"
+        prefix_options: {}
+
+      ciName: daq
+    prefix_options: *id001
+  24681: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.File
+      ciId: 24681
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          path: /kloopz/inductor/global/dns.conf
+          exec_cmd: ""
+          content: |-
+            AKIAJLLTKVXIVLDAYLJA
+            H4SS5ycukngagRs4nGEPWaMBrR3grhIe7WikCgoS
+        prefix_options: {}
+
+      ciName: gw-file-globaldns
+    prefix_options: *id001
+  24624: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24624
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: ""
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: ""
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            mvn='mvn -q -B'
+            d="$( cd kloopz-cms-web && pwd )"
+            cd $d/kloopz-cmsdal
+            $mvn clean install -Dmaven.test.skip=true
+          repository: git@github.com:kloopz/kloopz-cms.git
+          persist: "[]"
+          as_user: root
+          environment: "{}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: sensor-cmsdal
+    prefix_options: *id001
+  26344: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 26344
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: ""
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: ""
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            mvn='mvn -q -B'
+            d="$( pwd )"
+            
+            # libs
+            cd $d/libs
+            $mvn clean install -Dmaven.test.skip=true
+          repository: git@github.com:kloopz/libs.git
+          persist: "[]"
+          as_user: root
+          environment: "{}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: gw-libs
+    prefix_options: *id001
+  24501: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Volume
+      ciId: 24501
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          mount_point: /data
+          size: 100%FREE
+          fstype: xfs
+          device: ""
+          options: ""
+        prefix_options: {}
+
+      ciName: amq-volume
+    prefix_options: *id001
+  24710: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Fqdn
+      ciId: 24710
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          aliases: "[\"www\",\"corp\"]"
+        prefix_options: {}
+
+      ciName: web-fqdn
+    prefix_options: *id001
+  24615: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Platform
+      ciId: 24615
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: packer
+          major_version: "1"
+          description: Operations Sensor
+          pack: tomcat
+          version: "0.4"
+        prefix_options: {}
+
+      ciName: sensor
+    prefix_options: *id001
+  24653: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.File
+      ciId: 24653
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          path: /kloopz/certs/cms-public.pem
+          exec_cmd: ""
+          content: |-
+            -----BEGIN PUBLIC KEY-----
+            MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBALOAnK/dtNFm9Qowx1cqJOW+70moUx8+
+            uq02wfDRGVCFCYnXLobx62bBc4b9Mj4mO/2dKIoeAmVYeHpZfUJu3DsCAwEAAQ==
+            -----END PUBLIC KEY-----
+        prefix_options: {}
+
+      ciName: sensor-publickey
+    prefix_options: *id001
+  24596: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Fqdn
+      ciId: 24596
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          aliases: "[\"kloopzappdb\",\"kloopzcmsdb\",\"activitidb\"]"
+        prefix_options: {}
+
+      ciName: db-fqdn
+    prefix_options: *id001
+  24634: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24634
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: |-
+            execute "install_war" do
+               command "cp #{new_resource.current_path}/sensor/target/sensor*.war /var/lib/tomcat6/webapps && rm -fr /var/lib/tomcat6/webapps/sensor"
+            end
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: service tomcat6 restart
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            mvn='mvn -q -B'
+            d="$( pwd )"
+            
+            # war build
+            cd $d/sensor
+            $mvn clean package
+          repository: git@github.com:kloopz/sensor.git
+          persist: "[]"
+          as_user: root
+          environment: "{}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: sensor
+    prefix_options: *id001
+  24644: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24644
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: |-
+            execute "install_war" do
+               command "cp target/antenna.war /var/lib/tomcat6/webapps"
+               cwd "#{release_path}/antenna"
+            end
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: service tomcat6 restart
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            cd antenna
+            mvn -q -B package
+            
+            # cleanup
+            service tomcat6 stop
+            rm -fr /var/lib/tomcat6/webapps/antenna
+          repository: git@github.com:kloopz/antenna.git
+          persist: "[]"
+          as_user: root
+          environment: "{\"CMS_PRIV_PEM\":\"/kloopz/certs/cms-private.pem\",\"KLOOPZ_AMQ_PASS\":\"ilijailibu\",\"CMS_PEM_PASS\":\"\"}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: sensor-antenna
+    prefix_options: *id001
+  24701: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Website
+      ciId: 24701
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          ssl: "on"
+          port: "443"
+          server_name: web.$KLOOPZ{env_name}.oneops.com
+          upstream: "{}"
+          sslcert: |-
+            -----BEGIN CERTIFICATE-----
+            MIIFijCCBHKgAwIBAgIHK3vDjbnovTANBgkqhkiG9w0BAQUFADCB3DELMAkGA1UE
+            BhMCVVMxEDAOBgNVBAgTB0FyaXpvbmExEzARBgNVBAcTClNjb3R0c2RhbGUxJTAj
+            BgNVBAoTHFN0YXJmaWVsZCBUZWNobm9sb2dpZXMsIEluYy4xOTA3BgNVBAsTMGh0
+            dHA6Ly9jZXJ0aWZpY2F0ZXMuc3RhcmZpZWxkdGVjaC5jb20vcmVwb3NpdG9yeTEx
+            MC8GA1UEAxMoU3RhcmZpZWxkIFNlY3VyZSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0
+            eTERMA8GA1UEBRMIMTA2ODg0MzUwHhcNMTIwNjA3MTcyODQyWhcNMTcwNjA3MTcy
+            ODQyWjBTMRYwFAYDVQQKEw1teS5vbmVvcHMuY29tMSEwHwYDVQQLExhEb21haW4g
+            Q29udHJvbCBWYWxpZGF0ZWQxFjAUBgNVBAMTDW15Lm9uZW9wcy5jb20wggEiMA0G
+            CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDDn+9zuFIqElffg+V2NiIqtFOyOmJc
+            JxzBEkSVI6S8W2R5X38zbAvzRMbU8zFbuM9Rd5BGnNoz5Wq4BVmoeM3hAYAMnruW
+            OycYU/jVAa21078LJrjsK/90ULGB/w77m9kDKaroiYkb6ANINd4zK/Ft7Q7Y3wl4
+            o3j/amU4BYflA7o1FnHKof36ZmBMNnX3cQ3z8kh3D59NRz5M9CsxZ5i5Ad7mNMuj
+            IUBQulGwxNqU444u99puoN+qB+tD8jcnhZ6++xS8yzT8Q4O973mUO8MYyefdyX3e
+            5Aypv+WLdlr0z8lUUs7k3hthGTyTKva4o5vzSRCMm2ocUnMfDDBiy6hjAgMBAAGj
+            ggHXMIIB0zAPBgNVHRMBAf8EBTADAQEAMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggr
+            BgEFBQcDAjAOBgNVHQ8BAf8EBAMCBaAwOQYDVR0fBDIwMDAuoCygKoYoaHR0cDov
+            L2NybC5zdGFyZmllbGR0ZWNoLmNvbS9zZnMxLTIyLmNybDBZBgNVHSAEUjBQME4G
+            C2CGSAGG/W4BBxcBMD8wPQYIKwYBBQUHAgEWMWh0dHA6Ly9jZXJ0aWZpY2F0ZXMu
+            c3RhcmZpZWxkdGVjaC5jb20vcmVwb3NpdG9yeS8wgY0GCCsGAQUFBwEBBIGAMH4w
+            KgYIKwYBBQUHMAGGHmh0dHA6Ly9vY3NwLnN0YXJmaWVsZHRlY2guY29tLzBQBggr
+            BgEFBQcwAoZEaHR0cDovL2NlcnRpZmljYXRlcy5zdGFyZmllbGR0ZWNoLmNvbS9y
+            ZXBvc2l0b3J5L3NmX2ludGVybWVkaWF0ZS5jcnQwHwYDVR0jBBgwFoAUSUtSJ9Eb
+            vPKhIWpie1FCeorX1VYwKwYDVR0RBCQwIoINbXkub25lb3BzLmNvbYIRd3d3Lm15
+            Lm9uZW9wcy5jb20wHQYDVR0OBBYEFCAVUul9ct2PBxcC91rEu3ZFTseOMA0GCSqG
+            SIb3DQEBBQUAA4IBAQBrhq25h2F9f3GKSADPF5kIxCGhziffaqoTSOJc26nyNovf
+            /15jxkbtnP1ZB3sEaB8LP3Pel+0EpqTWx/GiicgUSIQqKinOKnTwrNGol1sNpNsz
+            kftejtTAXt9j9vUFDqZKncwcB5AkllnwkQgHbv05VfMZd+Te8pMXFMz3d6oZJoVg
+            hvRJXxnuARq/qzPewyIEcZ77+1Lvbh9YMcylPP+nBaw2qOgLZcknE1hQa9BRq8PT
+            hzEQpCkIo+6idJj66znJJUYiPXitLL1NuRnkwLOJG8jZXFcVrPdxOC1Ljb5K4ouz
+            l3lSCss2BrXdI3eAxCGIqQTfCT6fYJh67lB/Gvgu
+            -----END CERTIFICATE-----
+          sslcertkey: |
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAw5/vc7hSKhJX34PldjYiKrRTsjpiXCccwRJElSOkvFtkeV9/
+            M2wL80TG1PMxW7jPUXeQRpzaM+VquAVZqHjN4QGADJ67ljsnGFP41QGttdO/Cya4
+            7Cv/dFCxgf8O+5vZAymq6ImJG+gDSDXeMyvxbe0O2N8JeKN4/2plOAWH5QO6NRZx
+            yqH9+mZgTDZ193EN8/JIdw+fTUc+TPQrMWeYuQHe5jTLoyFAULpRsMTalOOOLvfa
+            bqDfqgfrQ/I3J4WevvsUvMs0/EODve95lDvDGMnn3cl93uQMqb/li3Za9M/JVFLO
+            5N4bYRk8kyr2uKOb80kQjJtqHFJzHwwwYsuoYwIDAQABAoIBAEwpOUV5TmvYxmNb
+            63sRak3r9OXfuymbhKNaZF8YCGvYvQ5P8qrnduOYNDz2DZJjKjvSa9ZB/OXVfK32
+            T0i695SRS/Qd3HSJxRfAoZD0XVf7/1XtFnPEUWlMfT9aONAWhe+oSkTMPxghRR3Y
+            8xBDHHSqpWwjsYFJS7NNDek4pgavtXtzBn5iQ9Ve1w/JWKnda7MWJzhVfsdm9OFT
+            nzJ768/pdSrbz1muBzriWjuocdDYyw0TCDWrKDKFLGPm4VvTMQHB0f7VyaeD23yn
+            TD7bo860uFWBIIqtymyhMDw5pJ+6oPqxRz1La0bdPA15Viw7G9W7wojYUNaZGtFH
+            a73vSUECgYEA5qI0+EJMFjv2h7cvGg+B3qFc15eEkcj7RqOohs2YNKsVavR5aTu2
+            jnCh2i5tM1RMpdJHVfGsvmYfP+mEUotp/o1LIYgWVXgCPYeQys1qywGTegjpFe7m
+            22md3KlIhJmmcpiGsWck7N7D24UZ4dlc/BcDrtju1+q9dmR2KXRBOeECgYEA2SQB
+            7t45IKV/UrYdUUIu4XWATDJSJIjDpFeCRz/jwWfwmIrpKg/fUByUoL73h4i5D+UI
+            CQf7SPhnip+yUU27cCUjKkCJuZZws6P++dglHKDnjociQ6ONSjBqJT5YpqdsEsPC
+            3XucGXJD2gyywwt4RMUCAViLA0evmfeTf5vi0sMCgYEAhJurfTsRaI9dtrb7HC7i
+            a1G4gjWaggBfikQ7eBbqdw4PqImc7Ybp9oiIZ1zeaO8FiyqW3bGxs2Agg60O6i9C
+            6JvxIPyQauAv2ZUDCbiGuObVFwvciUHt9yaJIAEtsyBtdeKBP6ugrZmAX83uDc/f
+            CQtqkLQm0HsmKNamojs37cECgYB5BsjNCq9sstG0mCzfDbRzlbpcve9qzY++GchT
+            Thjzw6smWsZ62z3suQFeVxJASMRdR5qi7f/xPAL6EOiiyGCgsRJYioA5INDQT6fe
+            Ocr1mfl2R3uhl5c4sqN2/rkKqmZiTxpduHfY9wc6kblRXSM7sVLczS0uNtZ5SrS7
+            e3eBYQKBgGVhGyb2s20eKcb1qsrL5QI0mw90kLRiXDvFy2YFfTyLQYq59RsHIPUL
+            6NnFteVDVuNbwuEvzVrJWaSjAk60qwmsxpRKl4SeiL8AVTh+cOjiTMQnvNrEbopn
+            9BcmsyZqTcucC1JJsONPz4I+WY6pIE0pxrWW8d1RoXG9KD8cUgTD
+            -----END RSA PRIVATE KEY-----
+
+          root: /kloopz/web-railsapp/current/public
+          extra: "    <Directory /kloopz/web-railsapp/current/public>\r\n        Allow from all\r\n        Options -MultiViews\r\n    </Directory>\r\n\
+            \r\n\
+            <LocationMatch \"^/assets/.*$\">\r\n  Header unset ETag\r\n  FileETag None\r\n  # RFC says only cache for 1 year\r\n  ExpiresActive On\r\n  ExpiresDefault \"access plus 1 year\"\r\n\
+            </LocationMatch>"
+        prefix_options: {}
+
+      ciName: web-website
+    prefix_options: *id001
+  24530: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24530
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: |-
+            execute "install_war" do
+               command "cp target/controller.war /var/lib/tomcat6/webapps && rm -fr /var/lib/tomcat6/webapps/controller"
+               cwd "#{release_path}/controller"
+            end
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: service tomcat6 restart
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            cd controller
+            mvn -q -B package
+            mkdir -p /kloopz/controller/antenna/retry
+            chown tomcat6:tomcat6 /kloopz/controller/antenna/retry
+          repository: git@github.com:kloopz/controller.git
+          persist: "[]"
+          as_user: root
+          environment: "{\"CMS_PRIV_PEM\":\"/kloopz/certs/cms-private.pem\",\"KLOOPZ_AMQ_PASS\":\"ilijailibu\",\"CMS_PEM_PASS\":\"\"}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: cms-controller
+    prefix_options: *id001
+  24568: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Platform
+      ciId: 24568
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: packer
+          major_version: "1"
+          description: PostgresQL Database Cluster
+          pack: postgresql
+          version: "0.4"
+        prefix_options: {}
+
+      ciName: db
+    prefix_options: *id001
+  24540: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24540
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: |-
+            execute "install_war" do
+               command "cp target/daq-1.0.0.war /var/lib/tomcat6/webapps && rm -fr /var/lib/tomcat6/webapps/daq-1.0.0"
+            end
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: service tomcat6 restart
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            mvn='mvn -q -B'
+            $mvn clean package 
+            $mvn war:war
+          repository: git@github.com:kloopz/daq.git
+          persist: "[]"
+          as_user: root
+          environment: "{}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: cms-daq
+    prefix_options: *id001
+  24578: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Compute
+      ciId: 24578
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          size: M
+          ostype: ubuntu-11.10
+          image_id: ""
+          hosts: "{}"
+        prefix_options: {}
+
+      ciName: db-compute
+    prefix_options: *id001
+  24559: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Volume
+      ciId: 24559
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          mount_point: /var/lib/cassandra
+          size: 100%FREE
+          fstype: xfs
+          device: ""
+          options: ""
+        prefix_options: {}
+
+      ciName: daq-volume
+    prefix_options: *id001
+  24673: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24673
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: ""
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: ""
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: ""
+          repository: git@github.com:kloopz/packer.git
+          persist: "[]"
+          as_user: root
+          environment: "{}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: gw-packer
+    prefix_options: *id001
+  24721: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24721
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: execute "bundle exec rake assets:precompile"
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: touch tmp/restart.txt
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |
+            bundle exec rake db:migrate --trace
+            
+
+          repository: git@github.com:kloopz/kloopz-app.git
+          persist: "[\"log\",\"tmp\"]"
+          as_user: kloopz
+          environment: "{\"RAILS_ENV\":\"production\",\"RUBYOPT\":\"rubygems\"}"
+          as_group: kloopz
+          before_migrate: execute "bundle install --path bundle"
+          depth: "1"
+        prefix_options: {}
+
+      ciName: web-railsapp
+    prefix_options: *id001
+  24550: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.File
+      ciId: 24550
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          path: /kloopz/certs/cms-private.pem
+          exec_cmd: ""
+          content: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIBOwIBAAJBALOAnK/dtNFm9Qowx1cqJOW+70moUx8+uq02wfDRGVCFCYnXLobx
+            62bBc4b9Mj4mO/2dKIoeAmVYeHpZfUJu3DsCAwEAAQJAeSQSGqowbqXiN4dl8JBz
+            qE1sZjRgLJUEHQP4bRJg2DJfE5sPuKy2NjM1/YXz2fJx+Wt+GDvAdBVee99fgZ4l
+            AQIhAN3SBU3pdKUZU5khtrz0AAob3T8Tk94ggUzDDIQThCqBAiEAzylOM/b524Bx
+            TrbFew+Ych5Unx31xziWlZb7IkLb0LsCIBWpbNsu8TUuQ/uwTygkq9xQ3EpMnyQS
+            CI52fcJoJYABAiEArBV7yN7YHuZLOT/KO7dwwxs+4A5bI+p17D1Gz+cKAhECIQCN
+            SY+ICqRV6wM8iIckFkI1NRCvvnQ1x3ZySR+oIxub9w==
+            -----END RSA PRIVATE KEY-----
+        prefix_options: {}
+
+      ciName: cms-privatekey
+    prefix_options: *id001
+  24588: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Database
+      ciId: 24588
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          username: kloopzcm
+          password: "::ENCRYPTED::2416b0b51fbec50de1c706019a3c96f602f6ccbe1c95bbae07701281440889d0dc2a459b3f9e98fcf81673ed7d56cc4e522a5040fe47de50a7b2548c1fe704f8"
+          dbname: kloopzdb
+          extra: ""
+        prefix_options: {}
+
+      ciName: db-kloopzdb
+    prefix_options: *id001
+  24664: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Platform
+      ciId: 24664
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: packer
+          major_version: "1"
+          description: Gateway Inductor
+          pack: custom
+          version: "0.4"
+        prefix_options: {}
+
+      ciName: gw
+    prefix_options: *id001
+  24693: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Platform
+      ciId: 24693
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: packer
+          major_version: "1"
+          description: Rails Web Application
+          pack: rails
+          version: "0.4"
+        prefix_options: {}
+
+      ciName: web
+    prefix_options: *id001
+  24503: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Storage
+      ciId: 24503
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          size: 10G
+          slice_count: "4"
+        prefix_options: {}
+
+      ciName: amq-storage
+    prefix_options: *id001
+  24627: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24627
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: ""
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: ""
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            mvn='mvn -q -B'
+            d="$( pwd )"
+            
+            # libs
+            cd $d/libs
+            $mvn clean install -Dmaven.test.skip=true
+          repository: git@github.com:kloopz/libs.git
+          persist: "[]"
+          as_user: root
+          environment: "{}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: sensor-libs
+    prefix_options: *id001
+  24703: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Apache
+      ciId: 24703
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          tokens: Prod
+          build_options: "{\"srcdir\":\"/usr/local/src/apache\",\"version\":\"2.2.21\",\"prefix\":\"/usr/local/apache\",\"configure\":\"--enable-so --enable-mods-shared=all\"}"
+          signature: "On"
+          user: kloopz
+          ports: "[\"80\",\"443\"]"
+          contact: admin@oneops.com
+          request_timeout: "300"
+          worker: "{\"startservers\":4,\"maxclients\":1024,\"minsparethreads\":64,\"maxsparethreads\":192,\"maxcthreadsperchild\":64,\"maxrequestsperchild\":0}"
+          prefork: "{\"startservers\":16,\"minspareservers\":16,\"maxspareservers\":32,\"serverlimit\":400,\"maxclients\":400,\"maxrequestsperchild\":10000}"
+          modules: "[\"mod_log_config\",\"mod_mime\",\"mod_dir\",\"mod_status\",\"mod_alias\",\"mod_auth_basic\",\"mod_authz_host\",\"mod_proxy\",\"mod_proxy_balancer\",\"mod_proxy_http\",\"mod_rewrite\",\"mod_headers\",\"mod_expires\",\"mod_ssl\"]"
+          keepalive: "On"
+          install_type: repository
+        prefix_options: {}
+
+      ciName: web-apache
+    prefix_options: *id001
+  24570: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Volume
+      ciId: 24570
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          mount_point: /db
+          size: 100%FREE
+          fstype: xfs
+          device: ""
+          options: ""
+        prefix_options: {}
+
+      ciName: db-volume
+    prefix_options: *id001
+  24684: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.File
+      ciId: 24684
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          path: /kloopz/inductor/inductor.yaml
+          exec_cmd: ""
+          content: |
+            zones:
+              - zone: us-east-1a
+                password: us-east-1a
+                ip_attribute: private_ip
+              - zone: us-east-1b
+                password: us-east-1b
+                ip_attribute: private_ip
+              - zone: us-east-1c
+                password: us-east-1c
+                ip_attribute: private_ip
+              - zone: us-east-1d
+                password: us-east-1d
+                ip_attribute: private_ip
+              - zone: us-west-1a
+                password: us-west-1a
+                ip_attribute: public_ip
+              - zone: us-west-1b
+                password: us-west-1b
+                ip_attribute: public_ip
+              - zone: us-west-1c
+                password: us-west-1c
+                ip_attribute: public_ip
+              - zone: us-west-2a
+                password: us-west-2a
+                ip_attribute: public_ip
+              - zone: us-west-2b
+                password: us-west-2b
+                ip_attribute: public_ip
+
+        prefix_options: {}
+
+      ciName: gw-inductor-yaml
+    prefix_options: *id001
+  24523: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Platform
+      ciId: 24523
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: packer
+          major_version: "1"
+          description: Configuration Management Service
+          pack: tomcat
+          version: "0.4"
+        prefix_options: {}
+
+      ciName: cms
+    prefix_options: *id001
+  24561: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Cassandra
+      ciId: 24561
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          cluster: TestCluster
+          version: "0.8"
+        prefix_options: {}
+
+      ciName: daq-cassandra
+    prefix_options: *id001
+  24713: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Library
+      ciId: 24713
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          packages: "[\"libpq-dev\",\"libxslt1-dev\",\"libxml2-dev\",\"zlib1g-dev\"]"
+        prefix_options: {}
+
+      ciName: web-libs
+    prefix_options: *id001
+  24656: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.File
+      ciId: 24656
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          path: /kloopz/certs/cms-private.pem
+          exec_cmd: ""
+          content: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIBOwIBAAJBALOAnK/dtNFm9Qowx1cqJOW+70moUx8+uq02wfDRGVCFCYnXLobx
+            62bBc4b9Mj4mO/2dKIoeAmVYeHpZfUJu3DsCAwEAAQJAeSQSGqowbqXiN4dl8JBz
+            qE1sZjRgLJUEHQP4bRJg2DJfE5sPuKy2NjM1/YXz2fJx+Wt+GDvAdBVee99fgZ4l
+            AQIhAN3SBU3pdKUZU5khtrz0AAob3T8Tk94ggUzDDIQThCqBAiEAzylOM/b524Bx
+            TrbFew+Ych5Unx31xziWlZb7IkLb0LsCIBWpbNsu8TUuQ/uwTygkq9xQ3EpMnyQS
+            CI52fcJoJYABAiEArBV7yN7YHuZLOT/KO7dwwxs+4A5bI+p17D1Gz+cKAhECIQCN
+            SY+ICqRV6wM8iIckFkI1NRCvvnQ1x3ZySR+oIxub9w==
+            -----END RSA PRIVATE KEY-----
+        prefix_options: {}
+
+      ciName: sensor-privatekey
+    prefix_options: *id001
+  24533: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24533
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: ""
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: ""
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            mvn='mvn -q -B'
+            d="$( pwd )"
+            cd $d/libs
+            $mvn clean install -Dmaven.test.skip=true
+          repository: git@github.com:kloopz/libs.git
+          persist: "[]"
+          as_user: root
+          environment: "{}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: cms-libs
+    prefix_options: *id001
+  25977: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: manifest.Environment
+      ciId: 25977
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          availability: single
+          autoscale: "false"
+          description: ""
+          domain: oneops.com
+          subdomain: qa01
+          autorepair: "false"
+        prefix_options: {}
+
+      ciName: qa01
+    prefix_options: *id001
+  24676: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24676
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: |
+            directory "/kloopz/tmp" do
+               recursive true
+            end
+            execute "./inductor_config_gen.rb"
+            service "inductor" do
+              action [:enable,:restart]
+            end
+            service "inductor_agent" do
+              action [:enable,:restart]
+            end
+
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: ""
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            mvn -q -B package
+            
+            ln -sf /kloopz/gw-inductor/current/inductor /etc/init.d/
+            ln -sf /kloopz/gw-inductor/current/inductor_agent /etc/init.d/
+          repository: git@github.com:kloopz/inductor.git
+          persist: "[]"
+          as_user: root
+          environment: "{\"PACKER_DIR\":\"/kloopz/gw-packer/current\"}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: gw-inductor
+    prefix_options: *id001
+  24505: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Compute
+      ciId: 24505
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          size: S
+          ostype: ubuntu-11.10
+          image_id: ""
+          hosts: "{}"
+        prefix_options: {}
+
+      ciName: amq-compute
+    prefix_options: *id001
+  24619: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Tomcat
+      ciId: 24619
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          ssl_port: "8443"
+          install_dir: /var/lib/tomcat6/webapps
+          ajp_port: "8009"
+          use_security_manager: "false"
+          port: "8080"
+          java_options: -Xmx128M -Djava.awt.headless=true
+          version: "6.0"
+          server_port: "8005"
+        prefix_options: {}
+
+      ciName: sensor-tomcat
+    prefix_options: *id001
+  24572: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Storage
+      ciId: 24572
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          size: 12G
+          slice_count: "4"
+        prefix_options: {}
+
+      ciName: db-storage
+    prefix_options: *id001
+  24553: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Fqdn
+      ciId: 24553
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          aliases: "[\"cmsapi\",\"daqapi\",\"api\"]"
+        prefix_options: {}
+
+      ciName: cms-fqdn
+    prefix_options: *id001
+  33236: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Website
+      ciId: 33236
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          ssl: "off"
+          port: "80"
+          server_name: corp.$KLOOPZ{env_name}.oneops.com
+          upstream: "{}"
+          sslcert: ""
+          sslcertkey: ""
+          root: /kloopz/web-corp/current/output
+          extra: |-
+            ServerAlias www.oneops.com
+            
+            <Directory /kloopz/web-corp/current/output/>
+                AllowOverride AuthConfig
+            </Directory>
+        prefix_options: {}
+
+      ciName: web-website-corp
+    prefix_options: *id001
+  24525: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Tomcat
+      ciId: 24525
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          ssl_port: "8443"
+          install_dir: /var/lib/tomcat6/webapps
+          ajp_port: "8009"
+          use_security_manager: "false"
+          port: "8080"
+          java_options: -Xmx128M -Djava.awt.headless=true
+          version: "6.0"
+          server_port: "8005"
+        prefix_options: {}
+
+      ciName: cms-tomcat
+    prefix_options: *id001
+  24563: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Compute
+      ciId: 24563
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          size: M
+          ostype: ubuntu-11.10
+          image_id: ""
+          hosts: "{}"
+        prefix_options: {}
+
+      ciName: daq-compute
+    prefix_options: *id001
+  24687: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.File
+      ciId: 24687
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          path: /kloopz/keys/key.pub
+          exec_cmd: ""
+          content: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCAqsgqardo1B7PnHYvHGwWkNhYTkaw/0651MrubxcCdqfjU+PbSuCqu6fefwDU4Ans4fgxFvU2tpS4ra83sA5F2Cd5JvfDFayK5LzBkJNcN53kCM/3xIgn0EEjFO80o/U35KpRxFQCd0xORroaw/rZWFrXRFuohCC0TfzCeylRT7nxF9Rp5S006XlzuRrs9T1SVA3S49jG+DcYBgxKjCxHfz2T2KATzZSbb+ILjfLLITnKQ1+23WXTtoIKyKd39cXd79lBkoVMIkKINkNUvO/IfRrmEUZJv45jWdqIrgAZLsCGYJOPF4I5KuOl+fX81h4+OARaB42ZmaCq9Z+mQUqX kp1
+        prefix_options: {}
+
+      ciName: gw-public-key
+    prefix_options: *id001
+  24516: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24516
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: |-
+            execute "install_jar" do
+               command "cp target/kloopzauthplugin-fat.jar /opt/apache-activemq-5.5.1/lib"
+               cwd "#{release_path}/authplugin"
+            end
+            
+            execute "copy_configfiles" do
+               command "cp src/main/resources/conf/* /opt/apache-activemq-5.5.1/conf"
+               cwd "#{release_path}/authplugin"
+            end
+            
+            execute "copy_keys" do
+               command "cp src/main/resources/keys/* /opt/apache-activemq-5.5.1/conf"
+               cwd "#{release_path}/authplugin"
+            end
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: /etc/init.d/activemq restart
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            mvn='mvn -q -B'
+            cd authplugin
+            $mvn assembly:assembly
+            # end
+          repository: git@github.com:kloopz/amq.git
+          persist: "[]"
+          as_user: root
+          environment: "{\"KLOOPZ_AMQ_PASS\":\"ilijailibu\"}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: amq-authplugin
+    prefix_options: *id001
+  24725: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24725
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: ""
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: ""
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            bundle install
+            # compile pages
+            bundle exec nanoc compile
+          repository: git@github.com:kloopz/corp.git
+          persist: "[\"log\",\"tmp\"]"
+          as_user: ""
+          environment: "{}"
+          as_group: ""
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: web-corp
+    prefix_options: *id001
+  24592: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Database
+      ciId: 24592
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          username: activiti
+          password: "::ENCRYPTED::af1d6e19021141b87d58c81bf50067a4ee9bc002e20d236d13a29070c1db17cd026e1cd6b5ae055d3ed516c06e0a4cc2dbdfd2501371ccd260023148e49d2a3a"
+          dbname: activitidb
+          extra: ""
+        prefix_options: {}
+
+      ciName: db-activiti
+    prefix_options: *id001
+  24668: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Compute
+      ciId: 24668
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          size: S
+          ostype: ubuntu-11.10
+          image_id: ""
+          hosts: "{}"
+        prefix_options: {}
+
+      ciName: gw-compute
+    prefix_options: *id001
+  24507: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Activemq
+      ciId: 24507
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          memory: "512"
+          version: 5.5.1
+        prefix_options: {}
+
+      ciName: amq-activemq
+    prefix_options: *id001
+  24621: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Compute
+      ciId: 24621
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          size: S
+          ostype: ubuntu-11.10
+          image_id: ""
+          hosts: "{}"
+        prefix_options: {}
+
+      ciName: sensor-compute
+    prefix_options: *id001
+  24659: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Fqdn
+      ciId: 24659
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          aliases: "[\"*.collector\",\"antenna\"]"
+        prefix_options: {}
+
+      ciName: sensor-fqdn
+    prefix_options: *id001
+  24697: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Ruby
+      ciId: 24697
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          gems: "{\"bundler\":\"\"}"
+          version: 1.8.7
+        prefix_options: {}
+
+      ciName: web-ruby
+    prefix_options: *id001
+  33266: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: manifest.Environment
+      ciId: 33266
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          availability: single
+          autoscale: "false"
+          description: ""
+          domain: oneops.com
+          subdomain: prod-west-2
+          autorepair: "false"
+        prefix_options: {}
+
+      ciName: prod-west-2
+    prefix_options: *id001
+  24631: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24631
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: |-
+            plugin_dir = "/kloopz/flume/plugins/daq"
+            directory "#{plugin_dir}" do
+               recursive true
+            end
+            execute "cp target/daq-1.0.0.jar #{plugin_dir}/daq-1.0.0.jar"
+            
+            service "perfsink_collector" do
+              action [:enable,:restart]
+            end
+            
+            service "inductor_collector" do
+              action [:enable,:restart]
+            end
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: ""
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            mvn='mvn -q -B'
+            d="$( pwd )"
+            
+            $mvn clean package
+            
+            ln -sf /kloopz/sensor-daq/current/perfsink_collector /etc/init.d/
+            
+            ln -sf /kloopz/sensor-daq/current/inductor_collector /etc/init.d/
+          repository: git@github.com:kloopz/daq.git
+          persist: "[]"
+          as_user: root
+          environment: "{}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: sensor-daq
+    prefix_options: *id001
+  24536: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24536
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: ""
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: service tomcat6 restart
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            mvn='mvn -q -B'
+            d="$( pwd )"
+            
+            # cmsdal
+            cd $d/kloopz-cms-web/kloopz-cmsdal
+            $mvn clean install -Dmaven.test.skip=true
+            # cms-api
+            cd $d/kloopz-cms-web/kloopz-cms-api
+            $mvn package -Dmaven.test.skip=true
+            cp target/kloopz-cms-api.war /var/lib/tomcat6/webapps && rm -fr /var/lib/tomcat6/webapps/kloopz-cms-api
+            # transistor
+            cd $d/kloopz-cms-web/transistor
+            $mvn package -Dmaven.test.skip=true
+            cp target/transistor.war /var/lib/tomcat6/webapps && rm -fr /var/lib/tomcat6/webapps/transistor
+            # cms-admin
+            cd $d/kloopz-cms-web/cms-admin
+            $mvn package -Dmaven.test.skip=true
+            cp target/cms-admin.war /var/lib/tomcat6/webapps && rm -fr /var/lib/tomcat6/webapps/cms-admin
+            # publisher
+            cd $d/cms-publisher
+            $mvn package -Dmaven.test.skip=true
+            cp target/cms-publisher.war /var/lib/tomcat6/webapps && rm -fr /var/lib/tomcat6/webapps/cms-publisher
+          repository: git@github.com:kloopz/kloopz-cms.git
+          persist: "[]"
+          as_user: root
+          environment: "{\"CMS_PUB_PEM\":\"/kloopz/certs/cms-public.pem\",\"KLOOPZ_AMQ_PASS\":\"ilijailibu\"}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: cms-web
+    prefix_options: *id001
+  24574: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Postgresql
+      ciId: 24574
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          postgresql_conf: "{\"data_directory\":\"'/db'\"}"
+          port: "5432"
+          version: "9.1"
+        prefix_options: {}
+
+      ciName: db-postgresql
+    prefix_options: *id001
+  24527: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Compute
+      ciId: 24527
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          size: S
+          ostype: ubuntu-11.10
+          image_id: ""
+          hosts: "{}"
+        prefix_options: {}
+
+      ciName: cms-compute
+    prefix_options: *id001
+  24641: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24641
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: |-
+            execute "install_war" do
+               command "cp #{new_resource.current_path}/opamp/target/opamp*.war /var/lib/tomcat6/webapps && rm -fr /var/lib/tomcat6/webapp/opamp"
+            end
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: service tomcat6 restart
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            # war build
+            cd opamp
+            mvn -q -B clean package
+            
+            mkdir -p /kloopz/opamp/antenna/retry
+            chown tomcat6:tomcat6 /kloopz/opamp/antenna/retry
+            
+            # cleanup
+            service tomcat6 stop
+            rm -fr /var/lib/tomcat6/webapps/opamp
+          repository: git@github.com:kloopz/opamp.git
+          persist: "[]"
+          as_user: root
+          environment: "{}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: sensor-opamp
+    prefix_options: *id001
+  26389: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Globalvar
+      ciId: 26389
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          value: master
+        prefix_options: {}
+
+      ciName: revision
+    prefix_options: *id001
+  24670: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24670
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: ""
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: ""
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: |-
+            mvn='mvn -q -B'
+            d="$( cd kloopz-cms-web && pwd )"
+            cd $d/kloopz-cmsdal
+            $mvn clean install -Dmaven.test.skip=true
+          repository: git@github.com:kloopz/kloopz-cms.git
+          persist: "[]"
+          as_user: root
+          environment: "{}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: gw-cmsdal
+    prefix_options: *id001
+  24499: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Platform
+      ciId: 24499
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: packer
+          major_version: "1"
+          description: Messaging
+          pack: activemq
+          version: "0.4"
+        prefix_options: {}
+
+      ciName: amq
+    prefix_options: *id001
+  24699: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Compute
+      ciId: 24699
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          size: S
+          ostype: ubuntu-11.10
+          image_id: ""
+          hosts: "{}"
+        prefix_options: {}
+
+      ciName: web-compute
+    prefix_options: *id001
+  24718: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.Build
+      ciId: 24718
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          before_restart: |-
+            bash "install_graphviz" do
+               cwd "/tmp"
+               code <<-EOH
+               wget http://www.graphviz.org/pub/graphviz/stable/ubuntu/ub11.04/x86_64/libgraphviz4_2.28.0-1_amd64.deb
+               dpkg -i libgraphviz4_2.28.0-1_amd64.deb
+               apt-get -y -f install
+               wget http://www.graphviz.org/pub/graphviz/stable/ubuntu/ub11.04/x86_64/graphviz_2.28.0-1_amd64.deb
+               dpkg -i graphviz_2.28.0-1_amd64.deb
+               apt-get -y -f install
+               EOH
+               not_if "test -f /usr/bin/dot"
+            end
+          revision: $KLOOPZ{revision}
+          install_dir: ""
+          username: ""
+          restart_command: bundle exec rake install
+          ci: "false"
+          scm: git
+          submodules: "false"
+          password: "::ENCRYPTED::00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          key: |-
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
+            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
+            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
+            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
+            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
+            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
+            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
+            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
+            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
+            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
+            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
+            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
+            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
+            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
+            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
+            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
+            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
+            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
+            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
+            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
+            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
+            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
+            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
+            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
+            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
+            -----END RSA PRIVATE KEY-----
+          migration_command: bundle install --deployment
+          repository: git@github.com:kloopz/packer.git
+          persist: "[\"log\",\"tmp\"]"
+          as_user: root
+          environment: "{}"
+          as_group: root
+          before_migrate: ""
+          depth: "1"
+        prefix_options: {}
+
+      ciName: web-packer
+    prefix_options: *id001
+  24547: !ruby/object:Cms::DjCi 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciClassName: catalog.File
+      ciId: 24547
+      ciAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          path: /kloopz/certs/cms-public.pem
+          exec_cmd: ""
+          content: |-
+            -----BEGIN PUBLIC KEY-----
+            MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBALOAnK/dtNFm9Qowx1cqJOW+70moUx8+
+            uq02wfDRGVCFCYnXLobx62bBc4b9Mj4mO/2dKIoeAmVYeHpZfUJu3DsCAwEAAQ==
+            -----END PUBLIC KEY-----
+        prefix_options: {}
+
+      ciName: cms-publickey
+    prefix_options: *id001
+description: ""
+name: core
+nspath: ""
+public: ""
+relations: !map:Mash 
+  24660: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24660
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24659
+      toCi: 
+      fromCi: 
+      fromCiId: 24615
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..1
+          template: fqdn
+        prefix_options: {}
+
+    prefix_options: &id002 {}
+
+  24623: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24623
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24621
+      toCi: 
+      fromCi: 
+      fromCiId: 24619
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24512: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24512
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24505
+      toCi: 
+      fromCi: 
+      fromCiId: 24507
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24549: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24549
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24527
+      toCi: 
+      fromCi: 
+      fromCiId: 24547
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24642: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24642
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24641
+      toCi: 
+      fromCi: 
+      fromCiId: 24615
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24679: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24679
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24673
+      toCi: 
+      fromCi: 
+      fromCiId: 24676
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24716: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24716
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24699
+      toCi: 
+      fromCi: 
+      fromCiId: 24713
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24531: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24531
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24530
+      toCi: 
+      fromCi: 
+      fromCiId: 24523
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24698: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24698
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24697
+      toCi: 
+      fromCi: 
+      fromCiId: 24693
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: ruby
+        prefix_options: {}
+
+    prefix_options: *id002
+  24661: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24661
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24621
+      toCi: 
+      fromCi: 
+      fromCiId: 24659
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  26345: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 26345
+      relationName: base.Requires
+      relationState: default
+      toCiId: 26344
+      toCi: 
+      fromCi: 
+      fromCiId: 24664
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24680: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24680
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24670
+      toCi: 
+      fromCi: 
+      fromCiId: 24676
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24717: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24717
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24713
+      toCi: 
+      fromCi: 
+      fromCiId: 24703
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  33153: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 33153
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 26344
+      toCi: 
+      fromCi: 
+      fromCiId: 24676
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24532: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24532
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24525
+      toCi: 
+      fromCi: 
+      fromCiId: 24530
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24569: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24569
+      relationName: base.ComposedOf
+      relationState: default
+      toCiId: 24568
+      toCi: 
+      fromCi: 
+      fromCiId: 2159
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24643: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24643
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24619
+      toCi: 
+      fromCi: 
+      fromCiId: 24641
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24625: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24625
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24624
+      toCi: 
+      fromCi: 
+      fromCiId: 24615
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24551: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24551
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24550
+      toCi: 
+      fromCi: 
+      fromCiId: 24523
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: file
+        prefix_options: {}
+
+    prefix_options: *id002
+  24662: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24662
+      relationName: catalog.LinksTo
+      relationState: default
+      toCiId: 24568
+      toCi: 
+      fromCi: 
+      fromCiId: 24523
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  26346: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 26346
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24668
+      toCi: 
+      fromCi: 
+      fromCiId: 26344
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24700: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24700
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24699
+      toCi: 
+      fromCi: 
+      fromCiId: 24693
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: compute
+        prefix_options: {}
+
+    prefix_options: *id002
+  24589: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24589
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24588
+      toCi: 
+      fromCi: 
+      fromCiId: 24568
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..*
+          template: database
+        prefix_options: {}
+
+    prefix_options: *id002
+  24552: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24552
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24527
+      toCi: 
+      fromCi: 
+      fromCiId: 24550
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24626: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24626
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24619
+      toCi: 
+      fromCi: 
+      fromCiId: 24624
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24663: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24663
+      relationName: catalog.LinksTo
+      relationState: default
+      toCiId: 24557
+      toCi: 
+      fromCi: 
+      fromCiId: 24523
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24719: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24719
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24718
+      toCi: 
+      fromCi: 
+      fromCiId: 24693
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: railsapp
+        prefix_options: {}
+
+    prefix_options: *id002
+  24682: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24682
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24681
+      toCi: 
+      fromCi: 
+      fromCiId: 24664
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: file
+        prefix_options: {}
+
+    prefix_options: *id002
+  24645: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24645
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24644
+      toCi: 
+      fromCi: 
+      fromCiId: 24615
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24571: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24571
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24570
+      toCi: 
+      fromCi: 
+      fromCiId: 24568
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: volume
+        prefix_options: {}
+
+    prefix_options: *id002
+  24534: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24534
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24533
+      toCi: 
+      fromCi: 
+      fromCiId: 24523
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  26347: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 26347
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24670
+      toCi: 
+      fromCi: 
+      fromCiId: 26344
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24535: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24535
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24525
+      toCi: 
+      fromCi: 
+      fromCiId: 24533
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24646: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24646
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24619
+      toCi: 
+      fromCi: 
+      fromCiId: 24644
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24683: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24683
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24668
+      toCi: 
+      fromCi: 
+      fromCiId: 24681
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24720: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24720
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24697
+      toCi: 
+      fromCi: 
+      fromCiId: 24718
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24702: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24702
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24701
+      toCi: 
+      fromCi: 
+      fromCiId: 24693
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..*
+          template: website
+        prefix_options: {}
+
+    prefix_options: *id002
+  24628: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24628
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24627
+      toCi: 
+      fromCi: 
+      fromCiId: 24615
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24554: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24554
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24553
+      toCi: 
+      fromCi: 
+      fromCiId: 24523
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..1
+          template: fqdn
+        prefix_options: {}
+
+    prefix_options: *id002
+  24517: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24517
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24516
+      toCi: 
+      fromCi: 
+      fromCiId: 24499
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24591: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24591
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24574
+      toCi: 
+      fromCi: 
+      fromCiId: 24588
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24665: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24665
+      relationName: base.ComposedOf
+      relationState: default
+      toCiId: 24664
+      toCi: 
+      fromCi: 
+      fromCiId: 2159
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24573: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24573
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24572
+      toCi: 
+      fromCi: 
+      fromCiId: 24568
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: storage
+        prefix_options: {}
+
+    prefix_options: *id002
+  24647: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24647
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24634
+      toCi: 
+      fromCi: 
+      fromCiId: 24641
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24518: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24518
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24507
+      toCi: 
+      fromCi: 
+      fromCiId: 24516
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24555: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24555
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24527
+      toCi: 
+      fromCi: 
+      fromCiId: 24553
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24629: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24629
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24619
+      toCi: 
+      fromCi: 
+      fromCiId: 24627
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24666: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24666
+      relationName: catalog.LinksTo
+      relationState: default
+      toCiId: 24499
+      toCi: 
+      fromCi: 
+      fromCiId: 24664
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24722: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24722
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24721
+      toCi: 
+      fromCi: 
+      fromCiId: 24693
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: railsapp
+        prefix_options: {}
+
+    prefix_options: *id002
+  24685: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24685
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24684
+      toCi: 
+      fromCi: 
+      fromCiId: 24664
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: file
+        prefix_options: {}
+
+    prefix_options: *id002
+  24537: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24537
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24536
+      toCi: 
+      fromCi: 
+      fromCiId: 24523
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24648: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24648
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24624
+      toCi: 
+      fromCi: 
+      fromCiId: 24641
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24500: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24500
+      relationName: base.ComposedOf
+      relationState: default
+      toCiId: 24499
+      toCi: 
+      fromCi: 
+      fromCiId: 2159
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24704: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24704
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24703
+      toCi: 
+      fromCi: 
+      fromCiId: 24693
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: apache
+        prefix_options: {}
+
+    prefix_options: *id002
+  24593: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24593
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24592
+      toCi: 
+      fromCi: 
+      fromCiId: 24568
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..*
+          template: database
+        prefix_options: {}
+
+    prefix_options: *id002
+  24556: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24556
+      relationName: catalog.LinksTo
+      relationState: default
+      toCiId: 24499
+      toCi: 
+      fromCi: 
+      fromCiId: 24523
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24630: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24630
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24624
+      toCi: 
+      fromCi: 
+      fromCiId: 24627
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24667: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24667
+      relationName: catalog.LinksTo
+      relationState: default
+      toCiId: 24615
+      toCi: 
+      fromCi: 
+      fromCiId: 24664
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  28719: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 28719
+      relationName: base.Requires
+      relationState: default
+      toCiId: 28718
+      toCi: 
+      fromCi: 
+      fromCiId: 24568
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24575: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24575
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24574
+      toCi: 
+      fromCi: 
+      fromCiId: 24568
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: postgresql
+        prefix_options: {}
+
+    prefix_options: *id002
+  24649: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24649
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24627
+      toCi: 
+      fromCi: 
+      fromCiId: 24641
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24686: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24686
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24668
+      toCi: 
+      fromCi: 
+      fromCiId: 24684
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24723: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24723
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24697
+      toCi: 
+      fromCi: 
+      fromCiId: 24721
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24538: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24538
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24525
+      toCi: 
+      fromCi: 
+      fromCiId: 24536
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24705: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24705
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24699
+      toCi: 
+      fromCi: 
+      fromCiId: 24697
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24520: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24520
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24519
+      toCi: 
+      fromCi: 
+      fromCiId: 24499
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24650: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24650
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24624
+      toCi: 
+      fromCi: 
+      fromCiId: 24644
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24724: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24724
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24718
+      toCi: 
+      fromCi: 
+      fromCiId: 24721
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  28720: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 28720
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24592
+      toCi: 
+      fromCi: 
+      fromCiId: 28718
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24502: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24502
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24501
+      toCi: 
+      fromCi: 
+      fromCiId: 24499
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: volume
+        prefix_options: {}
+
+    prefix_options: *id002
+  24539: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24539
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24536
+      toCi: 
+      fromCi: 
+      fromCiId: 24533
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24669: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24669
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24668
+      toCi: 
+      fromCi: 
+      fromCiId: 24664
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: compute
+        prefix_options: {}
+
+    prefix_options: *id002
+  24632: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24632
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24631
+      toCi: 
+      fromCi: 
+      fromCiId: 24615
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24706: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24706
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24703
+      toCi: 
+      fromCi: 
+      fromCiId: 24697
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24521: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24521
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24507
+      toCi: 
+      fromCi: 
+      fromCiId: 24519
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24558: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24558
+      relationName: base.ComposedOf
+      relationState: default
+      toCiId: 24557
+      toCi: 
+      fromCi: 
+      fromCiId: 2159
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24595: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24595
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24574
+      toCi: 
+      fromCi: 
+      fromCiId: 24592
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  26390: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 26390
+      relationName: base.ValueFor
+      relationState: default
+      toCiId: 2159
+      toCi: 
+      fromCi: 
+      fromCiId: 26389
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24688: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24688
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24687
+      toCi: 
+      fromCi: 
+      fromCiId: 24664
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: file
+        prefix_options: {}
+
+    prefix_options: *id002
+  24577: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24577
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24576
+      toCi: 
+      fromCi: 
+      fromCiId: 24568
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..*
+          template: database
+        prefix_options: {}
+
+    prefix_options: *id002
+  24651: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24651
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24641
+      toCi: 
+      fromCi: 
+      fromCiId: 24644
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  28721: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 28721
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24576
+      toCi: 
+      fromCi: 
+      fromCiId: 28718
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24707: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24707
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24697
+      toCi: 
+      fromCi: 
+      fromCiId: 24701
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24522: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24522
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24519
+      toCi: 
+      fromCi: 
+      fromCiId: 24516
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24633: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24633
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24619
+      toCi: 
+      fromCi: 
+      fromCiId: 24631
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24726: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24726
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24725
+      toCi: 
+      fromCi: 
+      fromCiId: 24693
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: railsapp
+        prefix_options: {}
+
+    prefix_options: *id002
+  24689: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24689
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24668
+      toCi: 
+      fromCi: 
+      fromCiId: 24687
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  28722: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 28722
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24588
+      toCi: 
+      fromCi: 
+      fromCiId: 28718
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24504: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24504
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24503
+      toCi: 
+      fromCi: 
+      fromCiId: 24499
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: storage
+        prefix_options: {}
+
+    prefix_options: *id002
+  24541: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24541
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24540
+      toCi: 
+      fromCi: 
+      fromCiId: 24523
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24652: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24652
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24627
+      toCi: 
+      fromCi: 
+      fromCiId: 24644
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24671: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24671
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24670
+      toCi: 
+      fromCi: 
+      fromCiId: 24664
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24597: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24597
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24596
+      toCi: 
+      fromCi: 
+      fromCiId: 24568
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..1
+          template: fqdn
+        prefix_options: {}
+
+    prefix_options: *id002
+  24560: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24560
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24559
+      toCi: 
+      fromCi: 
+      fromCiId: 24557
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: volume
+        prefix_options: {}
+
+    prefix_options: *id002
+  24708: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24708
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24703
+      toCi: 
+      fromCi: 
+      fromCiId: 24701
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  33237: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 33237
+      relationName: base.Requires
+      relationState: default
+      toCiId: 33236
+      toCi: 
+      fromCi: 
+      fromCiId: 24693
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..*
+          template: website
+        prefix_options: {}
+
+    prefix_options: *id002
+  24579: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24579
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24578
+      toCi: 
+      fromCi: 
+      fromCiId: 24568
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: compute
+        prefix_options: {}
+
+    prefix_options: *id002
+  24727: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24727
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24697
+      toCi: 
+      fromCi: 
+      fromCiId: 24725
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  33274: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 33274
+      relationName: base.RealizedIn
+      relationState: default
+      toCiId: 33266
+      toCi: 
+      fromCi: 
+      fromCiId: 2159
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24542: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24542
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24525
+      toCi: 
+      fromCi: 
+      fromCiId: 24540
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  25985: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 25985
+      relationName: base.RealizedIn
+      relationState: default
+      toCiId: 25977
+      toCi: 
+      fromCi: 
+      fromCiId: 2159
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24616: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24616
+      relationName: base.ComposedOf
+      relationState: default
+      toCiId: 24615
+      toCi: 
+      fromCi: 
+      fromCiId: 2159
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24635: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24635
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24634
+      toCi: 
+      fromCi: 
+      fromCiId: 24615
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24524: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24524
+      relationName: base.ComposedOf
+      relationState: default
+      toCiId: 24523
+      toCi: 
+      fromCi: 
+      fromCiId: 2159
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24598: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24598
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24578
+      toCi: 
+      fromCi: 
+      fromCiId: 24596
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24672: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24672
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24668
+      toCi: 
+      fromCi: 
+      fromCiId: 24670
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24709: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24709
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24699
+      toCi: 
+      fromCi: 
+      fromCiId: 24703
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  33275: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 33275
+      relationName: base.Utilizes
+      relationState: default
+      toCiId: 30106
+      toCi: 
+      fromCi: 
+      fromCiId: 33266
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          services: "{ 'lb':'' }"
+          priority: "2"
+        prefix_options: {}
+
+    prefix_options: *id002
+  25986: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 25986
+      relationName: base.Utilizes
+      relationState: default
+      toCiId: 25971
+      toCi: 
+      fromCi: 
+      fromCiId: 25977
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          services: "{ 'lb':'' }"
+          priority: "2"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24691: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24691
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24690
+      toCi: 
+      fromCi: 
+      fromCiId: 24664
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: file
+        prefix_options: {}
+
+    prefix_options: *id002
+  24654: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24654
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24653
+      toCi: 
+      fromCi: 
+      fromCiId: 24615
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: file
+        prefix_options: {}
+
+    prefix_options: *id002
+  33238: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 33238
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24697
+      toCi: 
+      fromCi: 
+      fromCiId: 33236
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24506: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24506
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24505
+      toCi: 
+      fromCi: 
+      fromCiId: 24499
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: compute
+        prefix_options: {}
+
+    prefix_options: *id002
+  24543: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24543
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24536
+      toCi: 
+      fromCi: 
+      fromCiId: 24540
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24580: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24580
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24572
+      toCi: 
+      fromCi: 
+      fromCiId: 24570
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24617: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24617
+      relationName: catalog.LinksTo
+      relationState: default
+      toCiId: 24557
+      toCi: 
+      fromCi: 
+      fromCiId: 24615
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24562: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24562
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24561
+      toCi: 
+      fromCi: 
+      fromCiId: 24557
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: cassandra
+        prefix_options: {}
+
+    prefix_options: *id002
+  24636: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24636
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24619
+      toCi: 
+      fromCi: 
+      fromCiId: 24634
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  33239: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 33239
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24703
+      toCi: 
+      fromCi: 
+      fromCiId: 33236
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24544: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24544
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24533
+      toCi: 
+      fromCi: 
+      fromCiId: 24540
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24581: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24581
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24578
+      toCi: 
+      fromCi: 
+      fromCiId: 24570
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24618: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24618
+      relationName: catalog.LinksTo
+      relationState: default
+      toCiId: 24499
+      toCi: 
+      fromCi: 
+      fromCiId: 24615
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24655: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24655
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24621
+      toCi: 
+      fromCi: 
+      fromCiId: 24653
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24692: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24692
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24668
+      toCi: 
+      fromCi: 
+      fromCiId: 24690
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24711: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24711
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24710
+      toCi: 
+      fromCi: 
+      fromCiId: 24693
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..1
+          template: fqdn
+        prefix_options: {}
+
+    prefix_options: *id002
+  24674: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24674
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24673
+      toCi: 
+      fromCi: 
+      fromCiId: 24664
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24526: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24526
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24525
+      toCi: 
+      fromCi: 
+      fromCiId: 24523
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: tomcat
+        prefix_options: {}
+
+    prefix_options: *id002
+  24637: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24637
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24624
+      toCi: 
+      fromCi: 
+      fromCiId: 24631
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24508: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24508
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24507
+      toCi: 
+      fromCi: 
+      fromCiId: 24499
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: activemq
+        prefix_options: {}
+
+    prefix_options: *id002
+  24545: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24545
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24540
+      toCi: 
+      fromCi: 
+      fromCiId: 24530
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24582: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24582
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24570
+      toCi: 
+      fromCi: 
+      fromCiId: 24574
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24564: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24564
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24563
+      toCi: 
+      fromCi: 
+      fromCiId: 24557
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: compute
+        prefix_options: {}
+
+    prefix_options: *id002
+  24638: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24638
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24627
+      toCi: 
+      fromCi: 
+      fromCiId: 24631
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24675: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24675
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24668
+      toCi: 
+      fromCi: 
+      fromCiId: 24673
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24712: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24712
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24699
+      toCi: 
+      fromCi: 
+      fromCiId: 24710
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24657: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24657
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24656
+      toCi: 
+      fromCi: 
+      fromCiId: 24615
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: file
+        prefix_options: {}
+
+    prefix_options: *id002
+  24620: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24620
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24619
+      toCi: 
+      fromCi: 
+      fromCiId: 24615
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: tomcat
+        prefix_options: {}
+
+    prefix_options: *id002
+  24509: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24509
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24503
+      toCi: 
+      fromCi: 
+      fromCiId: 24501
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24546: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24546
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24536
+      toCi: 
+      fromCi: 
+      fromCiId: 24530
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24583: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24583
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24578
+      toCi: 
+      fromCi: 
+      fromCiId: 24574
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24694: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24694
+      relationName: base.ComposedOf
+      relationState: default
+      toCiId: 24693
+      toCi: 
+      fromCi: 
+      fromCiId: 2159
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24528: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24528
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24527
+      toCi: 
+      fromCi: 
+      fromCiId: 24523
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: compute
+        prefix_options: {}
+
+    prefix_options: *id002
+  24565: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24565
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24563
+      toCi: 
+      fromCi: 
+      fromCiId: 24559
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24639: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24639
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24624
+      toCi: 
+      fromCi: 
+      fromCiId: 24634
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24584: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24584
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24574
+      toCi: 
+      fromCi: 
+      fromCiId: 24576
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24658: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24658
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24621
+      toCi: 
+      fromCi: 
+      fromCiId: 24656
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24695: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24695
+      relationName: catalog.LinksTo
+      relationState: default
+      toCiId: 24568
+      toCi: 
+      fromCi: 
+      fromCiId: 24693
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24510: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24510
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24505
+      toCi: 
+      fromCi: 
+      fromCiId: 24501
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24714: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24714
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24713
+      toCi: 
+      fromCi: 
+      fromCiId: 24693
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: library
+        prefix_options: {}
+
+    prefix_options: *id002
+  24677: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24677
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24676
+      toCi: 
+      fromCi: 
+      fromCiId: 24664
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: build
+        prefix_options: {}
+
+    prefix_options: *id002
+  24566: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24566
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24559
+      toCi: 
+      fromCi: 
+      fromCiId: 24561
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24640: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24640
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24627
+      toCi: 
+      fromCi: 
+      fromCiId: 24634
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: user
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24529: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24529
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24527
+      toCi: 
+      fromCi: 
+      fromCiId: 24525
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24622: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24622
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24621
+      toCi: 
+      fromCi: 
+      fromCiId: 24615
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 1..1
+          template: compute
+        prefix_options: {}
+
+    prefix_options: *id002
+  24696: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24696
+      relationName: catalog.LinksTo
+      relationState: default
+      toCiId: 24523
+      toCi: 
+      fromCi: 
+      fromCiId: 24693
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess {}
+
+        prefix_options: {}
+
+    prefix_options: *id002
+  24511: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24511
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24501
+      toCi: 
+      fromCi: 
+      fromCiId: 24507
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24548: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24548
+      relationName: base.Requires
+      relationState: default
+      toCiId: 24547
+      toCi: 
+      fromCi: 
+      fromCiId: 24523
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          constraint: 0..*
+          template: file
+        prefix_options: {}
+
+    prefix_options: *id002
+  24678: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24678
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24668
+      toCi: 
+      fromCi: 
+      fromCiId: 24676
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24715: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24715
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24713
+      toCi: 
+      fromCi: 
+      fromCiId: 24697
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002
+  24567: !ruby/object:Cms::DjRelation 
+    attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+      ciRelationId: 24567
+      relationName: catalog.DependsOn
+      relationState: default
+      toCiId: 24563
+      toCi: 
+      fromCi: 
+      fromCiId: 24561
+      relationAttributes: !ruby/object:Cms::AttrMap 
+        attributes: !map:ActiveSupport::HashWithIndifferentAccess 
+          source: template
+          step_up: "1"
+          flex: "false"
+          converge: "false"
+          min: "1"
+          step_down: "1"
+          current: "1"
+          max: "1"
+        prefix_options: {}
+
+    prefix_options: *id002

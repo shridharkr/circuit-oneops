@@ -1,0 +1,97 @@
+#!/usr/bin/env ruby
+# 
+# gets activemq metrics from builtin xml apis
+#
+
+# check for secondary or standby
+adminstatus = `grep ONEOPS_CLOUD_ADMINSTATUS /etc/profile.d/oneops.sh`.split("=").last.chomp
+if adminstatus == "secondary"
+  puts "standby|queue_count=0 topic_count=0 queue_backlog=0 topic_backlog=0 topic_consumer_count=0 topic_enqueues=0 topic_dequeues=0 queue_consumer_count=0 queue_enqueues=0 queue_dequeues=0"
+  exit 0
+else
+  last_log_line = `tail -1 /opt/activemq/data/activemq.log`
+  if last_log_line =~ /Attempting to acquire the exclusive lock/
+    puts "standby|queue_count=0 topic_count=0 queue_backlog=0 topic_backlog=0 topic_consumer_count=0 topic_enqueues=0 topic_dequeues=0 queue_consumer_count=0 queue_enqueues=0 queue_dequeues=0"
+    exit 0
+  end
+end
+
+require 'net/http'
+require 'rubygems'
+require 'xmlsimple'
+
+queue_url =''
+topic_url=''
+ignore_cert = ''
+
+if ARGV[0] == 'https'
+  ignore_cert = ' -k '
+end
+
+perf=''
+if ARGV[2] == 'false'
+  queue_url = ARGV[0] +"://localhost:"+ ARGV[1] + "/admin/xml/queues.jsp"  + "#{ignore_cert}"
+  topic_url = ARGV[0] +"://localhost:"+ ARGV[1] + "/admin/xml/topics.jsp" + "#{ignore_cert}"
+else
+  queue_url = ARGV[0]+"://localhost:"+ ARGV[1] + "/admin/xml/queues.jsp -u "+ ARGV[3]+ ":" + ARGV[4] + "#{ignore_cert}"
+  topic_url = ARGV[0]+"://localhost:"+ ARGV[1] + "/admin/xml/topics.jsp -u "+ ARGV[3]+ ":" + ARGV[4]  + "#{ignore_cert}"
+end
+
+queues = XmlSimple.xml_in(`curl -s #{queue_url}`,{ 'KeyAttr' => 'name', 'ForceArray' => false })
+topics = XmlSimple.xml_in(`curl -s #{topic_url}`,{ 'KeyAttr' => 'name', 'ForceArray' => false })
+
+queue_count = 0
+queue_size = 0
+queue_consumer_count = 0
+queue_enqueue_count = 0
+queue_dequeue_count = 0
+
+topic_count = 0
+topic_size = 0
+topic_consumer_count = 0
+topic_enqueue_count = 0
+topic_dequeue_count = 0
+
+real_topics = topics["topic"];
+if real_topics != nil
+	real_topics.keys.each do |key|
+	  topic = real_topics[key]
+	#  puts "topic:"+topic.inspect
+	  topic_count += 1
+	  topic_size += (topic["stats"]["size"]).to_i
+	  topic_consumer_count += (topic["stats"]["consumerCount"]).to_i
+	  topic_enqueue_count += (topic["stats"]["enqueueCount"]).to_i
+	  topic_dequeue_count += (topic["stats"]["dequeueCount"]).to_i
+	end
+end
+
+real_queues = queues["queue"];
+if real_queues != nil
+	real_queues.keys.each do |key|
+	  queue = real_queues[key]
+	#  puts "queue:"+queue.inspect
+	  queue_count += 1
+	  queue_size += (queue["stats"]["size"]).to_i
+	  queue_consumer_count += (queue["stats"]["consumerCount"]).to_i
+	  queue_enqueue_count += (queue["stats"]["enqueueCount"]).to_i
+	  queue_dequeue_count += (queue["stats"]["dequeueCount"]).to_i
+	end
+end
+
+perf =  "queue_count=#{queue_count} "
+perf += "topic_count=#{topic_count} "
+perf += "queue_backlog=#{queue_size} "
+perf += "topic_backlog=#{topic_size} "
+
+perf += "topic_consumer_count=#{topic_consumer_count} "
+perf += "topic_enqueues=#{topic_enqueue_count} "
+perf += "topic_dequeues=#{topic_dequeue_count} "
+
+perf += "queue_consumer_count=#{queue_consumer_count} "
+perf += "queue_enqueues=#{queue_enqueue_count} "
+perf += "queue_dequeues=#{queue_dequeue_count} "
+
+puts perf + "|"+ perf
+
+
+

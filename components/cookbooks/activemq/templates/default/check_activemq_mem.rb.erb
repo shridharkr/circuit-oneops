@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+#
+# gets queue metrics from builtin xml apis
+#
+
+require 'net/http'
+require 'rubygems'
+require 'xmlsimple'
+
+url =''
+perf=''
+ignore_cert = ''
+
+if ARGV[0] == 'https'
+  ignore_cert = ' -k '
+end
+
+if ARGV[3] == 'false'
+  url = ARGV[0] +"://localhost:"+ ARGV[1] + ARGV[2] + "#{ignore_cert}"
+else
+  url = ARGV[0]+"://localhost:"+ ARGV[1] + ARGV[2] +" -u "+ ARGV[4]+ ":" + ARGV[5] +  "#{ignore_cert}"
+end
+
+data = XmlSimple.xml_in(`curl -s #{url}`,{ 'KeyAttr' => 'name', 'ForceArray' => false })
+
+body_data = data["body"];
+table_data = body_data["table"]
+tr_data = table_data["tr"]
+
+size = tr_data.length
+if tr_data != nil
+  while size > 0 do
+    size -=1
+     value =  tr_data[size]
+     value.each do |key, val|
+     label =''
+       val.each do |valkey|
+          if valkey.include?'percent used' 
+            label = valkey
+         else
+            if label != '' 
+               label.gsub!(/\s/,'_')
+               perf += "#{label}=#{valkey['b']} " 
+            end
+         end
+        end
+        end
+  end
+end
+
+puts perf + "|" + perf
