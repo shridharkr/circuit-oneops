@@ -18,7 +18,7 @@
         <version>1.4.1</version>
         <dependencies>
           <dependency>
-            <groupId>com.walmart.platform.devtools</groupId>
+            <groupId>{enforce.rule.group}</groupId>
             <artifactId>release-enforcer-client</artifactId>
             <version>0.2.1</version>
           </dependency>
@@ -32,11 +32,11 @@
             <phase>package</phase>
             <configuration>
               <rules>
-                <JdkCompilerCompatibilityRule implementation="com.walmart.platform.devtools.release_enforcer_client.maven.enforcer.rule.JdkCompilerCompatibilityRule" />
-                <blacklistRule implementation="com.walmart.platform.devtools.release_enforcer_client.maven.enforcer.rule.BlacklistRule">
+                <JdkCompilerCompatibilityRule implementation="${jdk.compiler.compatibility.class}" />
+                <blacklistRule implementation="{backlist.rule.class}">
                   <isSkippableRule>false</isSkippableRule>
                 </blacklistRule>
-                <pppVersionRule implementation="com.walmart.platform.devtools.release_enforcer_client.maven.enforcer.rule.PlatformParentPomVersionRule" />
+                <pppVersionRule implementation="${parent.pom.version.class}" />
               </rules>
             </configuration>
           </execution>
