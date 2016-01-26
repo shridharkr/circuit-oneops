@@ -203,7 +203,7 @@ end
 if node.elasticsearch[:download_url].include? "download.elasticsearch.org"
   install_plugin 'lmenezes/elasticsearch-kopf' , 'version' => '#{node.elasticsearch[:version]}'
 else
-  url = node.elasticsearch[:download_url]
+  url = node.elasticsearch[:base_url]
   install_plugin "elasticsearch-kopf", 'url' => "#{url}", 'version' => "#{node.elasticsearch[:version]}"
 end
 

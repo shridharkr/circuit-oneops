@@ -35,7 +35,7 @@ module Extensions
     ruby_block "Install plugin: #{name}" do
       block do
 
-        version = params['version'] ? "/#{params['version']}" : nil
+        version = params['version'] ? "#{params['version']}" : nil
         url     = params['url']     ? " -url #{params['url']}" : nil
         
         # clean already installed kopf plugins
@@ -46,12 +46,10 @@ module Extensions
 
         if url.nil?
            command = "/usr/local/bin/plugin -install #{name}#{version}"
-        else
-          if version.start_with?("1")
-            command = "/usr/local/bin/plugin -install #{name}/#{version} -url #{url}/1.1/elasticsearch-kopf-1.1.zip"
-          elsif version.start_with?("2")
-            command = "/usr/local/bin/plugin install --verbose #{url}/2.0.0/elasticsearch-kopf-2.0.0.zip"
-          end
+        elsif version.start_with?("1")
+          command = "/usr/local/bin/plugin -install #{name}/#{version} #{url}/elasticsearch-kopf/1.1/elasticsearch-kopf-1.1.zip"
+        elsif version.start_with?("2")
+          command = "/usr/local/bin/plugin install --verbose #{url}/elasticsearch-kopf/2.0.0/elasticsearch-kopf-2.0.0.zip"
         end
 
         Chef::Log.info("Plugin Install Command is: #{command}")
