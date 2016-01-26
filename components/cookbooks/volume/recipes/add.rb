@@ -421,7 +421,8 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
 
       `lvdisplay /dev/#{platform_name}-eph/#{logical_name}`
       if $?.to_i != 0
-        cmd = "lvcreate #{l_switch} #{size} -n #{logical_name} #{platform_name}-eph"
+        # pipe yes to agree to clear filesystem signature
+        cmd = "yes | lvcreate #{l_switch} #{size} -n #{logical_name} #{platform_name}-eph"
         Chef::Log.info("running: #{cmd} ..."+`#{cmd}`)
         if $? != 0
           Chef::Log.error("error in lvcreate")
