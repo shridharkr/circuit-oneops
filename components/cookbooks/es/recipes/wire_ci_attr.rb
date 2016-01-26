@@ -26,6 +26,7 @@ if base_url.empty?
   node.set[:elasticsearch][:download_url]  = [node.elasticsearch[:host], node.elasticsearch[:repository], node.elasticsearch[:filename]].join('/')  
 else
   node.set[:elasticsearch][:download_url]  = [base_url, node.elasticsearch[:repository], node.elasticsearch[:filename]].join('/')
+  node.set[:elasticsearch][:base_url] = base_url
 end
 
 # === CLUSTER
