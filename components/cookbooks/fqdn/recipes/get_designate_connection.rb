@@ -24,6 +24,8 @@ cloud_name = node[:workorder][:cloud][:ciName]
 service = node[:workorder][:services][:dns][cloud_name][:ciAttributes]
 domain_name = service[:zone] 
 domain_name += "."
+os_type = node[:workorder][:services][:compute][cloud_name][:ciAttributes][:ostype]
+node.set["os_type"]=os_type
 
 user = {"username" => service[:username],
         "password" => service[:password]}
@@ -78,7 +80,7 @@ node.set["designate_zone"] = zone
 ns_list = `dig +short NS #{domain_name}`.split("\n")
 ns = nil
 ns_list.each do |n|
-  `nc -w 2 #{n} 53`
+  `echo "EOF"|nc -w 2 #{n} 53`
   if $?.to_i == 0
   ns = n
   break

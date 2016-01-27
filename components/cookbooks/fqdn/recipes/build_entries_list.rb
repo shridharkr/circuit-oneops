@@ -190,7 +190,7 @@ end
 ns_list = `dig +short NS #{domain_name}`.split("\n")
 ns = nil
 ns_list.each do |n|
-  `nc -w 2 #{n} 53`
+  `echo "EOF"|nc -w 2 #{n} 53`
   if $?.to_i == 0
     ns = n
     break
