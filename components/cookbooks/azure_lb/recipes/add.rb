@@ -186,7 +186,8 @@ def create_frontend_ipconfig(subscription_id, rg_name, lb_name, frontend_name, p
 
   if public_ip.nil?
     frontend_ipconfig_props.subnet = subnet
-    frontend_ipconfig_props.private_ipallocation_method = IpAllocationMethod::Static
+    #frontend_ipconfig_props.private_ipallocation_method = IpAllocationMethod::Static
+    frontend_ipconfig_props.private_ipallocation_method = IpAllocationMethod::Dynamic
   else
     frontend_ipconfig_props.public_ipaddress = public_ip
   end
@@ -267,7 +268,7 @@ def create_lb_rule(lb_rule_name, load_distribution, protocol, frontend_port, bac
   # With a single definition of a load balancer resource, you can define multiple load balancing rules,
   # each rule reflecting a combination of a frontend IP and port and backend IP and port associated with VMs.
   lb_rule_props = LoadBalancingRulePropertiesFormat.new
-  # lb_rule_props.probe = probe
+  lb_rule_props.probe = probe
   lb_rule_props.protocol = protocol
   lb_rule_props.backend_port = backend_port
   lb_rule_props.frontend_port = frontend_port
@@ -569,7 +570,12 @@ listeners.each do |listener|
   backend_port = listener.iport
   protocol = Azure::ARM::Network::Models::TransportProtocol::Tcp
   load_distribution = Azure::ARM::Network::Models::LoadDistribution::Default
-  lb_rule = create_lb_rule(lb_rule_name, load_distribution, protocol, frontend_port, backend_port, nil, frontend_ip_config, backend_address_pool)
+  probe = nil
+  if probes.length > 0
+    probe = probes[0]
+  end
+
+  lb_rule = create_lb_rule(lb_rule_name, load_distribution, protocol, frontend_port, backend_port, probe, frontend_ip_config, backend_address_pool)  
   lb_rules.push(lb_rule)
 end
 
