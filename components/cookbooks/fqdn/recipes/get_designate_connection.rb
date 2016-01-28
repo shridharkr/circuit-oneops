@@ -73,23 +73,3 @@ if zone.nil?
   exit 1
 end
 node.set["designate_zone"] = zone
-
-  
-ns_list = `dig +short NS #{domain_name}`.split("\n")
-ns = nil
-ns_list.each do |n|
-  `nc -w 2 #{n} 53`
-  if $?.to_i == 0
-  ns = n
-  break
-  else
-    Chef::Log.info("cannot connect to ns: #{n} ...trying another")
-  end
-end
-
-if service.has_key?("authoritative_server") && !service[:authoritative_server].empty?
-  ns = service[:authoritative_server]
-end
-
-Chef::Log.info("authoritative_dns_server: "+ns.inspect)
-node.set["ns"] = ns
