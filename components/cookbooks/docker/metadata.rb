@@ -4,11 +4,7 @@ long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "0.1"
 maintainer       "OneOps"
 maintainer_email "support@oneops.com"
-<<<<<<< HEAD
-license          "Copyright OneOps, All rights reserved."
-=======
 license          "Apache License, Version 2.0"
->>>>>>> baa5ee0a97cac2f84760c35ca60807f8a6bf4044
 
 grouping 'default',
   :access => "global",
@@ -25,7 +21,6 @@ attribute 'path',
     :order => 1
   }
 
-<<<<<<< HEAD
 attribute 'docker_env',
   :description => "Docker Environment Variables",
   :data_type => "hash",
@@ -36,8 +31,6 @@ attribute 'docker_env',
     :order => 2
   }
 
-=======
->>>>>>> baa5ee0a97cac2f84760c35ca60807f8a6bf4044
 attribute 'sizemap',
   :description => "Sizes Map",
   :data_type => "hash",
@@ -59,11 +52,7 @@ attribute 'imagemap',
                 "ubuntu-10.04":"ubuntu:10.04",
                 "centos-7.0":"centos:centos7",
                 "centos-6.5":"centos:centos6",
-<<<<<<< HEAD
                 "opensuse-13.1":"opensuse:13.1",
-=======
-                "opensuse-13.1","opensuse:13.1",
->>>>>>> baa5ee0a97cac2f84760c35ca60807f8a6bf4044
                 "fedora-20":"fedora:20",
                 "fedora-19":"fedora:19"}',
   :format => {
