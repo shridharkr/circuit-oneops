@@ -39,6 +39,7 @@ aliases = Array.new
 current_aliases = Array.new
 full_aliases = Array.new
 current_full_aliases = Array.new
+ns = node.ns
 
 if node.workorder.rfcCi.ciBaseAttributes.has_key?("aliases")
   begin
@@ -82,21 +83,6 @@ if !current_full_aliases.nil?
     full_aliases.delete(active_full_alias)
   end
 end
-
-cloud_name = node[:workorder][:cloud][:ciName]
-domain_name = node[:workorder][:services][:dns][cloud_name][:ciAttributes][:zone]
-ns_list = `dig +short NS #{domain_name}`.split("\n")
-ns = nil
-ns_list.each do |n|
-  `nc -w 2 #{n} 53`
-  if $?.to_i == 0
-  ns = n
-  break
-  else
-    Chef::Log.info("cannot connect to ns: #{n} ...trying another")
-  end
-end
-Chef::Log.info("authoritative_dns_server: "+ns.inspect)
 
 aliases.each do |a|
   alias_name = a + customer_domain

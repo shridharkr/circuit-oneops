@@ -21,8 +21,9 @@
 require 'json'
 
 cloud_name = node[:workorder][:cloud][:ciName]
-domain_name = node[:workorder][:services][:dns][cloud_name][:ciAttributes][:zone]
-
+service = node[:workorder][:services][:dns][cloud_name][:ciAttributes]
+domain_name = service[:zone]
+  
 # set to empty set to handle delete on inactive platform
 node.set["entries"] = []
 
@@ -74,7 +75,7 @@ def get_dns_values (components)
 end
 
 
-def get_primary_ips(ci,values,customer_domain,ns)
+def get_primary_ips(ci,values,customer_domain)
 
   other_active_clouds = []
   if node.workorder.payLoad.has_key?("activeclouds")
@@ -111,7 +112,7 @@ def get_primary_ips(ci,values,customer_domain,ns)
            "\."+cloud_dns_id+"\."+cloud_dns_zone,
            "."+other_cloud_dns_id+"."+other_cloud_dns_zone).downcase
       Chef::Log.info("other_cloud_dns_name: dig +short #{other_cloud_dns_name} @#{ns}")
-      other_ips = `dig +short #{other_cloud_dns_name} @#{ns} | grep -v ";;"`.split("\n")
+      other_ips = `dig +short #{other_cloud_dns_name} @#{node.ns} | grep -v ";;"`.split("\n")
       other_ips.each do |rr_entry|
         Chef::Log.info("#{other_cloud_dns_name} #{rr_entry}")
         values.push(rr_entry) if !values.include?(rr_entry)
@@ -185,21 +186,6 @@ if node.workorder.rfcCi.ciAttributes.has_key?("full_aliases") && !is_hostname_en
     Chef::Log.info("could not parse full_aliases json: "+node.workorder.rfcCi.ciAttributes.full_aliases)
   end
 end
-
-# get authoratative NS's and find one we can connect to
-ns_list = `dig +short NS #{domain_name}`.split("\n")
-ns = nil
-ns_list.each do |n|
-  `nc -w 2 #{n} 53`
-  if $?.to_i == 0
-    ns = n
-    break
-  else
-    Chef::Log.info("cannot connect to ns: #{n} ...trying another")
-  end
-end
-
-Chef::Log.info("authoritative_dns_server: "+ns.inspect)
 
 
 cloud_service = node[:workorder][:services][:dns][cloud_name]
@@ -286,7 +272,7 @@ if node.workorder.cloud.ciAttributes.priority == "1"
     if node.dns_action != "delete" ||
       (node.dns_action == "delete" && node.is_last_active_cloud)
 
-      get_primary_ips(ci,value_array,customer_domain,ns)
+      get_primary_ips(ci,value_array,customer_domain)
 
     end
 
