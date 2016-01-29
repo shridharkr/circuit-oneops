@@ -6,7 +6,7 @@ is_location "true"
 image_map = '{
       "centos-6.7":"21612eaf-a350-4047-b06f-6bb8a8a7bd99",
       "centos-7.0":"9d29f10e-4fc2-4556-8d25-532d1784329a",
-      "ubuntu-14.04":"656e65f7-6441-46e8-978d-0d39beaaf559",
+      "ubuntu-14.04":"09de0a66-3156-48b4-90a5-1cf25a905207",
       "ubuntu-13.04":"4b54f5a0-137f-4751-8e7c-fe707185e531",
       "ubuntu-12.10":"d45ed9c5-d6fc-4c9d-89ea-1b3ae1c83999",
       "ubuntu-12.04":"80fbcb55-b206-41f9-9bc2-2dd7aac6c061",
