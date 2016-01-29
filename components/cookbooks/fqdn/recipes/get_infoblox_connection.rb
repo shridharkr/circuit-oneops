@@ -50,7 +50,7 @@ node.set["infoblox_conn"] = conn
 ns_list = `dig +short NS #{domain_name}`.split("\n")
 ns = nil
 ns_list.each do |n|
-`echo "EOF"|nc -w 2 #{n} 53`  
+  `nc -w 2 #{n} 53`
   if $?.to_i == 0
     ns = n
     break

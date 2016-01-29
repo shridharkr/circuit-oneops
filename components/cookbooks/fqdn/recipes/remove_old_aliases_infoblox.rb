@@ -88,8 +88,8 @@ domain_name = node[:workorder][:services][:dns][cloud_name][:ciAttributes][:zone
 ns_list = `dig +short NS #{domain_name}`.split("\n")
 ns = nil
 ns_list.each do |n|
- `echo "EOF"|nc -w 2 #{n} 53`
- if $?.to_i == 0
+  `nc -w 2 #{n} 53`
+  if $?.to_i == 0
   ns = n
   break
   else
