@@ -34,6 +34,7 @@ end
 Chef::Log.info("Cloud name is: #{cloud_name}")
 Chef::Log.info("Provider is: #{provider}")
 
+
 # check for gdns service
 gdns_service = nil
 if node[:workorder][:services].has_key?("gdns") &&
@@ -53,6 +54,8 @@ if box.has_key?(:is_active) && box[:is_active] == "false"
   Chef::Log.info("skipping due to platform is_active false")
   return
 end
+
+include_recipe "fqdn::get_authoritative_nameserver"
 
 # netscaler gslb
 depends_on_lb = false

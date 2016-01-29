@@ -60,34 +60,3 @@ if zone.nil?
   exit 1
 end
 node.set["fog_zone"] = zone
-
-domain_parts = dns_attrs[:zone].split(".")
-while domain_parts.size > 2
-  domain_parts.shift
-end
-
-domain = domain_parts.join(".")
-
-ns_list = `dig +short NS #{domain}`.split("\n")
-ns = nil
-ns_list.each do |n|
-  `nc -w 2 #{n} 53`
-  if $?.to_i == 0
-  ns = n
-  break
-  else
-    Chef::Log.info("cannot connect to ns: #{n} ...trying another")
-  end
-end
-
-if ns.nil?
-  `grep nameserver /etc/resolv.conf | grep -v 127.0.0.1`.split("\n").each do |ns_row|
-     ns = ns_row.split(" ").last
-     break
-   end
-  node.set["real_authoritative_not_avail"] = 1
-end
-
-Chef::Log.info("authoritative_dns_server: "+ns.inspect)
-
-node.set["ns"] = ns

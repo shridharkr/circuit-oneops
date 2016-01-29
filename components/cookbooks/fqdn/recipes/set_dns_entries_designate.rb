@@ -38,9 +38,9 @@ ns = node.ns
 #
 node[:entries].each do |entry|
   dns_match = false
-  dns_type = get_record_type(entry[:values]) 
   dns_name = entry[:name]
-  dns_values = entry[:values]
+  dns_values = entry[:values].is_a?(String) ? Array.new([entry[:values]]) : entry[:values]
+  dns_type = get_record_type(dns_values) 
   
   existing_dns = `dig +short #{dns_name} @#{ns}`.split("\n")
   

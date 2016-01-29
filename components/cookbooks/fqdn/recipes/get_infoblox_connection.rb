@@ -45,19 +45,3 @@ checkCxn(conn)
 
 # Set the connection object
 node.set["infoblox_conn"] = conn
-  
-# get authoratative NS's and find one we can connect to
-ns_list = `dig +short NS #{domain_name}`.split("\n")
-ns = nil
-ns_list.each do |n|
-  `nc -w 2 #{n} 53`
-  if $?.to_i == 0
-    ns = n
-    break
-  else
-    Chef::Log.info("cannot connect to ns: #{n} ...trying another")
-  end
-end
-
-Chef::Log.info("authoritative_dns_server: "+ns.inspect)
-node.set["ns"] = ns  

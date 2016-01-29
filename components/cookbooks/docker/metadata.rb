@@ -21,6 +21,16 @@ attribute 'path',
     :order => 1
   }
 
+attribute 'docker_env',
+  :description => "Docker Environment Variables",
+  :data_type => "hash",
+  :default => '{}',
+  :format => {
+    :help => 'Set docker environment variables when running docker client (example: DOCKER_HOST, DOCKER_MACHINE_NAME, DOCKER_CERT_PATH, DOCKER_TLS_VERIFY)',
+    :category => '1.Placement',
+    :order => 2
+  }
+
 attribute 'sizemap',
   :description => "Sizes Map",
   :data_type => "hash",
@@ -42,7 +52,7 @@ attribute 'imagemap',
                 "ubuntu-10.04":"ubuntu:10.04",
                 "centos-7.0":"centos:centos7",
                 "centos-6.5":"centos:centos6",
-                "opensuse-13.1","opensuse:13.1",
+                "opensuse-13.1":"opensuse:13.1",
                 "fedora-20":"fedora:20",
                 "fedora-19":"fedora:19"}',
   :format => {

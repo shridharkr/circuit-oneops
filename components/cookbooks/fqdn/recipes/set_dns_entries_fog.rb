@@ -37,9 +37,9 @@ ns = node.ns
 #
 node[:entries].each do |entry|
   dns_match = false
-  dns_type = get_record_type(entry[:values]) 
   dns_name = entry[:name]
-  dns_values = entry[:values]
+  dns_values = entry[:values].is_a?(String) ? Array.new([entry[:values]]) : entry[:values]
+  dns_type = get_record_type(dns_values) 
   
   existing_dns = `dig +short #{dns_name} @#{ns}`.split("\n")
   
@@ -139,7 +139,11 @@ node[:entries].each do |entry|
       existing_comparison = existing_dns.sort <=> dns_values.sort
       Chef::Log.info("verify ns has: "+dns_values.sort.to_s)  
       Chef::Log.info("ns #{ns} has: "+existing_dns.sort.to_s)
-      if existing_comparison == 0
+      # for matching of cname of cname
+      possible_value = dns_values.first + '.'
+              
+      if existing_comparison == 0 || 
+         (dns_type == "CNAME" && existing_dns.include?(possible_value))        
         verified = true
         Chef::Log.info("verified.")
       else 

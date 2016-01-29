@@ -1,6 +1,7 @@
 # Cookbook Name:: fqdn
 # Recipe:: remove_old_aliases
 #
+
           
 # ex) customer_domain: env.asm.org.oneops.com
 customer_domain = node.customer_domain
@@ -18,6 +19,8 @@ end
 # entries Array of {name:String, values:Array}
 entries = Array.new
 aliases = Array.new
+zone = node.fog_zone
+ns = node.ns
 
 if node.workorder.rfcCi.ciBaseAttributes.has_key?("aliases")
   aliases = JSON.parse(node.workorder.rfcCi.ciBaseAttributes.aliases)
@@ -53,10 +56,6 @@ def get_record_type (dns_values)
   end     
   return record_type
 end
-
-# set in get_fog_connection
-zone = node.fog_zone
-ns = node.ns
 
 #
 # remove old aliases
