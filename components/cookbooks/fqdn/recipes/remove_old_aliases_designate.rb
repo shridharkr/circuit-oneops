@@ -32,6 +32,8 @@ end
 # entries Array of {name:String, values:Array}
 entries = Array.new
 aliases = Array.new
+zone = node.designate_zone
+ns = node.ns
 
 if node.workorder.rfcCi.ciBaseAttributes.has_key?("aliases")
   aliases = JSON.parse(node.workorder.rfcCi.ciBaseAttributes.aliases)
@@ -67,9 +69,6 @@ def get_record_type (dns_values)
   return record_type
 end
 
-# set in get_designate_connection
-zone = node.designate_zone
-ns = node.ns
 
 #
 # remove old aliases
