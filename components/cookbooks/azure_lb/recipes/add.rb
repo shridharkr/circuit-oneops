@@ -186,6 +186,7 @@ def create_frontend_ipconfig(subscription_id, rg_name, lb_name, frontend_name, p
 
   if public_ip.nil?
     frontend_ipconfig_props.subnet = subnet
+    #frontend_ipconfig_props.private_ipallocation_method = IpAllocationMethod::Static
     frontend_ipconfig_props.private_ipallocation_method = IpAllocationMethod::Dynamic
   else
     frontend_ipconfig_props.public_ipaddress = public_ip
