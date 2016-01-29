@@ -9,8 +9,6 @@ if ! [ -e /etc/ssh/ssh_host_dsa_key ] ; then
   /usr/bin/ssh-keygen -A
 fi
 
-DEBIAN_FRONTEND=noninteractive
-
 for ARG in "$@"
 do
   # if arg starts with http then use it to set http_proxy env variable
@@ -74,19 +72,20 @@ elif [ -e /etc/redhat-release ] ; then
 
 else
 # debian
-    echo "apt-get update ..."
-    apt-get update >/dev/null 2>&1
-    if [ $? != 0 ]; then
-       echo "apt-get update returned non-zero result code. Usually means some repo is returning a 403 Forbidden. Try deleting the compute from providers console and retrying."
-       exit 1
-    fi
-    apt-get install -q -y make libxml2-dev libxslt-dev libz-dev ruby ruby-dev nagios3
-
+	export DEBIAN_FRONTEND=noninteractive
+	echo "apt-get update ..."
+	apt-get update >/dev/null 2>&1
+	if [ $? != 0 ]; then
+	   echo "apt-get update returned non-zero result code. Usually means some repo is returning a 403 Forbidden. Try deleting the compute from providers console and retrying."
+	   exit 1
+	fi
+	apt-get install -q -y make libxml2-dev libxslt-dev libz-dev ruby ruby-dev nagios3
+	
 	# seperate rubygems - rackspace 14.04 needs it, aws doesn't
-    set +e
-    apt-get -y -q install rubygems
-    rm -fr /etc/apache2/conf.d/nagios3.conf
-    set -e
+	set +e
+	apt-get -y -q install rubygems
+	rm -fr /etc/apache2/conf.d/nagios3.conf
+	set -e
 fi
 
 me=`logname`
