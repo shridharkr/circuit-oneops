@@ -70,6 +70,7 @@ ruby_block 'install base' do
       circuit_dir = node.circuit_dir.gsub("/packer","")
     end
     cookbook_path = "#{circuit_dir}/shared/"
+    Chef::Log.info("Syncing #{cookbook_path} ...")
     cmd = node.rsync_cmd.gsub("SOURCE",cookbook_path).gsub("DEST","~/shared/").gsub("IP",node.ip)
     result = shell_out(cmd)
     Chef::Log.info("#{cmd} returned: #{result.stdout}")
@@ -89,10 +90,10 @@ ruby_block 'install base' do
     cookbook_path = "#{circuit_dir}/#{sub_circuit_dir}/"
     node.set["circuit_dir"] = circuit_dir
     
-
+    Chef::Log.info("Syncing #{cookbook_path} ...")
     cmd = node.rsync_cmd.gsub("SOURCE",cookbook_path).gsub("DEST","~/#{sub_circuit_dir}/").gsub("IP",node.ip)
     result = shell_out(cmd)
-    Chef::Log.info("#{cmd} returned: #{result.stdout}")
+    Chef::Log.debug("#{cmd} returned: #{result.stdout}")
     result.error!    
  
     # install base: oneops user, ruby, chef, nagios
@@ -107,11 +108,13 @@ ruby_block 'install base' do
     if !node.ssh_cmd.include?("root@")
       sudo = "sudo "
     end
+
     install_base = "components/cookbooks/compute/files/default/install_base.sh"
+    Chef::Log.info("Installing base sw for oneops ...")
     cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + "\"#{sudo}#{sub_circuit_dir}/#{install_base} #{args}\""
     result = shell_out(cmd)
-    Chef::Log.info("#{cmd} returned: #{result.stdout}")
-    result.error!    
+    Chef::Log.debug("#{cmd} returned: #{result.stdout}")
+    result.error!  
 
     cmd = node.ssh_cmd.gsub("IP",node.ip) + "\"grep processor /proc/cpuinfo | wc -l\""
     result = shell_out(cmd)
