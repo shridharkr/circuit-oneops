@@ -14,7 +14,7 @@ ns_list.each do |n|
 end
 
 if service_attrs.has_key?("authoritative_server") && !service_attrs[:authoritative_server].empty?
-  ns = service[:authoritative_server]
+  ns = service_attrs[:authoritative_server]
 end
 
 Chef::Log.info("authoritative_dns_server: "+ns.inspect)
