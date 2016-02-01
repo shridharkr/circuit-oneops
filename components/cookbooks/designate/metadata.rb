@@ -86,7 +86,7 @@ attribute 'authoritative_server',
   :description => "authoritative_server",
   :default => "",
   :format => {
-    :help => 'use explicit authoritative_server for verification',
+    :help => 'Explicit authoritative_server for verification - useful for testing. If not set uses NS records for the zone.',
     :category => '2.DNS',
     :order => 4
   }
