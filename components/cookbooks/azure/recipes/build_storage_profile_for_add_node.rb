@@ -1,11 +1,11 @@
 require 'azure_mgmt_compute'
 require 'azure_mgmt_storage'
+require File.expand_path('../../libraries/storage_account.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, Azure::ARM::Compute)
 ::Chef::Recipe.send(:include, Azure::ARM::Compute::Models)
 ::Chef::Recipe.send(:include, Azure::ARM::Storage)
 ::Chef::Recipe.send(:include, Azure::ARM::Storage::Models)
-
 
 cloud_name = node['workorder']['cloud']['ciName']
 compute_service = node['workorder']['services']['compute'][cloud_name]['ciAttributes']
@@ -174,12 +174,12 @@ Chef::Log.info("Location: #{location}")
 # Azure storage accout name restrinctions:
 # alpha-numberic  no special characters between 9 and 24 characters
 
-generated_name = "oostg#{node.workorder.box.ciId}"  ## This name generation needs to be refactored
+# name needs to be globally unique, but it also needs to be per region.
+generated_name = AzureStorage::StorageAccount.generate_name(node.workorder.box.ciId, location)
 
-if generated_name.length > 24
-  generated_name = generated_name.slice!(0..23)  #making sure we are not over the limit
+if generated_name.length > 22
+  generated_name = generated_name.slice!(0..21)  #making sure we are not over the limit
 end
-
 
 Chef::Log.info("Generated Storage Account Name: #{generated_name}")
 Chef::Log.info("Getting Resource Group '#{resource_group_name}' VM count")

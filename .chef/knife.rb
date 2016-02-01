@@ -19,4 +19,4 @@ pack_path [ 'packs' ]
 service_path [ 'services' ]
 cloud_path [ 'clouds' ]
 catalog_path [ 'catalogs' ]
-default_impl 'oo::chef-11.4.0'
+default_impl 'oo::chef-11.18.12'
