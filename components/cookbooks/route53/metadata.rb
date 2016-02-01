@@ -51,3 +51,12 @@ attribute 'cloud_dns_id',
     :category => '2.DNS',
     :order => 3
   }
+
+attribute 'authoritative_server',
+  :description => "authoritative_server",
+  :default => "",
+  :format => {
+    :help => 'Explicit authoritative_server for verification - useful for testing. If not set uses NS records for the zone.',
+    :category => '2.DNS',
+    :order => 4
+  }
