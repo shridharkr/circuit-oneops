@@ -1,6 +1,6 @@
 require 'time'
 require 'uri'
-require 'OpenSSL'
+require 'openssl'
 require 'base64'
 require 'net/https'
 require 'net/http'
