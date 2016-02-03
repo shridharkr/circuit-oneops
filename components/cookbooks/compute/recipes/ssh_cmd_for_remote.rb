@@ -50,4 +50,4 @@ node.set[:ssh_key_file] = ssh_key_file
 node.set[:ssh_cmd] = "ssh -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
 node.set[:ssh_interactive_cmd] = "ssh -t -t -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
 node.set[:scp_cmd] = "scp -ri #{ssh_key_file} #{ssh_options} SOURCE #{user}@#{ip}:DEST "
-node.set[:rsync_cmd] = "rsync -ae \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
+node.set[:rsync_cmd] = "rsync -az --exclude=*.md --exclude=*.png -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
