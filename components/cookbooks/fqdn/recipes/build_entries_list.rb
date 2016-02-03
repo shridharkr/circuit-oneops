@@ -111,7 +111,7 @@ def get_primary_ips(ci,values,customer_domain)
       other_cloud_dns_name =   cloud_level_name.gsub(
            "\."+cloud_dns_id+"\."+cloud_dns_zone,
            "."+other_cloud_dns_id+"."+other_cloud_dns_zone).downcase
-      Chef::Log.info("other_cloud_dns_name: dig +short #{other_cloud_dns_name} @#{ns}")
+      Chef::Log.info("other_cloud_dns_name: dig +short #{other_cloud_dns_name} @#{node.ns}")
       other_ips = `dig +short #{other_cloud_dns_name} @#{node.ns} | grep -v ";;"`.split("\n")
       other_ips.each do |rr_entry|
         Chef::Log.info("#{other_cloud_dns_name} #{rr_entry}")
