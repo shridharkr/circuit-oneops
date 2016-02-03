@@ -66,17 +66,6 @@ attribute 'binpath',
               :order => 5
           }
 
-attribute 'enable_jce',
-      :description => 'Enable Unlimited Strength JCE Policy',
-      :default => 'false',
-      :format => {
-          :filter => {'all' => {'visible' => 'flavor:eq:oracle'}},
-          :form => { 'field' => 'checkbox' },
-          :help => 'Enables Unlimited Crypto Strength for JCE.  Check with export policies for the country that is being deployed to before enabling this feature.',
-          :category => '1.Source',
-          :order => 6
-      }
-
 attribute 'install_dir',
           :description => 'Installation Directory',
           :default => '/usr/lib/jvm',
