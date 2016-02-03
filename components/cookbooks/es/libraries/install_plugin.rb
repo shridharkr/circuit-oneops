@@ -45,9 +45,9 @@ module Extensions
         system clean_plugin_kopf
 
         if url.nil?
-           command = "/usr/local/bin/plugin -install #{name}#{version}"
+           command = "/usr/local/bin/plugin -install #{name}/#{version}"
         elsif version.start_with?("1")
-          command = "/usr/local/bin/plugin -install #{name}/#{version} #{url}/elasticsearch-kopf/1.1/elasticsearch-kopf-1.1.zip"
+          command = "/usr/local/bin/plugin --url #{url}/elasticsearch-kopf/1.1/elasticsearch-kopf-1.1.zip --install kopf"
         elsif version.start_with?("2")
           command = "/usr/local/bin/plugin install #{url}/elasticsearch-kopf/2.0.0/elasticsearch-kopf-2.0.0.zip"
         end
