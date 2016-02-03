@@ -1,6 +1,5 @@
 name             "Os"
 description      "Installs/Configures OperatingSystem"
-long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 maintainer       "OneOps"
 maintainer_email "support@oneops.com"
 license          "Apache License, Version 2.0"
