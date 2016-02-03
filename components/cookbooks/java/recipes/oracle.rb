@@ -116,35 +116,6 @@ link '/usr/java/default' do
   to jpath
 end
 
-cookbook_file 'Java JCE Policy US' do
- owner 'root'
- group 'root'
- mode '0644'
- action :create
- path case pkg
- when 'jre'
-    "#{jpath}/lib/security/US_export_policy.jar"
-  else
-      "#{jpath}/jre/lib/security/US_export_policy.jar"
-  end
- source "jce/#{version}/US_export_policy.jar"
- only_if {  node.java.enable_jce != nil && node.java.enable_jce == 'true' }
-end
-
-cookbook_file 'Java JCE Policy Local' do
- owner 'root'
- group 'root'
- mode '0644'
- action :create
- path case pkg
- when 'jre'
-    "#{jpath}/lib/security/local_policy.jar"
-  else
-      "#{jpath}/jre/lib/security/local_policy.jar"
-  end
- source "jce/#{version}/local_policy.jar"
- only_if { node.java.enable_jce != nil && node.java.enable_jce == 'true' }
-end
 
 # Set java alternatives
 ruby_block 'Install Java Alternatives' do
