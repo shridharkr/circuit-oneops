@@ -1,6 +1,5 @@
 name             "Parameter"
 description      "Input/Output Parameters"
-long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "0.1"
 maintainer       "Oneops, Inc."
 maintainer_email "dev@oneops.com"

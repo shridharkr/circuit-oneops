@@ -1,6 +1,5 @@
 name                "Diagnostic_cache"
 description         "Installs/Configures Diagnostic Cache Logs"
-long_description    IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version             "0.1"
 maintainer          "Cache"
 maintainer_email    "support@oneops.com"
