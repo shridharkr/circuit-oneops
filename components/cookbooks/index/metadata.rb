@@ -1,6 +1,5 @@
 name             "Index"
 description      "Index"
-long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 maintainer       "OneOps"
 version          "0.1"
 maintainer_email "support@oneops.com"
