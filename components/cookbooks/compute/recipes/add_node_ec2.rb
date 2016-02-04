@@ -109,7 +109,7 @@ while !done && retry_count < max_retry_count do
     sg.authorize_port_range( 22..22, {} )
     done = true
   rescue Exception => e
-      if e.message =~ /already been authorized/
+      if e.message =~ /already (been authorized|exists)/
         Chef::Log.info("security group #{security_domain} already authorize_port_range 22.")
         done = true
       elsif e.message =~ /RequestLimitExceeded/
@@ -135,7 +135,7 @@ while !done && retry_count < max_retry_count do
     sg.authorize_port_range( 1..65535, {:ip_protocol => "udp", :group => { env_sg.owner_id => env_sg.group_id } } )
   rescue Exception => e
 
-    if e.message =~ /already been authorized/
+    if e.message =~ /already (been authorized|exists)/
       Chef::Log.info("security group #{security_domain} already authorize_port_range for env")
       done = true
     elsif e.message =~ /RequestLimitExceeded/
