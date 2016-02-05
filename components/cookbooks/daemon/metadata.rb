@@ -39,6 +39,17 @@ attribute 'use_script_status',
     :form => { 'field' => 'checkbox' }
   }
 
+attribute 'secondary_down',
+          :description => 'Secondary Down',
+          :default => 'false',
+          :format => {
+              :important => true,
+              :help => "Monitor the secondary/standby daemon status and report 'up' if down or 'down' if up",
+              :category => '1.Service',
+              :order => 4,
+              :form => {'field' => 'checkbox'}
+          }
+
 attribute 'control_script_location',
   :description => "Control Script Location",
   :format => {
