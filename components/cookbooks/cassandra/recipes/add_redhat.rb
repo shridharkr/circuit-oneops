@@ -4,18 +4,33 @@ package "jna"
 
 dist = node.workorder.rfcCi.ciAttributes.version
 
-case dist
-when "2.1"
- v = "2.1.12"
-when "2.0"
-  v = "2.0.17"
-when "1.2"
-  v = "1.2.18"
-else
-  Chef::Log.error("unsupported #{dist}")
-  exit 1
-end
+version_parts = dist.split(".")
 
+if version_parts.size < 3
+
+  case dist
+  when "2.2"
+     v = "2.2.4"
+  when "2.1"
+   v = "2.1.12"
+  when "2.0"
+    v = "2.0.17"
+  when "1.2"
+    v = "1.2.18"
+  else
+    Chef::Log.error("unsupported #{dist}")
+    exit 1
+  end
+
+else
+  
+  # full version with patch level x.x.x
+  v = dist
+  
+  # to share config templates by minor version
+  version_parts.pop  
+  dist = version_parts.join(".")  
+end
 
 sub_dir = "/cassandra/#{v}/"
 tgz_file = "apache-cassandra-#{v}-bin.tar.gz"
