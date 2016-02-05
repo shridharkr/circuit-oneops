@@ -79,6 +79,8 @@ rescue Exception => ex
   raise ex
 end
 
+
+
 if express_route_enabled == 'false'
   networkclient = NetworkResourceProviderClient.new(node['azureCredentials'])
   networkclient.subscription_id = compute_service['subscription']
@@ -110,6 +112,8 @@ rescue Exception => ex
   raise ex
 end
 end
+
+#include_recipe "azure::format_data_disk"
 
 include_recipe "compute::ssh_port_wait"
 
