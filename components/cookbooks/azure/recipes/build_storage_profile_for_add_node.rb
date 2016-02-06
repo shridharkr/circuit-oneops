@@ -253,20 +253,11 @@ storage_profile.os_disk.vhd.uri = "https://#{storage_account_name}.blob.core.win
 Chef::Log.info("VHD URI is: #{storage_profile.os_disk.vhd.uri}")
 storage_profile.os_disk.caching = CachingTypes::ReadWrite
 storage_profile.os_disk.create_option = DiskCreateOptionTypes::FromImage
-#Add a data disk
-storage_profile.data_disk = DataDisk.new
-storage_profile.data_disk.name = "#{server_name}-datadisk"
-Chef::Log.info("Disk Name is: '#{storage_profile.data_disk.name}' ")
 
-storage_profile.data_disk.vhd = VirtualHardDisk.new
-storage_profile.data_disk.vhd.uri = "https://#{storage_account_name}.blob.core.windows.net/vhds/#{storage_account_name}-#{server_name}-data1.vhd"
-Chef::Log.info("VHD URI is: #{storage_profile.data_disk.vhd.uri}")
-storage_profile.data_disk.caching = CachingTypes::ReadWrite
-storage_profile.data_disk.create_option = DiskCreateOptionTypes::Empty
 
 #Add a data disk
 data_disk1 = DataDisk.new
-data_disk1.name = "#{server_name}-datadisk1"
+data_disk1.name = "#{server_name}-datadisk" 
 data_disk1.lun = 0
 data_disk1.disk_size_gb = 1023
 data_disk1.vhd = VirtualHardDisk.new
@@ -279,6 +270,5 @@ Chef::Log.info("Data Disk Name is: '#{data_disk1.name}' ")
 Chef::Log.info("Data Disk VHD URI is: #{data_disk1.vhd.uri}")
 
 node.set['storageProfile'] = storage_profile
-
 
 Chef::Log.info("Exiting azure storage profile")

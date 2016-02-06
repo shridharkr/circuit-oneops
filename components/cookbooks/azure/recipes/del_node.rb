@@ -145,6 +145,8 @@ begin
     storage_account  = (vhd_uri.split(".").first).split("//").last
     node.set["storage_account"] = storage_account
     node.set["vhd_uri"]=vhd_uri
+    Chef::Log.info(vm.properties.inspect)
+    node.set["datadisk_uri"] = vm.properties.storage_profile.data_disks[0].vhd.uri
     nameutil = Utils::NameUtils.new()
     ci_name = node['workorder']['rfcCi']['ciId']
     Chef::Log.info("Deleting Azure VM: '#{server_name}'")
