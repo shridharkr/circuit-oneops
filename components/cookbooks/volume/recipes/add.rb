@@ -360,9 +360,9 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
     #get rid of /mnt if provider added it
     inital_mountpoint = "/mnt"
     if token_class =~ /azure/
-      #inital_mountpoint = "/mnt/resource"
+      #Command to check whether data disk is attached to the VM
       `sudo lsblk /dev/sdc`
-
+      #starting the logical volume manager. LVM is disabled by default in azure computes
       `systemctl enable lvm2-lvmetad.service`
       `systemctl enable lvm2-lvmetad.socket`
       `systemctl start lvm2-lvmetad.service`
@@ -384,7 +384,7 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
     case token_class
     when /azure/
        device_prefix = "/dev/sd"
-       device_set = ["c"]
+       device_set = ["c"] # Using first datadisk attached to the compute. sdb cannot be use, bcoz it is wiped off on deallocate action(might happen during maintenance)
        Chef::Log.info("using azure sdc")
 
     when /openstack/
@@ -563,7 +563,7 @@ ruby_block 'filesystem' do
 
      if type == "data"
        if token_class =~ /azure/
-         cmd = "mkfs -t #{_fstype} #{_device}"
+         cmd = "mkfs -t #{_fstype} #{_device}" # -f switch not valid in latest mkfs
        else
          cmd = "mkfs -t #{_fstype} -f #{_device}"
        end
@@ -581,27 +581,24 @@ ruby_block 'filesystem' do
 
     end
       if is_single || _device =~ /-eph\//
-      # clear and add to fstab again to make sure has current attrs on update
-      result = `grep -v #{_device} /etc/fstab > /tmp/fstab`
-if token_class =~ /azure/
-       temp_ciName = (block_dev['ciName']).gsub("-","--")
-       _device="/dev/mapper/#{platform_name}--eph-#{temp_ciName}"
-      ::File.open("/tmp/fstab","a") do |fstab|
-          fstab.puts("##{_device} #{_mount_point} #{_fstype} #{_options}")
-          Chef::Log.info("adding to fstab #{_device} #{_mount_point} #{_fstype} #{_options}")
+      	# clear and add to fstab again to make sure has current attrs on update
+      	result = `grep -v #{_device} /etc/fstab > /tmp/fstab`
+      	if token_class =~ /azure/
+      	   ::File.open("/tmp/fstab","a") do |fstab|
+             fstab.puts("#{_device} #{_mount_point} #{_fstype} #{_options} 1 2") # disable fsck check on this device at boot time
+             Chef::Log.info("adding to fstab #{_device} #{_mount_point} #{_fstype} #{_options}")
+      	    end
+      	    `sudo update-initramfs -u` #make the device mappings available during boot
+        else
+	  ::File.open("/tmp/fstab","a") do |fstab|
+           fstab.puts("#{_device} #{_mount_point} #{_fstype} #{_options}")
+           Chef::Log.info("adding to fstab #{_device} #{_mount_point} #{_fstype} #{_options}")
+          end
+	end
+        `mv /tmp/fstab /etc/fstab`
+      else
+       Chef::Log.info("non-single platform w/ ebs - letting crm / resouce mgmt mount")
       end
-      `sudo update-initramfs -u`
-else
-::File.open("/tmp/fstab","a") do |fstab|
-          fstab.puts("#{_device} #{_mount_point} #{_fstype} #{_options}")
-          Chef::Log.info("adding to fstab #{_device} #{_mount_point} #{_fstype} #{_options}")
-      end
-end
-      `mv /tmp/fstab /etc/fstab`
-    else
-      Chef::Log.info("non-single platform w/ ebs - letting crm / resouce mgmt mount")
-    end
-   
 
    end
 end
@@ -645,4 +642,3 @@ ruby_block 'ramdisk tmpfs' do
       `mv /tmp/fstab /etc/fstab`
   end
 end
-
