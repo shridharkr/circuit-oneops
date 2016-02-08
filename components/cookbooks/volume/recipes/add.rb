@@ -519,10 +519,8 @@ ruby_block 'filesystem' do
   block do
 
     block_dev = node.workorder.rfcCi
-      Chef::Log.info("block_dev #{block_dev} ")
     _device = "/dev/#{platform_name}/#{block_dev['ciName']}"
 
-        Chef::Log.info("device----> #{_device}")
     # if ebs/storage exists then use it, else use the -eph ephemeral volume
     if ! ::File.exists?(_device)
       _device = "/dev/#{platform_name}-eph/#{block_dev['ciName']}"

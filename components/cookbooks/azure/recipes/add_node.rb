@@ -111,7 +111,6 @@ rescue Exception => ex
 end
 end
 
-#include_recipe "azure::format_data_disk"
 include_recipe "compute::ssh_port_wait"
 
 rfcCi = node["workorder"]["rfcCi"]
