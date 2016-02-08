@@ -94,7 +94,7 @@ template "/etc/init.d/cassandra" do
   mode 0700
 end
 
-if dist == "2.1"
+if dist.to_f > 2.0
   template "/opt/cassandra/conf/logback.xml" do
     source "logback.xml.erb"
     owner "root"
