@@ -15,15 +15,14 @@ grouping 'bom',
 
 
 attribute 'version',
-          :description => "Version",
+          :description => "Version - 1.2.x .. 2.2.x supported",
           :required => "required",
-          :default => "2.0",
+          :default => "2.2.4",
           :format => {
               :important => true,
               :help => 'Version of Cassandra',
               :category => '1.Global',
-              :order => 1,
-              :form => {'field' => 'select', 'options_for_select' => [['2.1', '2.1'],['2.0', '2.0'],['1.2','1.2']]}
+              :order => 1
           }
 
 attribute 'cluster',
@@ -50,7 +49,7 @@ attribute 'num_tokens',
 
 attribute 'partitioner',
           :description => "Partitioner",
-          :default => "org.apache.cassandra.dht.RandomPartitioner",
+          :default => "org.apache.cassandra.dht.Murmur3Partitioner",
           :format => {
               :important => true,
               :help => 'Partitioner',

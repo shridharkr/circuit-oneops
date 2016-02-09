@@ -15,23 +15,14 @@ nodes.each do |n|
 end
 node.default[:initial_seeds] = filtered_nodes.collect { |n| n[:ciAttributes][:private_ip] }
 
-
-case dist
-when "1.0"
-  v = "10x"
-when "0.8"
-  v = "08x"
-when "0.7"
-  v = "07x"
-when "0.6"
-  v = "06x"
-when "1.1"
-  v = "11x"
-when "1.2"
-  v = "12x"
-else
-  v = "11x"
+version_parts = dist.split(".")
+if version_parts.size > 2
+  version_parts.pop
 end
+# to share config templates by minor version
+dist = version_parts.join(".")  
+v = version_parts.join("") + "x"
+  
 
 include_recipe "cassandra::add_user_dirs"
 directory "/etc/cassandra" do
@@ -41,6 +32,8 @@ directory "/etc/cassandra" do
   action :create
   not_if "test -d /etc/cassandra"
 end
+
+execute "ln -sf /etc/cassandra /opt/cassandra/conf"
 
 private_ip = node.workorder.payLoad.ManagedVia[0][:ciAttributes][:private_ip]
 
