@@ -62,3 +62,5 @@ end
 remove_blob(node['vhd_uri'],node['storage_account'],node['storage_key1'])
 
 remove_blob(node['block_blob_uri'],node['storage_account'],node['storage_key1'])
+
+remove_blob(node['datadisk_uri'],node['storage_account'],node['storage_key1'])

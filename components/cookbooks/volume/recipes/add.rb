@@ -37,7 +37,7 @@ include_recipe "shared::set_provider"
 
   cloud_name = node[:workorder][:cloud][:ciName]
 
-vol_size =  node.workorder.rfcCi.ciAttributes[:size] 
+vol_size =  node.workorder.rfcCi.ciAttributes[:size]
  Chef::Log.info("-------------------------------------------------------------")
  Chef::Log.info("Volume Size : "+vol_size )
  Chef::Log.info("-------------------------------------------------------------")
@@ -49,7 +49,7 @@ end
 
 raid_device = "/dev/md/#{node.workorder.rfcCi.ciName}"
 rfc_action = "#{node.workorder.rfcCi.rfcAction}"
-no_raid_device = " " 
+no_raid_device = " "
 
  Chef::Log.info("-------------------------------------------------------------")
  Chef::Log.info("Raid Device : "+raid_device)
@@ -85,9 +85,9 @@ ruby_block 'create-iscsi-volume-ruby-block' do
     Chef::Log.info("Storage: "+storage.inspect.gsub("\n"," "))
     Chef::Log.info("------------------------------------------------------")
 
-   
-    if storage.nil?   
-  
+
+    if storage.nil?
+
        Chef::Log.info("no DependsOn Storage - skipping")
 
     else
@@ -227,7 +227,7 @@ ruby_block 'create-iscsi-volume-ruby-block' do
               dev_id = new_dev
               Chef::Log.info "Assigned Device: "+dev_id
               Chef::Log.info("-------------------------------------------")
-              no_raid_device = dev_id 
+              no_raid_device = dev_id
             end
 
           when /rackspace/
@@ -327,7 +327,7 @@ ruby_block 'create-iscsi-volume-ruby-block' do
        end
      else
       Chef::Log.info ("No Raid Device ID :" +no_raid_device)
-      raid_device = no_raid_device 
+      raid_device = no_raid_device
       node.set["raid_device"] = no_raid_device
 
      end
@@ -352,19 +352,24 @@ if attrs.has_key?("mount_point")
   _fstype = attrs["fstype"]
 end
 
+if node[:platform_family] == "rhel" && node[:platform_version].to_i >= 7
+ Chef::Log.info("starting the logical volume manager.")
+ service 'lvm2-lvmetad' do
+   action [:enable, :start]
+   provider Chef::Provider::Service::Systemd
+ end
+end
+
 ruby_block 'create-ephemeral-volume-ruby-block' do
   # only create ephemeral if doesn't depend_on storage
   not_if { _fstype == "tmpfs" || !storage.nil? }
   block do
-
     #get rid of /mnt if provider added it
     inital_mountpoint = "/mnt"
-    if token_class =~ /azure/
-      inital_mountpoint = "/mnt/resource"
-    end
-    `umount #{inital_mountpoint}`
-    `egrep -v "\/mnt" /etc/fstab > /tmp/fstab`
-    `mv -f /tmp/fstab /etc/fstab`
+      `umount #{inital_mountpoint}`
+      `egrep -v "\/mnt" /etc/fstab > /tmp/fstab`
+      `mv -f /tmp/fstab /etc/fstab`
+
 
     devices = Array.new
     # c,d are used on aws m1.medium - j,k are set on aws rhel 6.3 L
@@ -375,8 +380,9 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
     case token_class
     when /azure/
        device_prefix = "/dev/sd"
-       device_set = ["b"]
-       Chef::Log.info("using azure sdb")
+       device_set = ["c"] # Using first datadisk attached to the compute. sdb cannot be use, bcoz it is wiped off on deallocate action(might happen during maintenance)
+       Chef::Log.info("using azure sdc")
+
     when /openstack/
        device_prefix = "/dev/vd"
        device_set = ["b"]
@@ -389,6 +395,7 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
       if ::File.exists?(ephemeralDevice) && df_out !~ /#{ephemeralDevice}/
         # remove partitions - azure and rackspace add them
         `parted #{ephemeralDevice} rm 1`
+         Chef::Log.info("removing partition #{ephemeralDevice}")
          devices.push(ephemeralDevice)
       end
     end
@@ -438,7 +445,7 @@ end
 ruby_block 'create-storage-ebs-volume' do
   only_if { storage != nil && is_primary && token_class !~ /virtualbox|vagrant/}
   block do
-  
+
    raid_device = node.raid_device
 
     devices = Array.new
@@ -484,8 +491,8 @@ ruby_block 'create-storage-ebs-volume' do
         exit 1
       end
     end
-   
-    `vgchange -ay #{platform_name}` 
+
+    `vgchange -ay #{platform_name}`
       if $? != 0
         Chef::Log.error("Error in vgchange")
         exit 1
@@ -516,6 +523,7 @@ ruby_block 'filesystem' do
 
       if ! ::File.exists?(_device)
         # micro,tiny and rackspace don't have ephemeral
+        Chef::Log.info("_device #{_device} don't exists")
         next
       end
     end
@@ -543,12 +551,17 @@ ruby_block 'filesystem' do
 
       type = (`file -sL #{_device}`).chop.split(" ")[1]
 
-    Chef::Log.info("-------------------------") 
+    Chef::Log.info("-------------------------")
     Chef::Log.info("Type : = "+type )
-    Chef::Log.info("-------------------------") 
-    
-     if type == "data" 
-        cmd = "mkfs -t #{_fstype} -f #{_device}"
+    Chef::Log.info("-------------------------")
+
+     if type == "data"
+       if node[:platform_family] == "rhel" && (node[:platform_version]).to_i >= 7
+         cmd = "mkfs -t #{_fstype} #{_device}" # -f switch not valid in latest mkfs
+       else
+         cmd = "mkfs -t #{_fstype} -f #{_device}"
+       end
+
         Chef::Log.info(cmd+" ... "+`#{cmd}`)
       end
 
@@ -561,21 +574,24 @@ ruby_block 'filesystem' do
       end
 
     end
-
-    if is_single || _device =~ /-eph\//
-      # clear and add to fstab again to make sure has current attrs on update
-      result = `grep -v #{_device} /etc/fstab > /tmp/fstab`
-      ::File.open("/tmp/fstab","a") do |fstab|
-          fstab.puts("#{_device} #{_mount_point} #{_fstype} #{_options}")
-          Chef::Log.info("adding to fstab #{_device} #{_mount_point} #{_fstype} #{_options}")
+      if is_single || _device =~ /-eph\//
+      	# clear and add to fstab again to make sure has current attrs on update
+      	result = `grep -v #{_device} /etc/fstab > /tmp/fstab`
+	  ::File.open("/tmp/fstab","a") do |fstab|
+          fstab.puts("#{_device} #{_mount_point} #{_fstype} #{_options} 1 1")
+          Chef::Log.info("adding to fstab #{_device} #{_mount_point} #{_fstype} #{_options} 1 1")
+	end
+        `mv /tmp/fstab /etc/fstab`
+      else
+       Chef::Log.info("non-single platform w/ ebs - letting crm / resouce mgmt mount")
       end
-      `mv /tmp/fstab /etc/fstab`
-    else
-      Chef::Log.info("non-single platform w/ ebs - letting crm / resouce mgmt mount")
-    end
 
+      	if token_class =~ /azure/
+            `sudo mkdir /opt/oneops/workorder`
+            `sudo chmod 777 /opt/oneops/workorder`
+	end
 
-  end
+   end
 end
 
 ruby_block 'ramdisk tmpfs' do
