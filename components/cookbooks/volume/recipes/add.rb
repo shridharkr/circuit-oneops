@@ -352,6 +352,13 @@ if attrs.has_key?("mount_point")
   _fstype = attrs["fstype"]
 end
 
+if node[:platform_family] == "rhel" && node[:platform_version].to_i >= 7
+ Chef::Log.info("starting the logical volume manager.")
+ service 'lvm2-lvmetad' do
+   action [:enable, :start]
+   provider Chef::Provider::Service::Systemd
+ end
+end
 
 ruby_block 'create-ephemeral-volume-ruby-block' do
   # only create ephemeral if doesn't depend_on storage
@@ -359,15 +366,6 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
   block do
     #get rid of /mnt if provider added it
     inital_mountpoint = "/mnt"
-     if node['platform_family'] == 'centos' && node['platform_version'].to_i >= 7
-     #Command to check whether data disk is attached to the VM
-      `sudo lsblk /dev/sdc`
-      #starting the logical volume manager. LVM is disabled by default in cent 7 computes
-      	`systemctl enable lvm2-lvmetad.service`
-      	`systemctl enable lvm2-lvmetad.socket`
-      	`systemctl start lvm2-lvmetad.service`
-      	`systemctl start lvm2-lvmetad.socket`
-    end
       `umount #{inital_mountpoint}`
       `egrep -v "\/mnt" /etc/fstab > /tmp/fstab`
       `mv -f /tmp/fstab /etc/fstab`
@@ -579,14 +577,20 @@ ruby_block 'filesystem' do
       if is_single || _device =~ /-eph\//
       	# clear and add to fstab again to make sure has current attrs on update
       	result = `grep -v #{_device} /etc/fstab > /tmp/fstab`
-	      ::File.open("/tmp/fstab","a") do |fstab|
+	  ::File.open("/tmp/fstab","a") do |fstab|
           fstab.puts("#{_device} #{_mount_point} #{_fstype} #{_options} 1 1")
           Chef::Log.info("adding to fstab #{_device} #{_mount_point} #{_fstype} #{_options} 1 1")
-	       end
+	end
         `mv /tmp/fstab /etc/fstab`
       else
        Chef::Log.info("non-single platform w/ ebs - letting crm / resouce mgmt mount")
       end
+
+      	if token_class =~ /azure/
+            `sudo mkdir /opt/oneops/workorder`
+            `sudo chmod 777 /opt/oneops/workorder`
+	end
+
    end
 end
 
