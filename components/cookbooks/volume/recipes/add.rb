@@ -556,7 +556,7 @@ ruby_block 'filesystem' do
     Chef::Log.info("-------------------------")
 
      if type == "data"
-       if node[:platform] == "centos" && (node[:platform_version]).to_i >= 7
+       if node[:platform_family] == "rhel" && (node[:platform_version]).to_i >= 7
          cmd = "mkfs -t #{_fstype} #{_device}" # -f switch not valid in latest mkfs
        else
          cmd = "mkfs -t #{_fstype} -f #{_device}"
