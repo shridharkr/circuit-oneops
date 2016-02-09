@@ -352,27 +352,25 @@ if attrs.has_key?("mount_point")
   _fstype = attrs["fstype"]
 end
 
+
 ruby_block 'create-ephemeral-volume-ruby-block' do
   # only create ephemeral if doesn't depend_on storage
   not_if { _fstype == "tmpfs" || !storage.nil? }
   block do
-
     #get rid of /mnt if provider added it
     inital_mountpoint = "/mnt"
-    if token_class =~ /azure/
-      #Command to check whether data disk is attached to the VM
+     if node['platform_family'] == 'centos' && node['platform_version'].to_i >= 7
+     #Command to check whether data disk is attached to the VM
       `sudo lsblk /dev/sdc`
-      #starting the logical volume manager. LVM is disabled by default in azure computes
-      `systemctl enable lvm2-lvmetad.service`
-      `systemctl enable lvm2-lvmetad.socket`
-      `systemctl start lvm2-lvmetad.service`
-      `systemctl start lvm2-lvmetad.socket`
-
-    else
+      #starting the logical volume manager. LVM is disabled by default in cent 7 computes
+      	`systemctl enable lvm2-lvmetad.service`
+      	`systemctl enable lvm2-lvmetad.socket`
+      	`systemctl start lvm2-lvmetad.service`
+      	`systemctl start lvm2-lvmetad.socket`
+    end
       `umount #{inital_mountpoint}`
       `egrep -v "\/mnt" /etc/fstab > /tmp/fstab`
       `mv -f /tmp/fstab /etc/fstab`
-    end
 
 
     devices = Array.new
@@ -560,7 +558,7 @@ ruby_block 'filesystem' do
     Chef::Log.info("-------------------------")
 
      if type == "data"
-       if token_class =~ /azure/
+       if node[:platform] == "centos" && (node[:platform_version]).to_i >= 7
          cmd = "mkfs -t #{_fstype} #{_device}" # -f switch not valid in latest mkfs
        else
          cmd = "mkfs -t #{_fstype} -f #{_device}"
@@ -581,23 +579,14 @@ ruby_block 'filesystem' do
       if is_single || _device =~ /-eph\//
       	# clear and add to fstab again to make sure has current attrs on update
       	result = `grep -v #{_device} /etc/fstab > /tmp/fstab`
-      	if token_class =~ /azure/
-      	   ::File.open("/tmp/fstab","a") do |fstab|
-             fstab.puts("#{_device} #{_mount_point} #{_fstype} #{_options} 1 2") # disable fsck check on this device at boot time
-             Chef::Log.info("adding to fstab #{_device} #{_mount_point} #{_fstype} #{_options}")
-      	    end
-      	    `sudo update-initramfs -u` #make the device mappings available during boot
-        else
-	  ::File.open("/tmp/fstab","a") do |fstab|
-           fstab.puts("#{_device} #{_mount_point} #{_fstype} #{_options}")
-           Chef::Log.info("adding to fstab #{_device} #{_mount_point} #{_fstype} #{_options}")
-          end
-	end
+	      ::File.open("/tmp/fstab","a") do |fstab|
+          fstab.puts("#{_device} #{_mount_point} #{_fstype} #{_options} 1 1")
+          Chef::Log.info("adding to fstab #{_device} #{_mount_point} #{_fstype} #{_options} 1 1")
+	       end
         `mv /tmp/fstab /etc/fstab`
       else
        Chef::Log.info("non-single platform w/ ebs - letting crm / resouce mgmt mount")
       end
-
    end
 end
 
