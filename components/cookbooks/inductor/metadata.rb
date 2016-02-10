@@ -92,6 +92,16 @@ attribute 'perf_collector_cert',
               :order => 8
           }
 
+attribute 'amq_truststore_location',
+          :description => 'TrustStore Location',
+          :default => '',
+          :format => {
+              :help => 'Location of TrustStore used to connect AMQ.',
+              :category => '1.Configuration',
+              :order => 9
+          }
+
+
 # 2.Options
 attribute 'ip',
           :description => "IP Attribute",

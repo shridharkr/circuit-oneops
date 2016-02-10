@@ -50,6 +50,7 @@ true
 #{inductor[:ciAttributes][:authkey]}
 #{inductor[:ciAttributes][:additional_java_args]}
 #{inductor[:ciAttributes][:env_vars]}
+#{inductor[:ciAttributes][:amq_truststore_location]}
 EOT
 end
 
