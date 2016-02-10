@@ -71,84 +71,9 @@ else
 end
 
 
-# security group per env
-done = false
-retry_count = 0
-max_retry_count = 10
-while !done && retry_count < max_retry_count do
-  retry_count += 1
-  Chef::Log.info("sg: #{security_domain}")
-  sg = conn.security_groups.new(:name => security_domain, :description => "OneOps-generated environment-level security group")
-  begin
-    sg.save
-    done = true
-  rescue Exception => e
-    if e.message =~ /already exists/
-      Chef::Log.info("security group #{security_domain} already created.")
-      done = true
-    elsif e.message =~ /RequestLimitExceeded/
-      wait_sec = retry_count * 30
-      Chef::Log.info("RequestLimitExceeded...waiting #{wait_sec} sec")
-      sleep wait_sec
-    else
-      Chef::Log.error(e.inspect)
-      exit 1
-    end
-  end
-end
-
-
-done = false
-retry_count = 0
-while !done && retry_count < max_retry_count do
-  retry_count += 1
-
-  # add inductor ssh only rule
-  begin
-    # global port 22 open until sort out why security_group using another group not working     
-    sg.authorize_port_range( 22..22, {} )
-    done = true
-  rescue Exception => e
-      if e.message =~ /already (been authorized|exists)/
-        Chef::Log.info("security group #{security_domain} already authorize_port_range 22.")
-        done = true
-      elsif e.message =~ /RequestLimitExceeded/
-        wait_sec = retry_count * 30
-        Chef::Log.info("RequestLimitExceeded...waiting #{wait_sec} sec")
-        sleep wait_sec
-      else
-        Chef::Log.error(e.message)
-        exit 1
-      end
-  end
-end
-
-
-done = false
-retry_count = 0
-while !done && retry_count < max_retry_count do
-  retry_count += 1
-  # allow all from env sg
-  env_sg = conn.security_groups.get(security_domain)
-  begin
-    sg.authorize_port_range( 1..65535, {:group => { env_sg.owner_id => env_sg.group_id } } )
-    sg.authorize_port_range( 1..65535, {:ip_protocol => "udp", :group => { env_sg.owner_id => env_sg.group_id } } )
-  rescue Exception => e
-
-    if e.message =~ /already (been authorized|exists)/
-      Chef::Log.info("security group #{security_domain} already authorize_port_range for env")
-      done = true
-    elsif e.message =~ /RequestLimitExceeded/
-      wait_sec = retry_count * 30
-      Chef::Log.info("RequestLimitExceeded...waiting #{wait_sec} sec")
-      sleep wait_sec
-    else
-      Chef::Log.error(e.message)
-      exit 1
-    end
-
-  end
-end
+# security group
+secgroup = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Secgroup/ }.first
+Chef::Log.info("secgroup: #{secgroup[:ciAttributes][:group_name]}")
 
 
 if server.nil?
@@ -190,6 +115,7 @@ if server.nil?
 
   done = false
   retry_count = 0
+  max_retry_count = 3
   while !done && retry_count < max_retry_count do
     retry_count += 1
 
@@ -198,7 +124,7 @@ if server.nil?
                  :image_id => image.id,
                  :flavor_id => size_id,
                  :key_name => node.kp_name,
-                 :groups => [security_domain],
+                 :groups => [ secgroup[:ciAttributes][:group_name] ],
                  :availability_zone => availability_zone,
                  :block_device_mapping => block_device_mapping,
                  :tags => {:Name => node.server_name }

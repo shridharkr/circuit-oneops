@@ -50,16 +50,16 @@ include_recipe "netscaler::add_ca_cert"
 #        private String linkcertkeyname;
 #        private Boolean nodomaincheck;
 
+# escape certain chars to prevent netscaler response: Invalid JSON input
+passphrase = node.cert[:passphrase].gsub("@","\\x40").gsub("?","\\x3f").gsub("&","\\x26")
 
 cert_key = {
   :certkey => node.cert_name,
   :cert => node.ns_cert_file,
   :key => node.ns_key_file,
-  :passplain => node.cert[:passphrase]
+  :passplain => passphrase
 }
 
-
-Chef::Log.info(cert_key.inspect)
 
 resp_obj = JSON.parse(node.ns_conn.request(
   :method=>:get, 
@@ -128,8 +128,8 @@ else
 
   cmd = "update ssl certKey #{node.cert_name} -cert #{node.ns_cert_file} "
   cmd += "-key #{node.ns_key_file} "
-  if node.cert.has_key?("passphrase") && !node.cert[:passphrase].empty?
-    cmd += "-password #{node.cert[:passphrase].gsub("@","\\x40").gsub("?","\\x3f")} "
+  unless passphrase.nil? || passphrase.empty?
+    cmd += "-password #{passphrase} "
   end
   cmd += "-noDomainCheck "
   Chef::Log.info("run: "+cmd)
