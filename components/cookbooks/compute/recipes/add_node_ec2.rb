@@ -75,6 +75,7 @@ end
 secgroup = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Secgroup/ }.first
 Chef::Log.info("secgroup: #{secgroup[:ciAttributes][:group_name]}")
 
+
 if server.nil?
   Chef::Log.info("creating server")
 

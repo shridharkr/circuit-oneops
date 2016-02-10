@@ -200,7 +200,7 @@ end
 # Set plug-ins 
 #TODO : Can externalize  in meta-data. For now adding just the KOPF plugin
 
-if node.elasticsearch[:download_url].include? "download.elasticsearch.org"
+if node.elasticsearch[:download_url].include? "download.elastic.co"
   install_plugin 'lmenezes/elasticsearch-kopf' , 'version' => '#{node.elasticsearch[:version]}'
 else
   url = node.elasticsearch[:base_url]

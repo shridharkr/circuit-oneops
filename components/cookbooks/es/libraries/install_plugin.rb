@@ -36,7 +36,7 @@ module Extensions
       block do
 
         version = params['version'] ? "#{params['version']}" : nil
-        url     = params['url']     ? " -url #{params['url']}" : nil
+        url     = params['url']     ? "#{params['url']}" : nil
         
         # clean already installed kopf plugins
         clean_plugin_ver = "plugin remove #{version}"
@@ -45,11 +45,11 @@ module Extensions
         system clean_plugin_kopf
 
         if url.nil?
-           command = "/usr/local/bin/plugin -install #{name}#{version}"
+           command = "/usr/local/bin/plugin -install #{name}/#{version}"
         elsif version.start_with?("1")
-          command = "/usr/local/bin/plugin -install #{name}/#{version} #{url}/elasticsearch-kopf/1.1/elasticsearch-kopf-1.1.zip"
+          command = "/usr/local/bin/plugin --url #{url}/elasticsearch-kopf/1.1/elasticsearch-kopf-1.1.zip --install kopf"
         elsif version.start_with?("2")
-          command = "/usr/local/bin/plugin install --verbose #{url}/elasticsearch-kopf/2.0.0/elasticsearch-kopf-2.0.0.zip"
+          command = "/usr/local/bin/plugin install #{url}/elasticsearch-kopf/2.0.0/elasticsearch-kopf-2.0.0.zip"
         end
 
         Chef::Log.info("Plugin Install Command is: #{command}")
