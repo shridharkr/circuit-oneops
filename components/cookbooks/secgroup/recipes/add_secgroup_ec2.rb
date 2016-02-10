@@ -14,7 +14,11 @@ conn = Fog::Compute.new({
   :aws_secret_access_key => token[:secret]
 })
 
-description = node.workorder.rfcCi.ciAttributes[:description] || node.secgroup_name
+description = node.workorder.rfcCi.ciAttributes[:description]
+# aws requires populated description
+if description.nil? || description.empty?
+  description = node.secgroup_name
+end
 
 # create if doesn't exist 
 sglookup = conn.describe_security_groups('group-name' => node.secgroup_name).body['securityGroupInfo']
