@@ -1,5 +1,26 @@
 # a little recipe that sets the platform, platform-resource-group and platform-availability-set for azure deployments.
 # several other recipes use this
+
+def generate_rg_name(org,assembly,platform,environment,location)
+  Chef::Log.info("Resource Group org: #{org}")
+  Chef::Log.info("Resource Group assembly: #{assembly}")
+  Chef::Log.info("Resource Group Platform: #{platform}")
+  Chef::Log.info("Resource Group Environment: #{environment}")
+  Chef::Log.info("Resource Group location: #{location}")
+  resource_group_name = org + '-' + assembly + '-' + platform + '-' + environment + '-' + location
+  Chef::Log.info("platform-resource-group is: #{resource_group_name}")
+  Chef::Log.info("Resource Group Name Length = #{resource_group_name.length}")
+
+  #Maximum length of Azure Resource Group Name is 90 characters
+   if (resource_group_name.length > 90)
+     Chef::Log.info("Resource Group Name is more 90 characters long...Will need to trim it down.")
+     resource_group_name = org[0..15] + '-' + assembly[0..15] + '-' + platform[0..15] + '-' + environment[0..15] + '-' + location[0..15]
+  end
+  Chef::Log.info("New Resource Group Name = #{resource_group_name}")
+  Chef::Log.info("New Resource Group Name Length = #{resource_group_name.length}")
+  resource_group_name
+end
+
 Chef::Log.info("get_platform_rg_and_as.rb called from " )
 Chef::Log.info(node.run_list[0])
   node.run_list.each {
@@ -20,13 +41,7 @@ Chef::Log.info(node.run_list[0])
     env = metadata_obj['environment']
     location = compute_service['location']
     node.set['subscriptionid']=compute_service['subscription']
-    Chef::Log.info("Resource Group org: #{org}")
-    Chef::Log.info("Resource Group assembly: #{assembly}")
-    Chef::Log.info("Resource Group Platform: #{platform}")
-    Chef::Log.info("Resource Group environment: #{env}")
-    Chef::Log.info("Resource Group location: #{location}")
-    resource_group_name = org + '-' + assembly + '-' + platform + '-' + env + '-' + location
-    Chef::Log.info("platform-resource-group is: #{resource_group_name}")
+    resource_group_name = generate_rg_name(org,assembly,platform,environment,location)
     node.set['platform-resource-group'] = resource_group_name
     return true
 end
@@ -60,14 +75,7 @@ org = nsPathParts[1]
 assembly = nsPathParts[2]
 environment = nsPathParts[3]
 platform = nsPathParts[5]
-Chef::Log.info("Resource Group org: #{org}")
-Chef::Log.info("Resource Group assembly: #{assembly}")
-Chef::Log.info("Resource Group Platform: #{platform}")
-Chef::Log.info("Resource Group Environment: #{environment}")
-Chef::Log.info("Resource Group location: #{location}")
-
-resource_group_name = org + '-' + assembly + '-' + platform + '-' + environment + '-' + location
-Chef::Log.info("platform-resource-group is: #{resource_group_name}")
+resource_group_name = generate_rg_name(org,assembly,platform,environment,location)
 node.set['platform-resource-group'] = resource_group_name
 node.set['platform-availability-set'] = resource_group_name
 node.set['platform'] = platform

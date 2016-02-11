@@ -20,9 +20,13 @@ begin
   client.subscription_id = subscription_id
 
   # First, check if resource group is already created
-  existance_promise = client.resource_groups.check_existence(node['platform-resource-group'])
-  response = existance_promise.value!
-  result = response.body
+  begin
+    existance_promise = client.resource_groups.check_existence(node['platform-resource-group'])
+    response = existance_promise.value!
+    result = response.body
+  rescue => e
+    Chef::Log.error(e.message)
+  end
 
   if result
     Chef::Log.info("Resource Group '#{node['platform-resource-group']}' already exists. No need to create. ")
