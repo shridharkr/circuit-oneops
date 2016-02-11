@@ -179,7 +179,6 @@ resource "secgroup",
 
 # depends_on
 [{:from => 'user-app',  :to => 'compute'},
- {:from => 'diagnostic-cache',  :to => 'os'},
  {:from => 'couchbase', :to => 'user-app'},
  {:from => 'couchbase', :to => 'compute'},
  {:from => 'couchbase', :to => 'os'},
@@ -228,7 +227,7 @@ relation "bucket::depends_on::couchbase",
          :attributes    =>{"flex" => false}
 
 # managed_via
-['diagnostic-cache','user-app','couchbase','bucket','couchbase-cluster','build'].each do |from|
+['user-app','couchbase','bucket','couchbase-cluster','build'].each do |from|
   relation "#{from}::managed_via::compute",
            :except => ['_default'],
            :relation_name => 'ManagedVia',
