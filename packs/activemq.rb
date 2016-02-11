@@ -217,6 +217,14 @@ resource "haproxy",
            }
   }         
 
+resource "keystore",
+         :cookbook => "oneops.1.keystore",
+         :design => true,
+         :requires => {"constraint" => "0..1"},
+         :attributes => {
+             "keystore_filename" => "/var/lib/certs/keystore.jks"
+  }
+
 
 # depends_on
 ['activemq','java','haproxy'].each do |from|
@@ -229,12 +237,28 @@ resource "haproxy",
 end
 
 
-[ 'activemq' ].each do |from|
+[ 'activemq', 'keystore' ].each do |from|
   relation "#{from}::depends_on::java",
            :relation_name => 'DependsOn',
            :from_resource => from,
            :to_resource   => 'java',
            :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
+end
+
+[ 'keystore' ].each do |from|
+  relation "#{from}::depends_on::certificate",
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'certificate',
+    :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
+end
+
+[ 'activemq' ].each do |from|
+  relation "#{from}::depends_on::keystore",
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'keystore',
+    :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
 end
 
 [ 'activemq' ].each do |from|
@@ -270,7 +294,7 @@ end
 end
 
 # managed_via
-[ 'activemq', 'build','artifact','configfile', 'activemq-daemon','java','haproxy' ].each do |from|
+[ 'activemq', 'build','artifact','configfile', 'activemq-daemon','java','haproxy','keystore' ].each do |from|
   relation "#{from}::managed_via::compute",
     :except => [ '_default'],
     :relation_name => 'ManagedVia',
