@@ -26,7 +26,7 @@ begin
     result = response.body
   rescue => ex
     puts "***FAULT:FATAL="+ex.message
-    Chef::Log.error(ex.message)
+    raise ex
   end
 
   if result
