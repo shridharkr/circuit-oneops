@@ -24,8 +24,9 @@ begin
     existance_promise = client.resource_groups.check_existence(node['platform-resource-group'])
     response = existance_promise.value!
     result = response.body
-  rescue => e
-    Chef::Log.error(e.message)
+  rescue => ex
+    puts "***FAULT:FATAL="+ex.message
+    Chef::Log.error(ex.message)
   end
 
   if result

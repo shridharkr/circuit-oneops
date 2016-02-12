@@ -14,11 +14,11 @@ def generate_rg_name(org,assembly,platform,environment,location)
   #Maximum length of Azure Resource Group Name is 90 characters
    if (resource_group_name.length > 90)
      Chef::Log.info("Resource Group Name is more 90 characters long...Will need to trim it down.")
-     resource_group_name = org[0..15] + '-' + assembly[0..15] + '-' + platform[0..15] + '-' + environment[0..15] + '-' + location[0..15]
+     resource_group_name = org[0..15] + '-' + assembly[0..15] + '-' + platform[0..15] + '-' + environment[0..15] + '-' + location
   end
   Chef::Log.info("New Resource Group Name = #{resource_group_name}")
   Chef::Log.info("New Resource Group Name Length = #{resource_group_name.length}")
-  resource_group_name
+  return resource_group_name
 end
 
 Chef::Log.info("get_platform_rg_and_as.rb called from " )
