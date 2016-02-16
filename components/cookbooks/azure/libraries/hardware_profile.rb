@@ -1,7 +1,5 @@
 # Class to handle the hardware profile for the azure compute.
 # Nothing much happening here, just setting the vm size on the hardware profile for now.
-require 'azure_mgmt_compute'
-
 module AzureCompute
   class HardwareProfile
 

@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'azure_mgmt_compute'
 
 require File.expand_path('../../libraries/hardware_profile.rb', __FILE__)
 
