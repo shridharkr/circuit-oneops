@@ -6,7 +6,7 @@ type "Platform"
 category "Database NoSQL"
 
 resource 'user-app',
-         :cookbook => 'user',
+         :cookbook => 'oneops.1.user',
          :design => true,
          :requires => {'constraint' => "1..1"},
          :attributes => {
@@ -19,7 +19,7 @@ resource 'user-app',
 
 #:src_url => '$OO_CLOUD{nexus}/nexus/service/local/repositories/thirdparty/content/redis/io/redis/'
 resource "redisio",
-  :cookbook => "redisio",
+  :cookbook => "oneops.1.redisio",
   :design => true,
   :requires => {
     :constraint => "1..1",
@@ -31,7 +31,7 @@ resource "redisio",
 
 #overwrite volume and filesystem from generic_ring with new mount point
 resource "volume",
-  :cookbook => "volume",
+  :cookbook => "oneops.1.volume",
   :design => true,
   :requires => { "constraint" => "1..1", "services" => "compute" },
   :attributes => {  "mount_point"   => '/app',
@@ -55,7 +55,7 @@ resource "volume",
     }
 
 resource "volume-app",
- :cookbook => "volume",
+ :cookbook => "oneops.1.volume",
  :design => true,
  :requires => { "constraint" => "0..1", "services" => "compute" },
  :attributes => { "mount_point" => '/app',
@@ -67,7 +67,7 @@ resource "volume-app",
 
 
 resource "volume-log",
-  :cookbook => "volume",
+  :cookbook => "oneops.1.volume",
   :design => true,
   :requires => { "constraint" => "1..1", "services" => "compute" },
   :attributes => {  "mount_point"   => '/log',
@@ -91,7 +91,7 @@ resource "volume-log",
     }
 
 resource "secgroup",
-         :cookbook => "secgroup",
+         :cookbook => "oneops.1.secgroup",
          :design => true,
          :attributes => {
              "inbound" => '[ "22 22 tcp 0.0.0.0/0", "6379 6379 tcp 0.0.0.0/0", "16379 16379 tcp 0.0.0.0/0" ]'
