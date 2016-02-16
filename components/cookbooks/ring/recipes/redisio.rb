@@ -1,10 +1,8 @@
 nodes = node.workorder.payLoad.ManagedVia
 port = 6379
 
-#if node.platform =~ /redhat|centos/
 redisio_bin = "/usr/local/bin"
 redisio_trib = "#{redisio_bin}/redis-trib.rb"
-#end
 
 instances = []
 tinstances = []
@@ -26,7 +24,6 @@ File.open('/tmp/answer.txt', 'w') do |f2|
      f2.puts "yes\n"
 end
 
-#execute "#{redisio_trib} create --replicas 1 #{sinstances} < /tmp/answer.txt"  do
 if File.exist?("#{redisio_trib}")
 		execute "create cluster" do
         	command "#{redisio_trib} create --replicas 1 #{sinstances} < /tmp/answer.txt"

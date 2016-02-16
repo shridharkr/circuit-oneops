@@ -1,17 +1,9 @@
-#include_pack "base"
 include_pack "generic_ring"
 
 name "redisio"
 description "RedisIO"
 type "Platform"
 category "Database NoSQL"
-
-# Overriding the default compute
-resource 'compute',
-         :cookbook => 'compute',
-         :attributes => {'ostype' => 'default-cloud',
-                         'size' => 'M'
-         }
 
 resource 'user-app',
          :cookbook => 'user',
