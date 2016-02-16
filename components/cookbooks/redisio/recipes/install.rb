@@ -25,7 +25,7 @@ redis = node['redisio']
 #location = "#{redis['mirror']}/#{redis['base_name']}#{redis['version']}.#{redis['artifact_type']}"
 #location = redis['source_url'] + redis['version'] + "/redis-" + redis['version'] + ".tar.gz"
 #location = redis['src_url'] + redis['version'] + "/redis-" + redis['version'] + ".tar.gz"
-location = redis['source_url'] + redis['version'] + "/redis-" + redis['version'] + ".tar.gz"
+location = redis['source_url'] + "/redis-" + redis['version'] + ".tar.gz"
 
 redis_instances = redis['servers']
 if redis_instances.nil?

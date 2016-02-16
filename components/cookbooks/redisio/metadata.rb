@@ -20,7 +20,7 @@ grouping 'default',
 attribute 'src_url',
           :description => 'Source URL',
           :required => 'required',
-          :default => 'http://gec-maven-nexus.walmart.com/nexus/service/local/repositories/thirdparty/content/redis/io/redis/',
+          :default => 'http://download.redis.io/releases/',
           :format => {
               :help => 'location of the redis source distribution',
               :category => '1.Global',
