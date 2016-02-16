@@ -28,10 +28,7 @@ include_recipe "azure::get_credentials"
 # invoke recipe to build the OS profile
 include_recipe "azure::build_os_profile_for_add_node"
 
-# invoke recipe to build the hardware profile
-#include_recipe "azure::build_hardware_profile_for_add_node"
-# new class for hardware profile.
-# this is temporarily here until the rest of the cookbook is refactored.
+# get the hard ware profile class
 hwprofile = AzureCompute::HardwareProfile.new()
 
 # invoke recipe to build the storage profile
@@ -51,7 +48,16 @@ client.subscription_id = compute_service['subscription']
 props = VirtualMachineProperties.new
 
 props.os_profile = node['osProfile']
-props.hardware_profile = hwprofile.build_profile(node['size_id'])
+
+begin
+  props.hardware_profile = hwprofile.build_profile(node['size_id'])
+rescue Exception => ex
+  puts "***FAULT:FATAL=#{ex.message}"
+  ex = Exception.new('no backtrace')
+  e.set_backtrace('')
+  raise ex
+end
+
 props.storage_profile = node['storageProfile']
 props.network_profile = node['networkProfile']
 props.availability_set = node['availability_set']
