@@ -13,37 +13,39 @@ describe AzureDns::RecordSet do
       'client_secret' => '<CLIENT_SECRET>',
       'subscription' => '<SUBSCRIPTION_ID>',
       'zone' => '<COM>' }
-    JSON = double
     @record_sets = AzureDns::RecordSet.new(dns_attributes,
                                            token, platform_resource_group)
   end
   describe '#get_existing_records_for_recordset' do
-    it 'returns records for recordset' do
-      dns_response =
-        {
-          'id' => '<SUBSCRIPTION_ID>',
-          'location' => 'global',
-          'name' => 'www',
-          'tags' => {},
-          'type' => 'Microsoft.Network/dnszones/A',
-          'etag' => '5b83020b-b59c-44be-8f19-a052ebe80fe7',
-          'properties' =>
-          {
-            'TTL' => 3600,
-            'ARecords' => [
-              {
-                'ipv4Address' => '4.3.2.1'
-              },
-              {
-                'ipv4Address' => '5.3.2.1'
-              }
-            ]
-          }
-        }
+    it 'returns A type record for recordset' do
+      file_path = File.expand_path('A_type_record.json', __dir__)
+      file = File.open(file_path)
+      dns_response = file.read
+      allow(RestClient).to receive(:get) { dns_response }
+      records = ['1.2.3.4']
+      expect @record_sets.get_existing_records_for_recordset('A', 'RS_Name')
+        .equal?(records)
+    end
+  end
+
+  describe '#get_existing_records_for_recordset' do
+    it 'returns CNAME type record for recordset' do
+      file_path = File.expand_path('cname_type_record.json', __dir__)
+      file = File.open(file_path)
+      dns_response = file.read
+      allow(RestClient).to receive(:get) { dns_response }
+      records = ['contoso.com']
+      expect @record_sets.get_existing_records_for_recordset('CNAME', 'RS_Name')
+        .equal?(records)
+    end
+  end
+
+  describe '#get_existing_records_for_recordset' do
+    it 'raises JSON parsing error' do
       allow(RestClient).to receive(:get) {}
-      allow(JSON).to receive(:parse) { dns_response }
-      @record_sets.get_existing_records_for_recordset('A', 'Recordset_Name')
-                  .length.should eq(2)
+      allow(JSON).to receive(:parse) {}
+      expect { @record_sets.get_existing_records_for_recordset('CNAME', 'RS') }
+        .to raise_error('no backtrace')
     end
   end
 
@@ -66,13 +68,25 @@ describe AzureDns::RecordSet do
   end
 
   describe '#set_records_on_record_set' do
-    it 'sets records on recordset' do
+    it 'sets A type records on recordset' do
       response = double
       allow(response).to receive(:code) { 200 }
       allow(RestClient).to receive(:put) { response }
       records = Array.new(['1.2.3.4', '1.2.3.5'])
+      expect { @record_sets.set_records_on_record_set('RS_Name', records, 'A', 300) }
+        .to_not raise_error('no backtrace')
+    end
+  end
 
-      @record_sets.set_records_on_record_set('RS_Name', records, 'A', 300)
+  describe '#set_records_on_record_set' do
+    it 'sets CNAME type record on recordset' do
+      response = double
+      allow(response).to receive(:code) { 200 }
+      allow(RestClient).to receive(:put) { response }
+      records = Array.new(['contoso.com'])
+
+      expect { @record_sets.set_records_on_record_set('RS', records, 'CNAME', 300) }
+        .to_not raise_error('no backtrace')
     end
   end
 
@@ -92,7 +106,8 @@ describe AzureDns::RecordSet do
       allow(response).to receive(:code) { 200 }
       allow(RestClient).to receive(:delete) { response }
 
-      @record_sets.remove_record_set('Recordset_Name', 'A')
+      expect { @record_sets.remove_record_set('Recordset_Name', 'A') }
+        .to_not raise_error('no backtrace')
     end
   end
 
