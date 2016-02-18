@@ -19,6 +19,7 @@ gem 'azure_mgmt_compute', '0.1.1'
 gem 'azure_mgmt_storage', '0.1.1'
 gem 'azure_mgmt_network', '0.1.1'
 gem 'azure_mgmt_resources', '0.1.1'
+gem 'rspec', '~> 3.0'
 
 
 platforms :mingw do
