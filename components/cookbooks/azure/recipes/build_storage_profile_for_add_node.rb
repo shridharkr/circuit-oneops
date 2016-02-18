@@ -254,12 +254,15 @@ Chef::Log.info("VHD URI is: #{storage_profile.os_disk.vhd.uri}")
 storage_profile.os_disk.caching = CachingTypes::ReadWrite
 storage_profile.os_disk.create_option = DiskCreateOptionTypes::FromImage
 
+disk_size_map = JSON.parse(compute_service['ephemeral_disk_sizemap'] )
+vm_size = node['workorder']['rfcCi']['ciAttributes']['size']
+Chef::Log.info("data disk size from size map: #{disk_size_map[vm_size]} ")
 
 #Add a data disk
 data_disk1 = DataDisk.new
-data_disk1.name = "#{server_name}-datadisk" 
+data_disk1.name = "#{server_name}-datadisk"
 data_disk1.lun = 0
-data_disk1.disk_size_gb = 1023
+data_disk1.disk_size_gb = disk_size_map[vm_size]
 data_disk1.vhd = VirtualHardDisk.new
 data_disk1.vhd.uri = "https://#{storage_account_name}.blob.core.windows.net/vhds/#{storage_account_name}-#{server_name}-data1.vhd"
 data_disk1.caching = CachingTypes::ReadWrite

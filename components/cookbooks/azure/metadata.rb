@@ -162,6 +162,16 @@ attribute 'imagemap',
     :order => 2
   }
 
+  attribute 'ephemeral_disk_sizemap',
+      :description => "Ephemeral Disk Sizes Map",
+      :data_type => "hash",
+      :default => '{ "XS":"0","S":"20","M":"17","L":"45","XL":"100","XXL":"100"}',
+      :format => {
+        :help => 'Map of generic datadisk sizes',
+        :category => '3.Mappings',
+        :order => 3
+  }
+
 attribute 'repo_map',
   :description => "OS Package Repositories keyed by OS Name",
   :data_type => "hash",
