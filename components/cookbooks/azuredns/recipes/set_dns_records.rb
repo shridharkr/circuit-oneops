@@ -20,6 +20,9 @@ include_recipe 'azuredns::get_azure_token'
 cloud_name = node['workorder']['cloud']['ciName']
 dns_attributes = node['workorder']['services']['dns'][cloud_name]['ciAttributes']
 
+ttl = node['workorder']['rfcCi']['ciAttributes']['ttl']
+Chef::Log.info("TTL IS: #{ttl}")
+
 # get platform resource group and availability set
 include_recipe 'azure::get_platform_rg_and_as'
 
@@ -91,7 +94,7 @@ node['entries'].each do |entry|
     if total_record_list.size > 0
       # create/update the record set
       Chef::Log.info("azuredns:set_dns_records.rb - Would create dns_name: #{dns_name}, records: #{total_record_list}, for record type: #{record_type.upcase}")
-      recordset.set_records_on_record_set(dns_name, total_record_list, record_type.upcase)
+      recordset.set_records_on_record_set(dns_name, total_record_list, record_type.upcase, ttl)
     else
       # delete the record set
       recordset.remove_record_set(dns_name, record_type.upcase)
@@ -109,7 +112,7 @@ node['entries'].each do |entry|
     if node['dns_action'] == 'create'
       # create/update the record set
       Chef::Log.info("azuredns:set_dns_records.rb - Would create dns_name: #{dns_name}, records: #{total_record_list}, for record type: #{record_type.upcase}")
-      recordset.set_records_on_record_set(dns_name, total_record_list, record_type.upcase)
+      recordset.set_records_on_record_set(dns_name, total_record_list, record_type.upcase, ttl)
     else # delete
       # delete the record set
       recordset.remove_record_set(dns_name, record_type.upcase)

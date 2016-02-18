@@ -64,7 +64,7 @@ module AzureDns
       end
     end
 
-    def set_records_on_record_set(record_set_name, records, record_type)
+    def set_records_on_record_set(record_set_name, records, record_type, ttl)
       # construct the URL to get the records from the dns zone
     	resource_url = "https://management.azure.com/subscriptions/#{@subscription}/resourceGroups/#{@dns_resource_group}/providers/Microsoft.Network/dnsZones/#{@zone}/#{record_type}/#{record_set_name}?api-version=2015-05-04-preview"
 
@@ -80,7 +80,7 @@ module AzureDns
       		:location => 'global',
       		:tags => '',
       		:properties => {
-      			:TTL => 300,
+      			:TTL => ttl,
       			:ARecords => arecords_array
       		}
       	}
@@ -89,7 +89,7 @@ module AzureDns
       		:location => 'global',
       		:tags => '',
       		:properties => {
-      			:TTL => 300,
+      			:TTL => ttl,
       			:CNAMERecord => {
               'cname' => records.first # because cname only has 1 value and we know the object is an array passed in.
             }
