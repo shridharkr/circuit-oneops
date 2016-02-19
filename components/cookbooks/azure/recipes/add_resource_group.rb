@@ -20,14 +20,9 @@ begin
   client.subscription_id = subscription_id
 
   # First, check if resource group is already created
-  begin
-    existance_promise = client.resource_groups.check_existence(node['platform-resource-group'])
-    response = existance_promise.value!
-    result = response.body
-  rescue => ex
-    puts "***FAULT:FATAL="+ex.message
-    raise ex
-  end
+  existance_promise = client.resource_groups.check_existence(node['platform-resource-group'])
+  response = existance_promise.value!
+  result = response.body
 
   if result
     Chef::Log.info("Resource Group '#{node['platform-resource-group']}' already exists. No need to create. ")
@@ -53,7 +48,7 @@ rescue MsRestAzure::AzureOperationError => e
   e = Exception.new('no backtrace')
   e.set_backtrace('')
   raise e
-rescue Exception =>ex
+rescue =>ex
   puts "***FAULT:FATAL="+ex.message
   raise ex
 end
