@@ -13,10 +13,6 @@ grouping 'default',
          :packages => ['base', 'mgmt.catalog', 'mgmt.manifest', 'catalog', 'manifest', 'bom']
 
 
-###
-###:default => 'http://download.redis.io/releases/redis-2.6.16.tar.gz',
-###:default => 'http://download.redis.io/releases/redis-2.6.16.tar.gz',
-### attributes here have a one-to-one mapping to attributes defined in the cookbook attribute file (attributes/default.rb) 
 attribute 'src_url',
           :description => 'Source URL',
           :required => 'required',
@@ -27,17 +23,6 @@ attribute 'src_url',
               :order => 2
           }
 
-#:filter => {"all" => {"visible" => "version:eq:3.0.1"}}
-#attribute 'src_url_2_6_16',
-#          :description => 'Source URL',
-#          :required => 'required',
-#          :format => {
-#              :help => 'location of the redis source distribution',
-#              :category => '1.Global',
-#              :order => 2,
-#	       #:filter => {"all" => {"visible" => "version:eq:2.6.16"}}
-#          }
-
 ### support freedom of choice
 attribute 'version',
 	:description => "Redis Version",
@@ -47,8 +32,7 @@ attribute 'version',
     		:category => '1.Global',
     		:help => 'Version of the Redis install',
     		:editable => true,
-    		:order => 2,
-    		:form => {'field' => 'select', 'options_for_select' => [['2.6.16', '2.6.16'], ['3.0.1', '3.0.1']]}
+    		:order => 2
 	}
 
 ### Number of Replicas in a Cluster - Default 1
