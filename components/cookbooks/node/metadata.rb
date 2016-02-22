@@ -3,6 +3,7 @@ description      "Installs/Configures Node.js"
 version          "0.1"
 maintainer       "OneOps"
 maintainer_email "support@oneops.com"
+license          "Apache License, Version 2.0"
 license          "Copyright OneOps, All rights reserved."
 
 
