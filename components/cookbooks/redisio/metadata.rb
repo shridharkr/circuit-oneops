@@ -44,8 +44,7 @@ attribute 'replicas',
     		:category => '1.Version',
     		:help => 'Number of Replicas in the REDIS cluster',
     		:editable => true,
-    		:order => 2,
-	        :filter => {"all" => {"visible" => "version:eq:3.0.1"}}
+    		:order => 2
 	}
 
 # a description for each recipe, mostly for cosmetic value within the server UI
