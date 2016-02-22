@@ -74,15 +74,6 @@ resource "nodejs",
          }
 
 
-configure_nodeModule_command=  <<-"EOF"
-directory "/log/nodejs" do
-  owner 'app'
-  group 'app'
-  action :create
-end
-
-EOF
-
 resource "node-module",
          :cookbook => "oneops.1.node_module",
          :design => true,
@@ -198,7 +189,8 @@ resource "volume-app",
 
 # depends_on
 [
-  {:from => 'user-app', :to => 'compute'},
+  {:from => 'os', :to => 'compute'},
+  {:from => 'user-app', :to => 'os'},
   {:from => 'volume-app', :to => 'user-app'},
   {:from => 'volume-log', :to => 'volume-app'},
   {:from => 'nodejs', :to => 'user-app'},
