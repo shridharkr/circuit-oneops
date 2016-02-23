@@ -39,26 +39,6 @@ attribute 'install_dir',
   }   
 
 
-# attribute 'group',
-  # :description          => 'group of user',
-  # :required => 'required',
-  # :default               => 'zookeeper',
-  # :format => {
-    # :category => '1.Global',
-    # :help => 'Zookeeper Group user ',
-    # :order => 4
-  # }   
-# 
-# attribute 'user',
-  # :description          => 'group of user',
-  # :required => 'required',
-  # :default               => 'zookeeper',
-  # :format => {
-    # :category => '1.Global',
-    # :help => 'System user to use for the tomcat process ',
-    # :order => 5
-  # }   
-  
 attribute 'conf_dir',
   :description          => 'Configuration Directory where conf. will be saved',
   :required => 'required',
@@ -68,26 +48,6 @@ attribute 'conf_dir',
     :help => 'Location of zookeeper configuration files(zoo.cfg).',
     :order => 4
   }   
-
-# attribute 'pid_dir',
-  # :description          => 'Location of zookeeper Pid files',
-  # :required => 'required',
-  # :default               => '/var/run/zookeeper',
-  # :format => {
-    # :category => '1.Global',
-    # :help => 'Location of zookeeper PID files.',
-    # :order => 5
-  # }   
-
-  # attribute 'home_dir',
-  # :description          => 'Home Directory',
-  # :required => 'required',
-  # :default               => '/usr/lib/zookeeper',
-  # :format => {
-    # :category => '1.Global',
-    # :help => 'Directory where zookeeper will be installed',
-    # :order => 8
-  # }   
 
 attribute 'jvm_args',
   :description          => 'JVM tuning params ',
@@ -258,17 +218,3 @@ recipe "stop", "Stop Zookeeper"
 recipe "restart", "Restart Zookeeper"
 recipe "repair", "Repair Zookeeper"
 recipe "clean", "Cleanup Zookeeper"
-
-
-
-
-# attribute "jmx_dash_port",
-  # :display_name          => "",
-  # :description           => "",
-  # :default               => "2182"
-
-
-# attribute "java_heap_size_max",
-  # :display_name          => "",
-  # :description           => "",
-  # :default               => "1000"
