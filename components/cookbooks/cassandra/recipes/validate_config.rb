@@ -22,7 +22,7 @@ if node.workorder.rfcCi.has_key?("ciBaseAttributes") &&
        (node.workorder.rfcCi.rfcAction == "update" &&
         cfg.has_key?(immutable_attr) && !old_cfg.has_key?(immutable_attr))     # added
         
-       action = "The value cannot change for #{immutable_attr}. Please cancel current deployment and "
+       action = "Please cancel current deployment and "
        if old_cfg.has_key?(immutable_attr)
          action += "change option #{immutable_attr} back to #{old_cfg[immutable_attr]}"       
        else
