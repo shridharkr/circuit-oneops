@@ -16,11 +16,13 @@ if node.workorder.rfcCi.has_key?("ciBaseAttributes") &&
   cfg = JSON.parse(node.workorder.rfcCi.ciAttributes.config_directives)
   
   immutable_attrs.each do |immutable_attr|
-    if ( cfg.has_key?(immutable_attr) && old_cfg.has_key?(immutable_attr) && # changed
+    if ( cfg.has_key?(immutable_attr) && old_cfg.has_key?(immutable_attr)  &&  # changed
          cfg[immutable_attr] != old_cfg[immutable_attr]) ||
-       (!cfg.has_key?(immutable_attr) && old_cfg.has_key?(immutable_attr))   # removed
-      
-       action "Please cancel current deployment and "
+       (!cfg.has_key?(immutable_attr) && old_cfg.has_key?(immutable_attr)) ||  # removed
+       (node.workorder.rfcCi.rfcAction == "update" &&
+        cfg.has_key?(immutable_attr) && !old_cfg.has_key?(immutable_attr))     # added
+        
+       action = "The value cannot change for #{immutable_attr}. Please cancel current deployment and "
        if old_cfg.has_key?(immutable_attr)
          action += "change option #{immutable_attr} back to #{old_cfg[immutable_attr]}"       
        else
