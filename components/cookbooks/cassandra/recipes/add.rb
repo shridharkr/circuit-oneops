@@ -1,3 +1,9 @@
+#
+# cassandra::add
+#
+
+include_recipe "cassandra::validate_config"
+
 case node.platform
   when "ubuntu"
     include_recipe "cassandra::add_debian"
