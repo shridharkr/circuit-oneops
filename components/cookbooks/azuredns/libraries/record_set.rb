@@ -1,6 +1,17 @@
+# rubocop:disable MethodLength
+# rubocop:disable AbcSize
+# rubocop:disable ClassLength
+# rubocop:disable LineLength
 module AzureDns
+  # Cookbook Name:: azuredns
+  # Recipe:: set_dns_records
+  #
+  # This class handles the dns recordset operations i-e sets dns recordset,
+  # gets dns recordset and also remove dns recordsets
+  #
+  require 'chef'
+  require 'rest-client'
   class RecordSet
-
     def initialize(dns_attributes, token, platform_resource_group)
       @subscription = dns_attributes['subscription']
       @dns_resource_group = platform_resource_group
@@ -9,23 +20,18 @@ module AzureDns
     end
 
     def get_existing_records_for_recordset(record_type, record_set_name)
-    	# construct the URL to get the records from the dns zone
-    	resource_url = "https://management.azure.com/subscriptions/#{@subscription}/resourceGroups/#{@dns_resource_group}/providers/Microsoft.Network/dnsZones/#{@zone}/#{record_type}/#{record_set_name}?api-version=2015-05-04-preview"
-
-    	Chef::Log.info("AzureDns::RecordSet - Resource URL is: #{resource_url}")
-
-    	begin
-        existing_records = Array.new
-
-    		dns_response = RestClient.get(
-    			resource_url,
-    			{
-    				:accept => 'application/json',
-    				:content_type => 'application/json',
-    				:authorization => @token
-    			}
-    		)
-    	rescue Exception => e
+      # construct the URL to get the records from the dns zone
+      resource_url = "https://management.azure.com/subscriptions/#{@subscription}/resourceGroups/#{@dns_resource_group}/providers/Microsoft.Network/dnsZones/#{@zone}/#{record_type}/#{record_set_name}?api-version=2015-05-04-preview"
+      Chef::Log.info("AzureDns::RecordSet - Resource URL is: #{resource_url}")
+      begin
+        existing_records = []
+        dns_response = RestClient.get(
+          resource_url,
+          accept: 'application/json',
+          content_type: 'application/json',
+          authorization: @token
+        )
+      rescue RestClient::Exception => e
         if e.http_code == 404
           Chef::Log.info('AzureDns::RecordSet - 404 code, record set does not exist.  returning empty array')
           return existing_records
@@ -38,8 +44,7 @@ module AzureDns
           raise e
         end
       end
-  		Chef::Log.info("AzureDns::RecordSet - Getting #{record_type} record response is: #{dns_response}")
-
+      Chef::Log.info("AzureDns::RecordSet - Getting #{record_type} record response is: #{dns_response}")
       begin
     		dns_hash = JSON.parse(dns_response)
         # get existing records on the record set
@@ -66,10 +71,8 @@ module AzureDns
 
     def set_records_on_record_set(record_set_name, records, record_type, ttl)
       # construct the URL to get the records from the dns zone
-    	resource_url = "https://management.azure.com/subscriptions/#{@subscription}/resourceGroups/#{@dns_resource_group}/providers/Microsoft.Network/dnsZones/#{@zone}/#{record_type}/#{record_set_name}?api-version=2015-05-04-preview"
-
-    	Chef::Log.info("AzureDns::RecordSet - Resource URL is: #{resource_url}")
-
+      resource_url = "https://management.azure.com/subscriptions/#{@subscription}/resourceGroups/#{@dns_resource_group}/providers/Microsoft.Network/dnsZones/#{@zone}/#{record_type}/#{record_set_name}?api-version=2015-05-04-preview"
+      Chef::Log.info("AzureDns::RecordSet - Resource URL is: #{resource_url}")
       case record_type
       when 'A'
       	arecords_array = Array.new
@@ -97,23 +100,17 @@ module AzureDns
       	}
       end
 
-    	Chef::Log.info("Body is: #{body}")
-
-    	begin
-
-    		dns_response = RestClient.put(
-    			resource_url,
-    			body.to_json,
-    			{
-    				:accept => 'application/json',
-    				:content_type => 'application/json',
-    				:authorization => @token
-    			}
-    		)
-
-    		Chef::Log.info("AzureDns::RecordSet - Create/Update response is: #{dns_response}")
-
-    	rescue Exception => e
+      Chef::Log.info("Body is: #{body}")
+      begin
+        dns_response = RestClient.put(
+          resource_url,
+          body.to_json,
+          accept: 'application/json',
+          content_type: 'application/json',
+          authorization: @token
+        )
+        Chef::Log.info("AzureDns::RecordSet - Create/Update response is: #{dns_response}")
+      rescue RestClient::Exception => e
         msg = "Exception setting #{record_type} records for the record set: #{record_set_name}"
         puts "***FAULT:FATAL=#{msg}"
         Chef::Log.error("AzureDns::RecordSet - Exception is: #{e.message}")
@@ -124,24 +121,18 @@ module AzureDns
     end
 
     def remove_record_set(record_set_name, record_type)
-    	# construct the URL to get the records from the dns zone
-    	resource_url = "https://management.azure.com/subscriptions/#{@subscription}/resourceGroups/#{@dns_resource_group}/providers/Microsoft.Network/dnsZones/#{@zone}/#{record_type}/#{record_set_name}?api-version=2015-05-04-preview"
-
-    	Chef::Log.info("AzureDns::RecordSet - Resource URL is: #{resource_url}")
-
-    	begin
-        existing_records = Array.new
-
-    		dns_response = RestClient.delete(
-    			resource_url,
-    			{
-    				:accept => 'application/json',
-    				:content_type => 'application/json',
-    				:authorization => @token
-    			}
-    		)
-    		Chef::Log.info("AzureDns::RecordSet - Deleting #{record_type} record response is: #{dns_response}")
-    	rescue Exception => e
+      # construct the URL to get the records from the dns zone
+      resource_url = "https://management.azure.com/subscriptions/#{@subscription}/resourceGroups/#{@dns_resource_group}/providers/Microsoft.Network/dnsZones/#{@zone}/#{record_type}/#{record_set_name}?api-version=2015-05-04-preview"
+      Chef::Log.info("AzureDns::RecordSet - Resource URL is: #{resource_url}")
+      begin
+        dns_response = RestClient.delete(
+          resource_url,
+          accept: 'application/json',
+          content_type: 'application/json',
+          authorization: @token
+        )
+        Chef::Log.info("AzureDns::RecordSet - Deleting #{record_type} record response is: #{dns_response}")
+      rescue RestClient::Exception => e
         if e.http_code == 404
           Chef::Log.info('AzureDns::RecordSet - 404 code, trying to delete something that is not there.')
         else
@@ -154,6 +145,5 @@ module AzureDns
         end
     	end
     end
-
   end
 end
