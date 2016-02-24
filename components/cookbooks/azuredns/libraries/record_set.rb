@@ -1,6 +1,7 @@
 # rubocop:disable MethodLength
 # rubocop:disable AbcSize
 # rubocop:disable ClassLength
+# rubocop:disable LineLength
 module AzureDns
   # Cookbook Name:: azuredns
   # Recipe:: set_dns_records
@@ -8,8 +9,9 @@ module AzureDns
   # This class handles the dns recordset operations i-e sets dns recordset,
   # gets dns recordset and also remove dns recordsets
   #
+  require 'chef'
+  require 'rest-client'
   class RecordSet
-    require 'Chef'
     def initialize(dns_attributes, token, platform_resource_group)
       @subscription = dns_attributes['subscription']
       @dns_resource_group = platform_resource_group
@@ -19,10 +21,7 @@ module AzureDns
 
     def get_existing_records_for_recordset(record_type, record_set_name)
       # construct the URL to get the records from the dns zone
-      resource_url = "https://management.azure.com/subscriptions/
-        #{@subscription}/resourceGroups/#{@dns_resource_group}
-        /providers/Microsoft.Network/dnsZones/#{@zone}/
-        #{record_type}/#{record_set_name}?api-version=2015-05-04-preview"
+      resource_url = "https://management.azure.com/subscriptions/#{@subscription}/resourceGroups/#{@dns_resource_group}/providers/Microsoft.Network/dnsZones/#{@zone}/#{record_type}/#{record_set_name}?api-version=2015-05-04-preview"
       Chef::Log.info("AzureDns::RecordSet - Resource URL is: #{resource_url}")
       begin
         existing_records = []
@@ -32,14 +31,12 @@ module AzureDns
           content_type: 'application/json',
           authorization: @token
         )
-      rescue => e
+      rescue RestClient::Exception => e
         if e.http_code == 404
-          Chef::Log.info('AzureDns::RecordSet -
-            404 code, record set does not exist.  returning empty array')
+          Chef::Log.info('AzureDns::RecordSet - 404 code, record set does not exist.  returning empty array')
           return existing_records
         else
-          msg = "Exception trying to get existing
-            #{record_type} records for the record set: #{record_set_name}"
+          msg = "Exception trying to get existing #{record_type} records for the record set: #{record_set_name}"
           puts "***FAULT:FATAL=#{msg}"
           Chef::Log.error("AzureDns::RecordSet - Exception is: #{e.message}")
           e = Exception.new('no backtrace')
@@ -47,8 +44,7 @@ module AzureDns
           raise e
         end
       end
-      Chef::Log.info("AzureDns::RecordSet -
-        Getting #{record_type} record response is: #{dns_response}")
+      Chef::Log.info("AzureDns::RecordSet - Getting #{record_type} record response is: #{dns_response}")
       begin
         dns_hash = JSON.parse(dns_response)
         # get existing records on the record set
@@ -59,11 +55,8 @@ module AzureDns
             existing_records.push(record['ipv4Address'])
           end
         when 'CNAME'
-          Chef::Log.info("AzureDns:RecordSet
-          - CNAME record is:
-          #{dns_hash['properties']['CNAMERecord']['cname']}")
-          existing_records
-            .push(dns_hash['properties']['CNAMERecord']['cname'])
+          Chef::Log.info("AzureDns:RecordSet - CNAME record is: #{dns_hash['properties']['CNAMERecord']['cname']}")
+          existing_records.push(dns_hash['properties']['CNAMERecord']['cname'])
         end
         existing_records
       rescue => e
@@ -78,10 +71,7 @@ module AzureDns
 
     def set_records_on_record_set(record_set_name, records, record_type, ttl)
       # construct the URL to get the records from the dns zone
-      resource_url = "https://management.azure.com/subscriptions/
-        #{@subscription}/resourceGroups/#{@dns_resource_group}
-        /providers/Microsoft.Network/dnsZones/#{@zone}/
-        #{record_type}/#{record_set_name}?api-version=2015-05-04-preview"
+      resource_url = "https://management.azure.com/subscriptions/#{@subscription}/resourceGroups/#{@dns_resource_group}/providers/Microsoft.Network/dnsZones/#{@zone}/#{record_type}/#{record_set_name}?api-version=2015-05-04-preview"
       Chef::Log.info("AzureDns::RecordSet - Resource URL is: #{resource_url}")
       case record_type
       when 'A'
@@ -120,9 +110,8 @@ module AzureDns
         )
         Chef::Log.info("AzureDns::RecordSet -
           Create/Update response is: #{dns_response}")
-      rescue => e
-        msg = "Exception setting #{record_type}
-          records for the record set: #{record_set_name}"
+      rescue RestClient::Exception => e
+        msg = "Exception setting #{record_type} records for the record set: #{record_set_name}"
         puts "***FAULT:FATAL=#{msg}"
         Chef::Log.error("AzureDns::RecordSet - Exception is: #{e.message}")
         e = Exception.new('no backtrace')
@@ -133,10 +122,7 @@ module AzureDns
 
     def remove_record_set(record_set_name, record_type)
       # construct the URL to get the records from the dns zone
-      resource_url = "https://management.azure.com/subscriptions/
-      #{@subscription}/resourceGroups/#{@dns_resource_group}
-      /providers/Microsoft.Network/dnsZones/#{@zone}/#{record_type}/
-      #{record_set_name}?api-version=2015-05-04-preview"
+      resource_url = "https://management.azure.com/subscriptions/#{@subscription}/resourceGroups/#{@dns_resource_group}/providers/Microsoft.Network/dnsZones/#{@zone}/#{record_type}/#{record_set_name}?api-version=2015-05-04-preview"
       Chef::Log.info("AzureDns::RecordSet - Resource URL is: #{resource_url}")
       begin
         dns_response = RestClient.delete(
@@ -145,15 +131,12 @@ module AzureDns
           content_type: 'application/json',
           authorization: @token
         )
-        Chef::Log.info("AzureDns::RecordSet - Deleting
-          #{record_type} record response is: #{dns_response}")
-      rescue => e
+        Chef::Log.info("AzureDns::RecordSet - Deleting #{record_type} record response is: #{dns_response}")
+      rescue RestClient::Exception => e
         if e.http_code == 404
-          Chef::Log.info('AzureDns::RecordSet - 404 code,
-            trying to delete something that is not there.')
+          Chef::Log.info('AzureDns::RecordSet - 404 code, trying to delete something that is not there.')
         else
-          msg = "Exception trying to remove
-                #{record_type} records for the record set: #{record_set_name}"
+          msg = "Exception trying to remove #{record_type} records for the record set: #{record_set_name}"
           puts "***FAULT:FATAL=#{msg}"
           Chef::Log.error("AzureDns::RecordSet - Exception is: #{e.message}")
           e = Exception.new('no backtrace')
