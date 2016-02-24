@@ -3,14 +3,14 @@
 # rubocop:disable ClassLength
 # rubocop:disable LineLength
 module AzureDns
+  require 'chef'
+  require 'rest-client'
   # Cookbook Name:: azuredns
   # Recipe:: set_dns_records
   #
   # This class handles the dns recordset operations i-e sets dns recordset,
   # gets dns recordset and also remove dns recordsets
   #
-  require 'chef'
-  require 'rest-client'
   class RecordSet
     def initialize(dns_attributes, token, platform_resource_group)
       @subscription = dns_attributes['subscription']
@@ -75,25 +75,25 @@ module AzureDns
       Chef::Log.info("AzureDns::RecordSet - Resource URL is: #{resource_url}")
       case record_type
       when 'A'
-      	arecords_array = Array.new
-      	records.each do |ip|
-      			arecords_array.push({'ipv4Address' => ip})
-      	end
-      	body = {
-      		:location => 'global',
-      		:tags => '',
-      		:properties => {
-      			:TTL => ttl,
-      			:ARecords => arecords_array
-      		}
-      	}
+        arecords_array = []
+        records.each do |ip|
+          arecords_array.push('ipv4Address' => ip)
+        end
+        body = {
+          location: 'global',
+          tags: '',
+          properties: {
+            TTL: ttl,
+            ARecords: arecords_array
+          }
+        }
       when 'CNAME'
-      	body = {
-      		:location => 'global',
-      		:tags => '',
-      		:properties => {
-      			:TTL => ttl,
-      			:CNAMERecord => {
+        body = {
+          location: 'global',
+          tags: '',
+          properties: {
+            TTL: ttl,
+            CNAMERecord: {
               'cname' => records.first # because cname only has 1 value and we know the object is an array passed in.
             }
       		}
