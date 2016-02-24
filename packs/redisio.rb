@@ -35,7 +35,7 @@ resource "volume",
   :design => true,
   :requires => { "constraint" => "1..1", "services" => "compute" },
   :attributes => {  "mount_point"   => '/app',
-                    "size"          => '10G',
+                    "size"          => '60%VG',
                     "device"        => '',
                     "fstype"        => 'ext4',
                     "options"       => ''
@@ -53,18 +53,6 @@ resource "volume",
                   },
                 }
     }
-
-resource "volume-app",
- :cookbook => "oneops.1.volume",
- :design => true,
- :requires => { "constraint" => "0..1", "services" => "compute" },
- :attributes => { "mount_point" => '/app',
-                   "size" => '10G',
-                   "device" => '',
-                   "fstype" => 'ext4',
-                   "options" => ''
-                }
-
 
 resource "volume-log",
   :cookbook => "oneops.1.volume",
