@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.oneops</groupId>
   <artifactId>circuit-oneops-1</artifactId>
-  <version>5.0.168</version>
+  <version>5.0.169-SNAPSHOT</version>
   <name>circuit-oneops-1</name>
   <properties>
     <plugin.release.version>2.2.1</plugin.release.version>
@@ -137,7 +137,7 @@
     <connection>${scm.field}</connection>
     <developerConnection>${scm.field} </developerConnection>
     <url>${scm.field}</url>
-    <tag>circuit-oneops-1-5.0.168</tag>
+    <tag>circuit-oneops-1-5.0.135</tag>
   </scm>
   <pluginRepositories>
     <pluginRepository>
