@@ -1,10 +1,9 @@
-name             'Azuredns'
+name             'azuredns'
 maintainer       'oneops'
 maintainer_email 'support@oneops.com'
 license          'Apache License, Version 2.0'
 description      'Installs/Configures Azure DNS'
 version          '0.1.0'
-depends          'azure'
 
 grouping 'default',
   :access => "global",
