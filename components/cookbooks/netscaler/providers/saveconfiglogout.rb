@@ -5,8 +5,6 @@
 action :default do
   conn = @new_resource.connection || node.ns_conn
 
-  # not used due to cronjob on netscaler to save / push to ns.conf and standby
-=begin
   # ns nitro v1 api needs this object=
   req = 'object= { "params":{"action":"save"}, "nsconfig":{} }'
   
@@ -86,7 +84,6 @@ action :default do
   else
     Chef::Log.info( "logout ok. resp: #{resp_obj.inspect}")    
   end  
-=end  
   
 end
 
