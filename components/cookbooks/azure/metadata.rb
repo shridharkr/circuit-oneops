@@ -4,8 +4,20 @@ version          "0.1"
 maintainer       "OneOps"
 maintainer_email "support@oneops.com"
 license          "Apache License, Version 2.0"
-depends					 "azure"
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+depends          "azure"
+=======
+>>>>>>> 458d13a... Unit tests for azuredns:get_azure_token recipe. Recipe is refactored using LWRP and passes rubocop and foodcritic static code analysis. Integration tests verified via OneOps.
 depends					 "compute"
+=======
+depends					 "Compute"
+>>>>>>> fcab10e... metadata changes capitalizing
+=======
+depends          "azure"
+depends					 "compute"
+>>>>>>> e50b8a8... DNS get_azure_token recipe: converted into class structure and write its unit test cases. Fixed Rubocop and Foodcritic offenses.
 
 grouping 'default',
   :access => "global",
