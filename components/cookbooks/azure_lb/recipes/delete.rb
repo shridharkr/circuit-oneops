@@ -8,10 +8,10 @@ require 'azure_mgmt_network'
 # get platform resource group and availability set
 include_recipe 'azure::get_platform_rg_and_as'
 
-def get_credentials(compute_service)
-  tenant_id = compute_service[:ciAttributes][:tenant_id]
-  client_id = compute_service[:ciAttributes][:client_id]
-  client_secret = compute_service[:ciAttributes][:client_secret]
+def get_credentials(lb_service)
+  tenant_id = lb_service[:ciAttributes][:tenant_id]
+  client_id = lb_service[:ciAttributes][:client_id]
+  client_secret = lb_service[:ciAttributes][:client_secret]
 
   begin
     # Create authentication objects
@@ -69,24 +69,22 @@ end
 # ===================================================
 
 cloud_name = node.workorder.cloud.ciName
-dns_service = nil
-compute_service = nil
-if !node.workorder.services["compute"].nil? && !node.workorder.services["compute"][cloud_name].nil?
-  dns_service = node.workorder.services["dns"][cloud_name]
-  compute_service = node.workorder.services["compute"][cloud_name]
+lb_service = nil
+if !node.workorder.services["lb"].nil? && !node.workorder.services["lb"][cloud_name].nil?
+  lb_service = node.workorder.services["lb"][cloud_name]
 end
 
-if dns_service.nil? || compute_service.nil?
-  Chef::Log.error("missing cloud service. services: #{node.workorder.services.inspect}")
+if lb_service.nil?
+  Chef::Log.error("missing lb service")
   exit 1
 end
 
 #Determine if express route is enabled
 xpress_route_enabled = true
-if compute_service[:ciAttributes][:express_route_enabled].nil?
+if lb_service[:ciAttributes][:express_route_enabled].nil?
   #We cannot assume express route is enabled if it is not set
   xpress_route_enabled = false
-elsif compute_service[:ciAttributes][:express_route_enabled] == "false"
+elsif lb_service[:ciAttributes][:express_route_enabled] == "false"
   xpress_route_enabled = false
 end
 
@@ -97,8 +95,8 @@ assembly_name = node.workorder.payLoad.Assembly[0]["ciName"]
 org_name = node.workorder.payLoad.Organization[0]["ciName"]
 security_group = "#{environment_name}.#{assembly_name}.#{org_name}"
 resource_group_name = node['platform-resource-group']
-location = compute_service[:ciAttributes][:location]
-subscription_id = compute_service[:ciAttributes][:subscription]
+location = lb_service[:ciAttributes][:location]
+subscription_id = lb_service[:ciAttributes][:subscription]
 
 asmb_name = assembly_name.gsub(/-/, "").downcase
 plat_name = platform_name.gsub(/-/, "").downcase
@@ -119,7 +117,7 @@ Chef::Log.info("Security Group: #{security_group}")
 Chef::Log.info("Resource Group: #{resource_group_name}")
 Chef::Log.info("Load Balancer: #{lb_name}")
 
-credentials = get_credentials(compute_service)
+credentials = get_credentials(lb_service)
 
 delete_lb(credentials, subscription_id, resource_group_name, lb_name)
 
