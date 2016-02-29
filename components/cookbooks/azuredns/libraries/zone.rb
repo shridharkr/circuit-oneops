@@ -21,7 +21,7 @@ module AzureDns
       resource_url = "#{AZURE_RESOURCE}subscriptions/#{@subscription}/resourceGroups/#{@dns_resource_group}/providers/Microsoft.Network/dnsZones/#{@zone}?api-version=2015-05-04-preview"
       puts "AzureDns:Zone - Resource URL is: #{resource_url}"
       begin
-        RestClient.get(
+        dns_response = RestClient.get(
           resource_url,
           accept: 'application/json',
           content_type: 'application/json',
