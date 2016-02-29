@@ -4,6 +4,7 @@ require ::File.expand_path('../../../../../constants', __FILE__)
 # **Rubocop Suppression**
 # rubocop:disable MethodLength
 # rubocop:disable LineLength
+# rubocop:disable AbcSize
 
 module AzureDns
   # DNS Zone Class
@@ -28,7 +29,7 @@ module AzureDns
         )
         puts dns_response
         dns_hash = JSON.parse(dns_response)
-        if dns_hash.has_key?('id') && !dns_hash['id'].nil?
+        if dns_hash.key?('id') && !dns_hash['id'].nil?
           puts 'AzureDns:Zone - Zone Exists, no need to create'
         end
 
