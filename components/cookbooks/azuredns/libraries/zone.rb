@@ -1,7 +1,10 @@
+require 'chef'
+require ::File.expand_path('../../../../../constants', __FILE__)
+
+# **Rubocop Suppression**
 # rubocop:disable MethodLength
 # rubocop:disable LineLength
-require_relative '../../../../constants'
-require 'chef'
+
 module AzureDns
   # DNS Zone Class
   class Zone
@@ -15,6 +18,7 @@ module AzureDns
     def check_for_zone
       # construct the URL to get the records from the dns zone
       resource_url = "#{AZURE_RESOURCE}subscriptions/#{@subscription}/resourceGroups/#{@dns_resource_group}/providers/Microsoft.Network/dnsZones/#{@zone}?api-version=2015-05-04-preview"
+      puts "AzureDns:Zone - Resource URL is: #{resource_url}"
       begin
         RestClient.get(
           resource_url,
@@ -22,11 +26,20 @@ module AzureDns
           content_type: 'application/json',
           authorization: @token
         )
+        puts dns_response
+        dns_hash = JSON.parse(dns_response)
+        if dns_hash.has_key?('id') && !dns_hash['id'].nil?
+          puts 'AzureDns:Zone - Zone Exists, no need to create'
+        end
+
         true
       rescue RestClient::Exception => e
         if e.http_code == 404
+          puts('AzureDns:Zone - 404 code, Zone does not exist.  Need to create')
           false
         else
+          msg = "Exception checking if the zone exists: #{@zone}"
+          puts "***FAULT:FATAL=#{msg}"
           Chef::Log.error("AzureDns:Zone - Excpetion is: #{e.message}")
           e = Exception.new('no backtrace')
           e.set_backtrace('')
@@ -38,18 +51,22 @@ module AzureDns
     def create
       # construct the URL to get the records from the dns zone
       resource_url = "#{AZURE_RESOURCE}subscriptions/#{@subscription}/resourceGroups/#{@dns_resource_group}/providers/Microsoft.Network/dnsZones/#{@zone}?api-version=2015-05-04-preview"
+      puts "AzureDns:Zone - Resource URL is: #{resource_url}"
       body = {
         location: 'global',
         tags: {},
         properties: {} }
       begin
-        RestClient.put(
+        dns_response = RestClient.put(
           resource_url,
           body.to_json,
           accept: 'application/json',
           content_type: 'application/json',
           authorization: @token)
+        puts dns_response
       rescue => e
+        msg = "Exception creating zone: #{@zone}"
+        puts "***FAULT:FATAL=#{msg}"
         Chef::Log.error("AzureDns:Zone - Excpetion is: #{e.message}")
         e = Exception.new('no backtrace')
         e.set_backtrace('')
