@@ -431,15 +431,13 @@ end
 cloud_name = node.workorder.cloud.ciName
 
 lb_service = nil
-dns_service = nil
-if !node.workorder.services["lb"].nil? && !node.workorder.services["dns"][cloud_name].nil?
+if !node.workorder.services["lb"].nil?
   lb_service = node.workorder.services["lb"][cloud_name]
-  dns_service = node.workorder.services["dns"][cloud_name]
 end
 
-if dns_service.nil? || lb_service.nil?
-  Chef::Log.error("missing cloud service. services: #{node.workorder.services.inspect}")
-  msg = "missing cloud service services"
+if lb_service.nil?
+  Chef::Log.error("missing lb service. services: #{node.workorder.services.inspect}")
+  msg = "missing lb service services"
   puts("***FAULT:FATAL=#{msg}")
   raise(msg)
 end
