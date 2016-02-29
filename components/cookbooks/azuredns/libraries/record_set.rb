@@ -8,8 +8,10 @@ module AzureDns
   # Cookbook Name:: azuredns
   # Recipe:: set_dns_records
   #
-  # This class handles the dns recordset operations i-e sets dns recordset,
-  # gets dns recordset and also remove dns recordsets
+  # This class handles following dns recordset operations
+  # a) set dns recordset
+  # b) get dns recordset
+  # c) remove DNS recordset
   #
   class RecordSet
     def initialize(dns_attributes, token, platform_resource_group)
