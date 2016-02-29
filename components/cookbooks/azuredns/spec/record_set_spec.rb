@@ -16,9 +16,10 @@ describe AzureDns::RecordSet do
     @record_sets = AzureDns::RecordSet.new(dns_attributes,
                                            token, platform_resource_group)
   end
+
   describe '#get_existing_records_for_recordset' do
     it 'returns A type record for recordset' do
-      file_path = File.expand_path('A_type_record.json', __dir__)
+      file_path = File.expand_path('A_type_record_data.json', __dir__)
       file = File.open(file_path)
       dns_response = file.read
       allow(RestClient).to receive(:get) { dns_response }
@@ -30,7 +31,7 @@ describe AzureDns::RecordSet do
 
   describe '#get_existing_records_for_recordset' do
     it 'returns CNAME type record for recordset' do
-      file_path = File.expand_path('cname_type_record.json', __dir__)
+      file_path = File.expand_path('CNAME_type_record_data.json', __dir__)
       file = File.open(file_path)
       dns_response = file.read
       allow(RestClient).to receive(:get) { dns_response }
@@ -72,7 +73,7 @@ describe AzureDns::RecordSet do
       response = double
       allow(response).to receive(:code) { 200 }
       allow(RestClient).to receive(:put) { response }
-      records = Array.new(['1.2.3.4', '1.2.3.5'])
+      records = ['1.2.3.4', '1.2.3.5']
       expect { @record_sets.set_records_on_record_set('RS_Name', records, 'A', 300) }
         .to_not raise_error('no backtrace')
     end
@@ -83,7 +84,7 @@ describe AzureDns::RecordSet do
       response = double
       allow(response).to receive(:code) { 200 }
       allow(RestClient).to receive(:put) { response }
-      records = Array.new(['contoso.com'])
+      records = ['contoso.com']
 
       expect { @record_sets.set_records_on_record_set('RS', records, 'CNAME', 300) }
         .to_not raise_error('no backtrace')
@@ -94,7 +95,7 @@ describe AzureDns::RecordSet do
     it 'raises an exception' do
       allow(RestClient).to receive(:put)
         .and_raise(RestClient::Exception.new(nil))
-      records = Array.new(['1.2.3.4', '1.2.3.5'])
+      records = ['1.2.3.4', '1.2.3.5']
       expect { @record_sets.set_records_on_record_set('RS_Name', records, 'A', 300) }
         .to raise_error('no backtrace')
     end

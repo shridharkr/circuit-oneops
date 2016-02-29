@@ -1,4 +1,5 @@
 Gemfile.lock
 .project
 .idea
+.arcconfig
 **/.DS_Store

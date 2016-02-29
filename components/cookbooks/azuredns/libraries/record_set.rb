@@ -8,8 +8,10 @@ module AzureDns
   # Cookbook Name:: azuredns
   # Recipe:: set_dns_records
   #
-  # This class handles the dns recordset operations i-e sets dns recordset,
-  # gets dns recordset and also remove dns recordsets
+  # This class handles following dns recordset operations
+  # a) set dns recordset
+  # b) get dns recordset
+  # c) remove DNS recordset
   #
   class RecordSet
     def initialize(dns_attributes, token, platform_resource_group)
@@ -108,8 +110,7 @@ module AzureDns
           content_type: 'application/json',
           authorization: @token
         )
-        Chef::Log.info("AzureDns::RecordSet -
-          Create/Update response is: #{dns_response}")
+        Chef::Log.info("AzureDns::RecordSet - Create/Update response is: #{dns_response}")
       rescue RestClient::Exception => e
         msg = "Exception setting #{record_type} records for the record set: #{record_set_name}"
         puts "***FAULT:FATAL=#{msg}"
