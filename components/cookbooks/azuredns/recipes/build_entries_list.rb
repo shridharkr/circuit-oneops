@@ -10,9 +10,12 @@
 
 require 'json'
 
+# same
 cloud_name = node['workorder']['cloud']['ciName']
+# little different
 domain_name = node['workorder']['services']['dns'][cloud_name]['ciAttributes']['zone']
 
+# same
 # set to empty set to handle delete on inactive platform
 node.set['entries'] = []
 
