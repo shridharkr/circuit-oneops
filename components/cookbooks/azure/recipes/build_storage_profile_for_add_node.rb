@@ -1,6 +1,5 @@
 require 'azure_mgmt_compute'
 require 'azure_mgmt_storage'
-#require File.expand_path('../../libraries/storage_account.rb', __FILE__)
 require File.expand_path('../../libraries/regions.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, Azure::ARM::Compute)
@@ -176,7 +175,6 @@ Chef::Log.info("Location: #{location}")
 # alpha-numberic  no special characters between 9 and 24 characters
 
 # name needs to be globally unique, but it also needs to be per region.
-#generated_name = AzureStorage::StorageAccount.generate_name(node.workorder.box.ciId, location)
 generated_name = "oostg" + node.workorder.box.ciId.to_s + AzureRegions::RegionName.abbreviate(location)
 
 if generated_name.length > 22
