@@ -1,6 +1,7 @@
 require 'azure_mgmt_compute'
 require 'azure_mgmt_storage'
-require File.expand_path('../../libraries/storage_account.rb', __FILE__)
+#require File.expand_path('../../libraries/storage_account.rb', __FILE__)
+require File.expand_path('../../libraries/regions.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, Azure::ARM::Compute)
 ::Chef::Recipe.send(:include, Azure::ARM::Compute::Models)
@@ -175,7 +176,8 @@ Chef::Log.info("Location: #{location}")
 # alpha-numberic  no special characters between 9 and 24 characters
 
 # name needs to be globally unique, but it also needs to be per region.
-generated_name = AzureStorage::StorageAccount.generate_name(node.workorder.box.ciId, location)
+#generated_name = AzureStorage::StorageAccount.generate_name(node.workorder.box.ciId, location)
+generated_name = "oostg" + node.workorder.box.ciId.to_s + AzureRegions::RegionName.abbreviate(location)
 
 if generated_name.length > 22
   generated_name = generated_name.slice!(0..21)  #making sure we are not over the limit
@@ -257,7 +259,7 @@ storage_profile.os_disk.create_option = DiskCreateOptionTypes::FromImage
 
 #Add a data disk
 data_disk1 = DataDisk.new
-data_disk1.name = "#{server_name}-datadisk" 
+data_disk1.name = "#{server_name}-datadisk"
 data_disk1.lun = 0
 data_disk1.disk_size_gb = 1023
 data_disk1.vhd = VirtualHardDisk.new
