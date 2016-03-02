@@ -79,7 +79,6 @@ include_recipe 'fqdn::build_entries_list'
 
 # set the records
 if provider =~ /azuredns/
-#  include_recipe 'azuredns::build_entries_list'
   include_recipe 'azuredns::set_dns_records'
 
   compute_service = node['workorder']['services']['compute'][cloud_name]['ciAttributes']
@@ -94,7 +93,6 @@ if provider =~ /azuredns/
     include_recipe 'azuredns::update_dns_on_pip'
   end
 else
-#  include_recipe 'fqdn::build_entries_list'
   include_recipe 'fqdn::set_dns_entries_'+provider
 end
 

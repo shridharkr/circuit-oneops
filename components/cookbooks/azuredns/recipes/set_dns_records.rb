@@ -63,11 +63,14 @@ recordset = AzureDns::RecordSet.new(dns_attributes, node['azure_rest_token'], no
 # figure out the final list and call Azure to set it.
 # basically looping for each record set and setting the A or CNAME entries
 node['entries'].each do |entry|
+  # need to remove the zone name from the end of the record set name.  Azure will auto append the zone to the recordset
+  # name internally.
   # dns_name will be the record set created/updated in azure dns
-  dns_name = entry['name']
+  dns_name = entry['name'].sub(dns_attributes['zone'],'')
+  Chef::Log.info("azuredns:set_dns_records.rb - dns_name is: #{dns_name}")
+
   # dns_value will be the A or CNAME records put on the record sets
   dns_values = entry['values'].is_a?(String) ? Array.new([entry['values']]) : entry['values']
-  Chef::Log.info("azuredns:set_dns_records.rb - dns_name is: #{dns_name}")
   Chef::Log.info("azuredns:set_dns_records.rb - dns_values are: #{dns_values}")
 
   record_type = get_record_type(dns_values)
@@ -118,6 +121,16 @@ node['entries'].each do |entry|
       recordset.remove_record_set(dns_name, record_type.upcase)
     end
 
+#  when 'ptr'
+
   end
 
 end
+
+# just for testing..  Take it out before PR.
+msg = 'just for testing..  Take it out before PR.'
+Chef::Log.error(msg)
+puts "***FAULT:FATAL=#{msg}"
+e = Exception.new('no backtrace')
+e.set_backtrace('')
+raise e
