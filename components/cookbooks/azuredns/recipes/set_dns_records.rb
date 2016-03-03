@@ -2,7 +2,6 @@ require File.expand_path('../../libraries/record_set.rb', __FILE__)
 require File.expand_path('../../libraries/zone.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, AzureDns)
-
 # get dns record type - check for ip addresses
 def get_record_type (dns_name, dns_values)
   # default to CNAME
@@ -35,14 +34,11 @@ if node.workorder.rfcCi.ciAttributes.has_key?('ptr_enabled') && node.workorder.r
   Chef::Log.info('azuredns:set_dns_records.rb - PTR Records are configured automatically in Azure DNS, ignoring')
 end
 
+dns = AzureDns::DNS.new(node['platform-resource-group'], node['azure_rest_token'], dns_attributes)
+
 # check to see if the zone exists in Azure
 # if it doesn't create it
-zone = AzureDns::Zone.new(dns_attributes, node['azure_rest_token'], node['platform-resource-group'])
-zone_exist = zone.check_for_zone
-if !zone_exist
-  Chef::Log.info('azuredns:set_dns_records.rb - Zone does not exist')
-  zone.create
-end
+dns.create_zone
 
 # check the node for entries to delete and entries to create
 if node.has_key?('deletable_entries')
@@ -129,3 +125,5 @@ node['entries'].each do |entry|
   end
 
 end
+
+dns.set_dns_records(node['entries'], node['dns_action'], ttl)
