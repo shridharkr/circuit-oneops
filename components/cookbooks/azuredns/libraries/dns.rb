@@ -263,12 +263,10 @@ module AzureDns
           if !value.nil?
             Chef::Log.info("azuredns:remove_old_aliases.rb - short alias dns_name: #{alias_name} value: #{value.first}")
             @entries.push(name: alias_name, values: value.first)
-
             # deletable_entries.push({:name => alias_name, :values => value.first })
           else
             Chef::Log.info("azuredns:remove_old_aliases.rb - Nothing to remove")
           end
-
           next if priority != '1'
           alias_platform_dns_name = alias_name.gsub("\." + cloud_dns_id, '').downcase
           Chef::Log.info("azuredns:remove_old_aliases.rb - alias_platform_dns_name is: #{alias_platform_dns_name}")
