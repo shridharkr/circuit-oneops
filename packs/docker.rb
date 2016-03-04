@@ -1,95 +1,182 @@
-include_pack "base"
+include_pack 'genericlb'
 
-name "docker"
-description "Docker"
-type "Platform"
-category "Infrastructure Service"
-ignore true
+name        'docker'
+description 'Docker'
+type        'Platform'
+category    'Infrastructure Service'
 
+variable 'docker_root',
+         :description => 'Root of the Docker runtime.',
+         :value => '/var/lib/docker'
 
-resource "secgroup",
-  :cookbook => "oneops.1.secgroup",
-  :design => true,
-  :attributes => {
-    "inbound" => '[ "22 22 tcp 0.0.0.0/0", "2375 2375 tcp 0.0.0.0/0", "49153 65535 tcp 0.0.0.0/0" ]'
-  },
-  :requires => {
-    :constraint => "1..1",
-    :services => "compute"
-  }
+variable 'data_volume',
+         :description => 'Data volume for persistent or shared data.',
+         :value => '/data'
 
-resource "compute",
-  :attributes => {
-    "ostype"  => "centos-6.5",
-    "size"    => "XL"
-  }
+variable 'docker_repo',
+         :description => 'Docker release package repository.',
+         :value => ''
 
-resource "volume",
-  :requires => { "constraint" => "1..1", "services" => "compute" },
-  :attributes => {  "mount_point"   => '/docker',
-    "device"        => '',
-    "fstype"        => 'xfs',
-    "options"       => ''
-  }
+resource 'compute',
+         :cookbook => 'oneops.1.compute',
+         :design => true,
+         :attributes => {:size => 'M'}
 
-resource "docker",
-  :cookbook => "oneops.1.library",
-  :design => true,
-  :requires => { "constraint" => "1..1" }
+resource 'secgroup',
+         :cookbook => 'oneops.1.secgroup',
+         :design => true,
+         :attributes => {
+             :inbound => '["22 22 tcp 0.0.0.0/0", "80 80 tcp 0.0.0.0/0", "443 443 tcp 0.0.0.0/0","8080 8080 tcp 0.0.0.0/0","8443 8443 tcp 0.0.0.0/0"]'
+         },
+         :requires => {
+             :constraint => '1..1',
+             :services => 'compute'
+         }
 
-resource "docker-config",
-  :cookbook => "oneops.1.file",
-  :design => true,
-  :requires => { :constraint => "1..1" },
-  :attributes => {
-    "path" => '/etc/sysconfig/docker',
-    "exec_cmd" => 'service docker restart',
-    "content" => <<-EOS
-other_args="$(echo `grep nameserver /etc/resolv.conf | grep -v 127.0.0.1 | sed 's/nameserver/--dns/'`) -g /docker -H tcp://$(hostname):2375 -H unix:///var/run/docker.sock"
-EOS
-  }
+resource 'docker_engine',
+         :cookbook => 'oneops.1.docker_engine',
+         :design => true,
+         :requires => {:constraint => '1..1',
+                       :services => 'compute,mirror'},
+         :attributes => {
+             :version => '1.9.1',
+             :root => '$OO_LOCAL{docker_root}',
+             :repo => '$OO_LOCAL{docker_repo}'
+         },
+         :monitors => {
+             :dockerProcess => {:description => 'DockerEngine',
+                                :source => '',
+                                :chart => {:min => '0', :max => '100', :unit => 'Percent'},
+                                :cmd => 'check_process!docker!true!docker!false',
+                                :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$" "$ARG4$"',
+                                :metrics => {
+                                    :up => metric(:unit => '%', :description => 'Percent Up'),
+                                },
+                                :thresholds => {
+                                    :dockerEngineDown => threshold('1m', 'avg', 'up', trigger('<=', 98, 1, 1), reset('>', 95, 1, 1), 'unhealthy')
+                                }
+             }
+         }
 
-resource "daemon",
-  :requires => { "constraint" => "1..*" },
-  :attributes => {
-    "service_name" => 'docker',
-    "control_script_location" => '/etc/init.d/docker'
-  }
+resource 'user-app',
+         :cookbook => 'oneops.1.user',
+         :design => true,
+         :requires => {:constraint => '1..1'},
+         :attributes => {
+             :username => 'app',
+             :description => 'Application User',
+             :home_directory => '/home/app',
+             :system_account => true,
+             :sudoer => true
+         }
 
-# depends_on
-[ { :from => 'daemon',        :to => 'docker-config' },
-  { :from => 'daemon',        :to => 'docker' },
-  { :from => 'docker-config', :to => 'docker' },
-  { :from => 'docker-config', :to => 'volume' },
-  { :from => 'docker',        :to => 'compute'},    
-  { :from => 'docker',        :to => 'os' } ].each do |link|
+resource 'artifact',
+         :cookbook => 'oneops.1.artifact',
+         :design => true,
+         :requires => {:constraint => '0..*'},
+         :attributes => {}
+
+resource 'java',
+         :cookbook => 'oneops.1.java',
+         :design => true,
+         :requires => {
+             :constraint => '0..1',
+             :services => 'mirror',
+             :help => 'Java Programming Language Environment'
+         },
+         :attributes => {}
+
+resource 'vol-docker',
+         :cookbook => 'oneops.1.volume',
+         :design => true,
+         :requires => {:constraint => '1..1', :services => 'compute'},
+         :attributes => {:mount_point => '$OO_LOCAL{docker_root}',
+                         :size => '10G',
+                         :device => '',
+                         :fstype => 'xfs',
+                         :options => ''
+         },
+         :monitors => {
+             :usage => {:description => 'Usage',
+                        :chart => {:min => 0, :unit => 'Percent used'},
+                        :cmd => 'check_disk_use!:::node.workorder.rfcCi.ciAttributes.mount_point:::',
+                        :cmd_line => '/opt/nagios/libexec/check_disk_use.sh $ARG1$',
+                        :metrics => {:space_used => metric(:unit => '%', :description => 'Disk Space Percent Used'),
+                                     :inode_used => metric(:unit => '%', :description => 'Disk Inode Percent Used')},
+                        :thresholds => {
+                            :LowDiskSpaceCritical => threshold('1m', 'avg', 'space_used', trigger('>=', 90, 5, 2), reset('<', 85, 5, 1)),
+                            :LowDiskInodeCritical => threshold('1m', 'avg', 'inode_used', trigger('>=', 90, 5, 2), reset('<', 85, 5, 1))
+                        }
+             }
+         }
+
+resource 'vol-data',
+         :cookbook => 'oneops.1.volume',
+         :design => true,
+         :requires => {:constraint => '1..1', :services => 'compute'},
+         :attributes => {:mount_point => '$OO_LOCAL{data_volume}',
+                         :size => '100%FREE',
+                         :device => '',
+                         :fstype => 'xfs',
+                         :options => ''
+         },
+         :monitors => {
+             :usage => {:description => 'Usage',
+                        :chart => {:min => 0, :unit => 'Percent used'},
+                        :cmd => 'check_disk_use!:::node.workorder.rfcCi.ciAttributes.mount_point:::',
+                        :cmd_line => '/opt/nagios/libexec/check_disk_use.sh $ARG1$',
+                        :metrics => {:space_used => metric(:unit => '%', :description => 'Disk Space Percent Used'),
+                                     :inode_used => metric(:unit => '%', :description => 'Disk Inode Percent Used')},
+                        :thresholds => {
+                            :LowDiskSpaceCritical => threshold('1m', 'avg', 'space_used', trigger('>=', 90, 5, 2), reset('<', 85, 5, 1)),
+                            :LowDiskInodeCritical => threshold('1m', 'avg', 'inode_used', trigger('>=', 90, 5, 2), reset('<', 85, 5, 1))
+                        }
+             }
+         }
+
+[{:from => 'vol-docker', :to => 'os'},
+ {:from => 'user-app', :to => 'os'},
+ {:from => 'java', :to => 'os'},
+ {:from => 'vol-data', :to => 'vol-docker'},
+ {:from => 'vol-data', :to => 'storage'},
+ {:from => 'docker_engine', :to => 'vol-data'},
+ {:from => 'file', :to => 'vol-data'},
+ {:from => 'share', :to => 'vol-data'},
+ {:from => 'artifact', :to => 'docker_engine'}
+].each { |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
-    :relation_name => 'DependsOn',
-    :from_resource => link[:from],
-    :to_resource   => link[:to],
-    :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
-end
+           :relation_name => 'DependsOn',
+           :from_resource => link[:from],
+           :to_resource => link[:to],
+           :attributes => {:flex => false, :min => 1, :max => 1}
+}
 
-relation "fqdn::depends_on::compute",
-  :only => [ '_default', 'single' ],
-  :relation_name => 'DependsOn',
-  :from_resource => 'fqdn',
-  :to_resource   => 'compute',
-  :attributes    => { "propagate_to" => 'from', "flex" => false, "min" => 1, "max" => 1 }
+# Hostname depends_on
+['hostname'].each { |from|
+  relation "#{from}::depends_on::compute",
+           :relation_name => 'DependsOn',
+           :from_resource => from,
+           :to_resource => 'compute',
+           :attributes => {:propagate_to => 'from', :flex => false, :min => 1, :max => 1}
+}
 
-relation "fqdn::depends_on_flex::compute",
-  :except => [ '_default', 'single' ],
-  :relation_name => 'DependsOn',
-  :from_resource => 'fqdn',
-  :to_resource   => 'compute',
-  :attributes    => { "propagate_to" => 'from', "flex" => true, "min" => 2, "max" => 10 }
+# FQDN flexing
+['fqdn'].each { |from|
+  relation "#{from}::depends_on::compute",
+           :only => %w(_default single),
+           :relation_name => 'DependsOn',
+           :from_resource => from,
+           :to_resource => 'compute',
+           :attributes => {:propagate_to => 'from', :flex => false, :min => 1, :max => 1}
+}
 
-# managed_via
-[ 'docker','docker-config'].each do |from|
+
+# Managed_via
+%w(vol-docker vol-data user-app docker_engine artifact java daemon).each { |from|
   relation "#{from}::managed_via::compute",
-    :except => [ '_default' ],
-    :relation_name => 'ManagedVia',
-    :from_resource => from,
-    :to_resource   => 'compute',
-    :attributes    => { }
-end
+           :except => ['_default'],
+           :relation_name => 'ManagedVia',
+           :from_resource => from,
+           :to_resource => 'compute',
+           :attributes => {}
+}
