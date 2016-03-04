@@ -187,7 +187,7 @@ It is important to note that this call has certain expectations for example, it 
 ```ruby
 redisio_install "redis-servers" do
   version '2.6.9'
-  download_url 'https://nexus.glb.prod.gecwalmart.com:443/nexus/service/local/repositories/pangaea_releases/content/com/walmartlabs/pangaea/platform/software-deployment/apache-tomcat/redis-2.6.16.tar.gz'
+  download_url 'https://someserver.somecompany.com:443/redis_mirror/redis-2.6.16.tar.gz'
   default_settings node['redisio']['default_settings']
   servers node['redisio']['servers']
   safe_install false
@@ -247,7 +247,7 @@ Attributes
 
 Configuration options, each option corresponds to the same-named configuration option in the redis configuration file;  default values listed
 
-* `redisio['mirror']` - mirror server with path to download redis package, default is https://nexus.glb.prod.gecwalmart.com:443/nexus/service/local/repositories/pangaea_releases/content/com/walmartlabs/pangaea/platform/software-deployment/apache-tomcat/redis-2.6.16.tar.gz
+* `redisio['mirror']` - mirror server with path to download redis package
 * `redisio['base_name']` - the base name of the redis package to be downloaded (the part before the version), default is 'redis-'
 * `redisio['artifact_type']` - the file extension of the package.  currently only .tar.gz and .tgz are supported, default is 'tar.gz'
 * `redisio['version']` - the version number of redis to install (also appended to the `base_name` for downloading), default is '2.6.10'
