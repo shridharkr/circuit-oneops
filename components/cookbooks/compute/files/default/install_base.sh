@@ -48,7 +48,7 @@ if [ -e /etc/SuSE-release ] ; then
   grep $hostname /etc/hosts
   if [ $? != 0 ]; then
     ip_addr=`ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1 -d'/' | xargs`
-    echo "$ip_addr $hostname.walmart.com $hostname" >> /etc/hosts
+    echo "$ip_addr $hostname" >> /etc/hosts
   fi
 
 # redhat / centos
