@@ -129,11 +129,3 @@ node['entries'].each do |entry|
   end
 
 end
-
-# just for testing..  Take it out before PR.
-# msg = 'just for testing..  Take it out before PR.'
-# Chef::Log.error(msg)
-# puts "***FAULT:FATAL=#{msg}"
-# e = Exception.new('no backtrace')
-# e.set_backtrace('')
-# raise e
