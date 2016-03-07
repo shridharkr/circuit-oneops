@@ -75,7 +75,6 @@ node.set[:dns_action] = "delete"
 include_recipe 'fqdn::build_entries_list'
 
 if provider =~ /azuredns/
-  # include_recipe 'azuredns::build_entries_list'
   include_recipe 'azuredns::set_dns_records'
 else
 	include_recipe "fqdn::get_#{provider}_connection"
