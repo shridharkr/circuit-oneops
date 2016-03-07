@@ -152,6 +152,15 @@ attribute 'jvm_opts',
               :order => 2
           }
 
+attribute 'install_dir',
+          :description => "Installation Directory",
+          :default => "/opt",
+          :format => {
+              :help => 'Binary will be installed here (ex. /opt)',
+              :category => '3.Configuration Directives',
+              :order => 3
+          }
+
 attribute 'heap_newsize',
           :description => "Young generation heap size",
           :required => "required",
