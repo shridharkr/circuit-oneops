@@ -37,3 +37,18 @@ if node.workorder.rfcCi.has_key?("ciBaseAttributes") &&
     end
   end
 end
+
+if node.workorder.rfcCi.has_key?("ciBaseAttributes") && node.workorder.rfcCi.ciBaseAttributes.has_key?("endpoint_snitch")
+  old_endpoint_snitch = node.workorder.rfcCi.ciBaseAttributes.endpoint_snitch
+  endpoint_snitch = node.workorder.rfcCi.ciAttributes.endpoint_snitch
+  if ( node.workorder.rfcCi.ciBaseAttributes.endpoint_snitch != node.workorder.rfcCi.ciAttributes.endpoint_snitch ) && # changed
+     !( old_endpoint_snitch =~ /\.PropertyFileSnitch/ && endpoint_snitch =~ /\.GossipingPropertyFileSnitch/) # support change PropertyFileSnitch -> GossipingPropertyFileSnitch
+       action = "Please cancel current deployment and change endpoint snitch from #{endpoint_snitch} to #{old_endpoint_snitch} or as supported."       
+       msg = "Only PropertyFileSnitch to GossipingPropertyFileSnitch Endoint snitch migration is supported. #{action}"
+       Chef::Log.error("#{msg}")
+       puts "***FAULT:FATAL="+msg
+       e = Exception.new("no backtrace")
+       e.set_backtrace("")
+       raise e       
+    end
+end
