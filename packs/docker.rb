@@ -1,9 +1,9 @@
 include_pack 'genericlb'
 
-name 'docker'
-description 'Docker'
-type 'Platform'
-category 'Infrastructure Service'
+name         'docker'
+description  'Docker'
+type         'Platform'
+category     'Infrastructure Service'
 
 variable 'docker-root',
          :description => 'Root of the Docker runtime.',
