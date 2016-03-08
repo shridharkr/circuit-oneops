@@ -1,9 +1,9 @@
 include_pack 'genericlb'
 
-name        'docker'
+name 'docker'
 description 'Docker'
-type        'Platform'
-category    'Infrastructure Service'
+type 'Platform'
+category 'Infrastructure Service'
 
 variable 'docker-root',
          :description => 'Root of the Docker runtime.',
@@ -26,7 +26,7 @@ resource 'secgroup',
          :cookbook => 'oneops.1.secgroup',
          :design => true,
          :attributes => {
-             :inbound => '["22 22 tcp 0.0.0.0/0", "80 80 tcp 0.0.0.0/0", "443 443 tcp 0.0.0.0/0","8080 8080 tcp 0.0.0.0/0","8443 8443 tcp 0.0.0.0/0"]'
+             :inbound => '["22 22 tcp 0.0.0.0/0", "80 80 tcp 0.0.0.0/0"]'
          },
          :requires => {
              :constraint => '1..1',
@@ -56,18 +56,6 @@ resource 'docker_engine',
                                     :dockerEngineDown => threshold('1m', 'avg', 'up', trigger('<=', 98, 1, 1), reset('>', 95, 1, 1), 'unhealthy')
                                 }
              }
-         }
-
-resource 'user-app',
-         :cookbook => 'oneops.1.user',
-         :design => true,
-         :requires => {:constraint => '1..1'},
-         :attributes => {
-             :username => 'app',
-             :description => 'Application User',
-             :home_directory => '/home/app',
-             :system_account => true,
-             :sudoer => true
          }
 
 resource 'artifact',
@@ -135,7 +123,6 @@ resource 'vol-data',
          }
 
 [{:from => 'vol-docker', :to => 'os'},
- {:from => 'user-app', :to => 'os'},
  {:from => 'java', :to => 'os'},
  {:from => 'vol-data', :to => 'vol-docker'},
  {:from => 'vol-data', :to => 'storage'},
@@ -172,7 +159,7 @@ resource 'vol-data',
 
 
 # Managed_via
-%w(vol-docker vol-data user-app docker_engine artifact java daemon).each { |from|
+%w(vol-docker vol-data docker_engine artifact java daemon).each { |from|
   relation "#{from}::managed_via::compute",
            :except => ['_default'],
            :relation_name => 'ManagedVia',
