@@ -27,6 +27,7 @@ directory "#{d}" do
   mode "0755"
   recursive true
   action :create
+  not_if { File.directory?(d) }
 end
 
 file "#{p}" do
