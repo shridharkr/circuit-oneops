@@ -154,7 +154,6 @@ describe AzureDns::DNS do
         current_aliases = dns_obj.get_current_aliases(node_attr['workorder']['rfcCi'], false)
         expect(current_aliases).to eq(["alias2"])
       end
-
       it ' rescue JSON Parse error' do
         node_attr['workorder']['rfcCi']['ciAttributes']['aliases'] = "[\"\"\"]"
         expect { dns_obj.get_current_aliases(node_attr['workorder']['rfcCi'], false) }.to_not raise_error
@@ -307,6 +306,7 @@ describe AzureDns::DNS do
         entries = dns_obj.set_alias_entries_to_be_deleted('.env.asm.org', priority, service_attrs['cloud_dns_id'])
         expect(entries).to eq([{ name: "alias1.env.asm.org", values: "contoso.com" }, { name: "alias2.env.asm.org", values: "contoso.com" }])
       end
+
       it 'sets deletable entries on the basis of aliases with priority 1' do
         priority = node_attr['workorder']['cloud']['ciAttributes']['priority'] = "1"
         dns_obj = AzureDns::DNS.new(service_attrs, token, resource_group)
@@ -335,6 +335,12 @@ describe AzureDns::DNS do
         node_attr['workorder']['rfcCi']['ciBaseAttributes']['aliases'] = "[\"\"]"
         dns_obj.get_aliases(node_attr['workorder']['rfcCi'], false)
         expect(dns_obj.set_alias_entries_to_be_deleted('.env.asm.org', priority, service_attrs['cloud_dns_id'])).to eq([])
+      end
+      it 'throws an exception when value is nil because entries will be empty' do
+        dns_obj = AzureDns::DNS.new(service_attrs, token, resource_group)
+        allow(dns_obj).to receive(:set_alias_entries_to_be_deleted) { entries_nil }
+        entries = dns_obj.set_alias_entries_to_be_deleted('.env.asm.org', priority, service_attrs['cloud_dns_id'])
+        expect(entries).to be_nil
       end
     end
   end

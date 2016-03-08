@@ -29,7 +29,6 @@ module AzureDns
       @full_aliases = []
       @current_full_aliases = []
     end
-
     # get dns record type - check for ip addresses
     def get_record_type(dns_name, dns_values)
       # default to CNAME
@@ -249,7 +248,6 @@ module AzureDns
       # For each entry, removing record sets from azure
       remove_record_set_from_azure
     end
-
     def set_alias_entries_to_be_deleted(customer_domain, priority, cloud_dns_id)
       unless @aliases.nil?
         # cloud-level short aliases

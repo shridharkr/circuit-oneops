@@ -42,4 +42,3 @@ dns.functions_on_aliases_and_fullaliases(node.workorder.rfcCi,
 priority = node.workorder.cloud.ciAttributes.priority
 dns.functions_on_entries(customer_domain, priority,
                          service_attrs['cloud_dns_id'])
-
