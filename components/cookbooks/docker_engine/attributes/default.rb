@@ -7,6 +7,8 @@
 # Docker binary attributes
 default[:docker_engine][:service] = 'docker'
 default[:docker_engine][:package] = 'docker-engine'
+default[:docker_engine][:release] = '1.el7.centos'
+default[:docker_engine][:arch] = 'x86_64'
 
 # RHEL Platform config
 default[:docker_engine][:tlscacert_file] = '/etc/docker/ca.pem'

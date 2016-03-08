@@ -8,7 +8,7 @@ name=Docker Repository
 <%
   repo = node.docker_engine.repo
   repo = node.docker_engine.default_repo if repo.to_s.strip.empty?
-  is_official_repo = repo.include?('dockerproject.org')
+  is_official_repo = repo.include?('https://yum.dockerproject.org')
 %>
 baseurl=<%= repo %>
 enabled=1

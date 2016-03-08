@@ -9,6 +9,7 @@ extend Docker::Util
 Chef::Resource::RubyBlock.send(:include, Docker::Util)
 
 docker_ver = node.docker_engine.version
+docker_rel = node.docker_engine.release
 docker_pkg = node.docker_engine.package
 docker_svc = node.docker_engine.service
 
@@ -33,11 +34,11 @@ end
 
 # Package is available on OS repo.
 log 'package_install' do
-  message "Installing the package #{docker_pkg} #{docker_ver} from OS repo..."
+  message "Installing the package #{docker_pkg}-#{docker_ver}-#{docker_rel} from OS repo..."
 end
 
-package docker_pkg do
-  version version
+package "#{docker_pkg}" do
+  version "#{docker_ver}-#{docker_rel}"
   action :install
 end
 
@@ -89,7 +90,14 @@ template "#{node.docker_engine.systemd_path}/docker.service" do
   mode 00644
 end
 
+
 # Systemd docker drop-in file
+directory node.docker_engine.systemd_drop_in_path do
+  owner 'root'
+  group 'root'
+  recursive true
+end
+
 template "#{node.docker_engine.systemd_drop_in_path}/docker-options.conf" do
   source 'docker-options.conf.erb'
   owner 'root'

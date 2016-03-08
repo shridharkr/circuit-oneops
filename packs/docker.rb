@@ -5,15 +5,15 @@ description 'Docker'
 type        'Platform'
 category    'Infrastructure Service'
 
-variable 'docker_root',
+variable 'docker-root',
          :description => 'Root of the Docker runtime.',
          :value => '/var/lib/docker'
 
-variable 'data_volume',
+variable 'data-volume',
          :description => 'Data volume for persistent or shared data.',
          :value => '/data'
 
-variable 'docker_repo',
+variable 'docker-repo',
          :description => 'Docker release package repository.',
          :value => ''
 
@@ -40,8 +40,8 @@ resource 'docker_engine',
                        :services => 'compute,mirror'},
          :attributes => {
              :version => '1.9.1',
-             :root => '$OO_LOCAL{docker_root}',
-             :repo => '$OO_LOCAL{docker_repo}'
+             :root => '$OO_LOCAL{docker-root}',
+             :repo => '$OO_LOCAL{docker-repo}'
          },
          :monitors => {
              :dockerProcess => {:description => 'DockerEngine',
@@ -90,7 +90,7 @@ resource 'vol-docker',
          :cookbook => 'oneops.1.volume',
          :design => true,
          :requires => {:constraint => '1..1', :services => 'compute'},
-         :attributes => {:mount_point => '$OO_LOCAL{docker_root}',
+         :attributes => {:mount_point => '$OO_LOCAL{docker-root}',
                          :size => '10G',
                          :device => '',
                          :fstype => 'xfs',
@@ -114,7 +114,7 @@ resource 'vol-data',
          :cookbook => 'oneops.1.volume',
          :design => true,
          :requires => {:constraint => '1..1', :services => 'compute'},
-         :attributes => {:mount_point => '$OO_LOCAL{data_volume}',
+         :attributes => {:mount_point => '$OO_LOCAL{data-volume}',
                          :size => '100%FREE',
                          :device => '',
                          :fstype => 'xfs',

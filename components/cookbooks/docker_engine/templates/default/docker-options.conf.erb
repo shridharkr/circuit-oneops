@@ -7,6 +7,7 @@
 <%
   env_vars = JSON.parse(node.docker_engine.env_vars)
   env = env_vars.map { |k, v| "\"#{k}=#{v}\"" }.join(' ')
+  Chef::Log.info("Docker env vars: #{env}")
   unless env.empty?
 %>
 Environment=<%= env.strip %>
@@ -19,8 +20,8 @@ Environment=<%= env.strip %>
   Chef::Log.info("Daemon options: #{options}")
 
   legacy_registry = "--disable-legacy-registry=#{node.docker_engine.disable_legacy_registry}"
-  insecure_registry = JSON.parse(node.docker_engine.insecure_registry).map { |r| "--insecure-registry=#{r}" }.join(' ')
-  registry_mirrors = JSON.parse(node.docker_engine.registry_mirror).map { |r| "--registry-mirror=#{r}" }.join(' ')
+  insecure_registry = JSON.parse(node.docker_engine.insecure_registry).reject { |r| r.empty? }.map { |r| "--insecure-registry=#{r}" }.join(' ')
+  registry_mirrors = JSON.parse(node.docker_engine.registry_mirror).reject { |r| r.empty? }.map { |r| "--registry-mirror=#{r}" }.join(' ')
   Chef::Log.info("Registry: Legacy Registry=#{legacy_registry}, Insecure registry=#{insecure_registry}, Mirror: #{registry_mirrors}")
 
   certs = ''
