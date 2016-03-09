@@ -14,14 +14,16 @@ module AzureDns
       @zone = nil
     end
 
-    # get dns record type - check for ip addresses
-    def get_record_type (dns_values)
+    def get_record_type (dns_name, dns_values)
       # default to CNAME
       record_type = 'cname'
       # if the value is an IP then it is an 'A' record
       ips = dns_values.grep(/\d+\.\d+\.\d+\.\d+/)
       if ips.size > 0
         record_type = 'a'
+      end
+      if dns_name =~ /^\d+\.\d+\.\d+\.\d+$/
+        record_type = "ptr"
       end
       return record_type
     end
@@ -90,14 +92,18 @@ module AzureDns
       # figure out the final list and call Azure to set it.
       # basically looping for each record set and setting the A or CNAME entries
       entries.each do |entry|
+        # need to remove the zone name from the end of the record set name.  Azure will auto append the zone to the recordset
+        # name internally.
         # dns_name will be the record set created/updated in azure dns
-        dns_name = entry['name']
+        dns_name = entry['name'].sub('.'+dns_attributes['zone'],'')
+        Chef::Log.info("azuredns:set_dns_records.rb - dns_name is: #{dns_name}")
+
         # dns_value will be the A or CNAME records put on the record sets
         dns_values = entry['values'].is_a?(String) ? Array.new([entry['values']]) : entry['values']
         Chef::Log.info("azuredns:dns.rb - dns_name is: #{dns_name}")
         Chef::Log.info("azuredns:dns.rb - dns_values are: #{dns_values}")
 
-        record_type = get_record_type(dns_values)
+        record_type = get_record_type(dns_name, dns_values)
         Chef::Log.info("azuredns:dns.rb - record_type is: #{record_type}")
 
         # check for existing records on the record-set
@@ -108,6 +114,8 @@ module AzureDns
           set_a_type_records(total_record_list, dns_action, dns_values, dns_name, ttl, record_type)
         when 'cname'
           set_cname_type_records(total_record_list, dns_action, dns_values, dns_name, ttl, record_type)
+        when 'ptr'
+            Chef::Log.info('Record Type is PTR. PTR records are not yet supported for Azure.')
         end
       end
     end
