@@ -41,10 +41,6 @@ default['version'] = "3.0.1"
 
 #Install related attributes
 default['redisio']['safe_install'] = true
-####-we have a 'nexus' variable in cloud variable , like https://nexus.glb.prod.gecwalmart.com:443
-#-old "$OO_CLOUD{nexus}/nexus/service/local/repositories/pangaea_releases/content/com/walmartlabs/pangaea/platform/software-deployment/apache-tomcat/redis-2.6.16.tar.gz"
-# http://gec-maven-nexus.walmart.com/nexus/service/local/repositories/thirdparty/content/redis/io/redis/2.6.16/redis-2.6.16.tar.gz
-
 default['redisio']['mirror'] = "$OO_CLOUD{nexus}/nexus/content/repositories/thirdparty/content/redis/io/redis/"
 default['redisio']['base_name'] = 'redis-'
 default['redisio']['artifact_type'] = 'tar.gz'

@@ -48,7 +48,7 @@ rescue MsRestAzure::AzureOperationError => e
   e = Exception.new('no backtrace')
   e.set_backtrace('')
   raise e
-rescue Exception =>ex
+rescue =>ex
   puts "***FAULT:FATAL="+ex.message
   raise ex
 end

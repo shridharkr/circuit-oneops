@@ -13,7 +13,7 @@ server_root = node['node_module']['server_root']
 node.set['node_module']['npm'] = `which npm`.strip
 node.set['node_module']['node'] = `which node`.strip
 
-execute "#{node['node_module']['npm']} install #{module_name}@#{module_version} --production" do
+execute "#{node['node_module']['npm']} install #{module_name}@#{module_version}" do
   cwd server_root
 end
 
