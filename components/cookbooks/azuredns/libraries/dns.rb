@@ -35,6 +35,10 @@ module AzureDns
       customer_domain
     end
 
+<<<<<<< HEAD
+=======
+    # below function might cause error due to its return statement
+>>>>>>> a5b99568eeb55892a768f004306b2e85a9c88b58
     def checking_platform(box)
       # skip in active (A/B update)
       Chef::Log.info('azuredns:remove_old_aliases.rb - skipping due to platform is_active false') if box.key?(:is_active) && box[:is_active] == 'false'
@@ -58,7 +62,11 @@ module AzureDns
       is_hostname_entry
     end
 
+<<<<<<< HEAD
     def remove_current_aliases_and_current_full_aliases(node_workorder_rfcci_json, is_hostname_entry)
+=======
+    def functions_on_aliases_and_fullaliases(node_workorder_rfcci_json, is_hostname_entry)
+>>>>>>> a5b99568eeb55892a768f004306b2e85a9c88b58
       # getting aliases from workorder ciBaseAttributes
       get_aliases(node_workorder_rfcci_json, is_hostname_entry)
 
@@ -130,7 +138,11 @@ module AzureDns
       end unless @current_full_aliases.nil? unless @full_aliases.nil?
     end
 
+<<<<<<< HEAD
     def remove_old_aliases(customer_domain, priority, cloud_dns_id)
+=======
+    def functions_on_entries(customer_domain, priority, cloud_dns_id)
+>>>>>>> a5b99568eeb55892a768f004306b2e85a9c88b58
       # pushing aliases to be deleted in an entries array
       set_alias_entries_to_be_deleted(customer_domain, priority, cloud_dns_id)
 

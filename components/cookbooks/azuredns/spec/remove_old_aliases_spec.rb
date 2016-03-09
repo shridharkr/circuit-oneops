@@ -370,6 +370,7 @@ describe AzureDns::DNS do
     end
   end
 
+
   describe '#remove_current_aliases_and_current_full_aliases' do
     file_path = File.expand_path('test_json_data.json', __dir__)
     file = File.open(file_path)
