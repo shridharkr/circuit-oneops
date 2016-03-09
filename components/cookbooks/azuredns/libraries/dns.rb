@@ -140,7 +140,6 @@ module AzureDns
       customer_domain
     end
 
-    # below function might cause error due to its return statement
     def checking_platform(box)
       # skip in active (A/B update)
       Chef::Log.info('azuredns:remove_old_aliases.rb - skipping due to platform is_active false') if box.key?(:is_active) && box[:is_active] == 'false'
