@@ -56,10 +56,9 @@ end
 if ::File.exists?("/opt/maven/bin/mvn") 
   Chef::Log.info("/opt/maven/bin/mvn exists.")                
 else  
-  _source_list = 'https://nexus.prod.walmart.com/nexus/content/repositories/thirdparty/maven/maven/3.3.3/maven-3.3.3.tar,'+
-		'http://www.us.apache.org/dist/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz,'+
-                'http://apache.osuosl.org/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz,'+
-                'http://mirrors.ibiblio.org/apache/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz'
+  _source_list = 'http://www.us.apache.org/dist/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz,'+
+                 'http://apache.osuosl.org/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz,'+
+                 'http://mirrors.ibiblio.org/apache/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz'
 
   misc_proxy = ENV["misc_proxy"]
   if !misc_proxy.nil?
