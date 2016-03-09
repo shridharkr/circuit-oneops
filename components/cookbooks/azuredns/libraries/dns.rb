@@ -14,6 +14,7 @@ module AzureDns
       @zone = nil
     end
 
+    # get dns record type - check for ip addresses
     def get_record_type (dns_name, dns_values)
       # default to CNAME
       record_type = 'cname'
@@ -104,6 +105,7 @@ module AzureDns
         Chef::Log.info("azuredns:dns.rb - dns_values are: #{dns_values}")
 
         record_type = get_record_type(dns_name, dns_values)
+
         Chef::Log.info("azuredns:dns.rb - record_type is: #{record_type}")
 
         # check for existing records on the record-set
