@@ -190,7 +190,7 @@ module AzureDns
         begin
           @aliases = JSON.parse(node_workorder_rfcci_json['ciBaseAttributes']['aliases'])
         rescue
-          Chef::Log.info("azuredns:remove_old_aliases.rb - could not parse aliases json: " + node_workorder_rfcci_json.ciBaseAttributes.aliases)
+          Chef::Log.info("azuredns:remove_old_aliases.rb - could not parse aliases json: " + node_workorder_rfcci_json['ciBaseAttributes']['aliases'])
         end
       end
       @aliases
@@ -201,7 +201,7 @@ module AzureDns
         begin
           @current_aliases = JSON.parse(node_workorder_rfcci_json['ciAttributes']['aliases'])
         rescue
-          Chef::Log.info("azuredns:remove_old_aliases.rb - could not parse aliases json: " + node_workorder_rfcci_json.ciAttributes.aliases)
+          Chef::Log.info("azuredns:remove_old_aliases.rb - could not parse aliases json: " + node_workorder_rfcci_json['ciAttributes']['aliases'])
         end
       end
       @current_aliases
@@ -218,7 +218,7 @@ module AzureDns
       begin
         @full_aliases = JSON.parse(node_workorder_rfcci_json['ciBaseAttributes']['full_aliases'])
       rescue
-        Chef::Log.info("azuredns:remove_old_aliases.rb - could not parse full_aliases json: " + node_workorder_rfcci_json.ciBaseAttributes.full_aliases)
+        Chef::Log.info("azuredns:remove_old_aliases.rb - could not parse full_aliases json: " + node_workorder_rfcci_json['ciBaseAttributes']['full_aliases'])
       end if node_workorder_rfcci_json['ciBaseAttributes'].key?("full_aliases") && !is_hostname_entry
     end
 
@@ -226,7 +226,7 @@ module AzureDns
       begin
         @current_full_aliases = JSON.parse(node_workorder_rfcci_json['ciAttributes']['full_aliases'])
       rescue
-        Chef::Log.info("azuredns:remove_old_aliases.rb - could not parse full_aliases json: " + node_workorder_rfcci_json.ciAttributes.full_aliases)
+        Chef::Log.info("azuredns:remove_old_aliases.rb - could not parse full_aliases json: " + node_workorder_rfcci_json['ciAttributes']['full_aliases'])
       end if node_workorder_rfcci_json['ciAttributes'].key?("full_aliases") && !is_hostname_entry
     end
 
