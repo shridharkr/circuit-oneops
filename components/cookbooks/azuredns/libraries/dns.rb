@@ -163,7 +163,7 @@ module AzureDns
       is_hostname_entry
     end
 
-    def functions_on_aliases_and_fullaliases(node_workorder_rfcci_json, is_hostname_entry)
+    def remove_current_aliases_and_current_full_aliases(node_workorder_rfcci_json, is_hostname_entry)
       # getting aliases from workorder ciBaseAttributes
       get_aliases(node_workorder_rfcci_json, is_hostname_entry)
 
@@ -235,7 +235,7 @@ module AzureDns
       end unless @current_full_aliases.nil? unless @full_aliases.nil?
     end
 
-    def functions_on_entries(customer_domain, priority, cloud_dns_id)
+    def remove_old_aliases(customer_domain, priority, cloud_dns_id)
       # pushing aliases to be deleted in an entries array
       set_alias_entries_to_be_deleted(customer_domain, priority, cloud_dns_id)
 

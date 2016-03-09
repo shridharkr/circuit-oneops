@@ -378,7 +378,7 @@ describe AzureDns::DNS do
     end
   end
 
-  describe '#functions_on_entries' do
+  describe '#remove_current_aliases_and_current_full_aliases' do
     file_path = File.expand_path('test_json_data.json', __dir__)
     file = File.open(file_path)
     contents = file.read
@@ -394,9 +394,9 @@ describe AzureDns::DNS do
       dns_obj = AzureDns::DNS.new(service_attrs, token, resource_group)
       allow(dns_obj.recordset).to receive(:get_existing_records_for_recordset) { entries_response }
       allow(dns_obj.recordset).to receive(:remove_record_set) { responsefromremoverecordset }
-      dns_obj.functions_on_aliases_and_fullaliases(node_attr['workorder']['rfcCi'], false)
+      dns_obj.remove_current_aliases_and_current_full_aliases(node_attr['workorder']['rfcCi'], false)
       priority = node_attr['workorder']['cloud']['ciAttributes']['priority']
-      entries_result = dns_obj.functions_on_entries('.env.asm.org', priority, service_attrs['cloud_dns_id'])
+      entries_result = dns_obj.remove_old_aliases('.env.asm.org', priority, service_attrs['cloud_dns_id'])
       expect(entries_result).to eq([{ name: "alias1.env.asm.org", values: "contoso.com" }, { name: "full-alias1", values: "contoso.com" }])
     end
   end
@@ -417,7 +417,7 @@ describe AzureDns::DNS do
       dns_obj = AzureDns::DNS.new(service_attrs, token, resource_group)
       allow(dns_obj.recordset).to receive(:get_existing_records_for_recordset) { entries_response }
       allow(dns_obj.recordset).to receive(:remove_record_set) { responsefromremoverecordset }
-      dns_obj.functions_on_aliases_and_fullaliases(node_attr['workorder']['rfcCi'], false)
+      dns_obj.remove_current_aliases_and_current_full_aliases(node_attr['workorder']['rfcCi'], false)
       priority = node_attr['workorder']['cloud']['ciAttributes']['priority']
       dns_obj.set_alias_entries_to_be_deleted('.env.asm.org', priority, service_attrs['cloud_dns_id'])
       dns_obj.set_full_alias_entries_to_be_deleted
