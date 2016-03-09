@@ -3,4 +3,5 @@ Gemfile.lock
 .idea
 .arcconfig
 .chef
+.rspec
 
