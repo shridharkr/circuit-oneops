@@ -37,6 +37,7 @@ attribute 'region',
   :default => "",
   :format => {
     :help => 'Region Name',
+    :pattern => '\w-\w-\d+',
     :category => '2.Placement',
     :order => 1
   }
