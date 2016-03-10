@@ -4,5 +4,3 @@ Gemfile.lock
 .arcconfig
 .chef
 .rspec
-spec_helper.rb
-
