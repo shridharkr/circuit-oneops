@@ -162,7 +162,6 @@ module AzureDns
       is_hostname_entry = true unless node_workorder_payload.key?('Entrypoint')
       is_hostname_entry
     end
-
     def remove_current_aliases_and_current_full_aliases(node_workorder_rfcci_json, is_hostname_entry)
       # getting aliases from workorder ciBaseAttributes
       get_aliases(node_workorder_rfcci_json, is_hostname_entry)
