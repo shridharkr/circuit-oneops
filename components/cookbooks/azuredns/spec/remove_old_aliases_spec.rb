@@ -6,7 +6,7 @@ require 'json'
 require File.expand_path('../../libraries/dns.rb', __FILE__)
 require File.expand_path('../../libraries/record_set.rb', __FILE__)
 describe AzureDns::DNS do
-  file_path = File.expand_path('test_json_data.json', __dir__)
+  file_path = File.expand_path('remove_old_aliases_data.json', __dir__)
   file = File.open(file_path)
   contents = file.read
   node_attr = JSON.parse(contents)
