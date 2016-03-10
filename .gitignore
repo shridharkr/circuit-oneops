@@ -2,7 +2,4 @@ Gemfile.lock
 .project
 .idea
 .arcconfig
-<<<<<<< b2bb201b1a6d87b68abeb6527cfc31a87c95022c
 .chef
-=======
->>>>>>> Refactor set_dns_records recipe
