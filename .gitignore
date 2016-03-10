@@ -5,5 +5,3 @@ Gemfile.lock
 .chef
 **/.DS_Store
 .rspec
-spec_helper.rb
-

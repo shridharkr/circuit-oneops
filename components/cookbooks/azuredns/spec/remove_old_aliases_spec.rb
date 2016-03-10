@@ -1,4 +1,3 @@
-require 'spec_helper'
 require 'json'
 # **Rubocop Suppression**
 # rubocop:disable LineLength
