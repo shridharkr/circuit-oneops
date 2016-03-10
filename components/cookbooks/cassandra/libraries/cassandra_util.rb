@@ -25,6 +25,17 @@ module Cassandra
       cassandra_supported?(ver) && !cfg.nil? && !cfg.empty?
     end
 
+    # Checks if the Log4j config directives are supported.
+    # Applicable only if versions of Cassandra >= 1.2 and
+    # has a non empty config directive map.
+    #
+    def log4j_directive_supported?
+      ci = node.workorder.rfcCi.ciAttributes
+      ver = ci.version.to_f
+      cfg = ci.log4j_directives if ci.has_key?("log4j_directives")
+      !cfg.nil? && !cfg.empty?
+    end
+
     # Merge cassandra config directives to the given Cassandra
     # storage config YAML file. The method will error out if
     # it couldn't find the yaml config file.
@@ -113,6 +124,41 @@ module Cassandra
       end
     end
 
+   # Returns hash of the key, value pairs from the propery file
+   def load_properties(properties_filename)
+      properties = {}
+      File.open(properties_filename, 'r') do |properties_file|
+        properties_file.read.each_line do |line|
+          line.strip!
+          if (line[0] != ?# and line[0] != ?=)
+            Chef::Log.info "line : #{line}"
+            i = line.index('=')
+            if (i)
+              properties[line[0..i - 1].strip] = line[i + 1..-1].strip
+            end
+          end
+        end      
+      end
+      properties
+    end
+  
+    # Merge log4j property file with the config provided
+    def merge_log4j_directives(log4j_file, cfg)
+      Chef::Log.info "Log4j file: #{log4j_file}, log4j directive entries: #{cfg}"
+      # Always backup
+      bak_file = log4j_file.sub('.properties', '_template.properties')
+      File.rename(log4j_file, bak_file)
+      yaml = load_properties(bak_file)
+      cfg.each_key { |key|
+        val = parse_json(cfg[key])
+        yaml[key] = val
+      }
+      Chef::Log.info "Merged cassandra log4j : #{yaml.to_yaml}"
+      File.open(log4j_file, 'w') { |f|
+        yaml.each {|key,value| f.puts "#{key}=#{value}\n" }
+        Chef::Log.info "Saved Log4j config to #{log4j_file}"
+      }
+    end
 
   end
 
