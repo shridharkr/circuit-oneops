@@ -31,7 +31,6 @@ module Cassandra
     #
     def log4j_directive_supported?
       ci = node.workorder.rfcCi.ciAttributes
-      ver = ci.version.to_f
       cfg = ci.log4j_directives if ci.has_key?("log4j_directives")
       !cfg.nil? && !cfg.empty?
     end
