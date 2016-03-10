@@ -6,7 +6,7 @@ require File.expand_path('../../libraries/record_set.rb', __FILE__)
 require 'json'
 require 'rest-client'
 
-describe AzureDns::RecordSet do
+describe AzureDns::DNS do
   before do
     platform_resource_group = 'azure_resource_group'
     token = '<DUMMY_TOKEN>'
@@ -38,9 +38,7 @@ describe AzureDns::RecordSet do
       records = ['1.2.3.5']
       expect(@dns.get_record_type('Azure', records)).to eq('a')
     end
-  end
 
-  describe '#get_record_type' do
     it 'returns CNAME type of the record' do
       records = ['contoso.com']
       expect(@dns.get_record_type('Azure', records)).to eq('cname')
@@ -89,7 +87,7 @@ describe AzureDns::RecordSet do
       expect { @dns.set_a_type_records(records, 'create', records, 'Azure', 300) }.to_not raise_error('no backtrace')
     end
 
-    it 'removes specific dns recordset' do
+    it 'removes A type specific dns recordset' do
       records = []
       allow(@dns.recordset).to receive(:remove_record_set) {}
       expect { @dns.set_a_type_records(records, 'remove', records, 'Azure', 300) }.to_not raise_error('no backtrace')

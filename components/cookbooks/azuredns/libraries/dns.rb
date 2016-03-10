@@ -20,7 +20,7 @@ module AzureDns
       @platform_resource_group = platform_resource_group
       @azure_rest_token = azure_rest_token
       @dns_attributes = dns_attributes
-      @recordset = []
+      @recordset = AzureDns::RecordSet.new(@dns_attributes, @azure_rest_token, @platform_resource_group)
       @zone = nil
     end
 
@@ -91,7 +91,6 @@ module AzureDns
     end
 
     def set_dns_records(entries, dns_action, ttl)
-      @recordset = AzureDns::RecordSet.new(@dns_attributes, @azure_rest_token, @platform_resource_group)
       # we need to send Azure all the records to set at the same time
       # get the records that currently exist for the A and CNAME types
       # figure out the final list and call Azure to set it.
