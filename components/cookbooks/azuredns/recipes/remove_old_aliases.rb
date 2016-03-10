@@ -35,18 +35,10 @@ dns.checking_cloud_dns_id(service_attrs, cloud_service)
 # this is a check to see if it is a hostname payload instead of fqdn
 # we don't want to remove the aliases for fqdn if it is a hostname payload
 is_hostname_entry = dns.checking_hostname_entry(node.workorder.payLoad)
-<<<<<<< HEAD
 dns.remove_current_aliases_and_current_full_aliases(node.workorder.rfcCi,
-=======
-dns.functions_on_aliases_and_fullaliases(node.workorder.rfcCi,
->>>>>>> a5b99568eeb55892a768f004306b2e85a9c88b58
                                          is_hostname_entry)
 
 # getting priority from workorder json
 priority = node.workorder.cloud.ciAttributes.priority
-<<<<<<< HEAD
 dns.remove_old_aliases(customer_domain, priority,
-=======
-dns.functions_on_entries(customer_domain, priority,
->>>>>>> a5b99568eeb55892a768f004306b2e85a9c88b58
                          service_attrs['cloud_dns_id'])
