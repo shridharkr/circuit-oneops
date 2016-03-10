@@ -36,18 +36,6 @@
         {
           "ciName": "db"
         }
-      ],
-      "DependsOn": [
-        {
-          "ciAttributes":{
-            "dns_record": "dns-record1.com"
-          }
-        },
-        {
-          "ciAttributes":{
-            "dns_record": "dns-record2.com"
-          }
-        }
       ]
     },
     "rfcCi": {
