@@ -35,6 +35,7 @@ attribute 'secret',
 attribute 'region',
   :description => "Region",
   :default => "",
+  :required => "required",
   :format => {
     :help => 'Region Name',
     :pattern => '.*-.*-\d+',
