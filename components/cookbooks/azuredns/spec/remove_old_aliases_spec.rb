@@ -34,8 +34,8 @@ describe AzureDns::DNS do
   end
 
   describe '#check_cloud_dns_id' do
-    it 'raise error if cloud dns id is not nil' do
-      expect { dns_obj.check_cloud_dns_id(service_attrs, cloud_service) }.to raise_error
+    it 'does not raise error if cloud dns id is not nil' do
+      expect { dns_obj.check_cloud_dns_id(service_attrs, cloud_service) }.to_not raise_error
     end
     it 'throws exception when cloud_dns_id is empty' do
       service_attrs['cloud_dns_id'] = nil

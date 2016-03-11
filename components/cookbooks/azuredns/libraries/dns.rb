@@ -44,7 +44,7 @@ module AzureDns
     end
 
     def check_cloud_dns_id(service_attrs, cloud_service)
-      if service_attrs['cloud_dns_id'].blank?
+      if service_attrs['cloud_dns_id'].nil? || service_attrs['cloud_dns_id'].empty?
         msg = "azuredns:remove_old_aliases.rb - no cloud_dns_id for dns cloud service: #{cloud_service['nsPath']} #{cloud_service['ciName']}"
         Chef::Log.error(msg)
         puts "***FAULT:FATAL=#{msg}"
@@ -108,17 +108,19 @@ module AzureDns
       hash_of_removed_aliases = []
       types = ['aliases', 'current_aliases', 'full_aliases', 'current_full_aliases']
       hash_of_all_aliases = get_all_aliases(node_workorder_rfcci_json,  is_hostname_entry, types)
+      if !hash_of_all_aliases.empty?
       index = 0
-      while index < 3
+      while index <= 3
         hash_aliase = hash_of_all_aliases.fetch(index)
         all_aliases = hash_aliase[:values]
-        hash_current_aliase = hash_of_all_aliases.fetch(index+1)
+        hash_current_aliase = hash_of_all_aliases.fetch(index + 1)
         all_current_aliases = hash_current_aliase[:values]
         all_current_aliases.each do |active_alias|
           all_aliases.delete(active_alias)
         end unless all_current_aliases.nil? unless all_aliases.nil?
         hash_of_removed_aliases.push(name: hash_aliase[:name], values: all_aliases)
         index+=2
+      end
       end
       hash_of_removed_aliases
     end
