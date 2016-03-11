@@ -1,16 +1,6 @@
 require 'chef'
-require 'azure_mgmt_network'
 require ::File.expand_path('../../../azure/libraries/public_ip.rb', __FILE__)
 require ::File.expand_path('../../../azure/libraries/utils.rb', __FILE__)
-
-# **Rubocop  Suppression**
-# rubocop:disable LineLength
-# rubocop:disable MethodLength
-# rubocop:disable ClassLength
-# rubocop:disable CyclomaticComplexity
-# rubocop:disable PerceivedComplexity
-# rubocop:disable AbcSize
-# rubocop:disable BlockNesting
 
 ::Chef::Recipe.send(:include, AzureNetwork)
 ::Chef::Recipe.send(:include, Utils)
@@ -44,7 +34,6 @@ module AzureDns
         full_hostname = full_hostname.tr('.', '-')
         new_dns_settings = Azure::ARM::Network::Models::PublicIpAddressDnsSettings.new
         new_dns_settings.domain_name_label = (full_hostname.length >= 61) ? full_hostname.slice!(0, 60) : full_hostname
-        pp pip
         pip['properties']['dns_settings'] = new_dns_settings
         @pubip.create_update(@resource_group, public_ip_name, pip)
       end
@@ -96,7 +85,7 @@ module AzureDns
           Chef::Log.info('setting domain label: ' + new_dns_settings.domain_name_label)
           unless public_ip_name.nil?
             pip = @pubip.get(@resource_group, public_ip_name)
-            pip.properties.dns_settings = new_dns_settings
+            pip['properties']['dns_settings'] = new_dns_settings
             # update the public ip with the new dns settings
             @pubip.create_update(@resource_group, public_ip_name, pip)
           end
@@ -116,19 +105,19 @@ module AzureDns
               subdomain = node['workorder']['payLoad']['Environment'][0]['ciAttributes']['subdomain']
               new_dns_settings.domain_name_label = @nameutil.get_dns_domain_label('lb', cloud_id, instance, subdomain) + '-' + @zone_name
               if new_dns_settings.domain_name_label.length >= 61
-                new_dns_settings.domain_name_label.slice!(0, 60)
+                new_dns_settings.domain_name_label = new_dns_settings.domain_name_label.slice!(0, 60)
                 new_dns_settings.domain_name_label.chomp!('-') if new_dns_settings.domain_name_label[59] == '-'
               end
             end
-            next until new_dns_settings.domain_name_label.nil?
+            next if new_dns_settings.domain_name_label.nil?
             Chef::Log.info('domain label: ' + new_dns_settings.domain_name_label)
-            next until public_ip_name.nil?
+            next if public_ip_name.nil?
             Chef::Log.info('searching public_ip_name:' + public_ip_name + 'in' + @resource_group)
             ip_found = @pubip.check_existence_publicip(@resource_group, public_ip_name)
-            next until ip_found
+            next unless ip_found
             Chef::Log.info('found !')
             pip = @pubip.get(@resource_group, public_ip_name)
-            pip.properties.dns_settings = new_dns_settings
+            pip['properties']['dns_settings'] = new_dns_settings
             Chef::Log.info('updating domain label: ' + new_dns_settings.domain_name_label)
             # update the public ip with the new dns settings
             @pubip.create_update(@resource_group, public_ip_name, pip)

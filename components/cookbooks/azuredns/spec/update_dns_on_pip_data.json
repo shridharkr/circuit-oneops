@@ -1,16 +1,9 @@
 {
-  "mgmt_domain": "qa.oneops.com",
   "customer_domain": "s3rss.test-php-mysql.oneops.com",
-  "run_list": [
-    "recipe[compute::add]",
-    "recipe[shared::monitor]"
-  ],
+  "platform-resource-group": "<RESOURCE_GROUP>",
   "workorder": {
     "cloud": {
-      "ciName": "azure",
-      "ciAttributes": {
-        "priority": "0"
-      }
+      "ciName": "azure"
     },
     "services": {
       "dns": {
@@ -28,302 +21,45 @@
     "rfcCi": {
       "ciAttributes": {
         "aliases": "[\"alias1\",\"alias2\"]",
-        "full_aliases": "[\"full-alias1\",\"full-alias2\"]",
-        "ostype": "ubuntu-12.04",
-        "hosts": "{}",
-        "image_id": "",
-        "size": "S"
-      },
-      "ciBaseAttributes": {},
-      "ciAttrProps": {},
-      "rfcId": 456467,
-      "releaseId": 456466,
-      "ciId": 1578346,
-      "nsPath": "/oneops/test-php-mysql/s3rss/bom/db/1",
-      "ciClassName": "bom.Compute",
-      "ciName": "db-compute-1189982-1",
-      "ciGoid": "1578191-1082-1578346",
-      "rfcAction": "remote",
-      "execOrder": 1,
-      "comments": "",
-      "isActiveInRelease": true,
-      "created": "Nov 14, 2012 1:53:31 AM"
-    },
-    "zone": {
-      "ciAttributes": {
-        "authkey": "",
-        "subnet": ""
-      },
-      "ciId": 23405,
-      "ciName": "rackspace.us-south",
-      "ciClassName": "account.provider.Zone",
-      "nsPath": "/public/packer/providers/rackspace",
-      "ciGoid": "23398-1476-23405",
-      "comments": "",
-      "ciState": "default",
-      "lastAppliedRfcId": 0,
-      "created": "Mar 5, 2012 11:28:11 PM",
-      "updated": "Sep 4, 2012 5:26:19 PM"
-    },
-    "token": {
-      "ciAttributes": {
-        "rackspace_username": "na",
-        "rackspace_api_key": "na"
-      },
-      "ciId": 1189976,
-      "ciName": "rackspace",
-      "ciClassName": "account.provider.rackspace.Token",
-      "nsPath": "/oneops/providers/rackspace",
-      "ciGoid": "1189975-1398-1189976",
-      "ciState": "default",
-      "lastAppliedRfcId": 0,
-      "createdBy": "qa@oneops.com",
-      "updatedBy": "qa@oneops.com",
-      "created": "Sep 20, 2012 5:33:12 AM",
-      "updated": "Nov 13, 2012 4:15:50 PM"
-    },
-    "resultCi": {
-      "ciAttributes": {
-        "public_ip": "50.56.174.231",
-        "private_ip": "10.180.10.13",
-        "private_dns": "10.180.10.13",
-        "public_dns": "50.56.174.231",
-        "instance_id": "93d88570-c447-44a9-86ec-c6846b1520c3",
-        "ostype": "ubuntu-12.04",
-        "hosts": "{}",
-        "image_id": "",
-        "size": "S"
+        "full_aliases": "[\"full-alias1\",\"full-alias2\"]"
       },
       "ciId": 1578346,
-      "ciClassName": "bom.Compute",
-      "lastAppliedRfcId": 456467
+      "ciName": "db-compute-1189982-1"
     },
     "box": {
       "ciAttributes": {
-        "source": "packer",
-        "is_active": "true",
-        "description": "",
-        "major_version": "1",
-        "pack": "mysql",
-        "version": "0.4",
         "availability": "single"
-      },
-      "ciId": 1577845,
-      "ciName": "db",
-      "ciClassName": "manifest.Platform",
-      "nsPath": "/oneops/test-php-mysql/s3rss/manifest/db/1",
-      "ciGoid": "1577844-1316-1577845",
-      "ciState": "default",
-      "lastAppliedRfcId": 455748,
-      "createdBy": "qa@oneops.com",
-      "created": "Nov 14, 2012 1:03:28 AM",
-      "updated": "Nov 14, 2012 1:03:28 AM"
+      }
     },
     "payLoad": {
-      "RealizedAs": [
-        {
-          "ciAttributes": {
-            "ostype": "ubuntu-12.04",
-            "hosts": "{}",
-            "image_id": "",
-            "size": "S"
-          },
-          "ciBaseAttributes": {},
-          "ciAttrProps": {},
-          "rfcId": 0,
-          "releaseId": 0,
-          "ciId": 1577854,
-          "nsPath": "/oneops/test-php-mysql/s3rss/manifest/db/1",
-          "ciClassName": "manifest.Compute",
-          "ciName": "db-compute",
-          "ciGoid": "1577844-1081-1577854",
-          "createdBy": "qa@oneops.com",
-          "execOrder": 0,
-          "lastAppliedRfcId": 455787,
-          "comments": "",
-          "isActiveInRelease": false,
-          "created": "Nov 14, 2012 1:03:28 AM",
-          "updated": "Nov 14, 2012 1:03:28 AM"
-        }
-      ],
       "DependsOn": [
         {
           "ciId": 1577847,
           "ciAttributes":{
-            "dns_record": "dns-record1.com"
+            "dns_record": "dns-record1.com",
+            "instance_name": "dns_record1.com",
+            "hostname": "a-very-long-hostname-of-length-greater-then-61.test-php-mysql.oneops.com"
           }
         },
         {
           "ciId": 1577849,
           "ciAttributes":{
-            "dns_record": "dns-record2.com"
+            "dns_record": "dns-record2.com",
+
+            "hostname": "another-very-long-hostname-of-length-greater-then-61.test-php-mysql.oneops.com"
           }
         }
       ],
       "Environment": [
         {
           "ciAttributes": {
-            "monitoring": "true",
-            "autorepair": "false",
-            "description": "",
-            "dpmtdelay": "60",
-            "subdomain": "s3rss.test-php-mysql.oneops",
-            "domain": "oneops.com",
-            "codpmt": "false",
-            "autoscale": "false",
-            "availability": "single"
-          },
-          "ciBaseAttributes": {},
-          "ciAttrProps": {},
-          "rfcId": 0,
-          "releaseId": 0,
-          "ciId": 1577829,
-          "nsPath": "/oneops/test-php-mysql",
-          "ciClassName": "manifest.Environment",
-          "ciName": "s3rss",
-          "ciGoid": "635730-1134-1577829",
-          "createdBy": "qa@oneops.com",
-          "execOrder": 0,
-          "lastAppliedRfcId": 0,
-          "comments": "",
-          "isActiveInRelease": false,
-          "created": "Nov 14, 2012 1:03:07 AM",
-          "updated": "Nov 14, 2012 1:03:07 AM"
+            "subdomain": "s3rss.test-php-mysql.oneops"
+          }
         }
       ],
-      "Entrypoint": [
-        {
-          "ciAttributes": {
-            "source": "packer",
-            "is_active": "true",
-            "description": "",
-            "major_version": "1",
-            "pack": "mysql",
-            "availability": "single",
-            "version": "0.4"
-          },
-          "ciBaseAttributes": {},
-          "ciAttrProps": {},
-          "rfcId": 0,
-          "releaseId": 0,
-          "ciId": 1577845,
-          "nsPath": "/oneops/test-php-mysql/s3rss/manifest/db/1",
-          "ciClassName": "manifest.Platform",
-          "ciName": "db",
-          "ciGoid": "1577844-1316-1577845",
-          "createdBy": "qa@oneops.com",
-          "execOrder": 0,
-          "lastAppliedRfcId": 455748,
-          "isActiveInRelease": false,
-          "created": "Nov 14, 2012 1:03:28 AM",
-          "updated": "Nov 14, 2012 1:03:28 AM"
-        }
-      ],
-      "Organization": [
-        {
-          "ciAttributes": {
-            "dns_secret": "na",
-            "domain": "oneops.com",
-            "dns_key": "na"
-          },
-          "ciBaseAttributes": {},
-          "ciAttrProps": {},
-          "rfcId": 0,
-          "releaseId": 0,
-          "ciId": 476012,
-          "nsPath": "/",
-          "ciClassName": "account.Organization",
-          "ciName": "oneops",
-          "ciGoid": "100-1284-476012",
-          "updatedBy": "qa@oneops.com",
-          "execOrder": 0,
-          "lastAppliedRfcId": 0,
-          "isActiveInRelease": false,
-          "created": "Jun 11, 2012 11:16:28 PM",
-          "updated": "Oct 19, 2012 1:28:55 AM"
-        }
-      ],
-      "Assembly": [
-        {
-          "ciAttributes": {
-            "description": "main"
-          },
-          "ciBaseAttributes": {},
-          "ciAttrProps": {},
-          "rfcId": 0,
-          "releaseId": 0,
-          "ciId": 635728,
-          "nsPath": "/oneops",
-          "ciClassName": "account.Assembly",
-          "ciName": "test-php-mysql",
-          "ciGoid": "476013-1029-635728",
-          "createdBy": "qa@oneops.com",
-          "execOrder": 0,
-          "lastAppliedRfcId": 0,
-          "isActiveInRelease": false,
-          "created": "Jul 3, 2012 4:57:26 PM",
-          "updated": "Jul 3, 2012 4:57:26 PM"
-        }
-      ],
-      "RequiresComputes": [
-        {
-          "ciAttributes": {
-            "ostype": "ubuntu-12.04",
-            "hosts": "{}",
-            "image_id": "",
-            "size": "S"
-          },
-          "ciBaseAttributes": {},
-          "ciAttrProps": {},
-          "rfcId": 456467,
-          "releaseId": 456466,
-          "ciId": 1578346,
-          "nsPath": "/oneops/test-php-mysql/s3rss/bom/db/1",
-          "ciClassName": "bom.Compute",
-          "ciName": "db-compute-1189982-1",
-          "ciGoid": "1578191-1082-1578346",
-          "rfcAction": "add",
-          "createdBy": "qa@oneops.com",
-          "rfcCreatedBy": "qa@oneops.com",
-          "execOrder": 1,
-          "comments": "",
-          "isActiveInRelease": true,
-          "rfcCreated": "Nov 14, 2012 1:53:31 AM",
-          "rfcUpdated": "Nov 14, 2012 1:53:31 AM",
-          "created": "Nov 14, 2012 1:53:31 AM",
-          "updated": "Nov 14, 2012 1:53:31 AM"
-        }
-      ],
-      "ManagedVia": [
-        {
-          "ciAttributes": {
-            "public_ip": "50.56.174.231"
-          },
-          "ciBaseAttributes": {},
-          "ciAttrProps": {},
-          "rfcId": 0,
-          "releaseId": 0,
-          "ciId": 0,
-          "execOrder": 0,
-          "isActiveInRelease": false
-        }
+      "lb": [
+        {"ciId": 1189945}
       ]
-    },
-    "dpmtRecordId": 456515,
-    "deploymentId": 456514,
-    "rfcId": 456467,
-    "dpmtRecordState": "successful",
-    "created": "Nov 14, 2012 1:53:37 AM"
-  },
-  "dns_domain": "oneops.com",
-  "name": "db-compute-1189982-1",
-  "global": {},
-  "compute": {
-    "ostype": "ubuntu-12.04",
-    "hosts": "{}",
-    "image_id": "",
-    "size": "S"
-  },
-  "public_key": "na",
-  "app_name": "lb"
+    }
+  }
 }

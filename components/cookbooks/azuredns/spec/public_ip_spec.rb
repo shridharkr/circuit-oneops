@@ -1,7 +1,6 @@
 require 'rspec'
 require 'json'
 require 'ms_rest'
-require 'pp'
 
 require ::File.expand_path('../../libraries/public_ip.rb', __FILE__)
 
@@ -32,11 +31,14 @@ describe 'Azuredns::public_ip' do
     it 'returns nil if node.app_name is "os"' do
       node['app_name'] = 'os'
       allow(dns_public_ip.pubip).to receive(:get) { pub_ip }
+      allow(dns_public_ip.pubip).to receive(:create_update) {}
       expect(dns_public_ip.update_dns(node)).to be_nil
     end
 
     it 'returns nil if node.app_name is "fqdn"' do
       node['app_name'] = 'fqdn'
+      allow(dns_public_ip.pubip).to receive(:get) { pub_ip }
+      allow(dns_public_ip.pubip).to receive(:create_update) {}
       expect(dns_public_ip.update_dns(node)).to be_nil
     end
 
@@ -59,6 +61,37 @@ describe 'Azuredns::public_ip' do
       allow(dns_public_ip.pubip).to receive(:get) { pub_ip }
       allow(dns_public_ip.pubip).to receive(:create_update) {}
       expect(dns_public_ip.update_dns_for_os(node)).to be_nil
+    end
+  end
+
+  describe 'PublicIp::update_dns_for_fqdn' do
+    node['app_name'] = 'fqdn'
+    it 'returns nil if node.app_name is "fqdn"' do
+      allow(dns_public_ip.pubip).to receive(:get) { pub_ip }
+      allow(dns_public_ip.pubip).to receive(:create_update) {}
+      expect(dns_public_ip.update_dns_for_fqdn(node)).to be_nil
+    end
+
+    it 'returns nil if aliases are not available' do
+      node['workorder']['rfcCi']['ciAttributes']['aliases'] = "[]"
+      allow(dns_public_ip.pubip).to receive(:get) { pub_ip }
+      allow(dns_public_ip.pubip).to receive(:create_update) {}
+      expect(dns_public_ip.update_dns_for_fqdn(node)).to be_nil
+    end
+
+    it 'returns nil if availability is "single"' do
+      node['workorder']['box']['ciAttributes']['availability'] = 'single'
+      allow(dns_public_ip.pubip).to receive(:get) { pub_ip }
+      allow(dns_public_ip.pubip).to receive(:create_update) {}
+      expect(dns_public_ip.update_dns_for_fqdn(node)).to be_nil
+    end
+
+    it 'returns lb-list if availability is "redundant"' do
+      node['workorder']['box']['ciAttributes']['availability'] = 'redundant'
+      allow(dns_public_ip.pubip).to receive(:check_existence_publicip) { true }
+      allow(dns_public_ip.pubip).to receive(:get) { pub_ip }
+      allow(dns_public_ip.pubip).to receive(:create_update) {}
+      expect(dns_public_ip.update_dns_for_fqdn(node)).to eq([{"ciId"=>1189945}])
     end
   end
 

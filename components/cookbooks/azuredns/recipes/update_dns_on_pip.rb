@@ -1,5 +1,3 @@
-# rubocop:disable LineLength
-
 ::Chef::Recipe.send(:include, AzureNetwork)
 ::Chef::Recipe.send(:include, Utils)
 ::Chef::Recipe.send(:include, Azure::ARM::Network)
