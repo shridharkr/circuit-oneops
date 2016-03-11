@@ -40,6 +40,7 @@ dns.check_cloud_dns_id(service_attrs, cloud_service)
 # we don't want to remove the aliases for fqdn if it is a hostname payload
 is_hostname_entry = dns.entrypoint_exists(node.workorder.payLoad)
 hash_of_removed_aliases = dns.remove_all_aliases(node.workorder.rfcCi, is_hostname_entry)
+if !hash_of_removed_aliases.empty?
 aliases = []
 full_aliases = []
 hash_of_removed_aliases.each do |entry|
@@ -54,3 +55,4 @@ end
 # getting priority from workorder json
 priority = node.workorder.cloud.ciAttributes.priority
 dns.remove_old_aliases(customer_domain, priority, service_attrs['cloud_dns_id'], aliases, full_aliases)
+ end
