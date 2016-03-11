@@ -3,6 +3,8 @@
 
 require File.expand_path('../../libraries/regions.rb', __FILE__)
 
+OOLog.fatal("Testing azure_base cookbook for fatal logging")
+
 def generate_rg_name(org,assembly,platform,environment,location)
   Chef::Log.info("Resource Group org: #{org}")
   Chef::Log.info("Resource Group assembly: #{assembly}")
@@ -17,9 +19,9 @@ end
 
 Chef::Log.info("get_platform_rg_and_as.rb called from " )
 Chef::Log.info(node.run_list[0])
-  node.run_list.each {
-        |recipe|
- if recipe == "recipe[compute::status]" || recipe == "recipe[compute::reboot]" || recipe == "recipe[compute::powercycle]"
+node.run_list.each {
+  |recipe|
+  if recipe == "recipe[compute::status]" || recipe == "recipe[compute::reboot]" || recipe == "recipe[compute::powercycle]"
     ci = node['workorder']['ci']
     cloud_name = node['workorder']['cloud']['ciName']
     Chef::Log.info('cloud_name is: ' + cloud_name)
@@ -38,7 +40,7 @@ Chef::Log.info(node.run_list[0])
     resource_group_name = generate_rg_name(org,assembly,platform,environment,location)
     node.set['platform-resource-group'] = resource_group_name
     return true
-end
+  end
 }
 
 
