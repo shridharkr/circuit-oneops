@@ -48,20 +48,20 @@ module AzureDns
       end
       Chef::Log.info("AzureDns::RecordSet - Getting #{record_type} record response is: #{dns_response}")
       begin
-    		dns_hash = JSON.parse(dns_response)
+        dns_hash = JSON.parse(dns_response)
         # get existing records on the record set
         case record_type
         when 'A'
           dns_hash['properties']['ARecords'].each do |record|
             Chef::Log.info("AzureDns:RecordSet - A record is: #{record}")
-          	existing_records.push(record['ipv4Address'])
+            existing_records.push(record['ipv4Address'])
           end
         when 'CNAME'
           Chef::Log.info("AzureDns:RecordSet - CNAME record is: #{dns_hash['properties']['CNAMERecord']['cname']}")
           existing_records.push(dns_hash['properties']['CNAMERecord']['cname'])
         end
         existing_records
-      rescue Exception => e
+      rescue => e
         msg = "Exception trying to parse response: #{dns_response}"
         puts "***FAULT:FATAL=#{msg}"
         Chef::Log.error("AzureDns::RecordSet - Exception is: #{e.message}")
@@ -98,8 +98,8 @@ module AzureDns
             CNAMERecord: {
               'cname' => records.first # because cname only has 1 value and we know the object is an array passed in.
             }
-      		}
-      	}
+          }
+        }
       end
 
       Chef::Log.info("Body is: #{body}")
@@ -119,7 +119,7 @@ module AzureDns
         e = Exception.new('no backtrace')
         e.set_backtrace('')
         raise e
-    	end
+      end
     end
 
     def remove_record_set(record_set_name, record_type)
@@ -145,7 +145,7 @@ module AzureDns
           e.set_backtrace('')
           raise e
         end
-    	end
+      end
     end
   end
 end
