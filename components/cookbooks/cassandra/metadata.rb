@@ -15,11 +15,12 @@ grouping 'bom',
 
 
 attribute 'version',
-          :description => "Version - 1.2.x .. 2.2.x supported",
+          :description => "Version",
           :required => "required",
           :default => "2.2.4",
           :format => {
               :important => true,
+              :tip => 'Supported versions are 1.2.x .. 2.2.x',
               :help => 'Version of Cassandra',
               :category => '1.Global',
               :order => 1
@@ -70,12 +71,19 @@ attribute 'auth_enabled',
 attribute 'endpoint_snitch',
           :description => "Endpoint Snitch",
           :required => "required",
-          :default => "org.apache.cassandra.locator.RackInferringSnitch",
+          :default => "org.apache.cassandra.locator.GossipingPropertyFileSnitch",
           :format => {
               :important => true,
               :help => 'Sets the snitch to use for locating nodes and routing requests. In deployments with rack-aware replication placement strategies, use either RackInferringSnitch, PropertyFileSnitch, or EC2Snitch (if on Amazon EC2). Has a dependency on the replica placement_strategy, which is defined on a keyspace. The PropertyFileSnitch also requires a cassandra-topology.properties configuration file. ',
               :category => '2.Topology',
-              :order => 1
+              :order => 1,
+              :form => {'field' => 'select', 
+                        'options_for_select' => [
+                                                  ['GossipingPropertyFileSnitch', 'org.apache.cassandra.locator.GossipingPropertyFileSnitch'],
+                                                  ['PropertyFileSnitch', 'org.apache.cassandra.locator.PropertyFileSnitch'],
+                                                  ['RackInferringSnitch', 'org.apache.cassandra.locator.RackInferringSnitch']
+                                                ]
+                       }
           }
 
 attribute 'cloud_dc_rack_map',
@@ -87,7 +95,7 @@ attribute 'cloud_dc_rack_map',
               :help => 'Map of Cloud to DC:Rack for PropertyFileSnitch generates base cassandra-topology.properties',
               :category => '2.Topology',
               :order => 2,
-              :filter => {"all" => {"visible" => "endpoint_snitch:eq:org.apache.cassandra.locator.PropertyFileSnitch"}}
+              :filter => {"all" => {"visible" => ('endpoint_snitch:eq:org.apache.cassandra.locator.PropertyFileSnitch || endpoint_snitch:eq:org.apache.cassandra.locator.GossipingPropertyFileSnitch')}}
           }
 
 attribute 'extra_topology',
@@ -98,7 +106,7 @@ attribute 'extra_topology',
               :help => 'Additional content added to cassandra-topology.properties',
               :category => '2.Topology',
               :order => 3,
-              :filter => {"all" => {"visible" => "endpoint_snitch:eq:org.apache.cassandra.locator.PropertyFileSnitch"}}
+              :filter => {"all" => {"visible" => ('endpoint_snitch:eq:org.apache.cassandra.locator.PropertyFileSnitch || endpoint_snitch:eq:org.apache.cassandra.locator.GossipingPropertyFileSnitch')}}
           }
 
 attribute 'node_ip',
@@ -150,6 +158,15 @@ attribute 'jvm_opts',
               :help => 'array of JVM_OPTS for cassandra-env.sh',
               :category => '3.Configuration Directives',
               :order => 2
+          }
+
+attribute 'install_dir',
+          :description => "Installation Directory",
+          :default => "/opt",
+          :format => {
+              :help => 'Binary will be installed here (ex. /opt)',
+              :category => '3.Configuration Directives',
+              :order => 3
           }
 
 attribute 'heap_newsize',

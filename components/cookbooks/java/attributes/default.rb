@@ -20,6 +20,3 @@ default[:java]['binpath'] = ''
 
 # Default package file extension
 default[:java]['package']['extn'] = 'tar.gz'
-
-# Default mirror
-default[:java][:nexus_mirror] = 'https://nexus.prod.walmart.com/nexus/content/groups/public/oracle'

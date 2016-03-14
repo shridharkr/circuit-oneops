@@ -40,7 +40,7 @@ attribute 'version',
           :default => '8',
           :format => {
               :important => true,
-              :help => 'The version of Java. Refer https://confluence.walmart.com/x/WNHqAQ for more details.',
+              :help => 'The version of Java.',
               :category => '1.Source',
               :order => 3,
               :form => {'field' => 'select', 'options_for_select' => [['6', '6'], ['7', '7'], ['8', '8']]}

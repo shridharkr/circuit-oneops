@@ -5,8 +5,6 @@
 action :default do
   conn = @new_resource.connection || node.ns_conn
 
-  # not used due to cronjob on netscaler to save / push to ns.conf and standby
-=begin
   # ns nitro v1 api needs this object=
   req = 'object= { "params":{"action":"save"}, "nsconfig":{} }'
   
@@ -34,7 +32,6 @@ action :default do
       Chef::Log.info("config was saved at: #{ns_last_save_time} (ns time)")
       Chef::Log.info("skipping save due to a concurrent save from another workorder.")
     else
-      attempt += 1
       start_call_time = Time.now
       resp = conn.request(
         :method=>:post,
@@ -48,7 +45,7 @@ action :default do
       resp_obj = JSON.parse(resp.body)
           
       if resp_obj["errorcode"] == 293
-        wait_time = 10 * attempt
+        wait_time = 10 * (attempt + 1)
         Chef::Log.error( "save inprogress waiting #{wait_time}sec ...")    
         sleep(wait_time)
         raise "Operation already in progress"
@@ -62,6 +59,7 @@ action :default do
     end
     
   rescue Exception => e  
+    attempt += 1
     Chef::Log.error("save failed. exception: #{e.message} resp: #{resp_obj.inspect} retry #{attempt}/#{max_attempts}")
     if attempt < max_attempts
       retry
@@ -86,7 +84,6 @@ action :default do
   else
     Chef::Log.info( "logout ok. resp: #{resp_obj.inspect}")    
   end  
-=end  
   
 end
 
