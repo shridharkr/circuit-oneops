@@ -3,6 +3,8 @@
 
 require File.expand_path('../../libraries/regions.rb', __FILE__)
 
+OOLog.info("Testing azure_base cookbook for info logging")
+OOLog.debug("Testing azure_base cookbook for debug logging")
 OOLog.fatal("Testing azure_base cookbook for fatal logging")
 
 def generate_rg_name(org,assembly,platform,environment,location)

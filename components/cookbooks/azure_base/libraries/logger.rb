@@ -4,5 +4,14 @@ module OOLog
     puts "***FAULT:FATAL=#{msg}"
     raise msg
   end
-  module_function :fatal
+
+  def info(msg)
+    Chef::Log.info(msg)
+  end
+
+  def debug(msg)
+    Chef::Log.debug(msg)
+  end
+
+  module_function :fatal, :info, :debug
 end
