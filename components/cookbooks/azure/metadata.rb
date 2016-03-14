@@ -162,6 +162,16 @@ attribute 'imagemap',
     :order => 2
   }
 
+  attribute 'ephemeral_disk_sizemap',
+      :description => "Ephemeral Disk Sizes Map",
+      :data_type => "hash",
+      :default => '{ "XS":"0","S":"20","M":"17","L":"45","XL":"100","XXL":"100"}',
+      :format => {
+        :help => 'Map of generic datadisk sizes',
+        :category => '3.Mappings',
+        :order => 3
+  }
+
 attribute 'repo_map',
   :description => "OS Package Repositories keyed by OS Name",
   :data_type => "hash",
@@ -188,13 +198,13 @@ attribute 'env_vars',
 attribute 'ostype',
   :description => "OS Type",
   :required => "required",
-  :default => "centos-6.6",
+  :default => "centos-7.0",
   :format => {
     :help => 'OS types are mapped to the correct cloud provider OS images - see provider documentation for details',
     :category => '4.Operating System',
     :order => 4,
     :form => { 'field' => 'select', 'options_for_select' => [
-      ['CentOS 6.6','centos-6.6'],['CentOS 7.0','centos-7.0']]
+      ['CentOS 7.0','centos-7.0'],['Ubuntu 14.04','ubuntu-14.04']]
   }
 }
 

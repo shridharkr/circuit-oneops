@@ -29,7 +29,8 @@ server=nil
 
 conn = Fog::Compute::RackspaceV2.new({
   :rackspace_api_key => token[:password],
-  :rackspace_username => token[:username]
+  :rackspace_username => token[:username],
+  :rackspace_region => token[:region]
 })
 
 rfcCi = node["workorder"]["rfcCi"]

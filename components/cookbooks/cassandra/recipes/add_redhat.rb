@@ -59,11 +59,22 @@ shared_download_http source_list.join(",") do
   end
 end
 
-untar_dir = "/opt/apache-cassandra-#{v}"
+install_dir = node.workorder.rfcCi.ciAttributes.has_key?("install_dir") ? node.workorder.rfcCi.ciAttributes.install_dir : '/opt'
+
+directory "#{install_dir}" do
+  owner "root"
+  group "root"
+  mode "0755"
+  recursive true
+  action :create
+end
+
+untar_dir = "#{install_dir}/apache-cassandra-#{v}"
+
 
 execute "untar_cassandra" do
   command "tar -zxf #{dest_file}; rm -fr /opt/cassandra ; ln -sf #{untar_dir} /opt/cassandra"
-  cwd "/opt"
+  cwd "#{install_dir}"
 end
 
 execute "ln -fs /usr/share/java/jna.jar /opt/cassandra/lib" do 

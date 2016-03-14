@@ -6,7 +6,7 @@ category      "Other"
 
 variable "oneops-dist",
          :description => 'OneOps Distribution Base URL',
-         :value => 'http://build.oneops.dev.walmart.com:3001/job/package/ws/'
+         :value => 'http://changeme.com:3001/job/package/ws/'
 
 variable "oneops-version",
          :description => 'OneOps Version',
@@ -167,8 +167,8 @@ resource "inductor",
   :design => true,
   :requires => { "constraint" => "0..*" },
   :attributes => {
-    "url" => 'https://oneops.prod.walmart.com',
-    "mqhost" => 'oneops.prod.walmart.com',
+    "url" => 'https://oneops.prod.changeme.com',
+    "mqhost" => 'oneops.prod.changeme.com',
     "queue" => '/organization/_clouds/mycloud',
     "authkey" => 'mysecretauthkey',
     "inductor_home" => '$OO_LOCAL{inductor-dir}/inductor',
@@ -178,7 +178,8 @@ resource "inductor",
 [ { :from => 'inductor',           :to => 'inductor-gem'  },
   { :from => 'inductor',           :to => 'oneops-admin-gem'  },
   { :from => 'circuit',            :to => 'oneops-admin-gem'  },
-  { :from => 'java',               :to => 'compute' },
+  { :from => 'java',               :to => 'os' },
+  { :from => 'ruby',               :to => 'os' },
   { :from => 'inductor-gem', :to => 'ruby' },
   { :from => 'inductor-gem', :to => 'java' },
   { :from => 'inductor-gem', :to => 'library' },

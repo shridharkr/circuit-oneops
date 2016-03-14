@@ -1,8 +1,10 @@
 require File.expand_path('../../libraries/utils.rb', __FILE__)
+require File.expand_path('../../libraries/hardware_profile.rb', __FILE__)
 require 'azure_mgmt_compute'
 require 'azure_mgmt_network'
 
 ::Chef::Recipe.send(:include, Utils)
+::Chef::Recipe.send(:include, AzureCompute)
 ::Chef::Recipe.send(:include, Azure::ARM::Compute)
 ::Chef::Recipe.send(:include, Azure::ARM::Compute::Models)
 ::Chef::Recipe.send(:include, Azure::ARM::Network)
@@ -26,8 +28,8 @@ include_recipe "azure::get_credentials"
 # invoke recipe to build the OS profile
 include_recipe "azure::build_os_profile_for_add_node"
 
-# invoke recipe to build the hardware profile
-include_recipe "azure::build_hardware_profile_for_add_node"
+# get the hard ware profile class
+hwprofile = AzureCompute::HardwareProfile.new()
 
 # invoke recipe to build the storage profile
 include_recipe "azure::build_storage_profile_for_add_node"
@@ -46,7 +48,16 @@ client.subscription_id = compute_service['subscription']
 props = VirtualMachineProperties.new
 
 props.os_profile = node['osProfile']
-props.hardware_profile = node['hardwareProfile']
+
+begin
+  props.hardware_profile = hwprofile.build_profile(node['size_id'])
+rescue Exception => ex
+  puts "***FAULT:FATAL=#{ex.message}"
+  ex = Exception.new('no backtrace')
+  e.set_backtrace('')
+  raise ex
+end
+
 props.storage_profile = node['storageProfile']
 props.network_profile = node['networkProfile']
 props.availability_set = node['availability_set']
