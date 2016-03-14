@@ -2,16 +2,16 @@
 module AzureCompute
   class AvailabilitySet
 
-    def initialize(subscription, tenant_id, client_id, client_secret)
-      creds = AzureCommon::AzureUtils.get_credentials(tenant_id, client_id, client_secret)
+    def initialize(compute_service)
+      creds = AzureCommon::AzureUtils.get_credentials(compute_service['tenant_id'], compute_service['client_id'], compute_service['client_secret'])
 
-      @client = ComputeManagementClient.new(creds)
-      @client.subscription_id = subscription
+      @client = Azure::ARM::Compute::ComputeManagementClient.new(creds)
+      @client.subscription_id = compute_service['subscription']
     end
 
     def get(platform_resource_group, platform_availability_set)
       begin
-        promise = client.availability_sets.get(platform_resource_group, platform_availability_set).value!
+        promise = @client.availability_sets.get(platform_resource_group, platform_availability_set).value!
         promise.body
         # node.set['availability_set'] = promise.body
       rescue  MsRestAzure::AzureOperationError => e
