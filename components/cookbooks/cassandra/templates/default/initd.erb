@@ -36,7 +36,7 @@ stop() {
     exit 0
   fi
   echo -n $"Stopping $prog: "
-  if kill `cat $CASS_PID`; then
+  if kill -9 `cat $CASS_PID`; then
     RETVAL=0
     echo_success
   else
@@ -78,4 +78,3 @@ case "$1" in
 esac
 
 exit $RETVAL
-

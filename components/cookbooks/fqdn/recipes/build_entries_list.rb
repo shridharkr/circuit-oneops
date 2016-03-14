@@ -23,7 +23,7 @@ require 'json'
 cloud_name = node[:workorder][:cloud][:ciName]
 service = node[:workorder][:services][:dns][cloud_name][:ciAttributes]
 domain_name = service[:zone]
-  
+
 # set to empty set to handle delete on inactive platform
 node.set["entries"] = []
 
@@ -307,19 +307,20 @@ if node.workorder.cloud.ciAttributes.priority == "1"
     deletable_entries.push({:name => alias_platform_dns_name, :values => primary_platform_dns_name })
   end
 
-  full_aliases.each do |full|
-    next if node.dns_action == "delete" && !node.is_last_active_cloud
+  if !full_aliases.nil?
+    full_aliases.each do |full|
+      next if node.dns_action == "delete" && !node.is_last_active_cloud
 
-    full_value = primary_platform_dns_name
-    if node.has_key?("gslb_domain") && !node.gslb_domain.nil?
-      full_value = node.gslb_domain
+      full_value = primary_platform_dns_name
+      if node.has_key?("gslb_domain") && !node.gslb_domain.nil?
+        full_value = node.gslb_domain
+      end
+
+      Chef::Log.info("full alias dns_name: #{full} values: "+full_value)
+      entries.push({:name => full, :values => full_value })
+      deletable_entries.push({:name => full, :values => full_value})
     end
-
-    Chef::Log.info("full alias dns_name: #{full} values: "+full_value)
-    entries.push({:name => full, :values => full_value })
-    deletable_entries.push({:name => full, :values => full_value})
   end
-
 
 end
 
