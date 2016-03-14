@@ -13,7 +13,6 @@ module AzureCompute
       begin
         promise = @client.availability_sets.get(platform_resource_group, platform_availability_set).value!
         promise.body
-        # node.set['availability_set'] = promise.body
       rescue  MsRestAzure::AzureOperationError => e
         Chef::Log.error("***FAULT:Error getting availability set for resource group: #{resource_group_name} and availability set: #{availability_set_name} , exception=#{e.message}")
         e = Exception.new('no backtrace')
