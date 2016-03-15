@@ -52,10 +52,15 @@ else
     block do
       replace_option = ""
       bash_option = ""
+      #add cassandra.replace_address JVM option to cassandra-env.sh
       if node.has_key?("cassandra_replace_option") && !node.cassandra_replace_option.nil?
-        bash_option = "JVM_OPTS=\"#{node.cassandra_replace_option}\" "
+        bash_option = "JVM_OPTS=\\\"\\$JVM_OPTS #{node.cassandra_replace_option}\\\""
+        cmd = "sed -i '$ a #{bash_option}' /opt/cassandra/conf/cassandra-env.sh"
+        Chef::Log.info("starting using: #{cmd}")
+        cmd_result = shell_out(cmd)
+        cmd_result.error!
       end
-      cmd = "#{bash_option}/etc/init.d/cassandra start"
+      cmd = "service cassandra start"
       Chef::Log.info("starting using: #{cmd}")
       cmd_result = shell_out(cmd)
       cmd_result.error!

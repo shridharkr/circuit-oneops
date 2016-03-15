@@ -46,7 +46,7 @@ if node.workorder.rfcCi.ciAttributes.has_key?("seeds") &&
      seeds = tmp_seeds
    end
 end
-   
+
 node.default[:initial_seeds] = seeds
 node.default[:auth_enabled] = node.workorder.rfcCi.ciAttributes.has_key?("auth_enabled") ? node.workorder.rfcCi.ciAttributes.auth_enabled : 'false'
   
