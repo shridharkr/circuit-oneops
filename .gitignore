@@ -2,4 +2,4 @@ Gemfile.lock
 .project
 .idea
 .arcconfig
-
+.chef
