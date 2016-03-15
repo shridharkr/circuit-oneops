@@ -1,5 +1,5 @@
 require 'chef'
-require ::File.expand_path('../../../../../constants', __FILE__)
+require ::File.expand_path('../../../azure/constants', __FILE__)
 
 # **Rubocop Suppression**
 # rubocop:disable LineLength
