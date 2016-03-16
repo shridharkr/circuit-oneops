@@ -56,12 +56,11 @@ else
       if node.has_key?("cassandra_replace_option") && !node.cassandra_replace_option.nil?
         bash_option = "JVM_OPTS=\\\"\\$JVM_OPTS #{node.cassandra_replace_option}\\\""
         cmd = "sed -i '$ a #{bash_option}' /opt/cassandra/conf/cassandra-env.sh"
-        Chef::Log.info("starting using: #{cmd}")
+        Chef::Log.info("Updating cassandra-env : #{cmd}")
         cmd_result = shell_out(cmd)
         cmd_result.error!
       end
       cmd = "service cassandra start"
-      Chef::Log.info("starting using: #{cmd}")
       cmd_result = shell_out(cmd)
       cmd_result.error!
     end
