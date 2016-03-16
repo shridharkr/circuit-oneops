@@ -13,7 +13,7 @@ end
  
 include_recipe "cassandra::add"
 
-#Replace cassandra.replace_address JVM option from cassandra-env.sh
+#Remove cassandra.replace_address JVM option from cassandra-env.sh
 availability_mode = node.workorder.box.ciAttributes.availability 
 if availability_mode != "single"
   ruby_block "replace replace_address" do
