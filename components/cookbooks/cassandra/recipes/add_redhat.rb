@@ -36,12 +36,11 @@ sub_dir = "/cassandra/#{v}/"
 tgz_file = "apache-cassandra-#{v}-bin.tar.gz"
 
 tmp = Chef::Config[:file_cache_path]
-cloud_name = node[:workorder][:cloud][:ciName]
-node.default[:cloud_name] = cloud_name
 
 # try component mirrors first, if empty try cloud mirrors, if empty use cookbook mirror attribute
 source_list = JSON.parse(node.cassandra.mirrors).map!{ |mirror| "#{mirror}/#{sub_dir}#{tgz_file}"}
 if source_list.empty?
+  cloud_name = node[:workorder][:cloud][:ciName]
   mirrors = []
   if node[:workorder][:services].has_key? "mirror"
     mirrors = JSON.parse(node[:workorder][:services][:mirror][cloud_name][:ciAttributes][:mirrors])

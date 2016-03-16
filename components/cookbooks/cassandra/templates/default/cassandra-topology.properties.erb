@@ -4,7 +4,7 @@
 #
 <% if node.workorder.rfcCi.ciAttributes.endpoint_snitch =~ /\.GossipingPropertyFileSnitch/ 
 dc_rack_map = JSON.parse(node.workorder.rfcCi.ciAttributes.cloud_dc_rack_map) 
-cloud_name = node[:cloud_name]
+cloud_name = node[:workorder][:cloud][:ciName]
 dc_rack = dc_rack_map[cloud_name] 
 	if dc_rack.nil?
 	      Chef::Log.error("missing dc_rack_map entry for: #{cloud_name}")
