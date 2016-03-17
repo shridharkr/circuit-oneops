@@ -113,6 +113,30 @@ module Cassandra
       end
     end
 
+    #returns array of seeds. array includes first seed_count no. of IPs from each clouds (sorted as per ciName).
+    #If seed_count > no. of computes in cloud then include all IPs from the cloud.
+    #if $ip_exclude will be excluded from the resulting array (required in 'replace')
+    def self.discover_seed_nodes(node, seed_count, ip_exclude=nil)
+      computes = node.workorder.payLoad.has_key?("RequiresComputes") ? node.workorder.payLoad.RequiresComputes : node.workorder.payLoad.computes
+      return [computes.first["ciAttributes"]["private_ip"]] if (computes.size == 1)
+      cloud_computes = {}
+      computes.each do |compute|
+        next if compute[:ciAttributes][:private_ip].nil? || compute[:ciAttributes][:private_ip].empty? || compute[:ciAttributes][:private_ip] == ip_exclude
+        cloud_id = compute[:ciName].split('-').reverse[1]
+        computeList = cloud_computes[cloud_id] == nil ? [] : cloud_computes[cloud_id]
+        computeList.push compute
+        cloud_computes[cloud_id] = computeList
+      end
+      seeds = []
+      cloud_computes.each do |key, value|
+        sorted_computes = value.sort_by {|obj| obj.ciName}
+        slected_computes = value.size >= seed_count ? sorted_computes.first(seed_count) : sorted_computes.first(value.size)
+        slected_computes.each do |s|
+          seeds.push s["ciAttributes"]["private_ip"]
+        end
+      end
+      return seeds
+    end
 
   end
 
