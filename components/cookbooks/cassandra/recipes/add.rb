@@ -17,26 +17,6 @@ case node.platform
     Chef::Log.error("platform not supported yet")
 end
 
-=begin
-hostnames = []
-if node.workorder.payLoad.has_key?("hostnames")
-  hostnames =node.workorder.payLoad.hostnames
-end
-
-if hostnames.size == 0  
-  ip = node.workorder.payLoad.ManagedVia.first['ciAttributes']['private_ip']
-  seeds = [ip]
-else
-
-  seed_count = node.workorder.rfcCi.ciAttributes.seed_count  
-  if !node.workorder.rfcCi.ciBaseAttributes.has_key?("seed_count") ||
-    seed_count != node.workorder.rfcCi.ciBaseAttributes.seed_count
-    
-    # TODO: gen new seeds from hostnames payload
-    Chef::Log.info("generated seeds from hostnames: ")
-  end  
-end
-=end
 seeds = []
 if node.workorder.rfcCi.ciAttributes.has_key?("seeds") &&
    !node.workorder.rfcCi.ciAttributes.seeds.empty?
