@@ -37,14 +37,7 @@ else
   end  
 end
 =end
-ipaddress = node[:ipaddress]
-action = node.workorder.has_key?("rfcCi") ? node.workorder.rfcCi.rfcAction : node.workorder.actionName
-seed_count = node.workorder.rfcCi.ciAttributes.seed_count  
-if !node.workorder.rfcCi.ciBaseAttributes.has_key?("seed_count") || seed_count != node.workorder.rfcCi.ciBaseAttributes.seed_count
-  seeds = 'replace'.eql?(action) ? Cassandra::Util.discover_seed_nodes(node,seed_count.to_i,ipaddress) : Cassandra::Util.discover_seed_nodes(node,seed_count.to_i) 
-end
-
-
+seeds = []
 if node.workorder.rfcCi.ciAttributes.has_key?("seeds") &&
    !node.workorder.rfcCi.ciAttributes.seeds.empty?
    
@@ -52,6 +45,16 @@ if node.workorder.rfcCi.ciAttributes.has_key?("seeds") &&
    if tmp_seeds.size > 0
      seeds = tmp_seeds
    end
+end
+
+#Discover seeds if not provided
+if seeds.empty?
+  ipaddress = node[:ipaddress]
+  action = node.workorder.has_key?("rfcCi") ? node.workorder.rfcCi.rfcAction : node.workorder.actionName
+  seed_count = node.workorder.rfcCi.ciAttributes.seed_count  
+  if !node.workorder.rfcCi.ciBaseAttributes.has_key?("seed_count") || seed_count != node.workorder.rfcCi.ciBaseAttributes.seed_count
+    seeds = 'replace'.eql?(action) ? Cassandra::Util.discover_seed_nodes(node,seed_count.to_i,ipaddress) : Cassandra::Util.discover_seed_nodes(node,seed_count.to_i) 
+  end
 end
 Chef::Log.info("seeds : #{seeds.join(',')}")
    
