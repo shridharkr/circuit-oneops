@@ -17,10 +17,6 @@ variable "httpPort",
         :description => 'Http Port for your play app',
         :value => '9000'
 
-variable "httpsPort",
-        :description => 'Https Port for your play app',
-        :value => ''
-
 resource "user-app",
   :cookbook => "oneops.1.user",
   :design => true,
@@ -39,7 +35,6 @@ resource "playApp",
   :requires => { "constraint" => "1..1" },
   :attributes => {
       :http_port => '$OO_LOCAL{httpPort}',
-      :https_port => '$OO_LOCAL{httpsPort}',
       :app_secret => '$OO_LOCAL{AppSecret}',
     :log_file => '/log/$OO_LOCAL{appName}',
     :application_conf_file => '/app/$OO_LOCAL{appName}',

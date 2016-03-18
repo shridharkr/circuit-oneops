@@ -3,7 +3,6 @@ maintainer       'njin'
 maintainer_email 'bathily@njin.fr'
 license          'All rights reserved'
 description      'Installs/Configures playapp'
-# removed due to ERROR: ArgumentError: invalid byte sequence in US-ASCII
 version          '0.1.0'
 
 grouping 'default',
