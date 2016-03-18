@@ -189,13 +189,13 @@ attribute 'env_vars',
 attribute 'ostype',
 :description => "OS Type",
 :required => "required",
-:default => "centos-6.6",
+:default => "centos-7.0",
 :format => {
   :help => 'OS types are mapped to the correct cloud provider OS images - see provider documentation for details',
   :category => '4.Operating System',
   :order => 4,
   :form => { 'field' => 'select', 'options_for_select' => [
-  ['CentOS 6.6','centos-6.6'],['CentOS 7.0','centos-7.0']]
+  ['CentOS 7.0','centos-7.0'],['Ubuntu 14.04','ubuntu-14.04']]
 }
 }
 
