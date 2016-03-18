@@ -2,17 +2,6 @@
 # cassandra-topology.properties
 # ip = dc:rack
 #
-<% if node.workorder.rfcCi.ciAttributes.endpoint_snitch =~ /\.GossipingPropertyFileSnitch/ 
-dc_rack_map = JSON.parse(node.workorder.rfcCi.ciAttributes.cloud_dc_rack_map) 
-cloud_name = node[:workorder][:cloud][:ciName]
-dc_rack = dc_rack_map[cloud_name] 
-	if dc_rack.nil?
-	      Chef::Log.error("missing dc_rack_map entry for: #{cloud_name}")
-	      exit 1
-	end %>
-default=<%= dc_rack %> 
-fe80\:0\:0\:0\:202\:b3ff\:fe1e\:8329=<%= dc_rack %>
-<% else %>
 <% cloud_map = {} 
  
   node.workorder.payLoad.clouds.each do |c|
@@ -36,11 +25,9 @@ fe80\:0\:0\:0\:202\:b3ff\:fe1e\:8329=<%= dc_rack %>
 <%= c['ciAttributes']['private_ip'] %>=<%= dc_rack %>
     <% end %>
 <% end %>
-<% end %>
 #
 # extra_topology
 #
 <% if node.workorder.rfcCi.ciAttributes.has_key?("extra_topology") %>
 <%= node.workorder.rfcCi.ciAttributes.extra_topology || "" %>
 <% end %>
-
