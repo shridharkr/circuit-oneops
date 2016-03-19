@@ -123,6 +123,31 @@ module Cassandra
       end
     end
 
+    #returns array of seeds. array includes first seed_count no. of IPs from each clouds (sorted as per ciName).
+    #If seed_count > no. of computes in cloud then include all IPs from the cloud.
+    #if $ip_exclude will be excluded from the resulting array (required in 'replace')
+    def self.discover_seed_nodes(node, seed_count, ip_exclude=nil)
+      computes = node.workorder.payLoad.has_key?("RequiresComputes") ? node.workorder.payLoad.RequiresComputes : node.workorder.payLoad.computes
+      return [computes.first["ciAttributes"]["private_ip"]] if (computes.size == 1)
+      cloud_computes = {}
+      computes.each do |compute|
+        next if compute[:ciAttributes][:private_ip].nil? || compute[:ciAttributes][:private_ip].empty? || compute[:ciAttributes][:private_ip] == ip_exclude
+        cloud_id = compute[:ciName].split('-').reverse[1]
+        computeList = cloud_computes[cloud_id] == nil ? [] : cloud_computes[cloud_id]
+        computeList.push compute
+        cloud_computes[cloud_id] = computeList
+      end
+      seeds = []
+      cloud_computes.each do |key, value|
+        sorted_computes = value.sort_by {|obj| obj.ciName}
+        slected_computes = value.size >= seed_count ? sorted_computes.first(seed_count) : sorted_computes.first(value.size)
+        slected_computes.each do |s|
+          seeds.push s["ciAttributes"]["private_ip"]
+        end
+      end
+      return seeds
+    end
+
    # Returns hash of the key, value pairs from the propery file
    def load_properties(properties_filename)
       properties = {}
@@ -138,27 +163,27 @@ module Cassandra
           end
         end      
       end
-      properties
-    end
+      return properties
+   end
   
-    # Merge log4j property file with the config provided
-    def merge_log4j_directives(log4j_file, cfg)
+   # Merge log4j property file with the config provided
+   def merge_log4j_directives(log4j_file, cfg)
       Chef::Log.info "Log4j file: #{log4j_file}, log4j directive entries: #{cfg}"
       # Always backup
       bak_file = log4j_file.sub('.properties', '_template.properties')
       File.rename(log4j_file, bak_file)
-      yaml = load_properties(bak_file)
+      log_props = load_properties(bak_file)
       cfg.each_key { |key|
         val = parse_json(cfg[key])
-        yaml[key] = val
+        log_props[key] = val
       }
-      Chef::Log.info "Merged cassandra log4j : #{yaml.to_yaml}"
+      Chef::Log.info "Merged cassandra log4j : #{log_props.to_yaml}"
       File.open(log4j_file, 'w') { |f|
-        yaml.each {|key,value| f.puts "#{key}=#{value}\n" }
+        log_props.each {|key,value| f.puts "#{key}=#{value}\n" }
         Chef::Log.info "Saved Log4j config to #{log4j_file}"
       }
-    end
-
+  end
+  
   end
 
 end
