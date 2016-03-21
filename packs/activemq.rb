@@ -37,12 +37,10 @@ resource 'activemq',
         'Memory' => {:description => 'Memory Status',
                 :source => '',
                 :chart => {'min' => 0, 'unit' => ''},
-                :cmd => 'check_activemq_mem!#{cmd_options[:protocol]}!#{cmd_options[:port]}!#{cmd_options[:path]}!:::node.workorder.rfcCi.ciAttributes.authenabled:::!:::node.workorder.rfcCi.ciAttributes.adminusername:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
+                :cmd => 'check_activemq_mem!:::node.workorder.rfcCi.ciAttributes.adminconsolesecure:::!:::node.workorder.rfcCi.ciAttributes.adminconsoleport:::!#{cmd_options[:path]}!:::node.workorder.rfcCi.ciAttributes.authenabled:::!:::node.workorder.rfcCi.ciAttributes.adminusername:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
                 :cmd_line => '/opt/nagios/libexec/check_activemq_mem.rb $ARG1$ $ARG2$ $ARG3$ $ARG4$ $ARG5$ $ARG6$',
                 :cmd_options => {
-                     'protocol' => 'http',
-                      'port' => '8161',
-                      'path' => '/admin/index.jsp?printable=true'
+                     'path' => '/admin/index.jsp?printable=true'
                    },
                 :metrics => {
                     'Temp_percent_used' => metric(:unit => '', :description => 'Temp percent used', :dstype => 'GAUGE'),
