@@ -25,7 +25,7 @@ attribute 'solr_package_type',
     :help => 'Nexus formats of Solr binary distribution ',
     :category => '1.SolrCloud',
     :form => {'field' => 'select', 'options_for_select' => [['solr', 'solr']]},
-    :order => 1
+    :order => 2
   }
 
 attribute 'solr_version',
@@ -35,7 +35,7 @@ attribute 'solr_version',
   :format => {
     :help => 'Nexus version of Solr binary distribution ',
     :category => '1.SolrCloud',
-    :order => 2
+    :order => 3
   }
 
 attribute 'solr_format',
@@ -46,7 +46,7 @@ attribute 'solr_format',
     :help => 'Nexus formats of Solr binary distribution ',
     :category => '1.SolrCloud',
     :form => {'field' => 'select', 'options_for_select' => [['tgz', 'tgz']]},
-    :order => 3
+    :order => 4
   }
 
 attribute 'config_name',
@@ -55,7 +55,7 @@ attribute 'config_name',
   :format => {
     :help => 'Name of default Solr config',
     :category => '1.SolrCloud',
-    :order => 4
+    :order => 5
   }
 
 attribute 'custom_config_url',
@@ -63,7 +63,7 @@ attribute 'custom_config_url',
   :format => {
     :help => 'Custom Solr Config Url in nexus',
     :category => '1.SolrCloud',
-    :order => 5
+    :order => 6
   }
 
 attribute 'custom_config_name',
@@ -71,7 +71,7 @@ attribute 'custom_config_name',
   :format => {
     :help => 'Custom Prod Config Name',
     :category => '1.SolrCloud',
-    :order => 6
+    :order => 7
   }
 
 attribute 'deploy_all_dcs',
@@ -81,7 +81,7 @@ attribute 'deploy_all_dcs',
     :help => 'Deploy solrcloud across ALL DataCenters',
     :category => '2.External Zookeeper',
     :form => { 'field' => 'checkbox' },
-    :order => 7
+    :order => 8
   }
 
 attribute 'zk_host_fqdns',
@@ -89,7 +89,7 @@ attribute 'zk_host_fqdns',
   :format => {
     :help => 'Zookeeper connect string in the following format. IP1:clientPort,IP2:clientPort',
     :category => '2.External Zookeeper',
-    :order => 8
+    :order => 9
   }
 
 attribute 'deploy_embed_zkp',
@@ -99,7 +99,7 @@ attribute 'deploy_embed_zkp',
     :help => 'Deploy solrcloud using Embedded Zookeeper',
     :category => '3.Embedded Zookeeper',
     :form => { 'field' => 'checkbox' },
-    :order => 9
+    :order => 10
   }
 
 attribute 'zkp_version',
@@ -111,7 +111,7 @@ attribute 'zkp_version',
     :help => 'Nexus version of Zookeeper binary distribution ',
     :category => '3.Embedded Zookeeper',
     :form => {'field' => 'select', 'options_for_select' => [['3.4.6', '3.4.6'], ['3.5.0', '3.5.0']]},
-    :order => 10
+    :order => 11
   }
 
 attribute 'zkp_format',
@@ -122,7 +122,7 @@ attribute 'zkp_format',
     :help => 'Nexus formats of Zookeeper binary distribution ',
     :category => '3.Embedded Zookeeper',
     :form => {'field' => 'select', 'options_for_select' => [['tar.gz', 'tar.gz']]},
-    :order => 11
+    :order => 12
   }
 
 attribute 'num_local_instances',
@@ -130,7 +130,7 @@ attribute 'num_local_instances',
   :format => {
     :help => 'No of local tomcat instances',
     :category => '3.Embedded Zookeeper',
-    :order => 12
+    :order => 13
   }
 
 attribute 'http_port_nos',
@@ -138,7 +138,7 @@ attribute 'http_port_nos',
   :format => {
     :help => 'List of http port nos',
     :category => '3.Embedded Zookeeper',
-    :order => 13
+    :order => 14
   }
 
 attribute 'ssl_port_nos',
@@ -146,7 +146,7 @@ attribute 'ssl_port_nos',
   :format => {
     :help => 'List of ssl port nos',
     :category => '3.Embedded Zookeeper',
-    :order => 14
+    :order => 15
   }
 
 attribute 'server_port_nos',
@@ -154,7 +154,7 @@ attribute 'server_port_nos',
   :format => {
     :help => 'List of server port nos',
     :category => '3.Embedded Zookeeper',
-    :order => 15
+    :order => 16
   }
 
 attribute 'ajp_port_nos',
@@ -162,7 +162,7 @@ attribute 'ajp_port_nos',
   :format => {
     :help => 'List of ajp port nos',
     :category => '3.Embedded Zookeeper',
-    :order => 16
+    :order => 17
   }
 
 attribute 'collection_name',
@@ -171,7 +171,7 @@ attribute 'collection_name',
   :format => {
     :help => 'Collection Name',
     :category => '4.SolrCloud Action Items',
-    :order => 17
+    :order => 18
   }
 
 attribute 'num_shards',
@@ -180,7 +180,7 @@ attribute 'num_shards',
   :format => {
     :help => 'Number of Shards in the collection',
     :category => '4.SolrCloud Action Items',
-    :order => 18
+    :order => 19
   }
 
 attribute 'replication_factor',
@@ -189,7 +189,7 @@ attribute 'replication_factor',
   :format => {
     :help => 'Replication factor',
     :category => '4.SolrCloud Action Items',
-    :order => 19
+    :order => 20
   }
 
 attribute 'max_shards_per_node',
@@ -198,7 +198,7 @@ attribute 'max_shards_per_node',
   :format => {
     :help => 'Maximum number of shards per node',
     :category => '4.SolrCloud Action Items',
-    :order => 20
+    :order => 21
   }
 
 

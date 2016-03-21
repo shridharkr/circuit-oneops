@@ -6,10 +6,10 @@
 #
 #
 
-include_recipe "solrcloud3::default"
-include_recipe "solrcloud3::solrcloud"
-include_recipe "solrcloud3::deploy"
-include_recipe "solrcloud3::customconfig"
-include_recipe "solrcloud3::replacereplica"
+include_recipe "solrcloud::default"
+include_recipe "solrcloud::solrcloud"
+include_recipe "solrcloud::deploy"
+include_recipe "solrcloud::customconfig"
+include_recipe "solrcloud::replacereplica"
 
 
