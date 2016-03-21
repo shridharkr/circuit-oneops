@@ -49,10 +49,6 @@ default['slf4j_log4j12']['version'] = "1.6.6";
 default['slf4j_log4j12']['name'] = "slf4j-log4j12-#{node['slf4j_log4j12']['version']}.jar";
 default['slf4j_log4j12']['url'] = "http://gec-maven-nexus.walmart.com/nexus/content/groups/public/org/slf4j/slf4j-log4j12/#{node['slf4j_log4j12']['version']}/#{node['slf4j_log4j12']['name']}";
 
-default[:solrcloud][:src_mirror] = 'http://gec-maven-nexus.walmart.com/nexus/content/groups/public/org/apache/solr'
-default[:solrcloud][:mirrors] = '[]'
-
-default['zookeeper']['url'] = "http://gec-maven-nexus.walmart.com/nexus/content/groups/public/org/apache/zookeeper";
 
 
 

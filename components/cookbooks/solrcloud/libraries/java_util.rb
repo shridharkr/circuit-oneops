@@ -14,43 +14,6 @@ module Java
 
     include Chef::Mixin::ShellOut
 
-    # def getmirrorservice
-    #   source_list = JSON.parse(node.solrcloud.mirrors).map
-    #   if source_list.empty?
-    #     cloud_name = node[:workorder][:cloud][:ciName]
-    #     mirrors = []
-    #     if node[:workorder][:services].has_key? "mirror"
-    #       mirrors = JSON.parse(node[:workorder][:services][:mirror][cloud_name][:ciAttributes][:mirrors])
-    #     end
-    #     source_list = mirrors['solr'].split(",").map
-    #     #Chef::Log.info(source_list)
-    #   end
-      
-    #   source_list = [ node['solrcloud']['src_mirror'] ] if source_list.empty?
-    #   Chef::Log.info(source_list)
-
-    #   return source_list
-    # end
-
-    # def getmirrorservice
-    #   cloud = node.workorder.cloud.ciName
-    #   cookbook = node.app_name.downcase
-    #   Chef::Log.info("Getting mirror service for #{cookbook}, cloud: #{cloud}")
-    #   mirror_svc = node[:workorder][:services][:mirror]
-    #   mirror = JSON.parse(mirror_svc[cloud][:ciAttributes][:mirrors]) if !mirror_svc.nil?
-    #   base_url = ''
-    #   # Search for solr mirror
-    #   base_url = mirror['solr'] if !mirror.nil? && mirror.has_key?('solr')
-
-    #   if base_url.empty?
-    #     # Search for cookbook default nexus mirror.
-    #     Chef::Log.info('Solr mirror is empty. Using the default nexus mirror.')
-    #     base_url = node[cookbook][:src_mirror] if base_url.empty?
-    #   end
-
-    #   return base_url
-    # end
-
     def downloadconfig(zkHost,configname)
       Chef::Log.info('Download prod config through zookeeper ZkCLI')
       begin
