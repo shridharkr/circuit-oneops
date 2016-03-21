@@ -293,8 +293,8 @@ attribute 'brokerusername',
           :description => 'Broker Username',
           :format => {
               :category => '4.Authentication and Authorization',
-              :help => 'Username for the Broker Authentication',
-              :filter => {'all' => {'visible' => 'false'}},
+              :help => 'Username for the Broker Authentication (For: Multiple Users use **Broker Users**)',
+              :filter => {'all' => {'visible' => 'authtype:eq:Simple'}},
               :order => 7
           }
 
@@ -304,7 +304,7 @@ attribute 'brokerpassword',
           :format => {
               :category => '4.Authentication and Authorization',
               :help => 'Password for the Broker Authentication',
-              :filter => {'all' => {'visible' => 'false'}},
+              :filter => {'all' => {'visible' => 'authtype:eq:Simple'}},
               :order => 8
           }
 
@@ -313,7 +313,7 @@ attribute 'users',
           :data_type => "hash",
           :default => '{"readonly":"readonly"}',
           :format => {
-            :help => 'Users credentials for messaging. eg.username:pawssword.',
+            :help => 'Users credentials for messaging. eg.username:password.',
             :category => '4.Authentication and Authorization',
             :order => 9
           }

@@ -174,13 +174,15 @@ template "#{activemq_home}/conf/activemq.xml" do
     })
     mode 0644
 end
-#for backward compatibilty
+# Add brokerusename and brokerpassword backward compatibilty
 
 template "#{activemq_home}/conf/credentials.properties" do
     source 'credentials.properties.erb'
     variables({
         :adminusername => node[:activemq][:adminusername],
-        :adminpassword => node[:activemq][:adminpassword]
+        :adminpassword => node[:activemq][:adminpassword],
+        :brokerusername => node[:activemq][:brokerusername],
+        :brokerpassword => node[:activemq][:brokerpassword]
     })
     mode 0644
 end

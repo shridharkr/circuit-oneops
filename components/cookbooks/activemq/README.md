@@ -16,7 +16,7 @@ Opscode cookbooks:
 
 * `activemq[:mirror]` - download URL up to the activemq/apache-activemq directory.
 * `activemq[:version]` - version to install.
-* `activemq[:deploy]` - directory to deploy to (/app by default)
+* `activemq[:deploy]` - directory to deploy to (/opt by default)
 
 # USAGE:
 
