@@ -13,13 +13,13 @@ Chef::Resource::RubyBlock.send(:include, Java::Util)
 
 ci = node.workorder.rfcCi.ciAttributes;
 
+solr_base_url = ci['solr_url']
 solr_version = @solr_version = ci['solr_version']
 solr_format = @solr_format = ci['solr_format']
 solr_package_type = @solr_package_type = ci['solr_package_type']
 solr_file_name = "#{solr_package_type}-"+"#{solr_version}."+"#{solr_format}";
 
-# Automatically download the package from mirror location
-solr_base_url = getmirrorservice
+# Automatically download the package from external location
 solr_url = "#{solr_base_url}/#{solr_package_type}/#{solr_version}/#{solr_file_name}";
 
 solr_filepath = "#{node['user']['dir']}/#{solr_file_name}";

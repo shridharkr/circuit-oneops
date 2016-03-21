@@ -1,8 +1,7 @@
-
+#
 #
 # Pack Name:: solrcloud
-# Maintainer:: ssingamsetty@walmartlabs.com
-# @walmartlabs
+#
 #
 
 include_pack "genericlb"
@@ -10,32 +9,11 @@ include_pack "genericlb"
 name "solrcloud"
 description "SolrCloud"
 category "Search"
-owner "ssingamsetty@walmartlabs.com"
 type		'Platform'
 
 
 environment "single", {}
 environment "redundant", {}
-
-variable "emailaddresses",
-          :description => 'emailaddresses',
-          :value => 'owner@walmartlabs.com'
-
-variable "logicalcollectionname",
-          :description => 'logicalcollectionname to create dashboard',
-          :value => 'test'
-
-variable "appname",
-          :description => 'appname',
-          :value => 'TESTAPP'
-
-variable "solrclouddatacenter",
-          :description => 'solrclouddatacenter',
-          :value => 'DAL'
-
-variable "solrcloudenv",
-          :description => 'solrcloudenv',
-          :value => 'dev'
 
 variable "configname",
           :description => 'configname',
@@ -257,21 +235,6 @@ resource "library",
     "packages"  => '["bc"]'
   }
 
-resource "solr-monitor",
-  :cookbook => "solr-monitor",
-  :source => Chef::Config[:register],
-  :design => true,
-  :requires => { "constraint" => "1..*" },
-  :attributes => {
-             'logical_collection_name' => '$OO_LOCAL{logicalcollectionname}',
-             'app_name' => '$OO_LOCAL{appname}',
-             'solrcloud_datacenter' => '$OO_LOCAL{solrclouddatacenter}',
-             'solrcloud_env' => '$OO_LOCAL{solrcloudenv}',
-             'email_addresses' => '$OO_LOCAL{emailaddresses}'
-             }
-
-
-
 # depends_on
 [
  {:from => 'solrcloud', :to => 'compute'},
@@ -284,8 +247,7 @@ resource "solr-monitor",
  {:from => 'volume-app', :to => 'compute'},
  {:from => 'solrcloud', :to => 'tomcat'},
  {:from => 'solrcloud', :to => 'tomcat-daemon'},
- {:from => 'tomcat', :to => 'java'},
- {:from => 'solr-monitor', :to => 'solrcloud'}
+ {:from => 'tomcat', :to => 'java'}
 ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
            :relation_name => 'DependsOn',
@@ -301,7 +263,7 @@ end
                     :attributes => {"propagate_to" => "from", "flex" => false, "min" => 1, "max" => 1}
 
 # managed_via
-[ 'solr-monitor','tomcat','tomcat-daemon','solrcloud', 'file','user-app', 'java', 'volume-app', 'artifact-app'].each do |from|
+[ 'tomcat','tomcat-daemon','solrcloud', 'file','user-app', 'java', 'volume-app', 'artifact-app'].each do |from|
   relation "#{from}::managed_via::compute",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',

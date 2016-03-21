@@ -1,5 +1,4 @@
 name 'Solrcloud'
-maintainer 'Forklift Team'
 license 'none'
 version '1.0.0'
 
@@ -7,6 +6,16 @@ grouping 'default',
   :access => 'global',
   :packages => ['base', 'mgmt.catalog', 'mgmt.manifest', 'catalog', 'manifest', 'bom']
 
+
+attribute 'solr_url',
+  :description => 'Solr binary distribution version',
+  :required => 'required',
+  :default => 'https://archive.apache.org/dist/lucene',
+  :format => {
+    :help => 'Nexus version of Solr binary distribution ',
+    :category => '1.SolrCloud',
+    :order => 1
+  }
 
 attribute 'solr_package_type',
   :description => 'Solr binary distribution package type ',
@@ -22,12 +31,10 @@ attribute 'solr_package_type',
 attribute 'solr_version',
   :description => 'Solr binary distribution version',
   :required => 'required',
-  :default => '4.10.3.2',
+  :default => '4.10.3',
   :format => {
-    :important => true,
     :help => 'Nexus version of Solr binary distribution ',
     :category => '1.SolrCloud',
-    :form => {'field' => 'select', 'options_for_select' => [['4.10.3.2', '4.10.3.2'], ['4.10.3', '4.10.3'], ['5.0', '5.0']]},
     :order => 2
   }
 
@@ -38,7 +45,7 @@ attribute 'solr_format',
   :format => {
     :help => 'Nexus formats of Solr binary distribution ',
     :category => '1.SolrCloud',
-    :form => {'field' => 'select', 'options_for_select' => [['tar.gz', 'tar.gz'], ['tar', 'tar'], ['war', 'war'], ['tgz', 'tgz']]},
+    :form => {'field' => 'select', 'options_for_select' => [['tgz', 'tgz']]},
     :order => 3
   }
 
