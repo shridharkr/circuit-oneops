@@ -1,8 +1,7 @@
 name             'Solr-monitor'
 maintainer       'forklift search'
-maintainer_email 'ssingamsetty@walmartlabs.com'
 license          'All rights reserved'
-version          '0.1.0'
+version          '1.0.0'
 
 
 grouping 'default',
