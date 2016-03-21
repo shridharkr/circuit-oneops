@@ -20,7 +20,7 @@ solr_package_type = @solr_package_type = ci['solr_package_type']
 solr_file_name = "#{solr_package_type}-"+"#{solr_version}."+"#{solr_format}";
 
 # Automatically download the package from external location
-solr_url = "#{solr_base_url}/#{solr_package_type}/#{solr_version}/#{solr_file_name}";
+solr_url = "#{solr_base_url}#{solr_package_type}/#{solr_version}/#{solr_file_name}";
 
 solr_filepath = "#{node['user']['dir']}/#{solr_file_name}";
 

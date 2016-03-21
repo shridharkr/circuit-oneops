@@ -256,11 +256,11 @@ resource "library",
            :attributes => {"flex" => false, "min" => 1, "max" => 1}
 end
 
- relation "solrcloud::depends_on::tomcat",
-              :relation_name => 'DependsOn',
-                    :from_resource => 'solrcloud',
-                    :to_resource => 'tomcat',
-                    :attributes => {"propagate_to" => "from", "flex" => false, "min" => 1, "max" => 1}
+relation "solrcloud::depends_on::tomcat",
+            :relation_name => 'DependsOn',
+                  :from_resource => 'solrcloud',
+                  :to_resource => 'tomcat',
+                  :attributes => {"propagate_to" => "from", "flex" => false, "min" => 1, "max" => 1}
 
 # managed_via
 [ 'tomcat','tomcat-daemon','solrcloud', 'file','user-app', 'java', 'volume-app', 'artifact-app'].each do |from|

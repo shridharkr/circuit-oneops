@@ -1,5 +1,5 @@
 name 'Solrcloud'
-license 'none'
+license 'Apache License, Version 2.0'
 version '1.0.0'
 
 grouping 'default',
@@ -10,7 +10,7 @@ grouping 'default',
 attribute 'solr_url',
   :description => 'Solr binary distribution version',
   :required => 'required',
-  :default => 'https://archive.apache.org/dist/lucene',
+  :default => 'https://archive.apache.org/dist/lucene/',
   :format => {
     :help => 'Nexus version of Solr binary distribution ',
     :category => '1.SolrCloud',
