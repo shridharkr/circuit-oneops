@@ -33,6 +33,23 @@ resource 'activemq',
           :thresholds => {
           'CriticalExceptions' => threshold('15m', 'avg', 'logmqexc_criticals', trigger('>=', 1, 15, 1), reset('<', 1, 15, 1))
           }
+      },
+        'Memory' => {:description => 'Memory Status',
+                :source => '',
+                :chart => {'min' => 0, 'unit' => ''},
+                :cmd => 'check_activemq_mem!:::node.workorder.rfcCi.ciAttributes.adminconsolesecure:::!:::node.workorder.rfcCi.ciAttributes.adminconsoleport:::!#{cmd_options[:path]}!:::node.workorder.rfcCi.ciAttributes.authenabled:::!:::node.workorder.rfcCi.ciAttributes.adminusername:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
+                :cmd_line => '/opt/nagios/libexec/check_activemq_mem.rb $ARG1$ $ARG2$ $ARG3$ $ARG4$ $ARG5$ $ARG6$',
+                :cmd_options => {
+                     'path' => '/admin/index.jsp?printable=true'
+                   },
+                :metrics => {
+                    'Temp_percent_used' => metric(:unit => '', :description => 'Temp percent used', :dstype => 'GAUGE'),
+                    'Memory_percent_used' => metric(:unit => '', :description => 'Memory percent used', :dstype => 'GAUGE'),
+                    'Store_percent_used' => metric(:unit => '', :description => 'Store percent used', :dstype => 'GAUGE')
+                },
+                :thresholds => {
+
+                }
       },'BrokerStatus' =>  { :description => 'BrokerStatus',
           :source => '',
           :chart => {'min'=>0, 'unit'=>''},
@@ -241,16 +258,16 @@ resource "activemq-daemon",
              :pattern => 'activemq'
          },
          :monitors => {
-             'amqprocess' => {:description => 'AMQProcess',
+             'activemqprocess' => {:description => 'ActiveMQProcess',
                            :source => '',
                            :chart => {'min' => '0', 'max' => '100', 'unit' => 'Percent'},
-                           :cmd => 'check_activemq_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!:::node.workorder.rfcCi.ciAttributes.use_script_status:::!:::node.workorder.rfcCi.ciAttributes.pattern:::!:::node.workorder.rfcCi.ciAttributes.secondary_down:::',
-                           :cmd_line => '/opt/nagios/libexec/check_activemq_process.sh "$ARG1$" "$ARG2$" "$ARG3$" "$ARG4$"',
+                           :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!:::node.workorder.rfcCi.ciAttributes.use_script_status:::!:::node.workorder.rfcCi.ciAttributes.pattern:::!:::node.workorder.rfcCi.ciAttributes.secondary_down:::',
+                           :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$" "$ARG4$"',
                            :metrics => {
                                'up' => metric(:unit => '%', :description => 'Percent Up'),
                            },
                            :thresholds => {
-                               'DaemonProcessDown' => threshold('1m', 'avg', 'up', trigger('<=', 98, 1, 1), reset('>', 95, 1, 1),'unhealthy')
+                               'ActiveMQDaemonProcessDown' => threshold('1m', 'avg', 'up', trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
                            }
              }
           }
