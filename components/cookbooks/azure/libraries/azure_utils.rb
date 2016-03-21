@@ -1,4 +1,4 @@
-
+# Common class for common methods, like get_credentials.
 
 module AzureCommon
   class AzureUtils
@@ -8,13 +8,13 @@ module AzureCommon
         token_provider = MsRestAzure::ApplicationTokenProvider.new(tenant_id,client_id,client_secret)
         if token_provider != nil
           credentials = MsRest::TokenCredentials.new(token_provider)
-          return credentials
+          credentials
         else
-          raise "Could not retrieve azure credentials"
-          exit 1
+          e = Exception.new('Could not retrieve azure credentials')
+          raise e
         end
-      rescue  MsRestAzure::AzureOperationError =>e
-        Chef::Log.error("Error acquiring a token from azure")
+      rescue  MsRestAzure::AzureOperationError => e
+        Chef::Log.error('Error acquiring a token from azure')
         raise e
       end
     end
