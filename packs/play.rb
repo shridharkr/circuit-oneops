@@ -141,34 +141,7 @@ resource "volume-log",
                     'LowDiskInode' => threshold('1m','avg','inode_used',trigger('>=', 90, 5, 2), reset('<', 85, 5, 1))
                   },
                 },
-    },
-  :payloads => { 'region' => {
-    'description' => 'Region',
-    'definition' => '{
-       "returnObject": false,
-       "returnRelation": false,
-       "relationName": "base.DeployedTo",
-       "direction": "from",
-       "targetClassName": "account.provider.Binding",
-       "relations": [
-         { "returnObject": false,
-           "returnRelation": false,
-           "relationName": "base.BindsTo",
-           "direction": "from",
-           "targetClassName": "account.provider.Zone",
-           "relations": [
-             { "returnObject": true,
-               "returnRelation": false,
-               "relationName": "base.Provides",
-               "direction": "to",
-               "targetClassName": "account.provider.Region"
-             }
-           ]
-         }
-       ]
-    }'
-  }
-}
+    }
 
 resource "volume-app",
   :cookbook => "oneops.1.volume",
@@ -192,35 +165,7 @@ resource "volume-app",
                     'LowDiskInode' => threshold('1m','avg','inode_used',trigger('>=', 90, 5, 2), reset('<', 85, 5, 1))
                   },
                 },
-    },
-  :payloads => { 'region' => {
-    'description' => 'Region',
-    'definition' => '{
-       "returnObject": false,
-       "returnRelation": false,
-       "relationName": "base.DeployedTo",
-       "direction": "from",
-       "targetClassName": "account.provider.Binding",
-       "relations": [
-         { "returnObject": false,
-           "returnRelation": false,
-           "relationName": "base.BindsTo",
-           "direction": "from",
-           "targetClassName": "account.provider.Zone",
-           "relations": [
-             { "returnObject": true,
-               "returnRelation": false,
-               "relationName": "base.Provides",
-               "direction": "to",
-               "targetClassName": "account.provider.Region"
-             }
-           ]
-         }
-       ]
-    }'
-  }
-}
-
+    }
 
 # depends_on
 [ { :from => 'volume-app',    :to => 'os' },
