@@ -11,21 +11,24 @@ url =''
 perf=''
 ignore_cert = ''
 
-if ARGV[0] == 'https'
+protocol = 'http'
+if ARGV[0] == 'true'
   ignore_cert = ' -k '
+  protocol = 'https'
 end
 
-if ARGV[3] == 'false'
-  url = ARGV[0] +"://localhost:"+ ARGV[1] + ARGV[2] + "#{ignore_cert}"
-else
-  url = ARGV[0]+"://localhost:"+ ARGV[1] + ARGV[2] +" -u "+ ARGV[4]+ ":" + ARGV[5] +  "#{ignore_cert}"
-end
+url = protocol+"://localhost:"+ ARGV[1] + ARGV[2] +" -u "+ ARGV[4]+ ":" + ARGV[5] +  "#{ignore_cert}"
 
 data = XmlSimple.xml_in(`curl -s #{url}`,{ 'KeyAttr' => 'name', 'ForceArray' => false })
 
 body_data = data["body"];
 table_data = body_data["table"]
 tr_data = table_data["tr"]
+td_data = table_data["td"]
+td_table_data = table_data["table"]
+td_tr_data = table_data["tr"]
+td_td_data = table_data["td"]
+
 
 size = tr_data.length
 if tr_data != nil
@@ -35,12 +38,12 @@ if tr_data != nil
      value.each do |key, val|
      label =''
        val.each do |valkey|
-          if valkey.include?'percent used' 
+          if valkey.include?'percent used'
             label = valkey
          else
-            if label != '' 
+            if label != ''
                label.gsub!(/\s/,'_')
-               perf += "#{label}=#{valkey['b']} " 
+               perf += "#{label}=#{valkey['b']} "
             end
          end
         end

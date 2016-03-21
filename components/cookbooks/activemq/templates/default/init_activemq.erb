@@ -67,6 +67,7 @@ PIDDIR="."
 
 # Do not modify anything beyond this point
 #-----------------------------------------------------------------------------
+RUN_AS_USER=<%= node['activemq']['runasuser'] %>
 
 # load system-wide activemq configuration
 if [ -f "/etc/sysconfig/activemq" ] ; then
@@ -410,11 +411,11 @@ console() {
 start() {
     source /etc/profile.d/oneops.sh
     if [ "$ONEOPS_CLOUD_ADMINSTATUS" = "secondary" ]
-    then 
-      echo "Due to being secondary cloud, NOT Starting $APP_LONG_NAME..."    
+    then
+      echo "Due to being secondary cloud, NOT Starting $APP_LONG_NAME..."
       exit 0
     fi
-    echo "Starting $APP_LONG_NAME..."    
+    echo "Starting $APP_LONG_NAME..."
     getpid
     if [ "X$pid" = "X" ]
     then
@@ -496,7 +497,7 @@ status() {
     then
         echo "$APP_LONG_NAME is not running."
         if [ "$ONEOPS_CLOUD_ADMINSTATUS" = "secondary" ]
-        then 
+        then
           exit 0
         else
           exit 1
@@ -504,7 +505,7 @@ status() {
     else
         echo "$APP_LONG_NAME is running ($pid)."
         if [ "$ONEOPS_CLOUD_ADMINSTATUS" = "secondary" ]
-        then 
+        then
           exit 1
         else
           exit 0
