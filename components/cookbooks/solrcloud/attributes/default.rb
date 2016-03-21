@@ -29,26 +29,6 @@ default['tomcat']['dir'] = "#{node['user']['dir']}/tomcat#{node['tomcatversion']
 
 default['clusterstatus']['uri'] = "solr/admin/collections?action=CLUSTERSTATUS&wt=json";
 
-default['log4j']['version'] = "1.2.17";
-default['log4j']['name'] = "log4j-#{node['log4j']['version']}.jar";
-default['log4j']['url'] = "http://gec-maven-nexus.walmart.com/nexus/content/groups/public/log4j/log4j/#{node['log4j']['version']}/#{node['log4j']['name']}";
-
-default['jcl_over_slf4j']['version'] = "1.6.6";
-default['jcl_over_slf4j']['name'] = "jcl-over-slf4j-#{node['jcl_over_slf4j']['version']}.jar";
-default['jcl_over_slf4j']['url'] = "http://gec-maven-nexus.walmart.com/nexus/content/groups/public/org/slf4j/jcl-over-slf4j/#{node['jcl_over_slf4j']['version']}/#{node['jcl_over_slf4j']['name']}";
-
-default['jul_to_slf4j']['version'] = "1.6.6";
-default['jul_to_slf4j']['name'] = "jul-to-slf4j-#{node['jul_to_slf4j']['version']}.jar";
-default['jul_to_slf4j']['url'] = "http://gec-maven-nexus.walmart.com/nexus/content/groups/public/org/slf4j/jul-to-slf4j/#{node['jul_to_slf4j']['version']}/#{node['jul_to_slf4j']['name']}";
-
-default['slf4j_api']['version'] = "1.6.6";
-default['slf4j_api']['name'] = "slf4j-api-#{node['slf4j_api']['version']}.jar";
-default['slf4j_api']['url'] = "http://gec-maven-nexus.walmart.com/nexus/content/groups/public/org/slf4j/slf4j-api/#{node['slf4j_api']['version']}/#{node['slf4j_api']['name']}";
-
-default['slf4j_log4j12']['version'] = "1.6.6";
-default['slf4j_log4j12']['name'] = "slf4j-log4j12-#{node['slf4j_log4j12']['version']}.jar";
-default['slf4j_log4j12']['url'] = "http://gec-maven-nexus.walmart.com/nexus/content/groups/public/org/slf4j/slf4j-log4j12/#{node['slf4j_log4j12']['version']}/#{node['slf4j_log4j12']['name']}";
-
 
 
 

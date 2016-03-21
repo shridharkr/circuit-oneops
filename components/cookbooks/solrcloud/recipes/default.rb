@@ -40,47 +40,5 @@ remote_file solr_filepath do
   action :create_if_missing
 end
 
-Chef::Log.info('Download log4j.jar from gec-nexus')
-remote_file log4j_path do
-  source node['log4j']['url']
-  owner "#{node['solr']['user']}"
-  group "#{node['solr']['user']}"
-  mode '0644'
-  action :create_if_missing
-end
 
-Chef::Log.info('Download jcl-over-slf4j.jar from gec-nexus')
-remote_file jcl_over_slf4j_path do
-  source node['jcl_over_slf4j']['url']
-  owner "#{node['solr']['user']}"
-  group "#{node['solr']['user']}"
-  mode '0644'
-  action :create_if_missing
-end
 
-Chef::Log.info('Download jcl-to-slf4j.jar from gec-nexus')
-remote_file jul_to_slf4j_path do
-  source node['jul_to_slf4j']['url']
-  owner "#{node['solr']['user']}"
-  group "#{node['solr']['user']}"
-  mode '0644'
-  action :create_if_missing
-end
-
-Chef::Log.info('Download slf4j-api.jar from gec-nexus')
-remote_file slf4j_api_path do
-  source node['slf4j_api']['url']
-  owner "#{node['solr']['user']}"
-  group "#{node['solr']['user']}"
-  mode '0644'
-  action :create_if_missing
-end
-
-Chef::Log.info('Download slf4j-log4j12.jar from gec-nexus')
-remote_file slf4j_log4j12_path do
-  source node['slf4j_log4j12']['url']
-  owner "#{node['solr']['user']}"
-  group "#{node['solr']['user']}"
-  mode '0644'
-  action :create_if_missing
-end

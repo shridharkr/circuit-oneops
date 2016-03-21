@@ -106,12 +106,12 @@ bash 'unpack_solr_war' do
     cd #{node['user']['dir']}/tmp/tgz
     tar -xvf #{solr_file_name}
     cp #{solr_file_woext}/dist/#{solr_file_woext}.war ../
+    cp #{solr_file_woext}/example/lib/ext/*.jar #{solr_war_lib}
     cd ..
     jar xvf #{solr_file_woext}.war
     rm -rf #{node['user']['dir']}/solr-war-lib/*
     rm -rf #{node['user']['dir']}/solr.war
     cp #{node['user']['dir']}/tmp/WEB-INF/lib/* #{solr_war_lib}
-    cp #{node['user']['dir']}/*.jar #{solr_war_lib}
     cp #{solr_file_woext}.war solr.war
     cp solr.war #{node['user']['dir']}
     rm -rf #{node['user']['dir']}/solr-config/default/*
