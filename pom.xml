@@ -13,34 +13,25 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.4.1</version>
-        <dependencies>
-          <dependency>
-            <groupId>com.walmart.platform.devtools</groupId>
-            <artifactId>release-enforcer-client</artifactId>
-            <version>0.2.1</version>
-          </dependency>
-        </dependencies>
-        <executions>
-          <execution>
-            <id>enforce-versions</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <phase>package</phase>
-            <configuration>
-              <rules>
-                <JdkCompilerCompatibilityRule implementation="com.walmart.platform.devtools.release_enforcer_client.maven.enforcer.rule.JdkCompilerCompatibilityRule" />
-                <blacklistRule implementation="com.walmart.platform.devtools.release_enforcer_client.maven.enforcer.rule.BlacklistRule">
-                  <isSkippableRule>false</isSkippableRule>
-                </blacklistRule>
-                <pppVersionRule implementation="com.walmart.platform.devtools.release_enforcer_client.maven.enforcer.rule.PlatformParentPomVersionRule" />
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-enforcer-plugin</artifactId>
+         <version>1.0.0-walmart-01</version>
+         <executions>
+           <execution>
+             <id>enforce-banned-dependencies</id>
+             <goals>
+               <goal>enforce</goal>
+             </goals>
+             <configuration>
+               <rules>
+                 <bannedDependencies>
+                   <excludesUrl><![CDATA[${enforce.blacklist.file}]]></excludesUrl>
+                 </bannedDependencies>
+               </rules>
+               <fail>true</fail>
+             </configuration>
+           </execution>
+         </executions>
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
