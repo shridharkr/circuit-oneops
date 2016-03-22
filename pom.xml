@@ -13,27 +13,6 @@
   <build>
     <plugins>
       <plugin>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-enforcer-plugin</artifactId>
-         <version>1.0.0-walmart-01</version>
-         <executions>
-           <execution>
-             <id>enforce-banned-dependencies</id>
-             <goals>
-               <goal>enforce</goal>
-             </goals>
-             <configuration>
-               <rules>
-                 <bannedDependencies>
-                   <excludesUrl><![CDATA[${enforce.blacklist.file}]]></excludesUrl>
-                 </bannedDependencies>
-               </rules>
-               <fail>true</fail>
-             </configuration>
-           </execution>
-         </executions>
-      </plugin>
-      <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>${plugin.assembly.version}</version>
         <executions>
