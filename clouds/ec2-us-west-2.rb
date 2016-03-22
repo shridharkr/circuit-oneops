@@ -6,7 +6,7 @@ image_map = '{
       "windows-2008r2":"ami-6cb90605",
       "centos-6.3":"ami-bd58c98d",
       "centos-6.4":"ami-b158c981",
-      "centos-7.0":"ami-7fcbcf4f",
+      "centos-7.0":"ami-d2c924b2",
       "ubuntu-14.04":"ami-e54f5f84",
       "ubuntu-13.10":"ami-ee940fde",
       "ubuntu-13.04":"ami-c6e973f6",
@@ -25,7 +25,7 @@ repo_map = '{
       "centos-6.3":"yum -d0 -e0 -y install rsync; rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm",
       "centos-6.4":"yum -d0 -e0 -y install rsync; rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm"
 }'
-   
+
 service "us-west-2",
   :cookbook => 'ec2',
   :provides => { :service => 'compute' },
