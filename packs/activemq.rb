@@ -478,6 +478,14 @@ end
     :attributes    => { "propagate_to" => 'from', "flex" => false, "min" => 1, "max" => 1 }
 end
 
+[ 'queue', 'topic' ].each do |from|
+  relation "#{from}::depends_on::activemq-daemon",
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'activemq',
+    :attributes    => {"flex" => false, "min" => 1, "max" => 1 }
+end
+
 # managed_via
 ['user-activemq', 'java', 'artifact','configfile', 'storage','build', 'keystore','haproxy', 'volume-externalstorage','activemq', 'vol-data', 'hostname', 'activemq-daemon'].each do |from|
   relation "#{from}::managed_via::compute",
