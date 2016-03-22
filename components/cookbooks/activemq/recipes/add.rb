@@ -244,6 +244,11 @@ template "#{activemq_home}/webapps/admin/topics.jsp" do
     mode 0644
 end
 
+template "#{activemq_home}/webapps/admin/connection.jsp" do
+   source "connection.jsp.erb"
+   mode 0644
+end
+
 template "#{activemq_home}/conf/jmx.access" do
     source "jmx.access.erb"
     mode 0644
