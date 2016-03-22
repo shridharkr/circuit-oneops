@@ -19,8 +19,3 @@ availability_set.add(node['platform-resource-group'],
                      compute_service['location'])
 
 Chef::Log.info('Exiting add keypair')
-
-puts("***FAULT:FATAL=FAIL FOR TESTING")
-ex = Exception.new('no backtrace')
-ex.set_backtrace('')
-raise ex
