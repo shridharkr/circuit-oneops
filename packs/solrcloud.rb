@@ -15,7 +15,7 @@ type		'Platform'
 environment "single", {}
 environment "redundant", {}
 
-variable "configname",
+variable  "configname",
           :description => 'configname',
           :value => 'defaultconf'
 
@@ -36,7 +36,7 @@ variable "maxshardspernode",
          :value => '1'
 
 resource 'user-app',
-         :cookbook => 'user',
+         :cookbook => 'oneops.1.user',
          :design => true,
          :requires => {'constraint' => '1..1'},
          :attributes => {
@@ -71,7 +71,7 @@ resource "artifact-app",
   }
 
 resource 'volume-app',
-  	:cookbook => "volume",
+  	:cookbook => "oneops.1.volume",
          :requires => {'constraint' => '1..1', 'services' => 'compute'},
          :attributes => {'mount_point' => '/app/',
                          'size' => '100%FREE',
@@ -82,7 +82,6 @@ resource 'volume-app',
 
 resource "solrcloud",
   :cookbook => "oneops.1.solrcloud",
-  :source => Chef::Config[:register],
   :design => true,
   :requires => { "constraint" => "1..1" , "services" => "mirror"},
   :attributes => {
@@ -105,7 +104,7 @@ resource "secgroup",
    }
 
 resource "tomcat-daemon",
-         :cookbook => "daemon",
+         :cookbook => "oneops.1.daemon",
          :design => true,
          :requires => {
              :constraint => "1..1",
@@ -132,7 +131,7 @@ resource "tomcat-daemon",
           }
 
 resource "tomcat",
-  :cookbook => "tomcat",
+  :cookbook => "oneops.1.tomcat",
   :design => true,
   :requires => {
       :constraint => "1..*",
@@ -228,7 +227,7 @@ resource "tomcat",
 }
 
 resource "library",
-  :cookbook => "library",
+  :cookbook => "oneops.1.library",
   :design => true,
   :requires => { "constraint" => "1..*" },
   :attributes => {
