@@ -137,10 +137,10 @@ resource "volume-app",
 	            'LowDiskInode' => threshold('1m','avg','inode_used',trigger('>=', 90, 5, 2), reset('<', 85, 5, 1))
 	          },
 	    }
-}
+	}
 
 # depends_on
-{:from => 'volume-app', :to => 'compute'},
+[{:from => 'volume-app', :to => 'compute'},
 {:from => 'user-app', :to => 'compute'},
 {:from => 'golang', :to => 'compute'},
 {:from => 'golang', :to => 'os'},
