@@ -236,16 +236,16 @@ resource "library",
 
 # depends_on
 [
- {:from => 'solrcloud', :to => 'compute'},
+ {:from => 'solrcloud', :to => 'os'},
  {:from => 'solrcloud', :to => 'user-app'},
- {:from => 'user-app', :to => 'compute'},
+ {:from => 'user-app', :to => 'os'},
  {:from => 'tomcat-daemon', :to => 'tomcat'},
- {:from => 'java', :to => 'compute'},
+ {:from => 'os', :to => 'compute'},
  {:from => 'java', :to => 'os'},
  {:from => 'volume-app', :to => 'os'},
  {:from => 'solrcloud', :to => 'volume-app'},
  {:from => 'artifact-app', :to => 'volume-app'},
- {:from => 'volume-app', :to => 'compute'},
+ {:from => 'volume-app', :to => 'os'},
  {:from => 'solrcloud', :to => 'tomcat'},
  {:from => 'solrcloud', :to => 'tomcat-daemon'},
  {:from => 'tomcat', :to => 'java'}
