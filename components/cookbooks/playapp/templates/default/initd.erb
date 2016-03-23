@@ -33,7 +33,6 @@ stop() {
     if [ -f $APPLICATION_PATH/RUNNING_PID ]; then
         PIDFile="$APPLICATION_PATH/RUNNING_PID"
         echo -n "Shutting down Play service: ${APPLICATION_PATH}/ pid = $(<"$PIDFile")"
-        su $USER -c "ulimit -n 65536"
         su $USER -c "cd ${APPLICATION_PATH} ;kill -9 $(<"$PIDFile")"
     fi
     
@@ -65,7 +64,8 @@ case "$1" in
     ;;
     restart|reload)
     stop
-    sleep 10
+    sleep 5
+    clean
     start
     ;;
     status)
