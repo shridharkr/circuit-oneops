@@ -149,7 +149,7 @@ attribute 'artifact_type',
 attribute 'artifact_link_type',
   :description => "Artifact Link Type Git/Tar",
   :required => "required",
-  :default => "git",
+  :default => "non-git",
   :format => {
     :category => '2.Artifact_Detils',
     :help => 'Go Artifact Link Type Git/Tar',
@@ -209,7 +209,7 @@ attribute 'app_cmdline_options',
 
 attribute 'app_dir',
   :description => "Application Directory",
-  :default => "",
+  :default => "/app",
   :format => {
     :category => '3.Application_Version',
     :help => 'Application Directory',
