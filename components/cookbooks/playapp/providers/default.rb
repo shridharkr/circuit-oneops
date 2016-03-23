@@ -40,24 +40,8 @@ action :deploy do
                 action [ :restart ]
         end
 
-#	unless new_resource.restart_command
-#		new_resource.restart_command do
-#			run_context.resource_collection.find(:service => new_resource.app_name).run_action(:restart)
-#		end	
-#	end
-
 	
 end
-
-#action :before_migrate do
-#	unless new_resource.strategy == :dist_remote_file
-#	 	bash "compilation-#{new_resource.app_name}" do
-#			cwd ::File.join(new_resource.release_path, new_resource.app_dir)
-#			code "play clean stage > compilation.log"
-#			environment new_resource.environment
-#		end	
-#	end 
-#end
 
 action :before_symlink do
 end
