@@ -116,7 +116,7 @@ execute "ActiveMQ Queue" do
   cwd "#{amq[:ciAttributes][:installpath]}/activemq"
   command "java -cp 'amq-messaging-resource.jar:*' io.strati.amq.MessagingResources -s #{node[:fqdn]} -r queue  -dn #{fullname} -mm  #{node[:queue][:maxmemorysize]}"
   cmd = Mixlib::ShellOut.new(command).run_command
-    if cmd.stdout.include? "failed"
+    if cmd.stdout.include? "Error"
        Chef::Log.error("Error occurred : #{cmd.stdout}")
       exit 1
     else
