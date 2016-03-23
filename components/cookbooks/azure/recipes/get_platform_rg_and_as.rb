@@ -35,7 +35,7 @@ Chef::Log.info(node.run_list[0])
     env = metadata_obj['environment']
     location = compute_service['location']
     node.set['subscriptionid']=compute_service['subscription']
-    resource_group_name = generate_rg_name(org,assembly,platform,environment,location)
+    resource_group_name = generate_rg_name(org,assembly,platform,env,location)
     node.set['platform-resource-group'] = resource_group_name
     return true
 end
