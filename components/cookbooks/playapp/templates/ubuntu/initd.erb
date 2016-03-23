@@ -49,8 +49,13 @@ stop() {
 }
 
 status() {
-    #TODO
-    echo
+	if [ -f $APPLICATION_PATH/RUNNING_PID ]; then
+	    PIDFile="$APPLICATION_PATH/RUNNING_PID"
+	    echo -n "Play service running with pid = `cat ${PIDFile}`"
+	    else
+	      echo "play service is not running"
+	fi
+	echo
 }
 
 clean() {
