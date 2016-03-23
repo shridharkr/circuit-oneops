@@ -2,53 +2,49 @@
 #
 # gets queue metrics from builtin xml apis
 #
+#sslenabled  port path authenabled adminusername adminpassword
+sslenable = ARGV[0]
+port = ARGV[1]
+path = ARGV[2]
+authenabled = ARGV[3]
+adminusername = ARGV[4]
+adminpassword = ARGV[5]
 
 require 'net/http'
 require 'rubygems'
 require 'xmlsimple'
+require 'nokogiri'
 
 url =''
 perf=''
 ignore_cert = ''
 
 protocol = 'http'
-if ARGV[0] == 'true'
+if "#{sslenable}" == 'true'
   ignore_cert = ' -k '
   protocol = 'https'
 end
 
-url = protocol+"://localhost:"+ ARGV[1] + ARGV[2] +" -u "+ ARGV[4]+ ":" + ARGV[5] +  "#{ignore_cert}"
-
-data = XmlSimple.xml_in(`curl -s #{url}`,{ 'KeyAttr' => 'name', 'ForceArray' => false })
-
-body_data = data["body"];
-table_data = body_data["table"]
-tr_data = table_data["tr"]
-td_data = table_data["td"]
-td_table_data = table_data["table"]
-td_tr_data = table_data["tr"]
-td_td_data = table_data["td"]
-
-
-size = tr_data.length
-if tr_data != nil
-  while size > 0 do
-    size -=1
-     value =  tr_data[size]
-     value.each do |key, val|
-     label =''
-       val.each do |valkey|
-          if valkey.include?'percent used'
-            label = valkey
-         else
-            if label != ''
-               label.gsub!(/\s/,'_')
-               perf += "#{label}=#{valkey['b']} "
-            end
-         end
-        end
-        end
-  end
+if "#{authenabled}" == 'false'
+  url = "#{protocol}://localhost:#{port}#{path} #{ignore_cert}"
+else
+  url = "#{protocol}://localhost:#{port}#{path}  -u #{adminusername}:#{adminpassword} #{ignore_cert}"
 end
 
-puts perf + "|" + perf
+data = `curl -s #{url}`
+
+doc = Nokogiri::HTML(data)
+
+label=''
+items = doc.xpath("//div[contains(@class,'body-content')]/table/tr/td").collect {|node|
+ if node.text.include?'percent used'
+   label = node.text
+  else
+    if label != ''
+       label.gsub!(/\s/,'_')
+       perf += "#{label}=#{node.text} "
+      label = ''
+    end
+ end
+}
+puts "Memory status |" + perf
