@@ -72,7 +72,7 @@ resource "secgroup",
 
 
 # depends_on
-[ { :from => 'squid',  :to => 'compute' },
+[ { :from => 'squid',  :to => 'os' },
   { :from => 'squid',  :to => 'volume' } ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
     :relation_name => 'DependsOn',
