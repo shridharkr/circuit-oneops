@@ -20,7 +20,7 @@ execute "delete ActiveMQ Topic" do
   cwd "#{amq[:ciAttributes][:installpath]}/activemq"
   command "java -cp 'amq-messaging-resource.jar:*' io.strati.amq.MessagingResources -s 'localhost' -r deletetopic -dn #{appresourcename}"
   cmd = Mixlib::ShellOut.new(command).run_command
-    if cmd.stdout.include? "failed"
+    if cmd.stdout.include? "Error"
        Chef::Log.error("Error occurred : #{cmd.stdout}")
       exit 1
     else
