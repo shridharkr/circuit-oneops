@@ -1,7 +1,7 @@
 #check for amq
 
-appresourcename = "#{node['queue']['destinationname']}"
-
+appresourcename = "#{node['queue']['queuename']}"
+Chef::Log.info("Destination Name: #{appresourcename}")
 env="localhost"
 
 execute "purge ActiveMQ Queue" do
