@@ -482,7 +482,7 @@ end
   relation "#{from}::depends_on::activemq-daemon",
     :relation_name => 'DependsOn',
     :from_resource => from,
-    :to_resource   => 'activemq',
+    :to_resource   => 'activemq-daemon',
     :attributes    => {"flex" => false, "min" => 1, "max" => 1 }
 end
 
