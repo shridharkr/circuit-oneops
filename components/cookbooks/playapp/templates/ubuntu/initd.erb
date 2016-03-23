@@ -1,13 +1,7 @@
 #!/bin/sh
-### BEGIN INIT INFO
-# Provides:          <%= @name %>
-# Required-Start:    $local_fs $remote_fs $network $syslog $named
-# Required-Stop:     $local_fs $remote_fs $network $syslog $named
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# X-Interactive:     true
-# Short-Description: Start/stop <%= @name %> playframework 2 application
-### END INIT INFO
+# chkconfig: 345 20 80
+# description: <%= @name %> playframework application start/shutdown script
+# processname: <%= @name %>
 
 # User running the Play process
 USER=root
@@ -20,6 +14,7 @@ APP_OPTIONS="<%= @options %>"
   
 . /lib/lsb/init-functions
 
+RETVAL=0
 
 start() {
     echo -n "Starting Play service: "
@@ -32,16 +27,16 @@ start() {
         log_end_msg 0
     else
         log_end_msg 1
-    fi  
+    fi
+	echo  
 }
 
 stop() {
-    if [ -f $APPLICATION_PATH/RUNNING_PID ]
-    then
-        echo -n "Shutting down Play service: ${APPLICATION_PATH}/"
-        su $USER -c "ulimit -n 65536"
-        su $USER -c "cd ${APPLICATION_PATH} ; play stop"
-    fi
+	if [ -f $APPLICATION_PATH/RUNNING_PID ]; then
+	        PIDFile="$APPLICATION_PATH/RUNNING_PID"
+	        echo -n "Shutting down Play service: ${APPLICATION_PATH}/ pid = `cat ${PIDFile}`"
+	        su $USER -c "cd ${APPLICATION_PATH} ;kill -9 `cat ${PIDFile}`"
+	    fi
     
     RETVAL=$?
 
@@ -49,28 +44,39 @@ stop() {
         log_end_msg 0
     else
         log_end_msg 1
-    fi 
+    fi
+	echo 
 }
 
+status() {
+    #TODO
+    echo
+}
+
+clean() {
+        rm -f ${APPLICATION_PATH}/RUNNING_PID
+}
 case "$1" in
     start)
-        start
-        ;;  
+    clean
+    start
+    ;;
     stop)
-        stop
-        ;;
+    stop
+    ;;
+    restart|reload)
+    stop
+    sleep 5
+    clean
+    start
+    ;;
     status)
-        ;;
-    restart)
-        stop
-        if [ $RETVAL -eq 0 ]; then
-            start
-        fi
-        ;;
+    status
+    ;;
+    clean)
+    clean
+    ;;
     *)
-        echo "Usage: $SCRIPTNAME {start|stop|status}" >&2
-        exit 1
-        ;;
+    echo "Usage: $0 {start|stop|restart|status}"
 esac
-
 exit 0
