@@ -56,7 +56,7 @@ resource "java",
          },
          :attributes => {
 		          :install_dir => "/usr/lib/jvm",
-             	:jrejdk => "JRE",
+             	:jrejdk => "JDK",
              	:version => "8",
              	:sysdefault => "true",
              	:flavor => "OpenJDK"
