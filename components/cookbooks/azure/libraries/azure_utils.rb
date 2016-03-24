@@ -2,6 +2,8 @@
 
 module AzureCommon
   class AzureUtils
+
+    # method to get credentials in order to call Azure
     def self.get_credentials(tenant_id, client_id, client_secret)
       begin
         # Create authentication objects
@@ -18,5 +20,16 @@ module AzureCommon
         raise e
       end
     end
+
+    # if there is an apiproxy cloud var define, set it on the env.
+    def set_proxy(cloud_vars)
+      cloud_var.each do |var|
+        if var[:ciName] == 'apiproxy'
+          ENV['http_proxy'] = var[:ciAttributes][:value]
+          ENV['https_proxy'] = var[:ciAttributes][:value]
+        end
+      end
+    end
+
   end
 end
