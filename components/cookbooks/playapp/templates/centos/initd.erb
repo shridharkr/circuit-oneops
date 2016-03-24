@@ -48,12 +48,15 @@ stop() {
 
 status() {
 	if [ -f $APPLICATION_PATH/RUNNING_PID ]; then
-	    PIDFile="$APPLICATION_PATH/RUNNING_PID"
-	    echo -n "Play service running with pid = `cat ${PIDFile}`"
-	    else
-	      echo "play service is not running"
+	    PID=`cat $APPLICATION_PATH/RUNNING_PID`
+		if [ -z "`ps axf | grep ${PID} | grep -v grep`" ]; then
+			echo "The PID file exists and the process is dead"
+			else
+			echo "process is running"
+		fi
+	else
+		echo "process not running"
 	fi
-	echo
 }
 
 clean() {
