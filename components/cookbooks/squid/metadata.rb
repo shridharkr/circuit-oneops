@@ -20,8 +20,9 @@ attribute 'install_type',
     :form => { 'field' => 'select', 'options_for_select' => [['Repository package','repository']] }
   }
 
-  attribute 'http_access_allow',
-  :description => "Http Access Allow",
+ attribute 'acl_values',
+  :description => "ACL format <acl_name> <type> <data>. Ex: localhost src 0.0.0.0/0",
+  :required => "required",
   :data_type => 'array',
   :default => '[]',
   :format => {
@@ -30,14 +31,24 @@ attribute 'install_type',
     :order => 1
   }
 
-  attribute 'http_access_deny',
-  :description => "Http Access Deny",
+  attribute 'http_access_allow',
+  :description => "Http Access Allow format <acl_name>. Ex: localhost",
   :data_type => 'array',
   :default => '[]',
   :format => {
     :help => 'Access Control List',
     :category => '2.ACL',
     :order => 2
+  }
+
+  attribute 'http_access_deny',
+  :description => "Http Access Deny format <acl_name>. Ex: all",
+  :data_type => 'array',
+  :default => '[]',
+  :format => {
+    :help => 'Access Control List',
+    :category => '2.ACL',
+    :order => 3
   }
 
 attribute 'port',

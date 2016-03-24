@@ -33,7 +33,7 @@ resource "squid",
                    :cmd_options => {
                        'host' => 'localhost',
                        'port' => '80',
-                       'url' => '/nexus/index.html',
+                       'url' => '/',
                        'wait' => '15',
                        'expect' => '200 OK',
                        'regex' => ''

@@ -22,7 +22,6 @@
 # variables
 version = node['squid']['version']
 
-Chef::Log.debug("Squid version: #{version}")
 # packages
 package node['squid']['package']
 
@@ -62,9 +61,15 @@ file "#{node['squid']['config_dir']}/msntauth.conf" do
   action :delete
 end
 
+template node['squid']['config_file'] do
+  source 'squid.conf.erb'
+  notifies :reload, "service[#{node['squid']['service_name']}]"
+  mode 00644
+end
+
 # services
 service node['squid']['service_name'] do
-  supports :restart => true, :status => true, :reload => true, :stop => true, :start => true
+  supports :restart => true, :status => true, :stop => true, :start => true
   provider Chef::Provider::Service::Upstart if platform?('ubuntu')
   action [:enable, :start]
 end
