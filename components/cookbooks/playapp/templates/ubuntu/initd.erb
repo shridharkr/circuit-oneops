@@ -53,11 +53,13 @@ status() {
 	    PID=`cat $APPLICATION_PATH/RUNNING_PID`
 		if [ -z "`ps axf | grep ${PID} | grep -v grep`" ]; then
 			echo "The PID file exists and the process is dead"
+			exit 1
 			else
 			echo "process is running"
 		fi
 	else
 		echo "process not running"
+		exit 1
 	fi
 }
 
