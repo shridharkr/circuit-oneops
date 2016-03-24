@@ -15,11 +15,11 @@ ci = node.workorder.rfcCi.ciAttributes;
 solr_version = ci[:solr_version]
 solr_format = ci[:solr_format]
 solr_package_type = ci[:solr_package_type]
-solr_file_name = "#{solr_package_type}-"+"#{solr_version}."+"#{solr_format}";
-solr_file_woext = "#{solr_package_type}-"+"#{solr_version}";
-solr_filepath = "#{node['user']['dir']}/#{solr_file_name}";
+solr_file_name = "#{solr_package_type}-"+"#{solr_version}."+"#{solr_format}"
+solr_file_woext = "#{solr_package_type}-"+"#{solr_version}"
+solr_filepath = "#{node['user']['dir']}/#{solr_file_name}"
 config_name = ci[:config_name]
-zk_host_fqdns = '';
+zk_host_fqdns = ''
 
 num_local_instances = ci[:num_local_instances]
 zkp_version = ci[:zkp_version]
@@ -27,24 +27,24 @@ zkp_format = ci[:zkp_format]
 zkp_file_name = "zookeeper-#{zkp_version}"
 zkp_file_path = "/app/#{zkp_file_name}.#{zkp_format}"
 zkp_base_url = "#{node['zookeeper']['url']}"
-zkp_url = "#{zkp_base_url}/#{zkp_version}/#{zkp_file_name}.#{zkp_format}";
+zkp_url = "#{zkp_base_url}/zookeeper/zookeeper-#{zkp_version}/#{zkp_file_name}.#{zkp_format}"
 
 
 if node.workorder.rfcCi.ciAttributes.deploy_all_dcs == 'true'
   #zk_host_fqdns = zookeeper;
   zk_host_fqdns = ci[:zk_host_fqdns]
-  if "#{zk_host_fqdns}".empty?
-    zk_host_fqdns = ci[:zk_host_fqdns]
-  end
+  # if "#{zk_host_fqdns}".empty?
+  #   zk_host_fqdns = ci[:zk_host_fqdns]
+  # end
 else
   zk_host_fqdns = ci[:zk_host_fqdns]
 end
 
-solr_extract_path = "#{node['user']['dir']}/tmp/tgz";
-solr_war_lib = "#{node['user']['dir']}/solr-war-lib";
-solr_config = "#{node['user']['dir']}/solr-config";
-solr_cores = "#{node['user']['dir']}/solr-cores";
-solr_default_dir = "#{solr_config}/default";
+solr_extract_path = "#{node['user']['dir']}/tmp/tgz"
+solr_war_lib = "#{node['user']['dir']}/solr-war-lib"
+solr_config = "#{node['user']['dir']}/solr-config"
+solr_cores = "#{node['user']['dir']}/solr-cores"
+solr_default_dir = "#{solr_config}/default"
 
 
 Chef::Log.info('Create Directory "solr-war-lib" ')
@@ -102,6 +102,7 @@ bash 'unpack_solr_war' do
     cd #{node['user']['dir']}
     rm -rf solr-*.txt
     echo #{solr_version} > solr-#{solr_version}.txt
+    mkdir /app/tmp/tgz
     mv #{solr_file_name} #{node['user']['dir']}/tmp/tgz/
     cd #{node['user']['dir']}/tmp/tgz
     tar -xvf #{solr_file_name}

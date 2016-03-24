@@ -25,9 +25,9 @@ if node.workorder.rfcCi.ciAttributes.deploy_all_dcs == 'true'
   Chef::Log.info(node.workorder)
   #zk_host_fqdns = zookeeper;
   zk_host_fqdns = ci[:zk_host_fqdns]
-  if "#{zk_host_fqdns}".empty?
-    zk_host_fqdns = ci[:zk_host_fqdns]
-  end
+  # if "#{zk_host_fqdns}".empty?
+  #   zk_host_fqdns = ci[:zk_host_fqdns]
+  # end
 else
   zk_host_fqdns = ci[:zk_host_fqdns]
 end

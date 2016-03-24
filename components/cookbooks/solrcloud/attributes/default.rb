@@ -30,5 +30,5 @@ default['tomcat']['dir'] = "#{node['user']['dir']}/tomcat#{node['tomcatversion']
 default['clusterstatus']['uri'] = "solr/admin/collections?action=CLUSTERSTATUS&wt=json";
 
 
-
+default['zookeeper']['url'] = "https://www.apache.org/dist"
 
