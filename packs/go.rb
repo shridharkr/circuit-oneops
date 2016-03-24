@@ -59,7 +59,7 @@ resource "golang",
 		"artifact_type" => "build",
 		"artifact_id" => "$OO_LOCAL{artifactId}",
 		"app_version" => "0.1",
-		"artifact_link" => "https://github.com/hemantb/go_helloworld/raw/master/server.tar",
+		"artifact_link" => "https://github.com/oneops/samples/raw/master/golang_app/server.tar",
 		"source_name" => "server"
 	}
 
