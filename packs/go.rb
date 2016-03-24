@@ -59,7 +59,7 @@ resource "golang",
 		"artifact_type" => "build",
 		"artifact_id" => "$OO_LOCAL{artifactId}",
 		"app_version" => "0.1",
-		"artifact_link" => "http://artifacts.example.com/artifact_test-1.2.3.tgz",
+		"artifact_link" => "https://github.com/oneops/samples/raw/master/golang_app/server.tar",
 		"source_name" => "server"
 	}
 
@@ -137,15 +137,13 @@ resource "volume-app",
 	            'LowDiskInode' => threshold('1m','avg','inode_used',trigger('>=', 90, 5, 2), reset('<', 85, 5, 1))
 	          },
 	    }
-	}
+}
 
 # depends_on
-[{:from => 'volume-app', :to => 'compute'},
-{:from => 'user-app', :to => 'compute'},
-{:from => 'golang', :to => 'compute'},
+[{:from => 'volume-app', :to => 'os'},
+{:from => 'user-app', :to => 'os'},
 {:from => 'golang', :to => 'os'},
-{:from => 'golang', :to => 'user'},
-{:from => 'go-artifact', :to => 'volume-app'},
+{:from => 'golang', :to => 'user-app'},
 {:from => 'go-artifact', :to => 'golang'},
 {:from => 'daemon', :to => 'go-artifact'},
 {:from => 'go-artifact', :to => 'volume-app'}].each do |link|
