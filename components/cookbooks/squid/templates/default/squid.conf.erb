@@ -1,12 +1,7 @@
 # This file generated from a Chef template.
 # squid/templates/default/squid.conf.erb
 
-<%= "acl all src" if node['squid']['version'].to_i <3 %>
-
-<% if node['squid']['accel'] == 'true' %>
-acl squid_site url_regex <%= node['squid']['site'] %>
-http_access allow squid_site
-<% end %>
+<%= "acl all src" if node['squid']['version'].to_i < 4 %>
 
 <% acl_values = JSON.parse(node['squid']['acl_values']) %>
 <% acl_values.each do |acl_val| %>
@@ -20,17 +15,6 @@ http_access allow <%= access_flag %>
 <% http_access_deny_values = JSON.parse(node['squid']['http_access_deny']) %>
 <% http_access_deny_values.each do |deny_flag| %>
 http_access deny <%= deny_flag %>
-<% end %>
-
-<% if node['squid']['accel'] == 'true' %>
-http_port <%= node['squid']['port'] %> accel defaultsite=<%= node['squid']['site'] %>
-<% origins = JSON.parse(node['squid']['origins']) %>
-<% origins.each do |o| %>
-<% server,port = o.split(/:/) %>
-cache_peer <%= server %> parent <%= port || '80' %> 0 no-query originserver default login=PASS
-<% end %>
-<% else %>
-http_port <%= node['squid']['port'] %>
 <% end %>
 
 #Cache Peers
