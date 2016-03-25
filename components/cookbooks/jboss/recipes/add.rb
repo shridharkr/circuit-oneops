@@ -1,15 +1,24 @@
 #
 # Cookbook Name:: jboss
-# Recipe:: add
+# Default:: default
 #
-# JBoss add recipe
+# Copyright 2010, Opscode, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 
 jboss_version = node.workorder.rfcCi.ciAttributes.version
 short_jboss_version = jboss_version.gsub(/\.\d+$/,'')
-
-#http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.tar.gz
-#http://download.jboss.org/jbossas/7.0/jboss-as-7.0.2.Final/jboss-as-7.0.2.Final.tar.gz
 
 dl_url = "http://download.jboss.org/jbossas/#{short_jboss_version}/jboss-as-#{jboss_version}.Final/jboss-as-#{jboss_version}.Final.tar.gz"
 base_name = "jboss-as-#{jboss_version}.Final"

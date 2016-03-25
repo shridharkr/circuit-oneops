@@ -7,13 +7,10 @@ Installs JBoss and sets up a service for it.
 
 ### Files and Directories
 
-required:
-
 metadata.rb - contains attributes and recipes (additional to add,update,delete)
 
 recipes - at minimum contain: add.rb, update.rb and delete.rb and any defined recipe tags in metadata.rb
 
-optional:
 
 templates - for use with the chef template resource
 

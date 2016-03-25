@@ -3,6 +3,7 @@ description      "Installs/Configures JBoss"
 version          "0.1"
 maintainer       "OneOps"
 maintainer_email "support@oneops.com"
+license          "Apache License, Version 2.0"
 
 # default grouping for standard component 
 grouping 'default',
