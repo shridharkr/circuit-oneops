@@ -2,4 +2,4 @@
 # Cookbook Name:: jboss
 # Recipe:: status
 #
-execute "service jboss status"
+Chef::Log.info(`service jboss status`)
