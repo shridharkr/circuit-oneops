@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: haproxy
+# Cookbook Name:: squid
 # Default:: default
 #
 # Copyright 2010, Opscode, Inc.
