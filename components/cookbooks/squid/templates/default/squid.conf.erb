@@ -1,7 +1,6 @@
 # This file generated from a Chef template.
 # squid/templates/default/squid.conf.erb
 
-<%= "acl all src" if node['squid']['version'].to_i < 4 %>
 
 <% acl_values = JSON.parse(node['squid']['acl_values']) %>
 <% acl_values.each do |acl_val| %>
@@ -12,9 +11,15 @@ acl <%= acl_val %>
 <% http_access_allow_values.each do |access_flag| %>
 http_access allow <%= access_flag %>
 <% end %>
+
 <% http_access_deny_values = JSON.parse(node['squid']['http_access_deny']) %>
 <% http_access_deny_values.each do |deny_flag| %>
 http_access deny <%= deny_flag %>
+<% end %>
+
+<% http_port_values = JSON.parse(node['squid']['port']) %>
+<% http_port_values.each do |port_flag| %>
+http_port <%= port_flag %>
 <% end %>
 
 #Cache Peers
@@ -27,8 +32,6 @@ http_access deny <%= deny_flag %>
     cachePeerNodes = Array[]
     computes.each do |cm|
             peerIp = cm[:ciAttributes][:private_ip]
-            #computeCloudName=cm.cloud.ciName
-            #print "computeCloudName=#{computeCloudName}"
             newName = cm.ciName.sub('compute','squid')
             if cm.ciName.match(currCloudId.to_s) && newName != currComponentName
                 cachePeerNodes.push(peerIp)
