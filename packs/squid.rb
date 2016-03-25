@@ -1,4 +1,4 @@
-include_pack "genericlb"
+include_pack "base"
 
 name "squid"
 description "Squid"
@@ -13,7 +13,7 @@ resource "squid",
     :help => "This is an HTML help text for squid component"
   },
   :attributes => {
-    "install_type" => 'repository',
+    "install_type" => '3.3.8',
     "acl_values" => '[]',
     "http_access_allow" => '[]',
     "http_access_deny" => '[]',
@@ -73,6 +73,7 @@ resource "secgroup",
 
 # depends_on
 [ { :from => 'squid',  :to => 'os' },
+  { :from => 'volume',  :to => 'os' },
   { :from => 'squid',  :to => 'volume' } ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
     :relation_name => 'DependsOn',

@@ -3,50 +3,49 @@ description      "Installs/Configures Squid"
 version          "0.1"
 maintainer       "OneOps"
 maintainer_email "support@oneops.com"
-license          "Copyright OneOps, All rights reserved."
+license          "Apache License, Version 2.0"
 
 grouping 'default',
   :access => "global",
   :packages => [ 'base', 'mgmt.catalog', 'mgmt.manifest', 'catalog', 'manifest', 'bom' ]
 
 attribute 'install_type',
-  :description => "Installation Type",
+  :description => "Version",
   :required => "required",
-  :default => "repository",
+  :default => "3.3.8",
   :format => {
     :category => '1.Source',
-    :help => 'Select the type of installation - standard OS repository package or custom build from source code',
+    :help => 'Provide the Squid version that available in the OS repository. Ex: 3.3.8',
     :order => 1,
-    :form => { 'field' => 'select', 'options_for_select' => [['Repository package','repository']] }
   }
 
  attribute 'acl_values',
-  :description => "ACL format <acl_name> <type> <data>. Ex: localhost src 0.0.0.0/0",
+  :description => "ACL",
   :required => "required",
   :data_type => 'array',
   :default => '[]',
   :format => {
-    :help => 'Access Control List',
+    :help => 'ACL format <acl_name> <type> <data>. Ex: localhost src 0.0.0.0/0',
     :category => '2.ACL',
     :order => 1
   }
 
   attribute 'http_access_allow',
-  :description => "Http Access Allow format <acl_name>. Ex: localhost",
+  :description => "Http Access Allow",
   :data_type => 'array',
   :default => '[]',
   :format => {
-    :help => 'Access Control List',
+    :help => 'Http Access Allow format <acl_name>. Ex: localhost',
     :category => '2.ACL',
     :order => 2
   }
 
   attribute 'http_access_deny',
-  :description => "Http Access Deny format <acl_name>. Ex: all",
+  :description => "Http Access Deny",
   :data_type => 'array',
   :default => '[]',
   :format => {
-    :help => 'Access Control List',
+    :help => 'Http Access Deny format <acl_name>. Ex: all',
     :category => '2.ACL',
     :order => 3
   }
