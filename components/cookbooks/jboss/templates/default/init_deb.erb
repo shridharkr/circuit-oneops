@@ -43,6 +43,7 @@ case "$1" in
         jboss_running="$( ps -ef | grep $JBOSS_HOME | grep -v 'grep' )"
         if [ -z "${jboss_running}" ] ; then
         echo "JBoss is not running"
+        exit 1
     else
         echo "JBoss is running"
     fi
