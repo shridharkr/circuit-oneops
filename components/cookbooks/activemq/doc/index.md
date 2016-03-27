@@ -79,13 +79,13 @@ The platform "myActiveMQ" is created.
 
 After ActiveMQ platform is created, all ActiveMQ components will be available in the OneOps design page for the platform instance. Descriptions of ActiveMQ components are listed below:
 
-**compute:**
+**compute**
 
 Your ActiveMQ instance(s) will be deployed on OneOps provisioned compute(s), so the first thing to customize in your platform design is the compute component.
 
 The compute for ActiveMQ has a default size of "M" (medium), with 2 cores, 4 GB memory, and 20 GB ephemeral storage. If you want to change the compute size, you need to click on the "compute" component of your platform, and change the **instance size**.
 
-**vol-data:**
+**vol-data**
 
 This is the default mount point for the kahaDB data directory for ActiveMQ server. It uses the ephemeral disk storage on the VM.
 
@@ -93,27 +93,27 @@ The default mount point for ActiveMQ is at /data directory; it is different from
 
 It is strongly encouraged to specify the data directory to be at a different location from ActiveMQ installation directory as configuration changes in ActiveMQ could cause a re-build of the server instance by OneOps ActiveMQ cookbooks.
 
-**volume:**
+**volume**
 
 This is for new mount points or new directories users define, using the ephemeral storage on the VM. It should be rarely used.
 
-**storage:**
+**storage**
 
 The storage and volume set up is the next item that may need customization. Without changing anything in the storage or volume components, ActiveMQ server will use the ephemeral storage on the compute for the kahaDB. Data stored in the ephemeral store on the VM will be lost when the compute is replaced.
 
 To prevent loss data on compute failure, external storage should be used for data store. After a storage component is added, a volume-externalstorage should be created to add mount point.
 
-**volume-externalstorage:**
+**volume-externalstorage**
 
 To create a mount point for the external storage. For example, when Cinder storage is used for ActiveMQ data store, new mount point should be created to use the Cinder storage.
 
-**user-activemq:**
+**user-activemq**
 
 To access the compute where ActiveMQ server will be running on, user ssh keys should be added to the compute.  To add a user ssh key to the compute, edit the "user-activemq" component, in the "access" section of the "user-activemq" component, click the "add" button, and copy and paste user's ssh key, save and commit. This gives ssh access to the corresponding user to the compute as user "activemq".
 
 After adding a user ssh key to the "user-activemq" component, the user can ssh to the ActiveMQ compute as user 'activemq' when deployment is done.
 
-**secgroup:**
+**secgroup**
 
 This is for opening up compute ports. By default, the following ports are opened:
 
@@ -126,19 +126,19 @@ This is for opening up compute ports. By default, the following ports are opened
 
 Ports will NOT be automatically added in the secgroup component when ActiveMQ transport connectors are added in the ActiveMQ component.
 
-**certificate:**
+**certificate**
 
 This component is the ActiveMQ broker digital certificate in pkcs12 format. It is needed for SSL transport connector.
 
-**keystore:**
+**keystore**
 
 This component is the key store associated with a ActiveMQ broker instance. It is needed for SSL communication.
 
-**Share**
+**share**
 
 This component is for GlusterFS network-attached storage file system. It may be used by applications including cloud computing, streaming media services, and content delivery networks. It is not commonly used.
 
-**Queue**
+**queue**
 
 This component is used for creating messaging queues on ActiveMQ server, and also assigning user permissions on queues if "simple" or "JAAS" authorization policy is specified for ActiveMQ server.
 
@@ -164,7 +164,7 @@ Valid options for the permission field (second column after the "=" sign) are th
 
 A user with 'W' (write) permission is also granted 'admin' permission, meaning a user with 'W' permission can create the queue if the queue does not exist on the ActiveMQ.  A non-exist queue is created upon first access on ActiveMQ, this feature is inherited by ActiveMQ.
 
-**Topic**
+**topic**
 
 This component is used for creating messaging topics on ActiveMQ server, and also assigning user permissions on topics if "simple" or "JAAS" authorization policy is specified for ActiveMQ server.
 
@@ -174,7 +174,7 @@ AMZ.T.IMS.ITEM.INVENTORY.XML
 
 Permissions on topics are similar to those described for queues.
 
-**ActiveMQ**
+**activeMQ**
 
 <a name="guifields"></a>Following sections explain the **ActiveMQ GUI fields:**
 
