@@ -1,9 +1,5 @@
 #ACTIVEMQ USER'S GUIDE
 
-This is the release documentation of ActiveMQ.
-
-##Overview
-
 ActiveMQ Server Pack is built on Apache ActiveMQ with out-of-the-box default settings for most options or properties. For a select few adjustable options or properties, this pack provides an OneOps GUI for users to specify the customized values. For details of a list of customizable properties or options, please refer to [ActiveMQ Server Pack GUI fields](#guifields).
 
 For those properties or options not listed in the [ActiveMQ Server Pack GUI fields](#guifields) section, they all assume the default values directly from the Apache ActiveMQ product. Currently there is no mechanism provided to adjust those properties or options values. One can always manually change the settings of a ActiveMQ Server Pack server after it is provisioned by OneOps, but those manually changed settings will not survive a ActiveMQ Server Pack server redeployment. In other words, a manually changed setting on a ActiveMQ Server Pack server instance will be over written by a redeployment to its default value or the value specified in OneOps GUI.
@@ -59,7 +55,7 @@ JMX is available on 8099 over rmi port 1098. They are hard coded in ActiveMQ Ser
 ##ActiveMQ Server Pack Components
 
 <a name="activeMQPlatform"></a>
-###ActiveMQ Server platform creation
+###ActiveMQ platform creation
 
 For ActiveMQ server provisioning, one needs to create an OneOps assembly first so that an OneOps platform for ActiveMQ can be added to the assembly. Users are assumed to have operating knowledge of OneOps. For help with open source product OneOps, please refer to [OneOps Getting Started](http://oneops.github.io/user/getting-started/).
 
@@ -79,7 +75,7 @@ To add a ActiveMQ server platform to your assembly, in OneOps GUI, follow the fo
 
 The platform "myActiveMQ" is created.
 
-###ActiveMQ components
+###Platform Components
 
 After ActiveMQ platform is created, all ActiveMQ components will be available in the OneOps design page for the platform instance. Descriptions of ActiveMQ components are listed below:
 
@@ -178,22 +174,22 @@ AMZ.T.IMS.ITEM.INVENTORY.XML
 
 Permissions on topics are similar to those described for queues.
 
-**ActiveMQ:**
+**ActiveMQ**
 
 <a name="guifields"></a>Following sections explain the **ActiveMQ GUI fields:**
 
 Note: Fields with a star symbal is required, e.g. version*.
 
-  1. **Installation Directory:**
+  1. **Installation Directory**
 
     ActimveMQ installation directory. Default to /opt
 
-  2. **version*:**
+  2. **version**
 
     Version of Apache ActiveMQ to download. Default to 5.13.0.
     <a name="transportConnectors"></a>
 
-  3. **Transport Connectors*:**
+  3. **Transport Connectors**
 
     Transport connector protocol and listen address and port.
 
@@ -209,83 +205,83 @@ Note: Fields with a star symbal is required, e.g. version*.
 
     When a new port is used by ActiveMQ server, an entry should be added in the secgroup to enable connectivity on the port if the port is not already enabled.
 
-  4. **Log file Size (MB):**
+  4. **Log file Size (MB)**
 
     Default to 5 MB. ActiveMQ maximum number of log files for rotation is hard coded at 5. So if the default log file size is used, there is a maximum of 25 MB log data for an ActiveMQ server instance.
 
-  5. **Log file path:**
+  5. **Log file path**
 
     Default to /var/log/activemq
 
-  6. **Maximum Connections:**
+  6. **Maximum Connections**
 
     The number of maximum connections for each transport connector in a ActiveMQ server instance.
 
     Default to 1000.
 
-  7. **Environment Variables:**
+  7. **Environment Variables**
 
     Environment variables for a ActiveMQ server instance. Multiple variables can be added.
 
-  8. **Enabled console authentication:**
+  8. **Enabled console authentication**
 
     Flag to indicate authentication to access admin console is enabled or disabled.
 
     Default to enabled.
 
-  9. **Admin Username:**
+  9. **Admin Username**
 
     web console admin user name. Default to "admin".
 
-  10. **Admin Password:**
+  10. **Admin Password**
 
     web console admin user password. Default to "admin". Please change this password.
 
-  11. **web console port*:**
+  11. **web console port**
 
     web console port number. Default to 8161.
 
-  12. **JMX Username:**
+  12. **JMX Username**
 
     JMX user name. Default to "admin".
 
-  13. **JMX Password:**
+  13. **JMX Password**
 
     JMX user password. Default to "activemq". Please change this password.
 
-  14. **Advisory Support:**
+  14. **Advisory Support**
 
     Flag indicating if Advisory event messages are supported or not. Advisory messages are event messages regarding what is happening on JMS provider as well as what's happening with producers, consumers and destinations.
 
-  15. **Adhoc Operations Support:**
+  15. **Adhoc Operations Support**
 
     Flag for enabling or disabling admin console operations such as creating, deleting, or purging messages from destination. It is recommended to keep this feature disabled as those operations should be through OneOps; Enabling it will result in OneOps deployment out of synch with ActiveMQ.
 
-  16. **Admin REST API Support:**
+  16. **Admin REST API Support**
 
     Flag for enabling or disabling Admin REST API. Enabling Admin REST API allows operations such as destination creation or deletion via Jolokia REST call. It is recommended to keep this feature disabled as actions via REST API will bypass OneOps, resulting in OneOps deployment out of synch with ActiveMQ.
 
-  17. **Init Memory (MB):**
+  17. **Init Memory (MB)**
 
     Minimum heap size in MB of ActiveMQ server process. Default is 512 MB.
 
-  18. **Max Memory (MB):**
+  18. **Max Memory (MB)**
 
     Maximum heap size in MB of ActiveMQ server process. Default is 2048 MB. It should be changed based on the VM instance size (M, L, 2XL, etc).
 
-  19. **Store Usage (MB):**
+  19. **Store Usage (MB)**
 
     The storage size limit at which producers of persistent messages will be blocked. Default to 8192 MB.
 
-  20. **Temp Usage (MB):**
+  20. **Temp Usage (MB)**
 
     The temp storage size limit for non-persistent messages overflow to avoid out of memory issue. Default to 2048 MMB.
 
-  21. **Percent of JVM Heap %:**
+  21. **Percent of JVM Heap %**
 
     Percent of JVM Heap used for messages (message memory). Default to 60%.
 
-  22. **Enable SSL:**
+  22. **Enable SSL**
 
     Enable or disable SSL transport for encrypted communication.
 
@@ -303,7 +299,7 @@ Note: Fields with a star symbal is required, e.g. version*.
 
     The two way handshake set up involves manual copying certificates about. It is difficult to automate the key store and trust store set up on both the client side and the server side. It is recommended to keep this flag disabled / unchecked unless two way handshake is necessary for safer SSL communication.
 
-  24. **Auth Type:**
+  24. **Auth Type**
 
     Authentication and authorization type. Default to JAAS.  Other options are "None" and "Simple".
 
@@ -311,7 +307,7 @@ Note: Fields with a star symbal is required, e.g. version*.
 
     For more information about ActiveMQ, please refer to [ActiveMQ Security](http://activemq.apache.org/security).
 
-  25. **Broker Users:**
+  25. **Broker Users**
 
     User name and password for authentication to ActiveMQ server instance for messaging. Mutliple users can be added.
 
@@ -321,7 +317,7 @@ Note: Fields with a star symbal is required, e.g. version*.
 
     For authorization to queues and topics, please refer to Queue and Topic components of the ActiveMQ platform.
 
-  26. **Binary distribution mirror urls*:**
+  26. **Binary distribution mirror urls**
 
     Follow the link to get a list of [available mirror urls](http://www.apache.org/dyn/closer.cgi?path=).
 
@@ -340,19 +336,19 @@ Note: Fields with a star symbal is required, e.g. version*.
 
     The mirror url is used as the first part of the ActiveMQ binary distribution download url. ActiveMQ pack constructs the whole download url with a fixed path to a version of ActiveMQ. e.g. For 5.13.0 ActiveMQ from ```http://apache.arvixe.com```, the complete url will be ```http://apache.arvixe.com/activemq/5.13.0/apache-activemq-5.13.0-bin.tar.gz```
 
-  27. **Binary distribution checksum:**
+  27. **Binary distribution checksum**
 
     MD5 checksum for downloaded ActiveMQ distribution file. It is used for verification of downloaded binary file.
 
     You can leave this field blank to skip the check sum verification of your downloaded ActiveMQ distribution file. The checksum verification is usually not needed and skipping it is harmless unless the downloaded file was corrupted during transmission.
 
-**ActiveMQ Daemon:**
+**ActiveMQ Daemon**
 
 This component is the watch dog process for ActiveMQ server on the deployed host. It can take some customized scripts for the daemon process to perform extra task. By default, the daemon process will manage the life cycle of ActiveMQ server process. Typically there is nothing for a user to change in this component.
 
 ##ActiveMQ Design and Provision
 
-In this chapter, we will design a ActiveMQ server in OneOps, and demonstrate configuration steps in common use cases. The steps and the configured items can be considered as the minimum using default values for most options and properties of ActiveMQ.
+Following are the configuration steps in common use cases to configure Activemq. The steps and the configured items can be considered as the minimum using default values for most options and properties of ActiveMQ.
 
 ###CASE 1: Common Configuration
 
