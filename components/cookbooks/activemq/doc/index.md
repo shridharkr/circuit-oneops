@@ -1,16 +1,10 @@
-#ACTIVEMQ SERVER PACK USER'S GUIDE
+#ACTIVEMQ USER'S GUIDE
 
 This is the release documentation of ActiveMQ.
 
-For comments or problems with this user's guide, please contact the author of this guide, Nanchang Yang, at nyang63@gmail.com
-
 ##Overview
 
-This section contains a general overview of ActiveMQ server pack.
-
-###ActiveMQ Server Pack and Apache ActiveMQ
-
-This ActiveMQ Server Pack is built on Apache ActiveMQ with out-of-the-box default settings for most options or properties. For a select few adjustable options or properties, this pack provides an OneOps GUI for users to specify the customized values. For details of a list of customizable properties or options, please refer to [ActiveMQ Server Pack GUI fields](#guifields).
+ActiveMQ Server Pack is built on Apache ActiveMQ with out-of-the-box default settings for most options or properties. For a select few adjustable options or properties, this pack provides an OneOps GUI for users to specify the customized values. For details of a list of customizable properties or options, please refer to [ActiveMQ Server Pack GUI fields](#guifields).
 
 For those properties or options not listed in the [ActiveMQ Server Pack GUI fields](#guifields) section, they all assume the default values directly from the Apache ActiveMQ product. Currently there is no mechanism provided to adjust those properties or options values. One can always manually change the settings of a ActiveMQ Server Pack server after it is provisioned by OneOps, but those manually changed settings will not survive a ActiveMQ Server Pack server redeployment. In other words, a manually changed setting on a ActiveMQ Server Pack server instance will be over written by a redeployment to its default value or the value specified in OneOps GUI.
 
