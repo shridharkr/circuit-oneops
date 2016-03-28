@@ -42,7 +42,7 @@ begin
       bash 'create_collection_w_custom_config' do
         user "#{node['solr']['user']}"
         code <<-EOH
-          curl '#{node['solr']['collection_url']}action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{custom_config_name}'
+          curl '#{node['solr']['collection_url']}?action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{custom_config_name}'
         EOH
       end
     end
@@ -51,7 +51,7 @@ begin
       bash 'create_collection_w_default_config' do
         user "#{node['solr']['user']}"        
         code <<-EOH
-          curl '#{node['solr']['collection_url']}action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{config_name}'
+          curl '#{node['solr']['collection_url']}?action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{config_name}'
         EOH
       end
     end

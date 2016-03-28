@@ -14,7 +14,7 @@ begin
   bash 'add_replica' do
     user "#{node['solr']['user']}"
 	  code <<-EOH
-	    curl '#{node['solr']['core_url']}action=CREATE&collection=#{collection_name}&name=#{node['ipaddress']}_#{collection_name}_#{time}'
+	    curl '#{node['solr']['core_url']}?action=CREATE&collection=#{collection_name}&name=#{node['ipaddress']}_#{collection_name}_#{time}'
 	  EOH
     not_if { "#{collection_name}".empty? }
   end
