@@ -74,14 +74,14 @@ attribute 'custom_config_name',
   }
 
 attribute 'zk_select',
-  :description => 'Internal or External',
+  :description => 'External',
   :required => 'required',
   :default => 'External',
   :format => {
-      :help => 'Internal or External',
+      :help => 'External',
       :category => '2.Zookeeper',
       :order => 8,
-      :form => {'field' => 'select', 'options_for_select' => [['External', 'External'], ['Internal', 'Internal']]}
+      :form => {'field' => 'select', 'options_for_select' => [['External', 'External']]}
   }
 
 attribute 'zk_host_fqdns',
@@ -91,56 +91,6 @@ attribute 'zk_host_fqdns',
       :category => '2.Zookeeper',
       :filter => {'all' => {'visible' => 'zk_select:eq:External'}},
       :order => 9
-  }
-
-attribute 'num_local_instances',
-  :description => 'Zookeeper Configuration',
-  :default => '1',
-  :format => {
-    :category => '2.Zookeeper',
-    :help => "Zookeeper Configuration",
-    :filter => {'all' => {'visible' => 'zk_select:eq:Internal'}},
-    :order => 9
-  }
-
-attribute 'http_port_nos',
-  :description => 'Zookeeper Configuration',
-  :default => '8081',
-  :format => {
-      :category => '2.Zookeeper',
-      :help => "Zookeeper Configuration",
-      :filter => {'all' => {'visible' => 'zk_select:eq:Internal'}},
-      :order => 10
-  }
-
-attribute 'ssl_port_nos',
-  :description => 'Zookeeper Configuration',
-  :default => '7071',
-  :format => {
-    :category => '2.Zookeeper',
-    :help => "Zookeeper Configuration",
-    :filter => {'all' => {'visible' => 'zk_select:eq:Internal'}},
-    :order => 11
-  }
-
-attribute 'server_port_nos',
-  :description => 'Zookeeper Configuration',
-  :default => '6061',
-  :format => {
-    :category => '2.Zookeeper',
-    :help => "Zookeeper Configuration",
-    :filter => {'all' => {'visible' => 'zk_select:eq:Internal'}},
-    :order => 12
-  }
-
-attribute 'ajp_port_nos',
-  :description => 'Zookeeper Configuration',
-  :default => '5051',
-  :format => {
-    :category => '2.Zookeeper',
-    :help => "Zookeeper Configuration",
-    :filter => {'all' => {'visible' => 'zk_select:eq:Internal'}},
-    :order => 13
   }
 
 
