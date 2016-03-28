@@ -1,8 +1,12 @@
 require 'azure_mgmt_resources'
 require 'json'
+require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, Azure::ARM::Resources)
 ::Chef::Recipe.send(:include, Azure::ARM::Resources::Models)
+
+#set the proxy if it exists as a cloud var
+AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 subscription_details = node[:workorder][:ci][:ciAttributes]
 

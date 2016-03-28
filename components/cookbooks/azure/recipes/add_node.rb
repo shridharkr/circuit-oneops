@@ -1,5 +1,6 @@
 require File.expand_path('../../libraries/utils.rb', __FILE__)
 require File.expand_path('../../libraries/hardware_profile.rb', __FILE__)
+require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
 require 'azure_mgmt_compute'
 require 'azure_mgmt_network'
 
@@ -11,6 +12,9 @@ require 'azure_mgmt_network'
 ::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
 
 total_start_time = Time.now.to_i
+
+#set the proxy if it exists as a cloud var
+AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 cloud_name = node['workorder']['cloud']['ciName']
 Chef::Log.info("Cloud Name: #{cloud_name}")

@@ -1,8 +1,12 @@
 require 'azure_mgmt_compute'
 require 'json'
+require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, Azure::ARM::Compute)
 ::Chef::Recipe.send(:include, Azure::ARM::Compute::Models)
+
+#set the proxy if it exists as a cloud var
+AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 include_recipe 'azure::get_platform_rg_and_as'
 include_recipe "azure::get_credentials"

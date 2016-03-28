@@ -22,7 +22,7 @@ module AzureCommon
     end
 
     # if there is an apiproxy cloud var define, set it on the env.
-    def set_proxy(cloud_vars)
+    def self.set_proxy(cloud_vars)
       cloud_var.each do |var|
         if var[:ciName] == 'apiproxy'
           ENV['http_proxy'] = var[:ciAttributes][:value]
