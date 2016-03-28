@@ -3,3 +3,4 @@ Gemfile.lock
 .idea
 .arcconfig
 .chef
+**/.DS_Store

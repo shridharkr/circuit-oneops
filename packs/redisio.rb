@@ -93,7 +93,6 @@ resource "secgroup",
 # depends_on
 [{:from => 'user-app', :to => 'compute'},
   {:from => 'volume', :to => 'user-app'},
-  {:from => 'volume-app', :to => 'user-app'},
   {:from => 'volume-log', :to => 'volume'},
   {:from => 'volume-log', :to => 'user-app'},
     {:from => 'redisio', :to => 'volume-log'}].each do |link|
