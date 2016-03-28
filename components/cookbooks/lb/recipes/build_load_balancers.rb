@@ -112,7 +112,7 @@ listeners.each do |l|
   if cloud_service[:ciClassName] =~ /Elb/
     lb_name = [env_name,platform_name,ci[:ciId].to_s].join(".")
     if lb_name.size > 32
-       lb_name = [platfom_name,ci[:ciId].to_s].join(".")
+       lb_name = [platform_name,ci[:ciId].to_s].join(".")
     end
   end
   sg_name = [env_name, platform_name, cloud_name, iport, ci["ciId"].to_s, "svcgrp"].join("-")
