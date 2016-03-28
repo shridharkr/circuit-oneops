@@ -44,7 +44,7 @@ if "#{zk_select}".include? "External"
                     end
                   end
                   if count < replicationFactor
-                    addreplica_url = "http://#{node['ipaddress']}:8080/solr/admin/collections?action=ADDREPLICA&collection=#{collection_name}&shard=#{shard}&node=#{node['ipaddress']}:8080_solr"
+                    addreplica_url = "#{node['solr']['collection_url']}action=ADDREPLICA&collection=#{collection_name}&shard=#{shard}&node=#{node['ipaddress']}:8080_solr"
                     addreplica_response = open(addreplica_url).read
                     numReplacedReplicas = numReplacedReplicas + 1;
                   else

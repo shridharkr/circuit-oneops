@@ -31,8 +31,7 @@ if !"#{collection_name}".empty?
 end
 
 begin
-  if !"#{custom_config_name}".empty?
-    Chef::Log.info('Download custom config through zookeeper ZkCLI')
+  if !"#{custom_config_name}".empty?    
     bash 'download_custom_config' do
       code <<-EOH
         cd "#{node['solr']['user']}"
@@ -42,9 +41,8 @@ begin
     if !"#{collection_name}".empty? || !"#{num_shards}".empty? || !"#{replication_factor}".empty? || !"#{max_shards_per_node}".empty?
       bash 'create_collection_w_custom_config' do
         user "#{node['solr']['user']}"
-        Chef::Log.info("http://#{node['ipaddress']}:8080/solr/admin/collections?action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{custom_config_name}")
         code <<-EOH
-          curl 'http://#{node['ipaddress']}:8080/solr/admin/collections?action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{custom_config_name}'
+          curl '#{node['solr']['collection_url']}action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{custom_config_name}'
         EOH
       end
     end
@@ -52,9 +50,8 @@ begin
     if !"#{collection_name}".empty? || !"#{num_shards}".empty? || !"#{replication_factor}".empty? || !"#{max_shards_per_node}".empty?
       bash 'create_collection_w_default_config' do
         user "#{node['solr']['user']}"        
-        Chef::Log.info("http://#{node['ipaddress']}:8080/solr/admin/collections?action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{config_name}")
         code <<-EOH
-          curl 'http://#{node['ipaddress']}:8080/solr/admin/collections?action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{config_name}'
+          curl '#{node['solr']['collection_url']}action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{config_name}'
         EOH
       end
     end

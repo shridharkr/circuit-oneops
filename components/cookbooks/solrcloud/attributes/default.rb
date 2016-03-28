@@ -32,4 +32,9 @@ default['clusterstatus']['uri'] = "solr/admin/collections?action=CLUSTERSTATUS&w
 
 default['zookeeper']['url'] = "https://www.apache.org/dist/zookeeper/zookeeper-3.4.6/zookeeper-3.4.6.tar.gz"
 default['zookeeper']['filepath'] = "/app/zookeeper-3.4.6.tar.gz"
-default['zookeeper']['filename'] = "/app/zookeeper-3.4.6
+default['zookeeper']['filename'] = "/app/zookeeper-3.4.6"
+
+default['solr']['collection_url'] = "http://#{node['ipaddress']}:8080/solr/admin/collections?"
+default['solr']['core_url'] = "http://#{node['ipaddress']}:8080/solr/admin/cores?"
+
+

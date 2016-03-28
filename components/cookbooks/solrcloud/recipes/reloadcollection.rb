@@ -13,7 +13,7 @@ begin
   bash 'reload_collection' do
     user "#{node['solr']['user']}"
     code <<-EOH
-      curl 'http://#{node['ipaddress']}:8080/solr/admin/collections?action=RELOAD&name=#{collection_name}'
+      curl '#{node['solr']['collection_url']}?action=RELOAD&name=#{collection_name}'
     EOH
     not_if { "#{collection_name}".empty? }
   end
