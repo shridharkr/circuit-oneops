@@ -2,17 +2,18 @@
 # Cookbook Name:: solrcloud
 # Recipe:: createcollection.rb
 #
-# The recipie reloads collection to the solr cloud.
+# The recipie creates collection to the solr cloud.
 #
 #
 
 ci = node.workorder.ci.ciAttributes;
-collection_name = ci[:collection_name]
-num_shards = ci[:num_shards]
-replication_factor = ci[:replication_factor]
-max_shards_per_node = ci[:max_shards_per_node]
-config_name = ci[:config_name]
+args = ::JSON.parse(node.workorder.arglist)
+collection_name = args["PhysicalCollectionName"]
+num_shards = args["NumberOfShards"]
+replication_factor = args["ReplicationFactor"]
+max_shards_per_node = args["MaxShardsPerNode"]
 
+config_name = ci[:config_name]
 custom_config_name = ci[:custom_config_name]
 custom_config_name = custom_config_name.delete(' ');
 

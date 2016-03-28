@@ -6,8 +6,8 @@
 #
 #
 
-ci = node.workorder.ci.ciAttributes;
-collection_name = ci[:collection_name]
+args = ::JSON.parse(node.workorder.arglist)
+collection_name = args["PhysicalCollectionName"]
 time = Time.now.getutc.to_i
 
 Chef::Log.info('Add Replica to Solr Cloud ')

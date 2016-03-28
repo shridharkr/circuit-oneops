@@ -11,29 +11,8 @@ description "SolrCloud"
 category "Search"
 type		'Platform'
 
-
 environment "single", {}
 environment "redundant", {}
-
-variable  "configname",
-          :description => 'configname',
-          :value => 'defaultconf'
-
-variable "physicalcollectionname",
-         :description => 'physicalcollectionname to create a collection',
-         :value => 'test'
-
-variable "numshards",
-         :description => 'numshards',
-         :value => '2'
-
-variable "replicationfactor",
-         :description => 'replicationfactor',
-         :value => '2'
-
-variable "maxshardspernode",
-         :description => 'maxshardspernode',
-         :value => '1'
 
 resource 'user-app',
          :cookbook => 'oneops.1.user',
@@ -55,53 +34,38 @@ resource "java",
              :help => "Java Programming Language Environment"
          },
          :attributes => {
-		          :install_dir => "/usr/lib/jvm",
-             	:jrejdk => "JDK",
-             	:version => "8",
-             	:sysdefault => "true",
-             	:flavor => "OpenJDK"
+             'flavor' => 'openjdk',
+             'jrejdk' => 'jdk',
+             'version' => '8'
          }
 
 resource "artifact-app",
-  :cookbook => "oneops.1.artifact",
-  :design => true,
-  :requires => { "constraint" => "0..*" },
-  :attributes => {
-
-  }
+         :cookbook => "oneops.1.artifact",
+         :design => true,
+         :requires => { "constraint" => "0..*" }
 
 resource 'volume-app',
-  	:cookbook => "oneops.1.volume",
+  	     :cookbook => "oneops.1.volume",
          :requires => {'constraint' => '1..1', 'services' => 'compute'},
          :attributes => {'mount_point' => '/app/',
                          'size' => '100%FREE',
                          'device' => '',
                          'fstype' => 'ext4',
-                         'options' => ''
-         }
+                         'options' => ''}
 
 resource "solrcloud",
-  :cookbook => "oneops.1.solrcloud",
-  :design => true,
-  :requires => { "constraint" => "1..1" , "services" => "mirror"},
-  :attributes => {
-             'config_name' => '$OO_LOCAL{configname}',
-             'collection_name' => '$OO_LOCAL{physicalcollectionname}',
-             'num_shards' => '$OO_LOCAL{numshards}',
-             'replication_factor' => '$OO_LOCAL{replicationfactor}',
-             'max_shards_per_node' => '$OO_LOCAL{maxshardspernode}'
-             }
+         :cookbook => "oneops.1.solrcloud",
+         :design => true,
+         :requires => { "constraint" => "1..1"}
 
 resource "secgroup",
-   :cookbook => "oneops.1.secgroup",
-   :design => true,
-   :attributes => {
-       "inbound" => '[ "22 22 tcp 0.0.0.0/0","8080 8080 tcp 0.0.0.0/0","8983 8983 tcp 0.0.0.0/0" ]'
-   },
-   :requires => {
-       :constraint => "1..1",
-       :services => "compute"
-   }
+         :cookbook => "oneops.1.secgroup",
+         :design => true,
+         :attributes => {"inbound" => '[ "22 22 tcp 0.0.0.0/0","8080 8080 tcp 0.0.0.0/0","8983 8983 tcp 0.0.0.0/0" ]'},
+         :requires => {
+            :constraint => "1..1",
+            :services => "compute"
+         }
 
 resource "tomcat-daemon",
          :cookbook => "oneops.1.daemon",
@@ -111,24 +75,24 @@ resource "tomcat-daemon",
              :help => "Restarts Tomcat"
          },
          :attributes => {
-             :service_name => 'tomcat7',
-             :use_script_status => 'true',
-             :pattern => ''
+            :service_name => 'tomcat7',
+            :use_script_status => 'true',
+            :pattern => ''
          },
-         :monitors => {
-             'tomcatprocess' => {:description => 'TomcatProcess',
-                           :source => '',
-                           :chart => {'min' => '0', 'max' => '100', 'unit' => 'Percent'},
-                           :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!:::node.workorder.rfcCi.ciAttributes.use_script_status:::!:::node.workorder.rfcCi.ciAttributes.pattern:::',
-                           :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$"',
-                           :metrics => {
-                               'up' => metric(:unit => '%', :description => 'Percent Up'),
-                           },
-                           :thresholds => {
-                               'TomcatDaemonProcessDown' => threshold('1m', 'avg', 'up', trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
-                           }
-             }
-          }
+         :monitors => {'tomcatprocess' => {
+                        :description => 'TomcatProcess',
+                        :source => '',
+                        :chart => {'min' => '0', 'max' => '100', 'unit' => 'Percent'},
+                        :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!:::node.workorder.rfcCi.ciAttributes.use_script_status:::!:::node.workorder.rfcCi.ciAttributes.pattern:::',
+                        :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$"',
+                        :metrics => {
+                             'up' => metric(:unit => '%', :description => 'Percent Up'),
+                        },
+                        :thresholds => {
+                            'TomcatDaemonProcessDown' => threshold('1m', 'avg', 'up', trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+                        }
+                       }
+                      }
 
 resource "tomcat",
   :cookbook => "oneops.1.tomcat",
@@ -227,12 +191,12 @@ resource "tomcat",
 }
 
 resource "library",
-  :cookbook => "oneops.1.library",
-  :design => true,
-  :requires => { "constraint" => "1..*" },
-  :attributes => {
-    "packages"  => '["bc"]'
-  }
+         :cookbook => "oneops.1.library",
+         :design => true,
+         :requires => { "constraint" => "1..*" },
+         :attributes => {
+           "packages"  => '["bc"]'
+         }
 
 # depends_on
 [
@@ -258,10 +222,10 @@ resource "library",
 end
 
 relation "solrcloud::depends_on::tomcat",
-            :relation_name => 'DependsOn',
-                  :from_resource => 'solrcloud',
-                  :to_resource => 'tomcat',
-                  :attributes => {"propagate_to" => "from", "flex" => false, "min" => 1, "max" => 1}
+  :relation_name => 'DependsOn',
+  :from_resource => 'solrcloud',
+  :to_resource => 'tomcat',
+  :attributes => {"propagate_to" => "from", "flex" => false, "min" => 1, "max" => 1}
 
 # managed_via
 [ 'tomcat','tomcat-daemon','solrcloud', 'file','user-app', 'java', 'volume-app', 'artifact-app'].each do |from|

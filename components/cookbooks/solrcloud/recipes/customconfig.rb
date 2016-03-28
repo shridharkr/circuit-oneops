@@ -2,7 +2,7 @@
 # Cookbook Name:: solrcloud
 # Recipe:: customconfig.rb
 #
-# The recipie downloads the custom config from nexus uploads to Zookeeper.
+# The recipie downloads the custom config uploads to Zookeeper.
 #
 #
 
@@ -17,27 +17,19 @@ solr_config = "/app/solr-config";
 ci = node.workorder.rfcCi.ciAttributes;
 config_name = ci[:custom_config_name]
 config_url = ci[:custom_config_url]
-list_port_nos = ci[:list_port_nos]
-num_local_instances = ci[:num_local_instances]
-
 config_dir = '';
 config_jar = '';
 delete_config = "sudo find . ! -name \"*.jar\" -exec rm -r {} \\;";
-zk_host_fqdns = '';
 
 
-if node.workorder.rfcCi.ciAttributes.deploy_all_dcs == 'true'
-  zk_host_fqdns = ""; ### get zookeeper from local design
-  if "#{zk_host_fqdns}".empty?
-    zk_host_fqdns = ci[:zk_host_fqdns]
-  end
+
+zk_select = ci[:zk_select]
+if "#{zk_select}".include? "Internal"
+  zk_host_fqdns = "#{node['ipaddress']}:2181"
+else
+  zk_host_fqdns = ci[:zk_host_fqdns]
 end
 
-if node.workorder.rfcCi.ciAttributes.deploy_embed_zkp == 'true'
-  if !"#{num_local_instances}".empty? && !"#{list_port_nos}".empty?
-    zk_host_fqdns = "#{node['ipaddress']}:2181";
-  end
-end
 
 Chef::Log.info('Create Directory "solr-war-lib"')
 directory "#{solr_config}/prod" do
@@ -93,7 +85,7 @@ else
     not_if { ::File.exists?("#{solr_config}/#{config_dir}.txt") }
   end
 
-  downloadconfig("#{zkpfqdn}","#{custom_config_name}")
-  uploadprodconfig("#{zkpfqdn}","#{custom_config_name}")
+  downloadconfig("#{zkpfqdn}","#{config_name}")
+  uploadprodconfig("#{zkpfqdn}","#{config_name}")
 end
 

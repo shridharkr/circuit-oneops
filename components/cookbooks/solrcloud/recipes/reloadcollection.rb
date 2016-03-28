@@ -6,8 +6,8 @@
 #
 #
 
-ci = node.workorder.ci.ciAttributes;
-collection_name = ci[:collection_name]
+args = ::JSON.parse(node.workorder.arglist)
+collection_name = args["PhysicalCollectionName"]
 
 Chef::Log.info('Reload Collection to Solr Cloud ')
 begin

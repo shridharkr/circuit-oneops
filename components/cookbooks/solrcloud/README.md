@@ -1,32 +1,41 @@
 
 solrcloud Cookbook
 ===================
-This solr cookbook installs solr cloud and uploads the default config to zookeeper . It has the below features
- 1. To deploy on the given data center and uploads the config to its zookeeper . 
- 2. Create a collection . 
- 3. Reload a collection . 
- 4. Add a replica to the cluster for a given collection . 
- 5. Upload the custom config to zookeeper .
+This solr cookbook installs solr cloud by using external zookeeper or internal zookeeper based on the user choice and uploads the default config to the zookeeper.
+
+The features are :
+ 1. Creates collection. 
+ 2. Reloads collection.
+ 3. Adds replica to the cluster for the given collection.
+ 4. Upload the custom config to embedded/external zookeeper.
+ 5. Replaces the replica to the collection when the compute gets replaced.
+
+
 
 
 Attributes
 ----------
-SolrCloud :
-1.solr_package_type
-2.solr_version
-3.solr_format
-4.deploy_all_dcs
-5.zk_host_fqdns
-6.config_name
-7.custom_config_url
-8.custom_config_name
+SolrCloud
+
+1.solr_url
+2.solr_package_type
+3.solr_version
+4.solr_format
+5.config_name
+6.custom_config_url
+7.custom_config_name
+
+Zookeeper
+
+8.zk_select
+9.zk_host_fqdns
+10.num_local_instances
+11.http_port_nos
+12.ssl_port_nos
+13.server_port_nos
+14.ajp_port_nos
 
 
-SolrCloud Action Items :
-9.collection_name
-10.num_shards
-11.replication_factor
-12.max_shards_per_node
 
 Usage
 -----
@@ -45,5 +54,7 @@ Contributing
 
 License and Authors
 -------------------
+
+
 
 
