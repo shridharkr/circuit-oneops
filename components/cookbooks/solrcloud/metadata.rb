@@ -74,9 +74,9 @@ attribute 'custom_config_name',
   }
 
 attribute 'collection_name',
-  :required => 'required',
   :description => 'collection name',
-  :default => 'test'
+  :required => 'required',
+  :default => 'test',
   :format => {
     :help => 'collection name',
     :category => '1.SolrCloud',
