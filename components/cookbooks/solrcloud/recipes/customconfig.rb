@@ -15,20 +15,12 @@ Chef::Resource::RubyBlock.send(:include, Java::Util)
 solr_config = "/app/solr-config";
 
 ci = node.workorder.rfcCi.ciAttributes;
-config_name = ci[:custom_config_name]
-config_url = ci[:custom_config_url]
+config_name = ci['custom_config_name']
+config_url = ci['custom_config_url']
 config_dir = '';
 config_jar = '';
 delete_config = "sudo find . ! -name \"*.jar\" -exec rm -r {} \\;";
-
-
-
-zk_select = ci[:zk_select]
-if "#{zk_select}".include? "Internal"
-  zk_host_fqdns = "#{node['ipaddress']}:2181"
-else
-  zk_host_fqdns = ci[:zk_host_fqdns]
-end
+zk_host_fqdns = ci['zk_host_fqdns']
 
 
 Chef::Log.info('Create Directory "solr-war-lib"')

@@ -19,7 +19,7 @@ solr_file_name = "#{solr_package_type}-"+"#{solr_version}."+"#{solr_format}"
 solr_file_woext = "#{solr_package_type}-"+"#{solr_version}"
 solr_filepath = "#{node['user']['dir']}/#{solr_file_name}"
 config_name = ci[:config_name]
-zk_host_fqdns = ''
+zk_host_fqdns = ci[:zk_host_fqdns]
 
 solr_extract_path = "#{node['user']['dir']}/tmp/tgz"
 solr_war_lib = "#{node['user']['dir']}/solr-war-lib"
@@ -29,7 +29,6 @@ solr_default_dir = "#{solr_config}/default"
 
 solr_base_url = ci['solr_url']
 solr_url = "#{solr_base_url}/#{solr_package_type}/#{solr_version}/#{solr_file_name}"
-
 
 
 Chef::Log.info("Download solr from gec-nexus: #{solr_url}")
@@ -130,8 +129,6 @@ bash 'upload_ext_jars' do
   EOH
   only_if { ::File.exists?("#{node['user']['dir']}/tmp/tgz/#{solr_file_woext}/example/lib") }
 end
-
-zk_host_fqdns = ci[:zk_host_fqdns]
 
 bash "update_zookeeper_string" do
   code <<-EOH
