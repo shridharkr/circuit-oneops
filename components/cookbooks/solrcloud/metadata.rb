@@ -73,6 +73,16 @@ attribute 'custom_config_name',
     :order => 7
   }
 
+attribute 'collection_name',
+  :required => 'required',
+  :description => 'collection name',
+  :default => 'test'
+  :format => {
+    :help => 'collection name',
+    :category => '1.SolrCloud',
+    :order => 8
+  }
+
 attribute 'zk_select',
   :description => 'External',
   :required => 'required',
@@ -80,7 +90,7 @@ attribute 'zk_select',
   :format => {
       :help => 'External',
       :category => '2.Zookeeper',
-      :order => 8,
+      :order => 9,
       :form => {'field' => 'select', 'options_for_select' => [['External', 'External']]}
   }
 
@@ -90,7 +100,7 @@ attribute 'zk_host_fqdns',
       :help => "Location of External ZK hosts",
       :category => '2.Zookeeper',
       :filter => {'all' => {'visible' => 'zk_select:eq:External'}},
-      :order => 9
+      :order => 10
   }
 
 

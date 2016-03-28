@@ -11,10 +11,10 @@ require 'json'
 require 'uri'
 
 ci = node.workorder.rfcCi.ciAttributes;
-collection_name = ci[:collection_name]
+collection_name = ci['collection_name']
 time = Time.now.getutc.to_i
 
-zk_select = ci[:zk_select]
+zk_select = ci['zk_select']
 if "#{zk_select}".include? "External"
   ruby_block 'add_replaced_replica' do
     block do
