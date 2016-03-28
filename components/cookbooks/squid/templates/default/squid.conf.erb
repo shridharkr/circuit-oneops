@@ -17,10 +17,7 @@ http_access allow <%= access_flag %>
 http_access deny <%= deny_flag %>
 <% end %>
 
-<% http_port_values = JSON.parse(node['squid']['port']) %>
-<% http_port_values.each do |port_flag| %>
-http_port <%= port_flag %>
-<% end %>
+http_port <%= node['squid']['port'] %>
 
 #Cache Peers
 <% 
