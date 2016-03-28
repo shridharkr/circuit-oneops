@@ -134,7 +134,7 @@ end
 zk_select = ci[:zk_select]
 if "#{zk_select}".include? "Internal"
   Chef::Log.info("Download zookeeper from gec-nexus: http://gec-maven-nexus.walmart.com/nexus/content/groups/public/org/apache/zookeeper/3.4.6/zookeeper-3.4.6.tar.gz")
-  remote_file "#{node['zookeeper']['filename']}" do
+  remote_file "#{node['zookeeper']['filepath']}" do
     source "#{node['zookeeper']['url']}"
     owner "#{node['solr']['user']}"
     group "#{node['solr']['user']}"
@@ -148,12 +148,12 @@ if "#{zk_select}".include? "Internal"
     Chef::Log.info("Install zookeeper locally.")
     code <<-EOH
       cd #{node['user']['dir']}
-      chown app:app zookeeper-3.4.6.tar.gz
-      tar -xvf zookeeper-3.4.6.tar.gz
-      chown app:app zookeeper-3.4.6/
-      /app/zookeeper-3.4.6/bin/zkServer.sh stop       
-      mv #{node['user']['dir']}/zookeeper-3.4.6/conf/zoo_sample.cfg #{node['user']['dir']}/zookeeper-3.4.6/conf/zoo.cfg
-      /app/zookeeper-3.4.6/bin/zkServer.sh start
+      chown app:app #{node['zookeeper']['filepath']}
+      tar -xvf #{node['zookeeper']['filepath']}
+      chown app:app #{node['zookeeper']['filename']}/
+      #{node['zookeeper']['filename']}/bin/zkServer.sh stop       
+      mv #{node['zookeeper']['filename']}/conf/zoo_sample.cfg #{node['user']['dir']}/zookeeper-3.4.6/conf/zoo.cfg
+      #{node['zookeeper']['filename']}/bin/zkServer.sh start
     EOH
   end
   zk_host_fqdns = "#{node['ipaddress']}:2181"

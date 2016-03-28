@@ -29,7 +29,7 @@ if "#{zk_select}".include? "Internal"
     if (http_port_nos.length == Integer(size)) && (ssl_port_nos.length == Integer(size)) && (server_port_nos.length == Integer(size)) && (ajp_port_nos.length == Integer(size))
       zk_host_fqdns = "#{node['ipaddress']}:2181"
     
-      tomcatpath = `readlink -f /app/tomcat#{node['tomcatversion']}`
+      tomcatpath = `readlink -f #{node['tomcat']['dir']}`
       tomcatpath = tomcatpath.gsub("\n",'')
 
       for i in 1..Integer(size)
