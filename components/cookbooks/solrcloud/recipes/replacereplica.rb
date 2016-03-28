@@ -21,22 +21,17 @@ if "#{zk_select}".include? "External"
       begin
         if !"#{collection_name}".empty?
           request_url = "http://#{node['ipaddress']}:8080/#{node['clusterstatus']['uri']}"
-          Chef::Log.info("#{request_url}")
           response = open(request_url).read
           jsonresponse = JSON.parse(response)
 
           if !jsonresponse["cluster"]["collections"].empty? && !jsonresponse["cluster"]["collections"]["#{collection_name}"].empty?
             shardList = jsonresponse["cluster"]["collections"]["#{collection_name}"]["shards"].keys
-            Chef::Log.info(shardList)
             replicaip = '';
             maxShardsPerNode = jsonresponse["cluster"]["collections"]["#{collection_name}"]["maxShardsPerNode"]
             replicationFactor = jsonresponse["cluster"]["collections"]["#{collection_name}"]["replicationFactor"]
             numReplacedReplicas = 0;
             shardList.each do |shard|
-              Chef::Log.info("numReplacedReplicas :: maxShardsPerNode -- for shard #{shard} -- #{numReplacedReplicas} :: #{maxShardsPerNode}")
-              if "#{numReplacedReplicas}" < "#{maxShardsPerNode}"
-                Chef::Log.info("Entered if loop")
-                Chef::Log.info(jsonresponse["cluster"]["collections"]["#{collection_name}"]["shards"][shard])
+              if numReplacedReplicas < maxShardsPerNode
                 shardstate = jsonresponse["cluster"]["collections"]["#{collection_name}"]["shards"][shard]["state"]
                 if(shardstate == "active")
                   replicaList = jsonresponse["cluster"]["collections"]["#{collection_name}"]["shards"][shard]["replicas"].keys
@@ -46,17 +41,14 @@ if "#{zk_select}".include? "External"
                     replicastate = jsonresponse["cluster"]["collections"]["#{collection_name}"]["shards"][shard]["replicas"][replica]["state"]
                     if(replicastate != "down")
                       count = count + 1;
-                      Chef::Log.info("count :::: #{count}")
                     end
-                  end ## replicalist loop end
-                  if "#{count}" < "#{replicationFactor}"
+                  end
+                  if count < replicationFactor
                     addreplica_url = "http://#{node['ipaddress']}:8080/solr/admin/collections?action=ADDREPLICA&collection=#{collection_name}&shard=#{shard}&node=#{node['ipaddress']}:8080_solr"
-                    Chef::Log.info("#{addreplica_url}")
                     addreplica_response = open(addreplica_url).read
-                    Chef::Log.info(addreplica_response)
                     numReplacedReplicas = numReplacedReplicas + 1;
                   else
-                    Chef::Log.info("count value for shard #{shard} === #{count}")
+                    Chef::Log.info("count value for shard #{shard} = #{count}")
                   end
                 else ## shard down else block
                   Chef::Log.error("#{shard} state is not in active.")

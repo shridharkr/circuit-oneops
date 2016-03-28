@@ -31,7 +31,7 @@ solr_base_url = ci['solr_url']
 solr_url = "#{solr_base_url}/#{solr_package_type}/#{solr_version}/#{solr_file_name}"
 
 
-Chef::Log.info("Download solr from gec-nexus: #{solr_url}")
+Chef::Log.info("Download solr from : #{solr_url}")
 remote_file solr_filepath do
   source "#{solr_url}"
   owner "#{node['solr']['user']}"

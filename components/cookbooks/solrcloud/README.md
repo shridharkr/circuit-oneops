@@ -24,16 +24,12 @@ SolrCloud
 5.config_name
 6.custom_config_url
 7.custom_config_name
+8.collection_name
 
 Zookeeper
 
-8.zk_select
-9.zk_host_fqdns
-10.num_local_instances
-11.http_port_nos
-12.ssl_port_nos
-13.server_port_nos
-14.ajp_port_nos
+9.zk_select
+10.zk_host_fqdns
 
 
 

@@ -41,15 +41,12 @@ end
 if "#{config_url}".empty?
   Chef::Log.info(" prod config url is empty ")
 else
-  Chef::Log.info(" config_url --- "+"#{config_url}")
   config_dir = "#{config_url}".split("/").last.split(".jar").first;
   config_jar = "#{config_dir}"+".jar";
-  Chef::Log.info(" config_jar --- "+"#{config_jar}")
 
   if "#{config_jar}".empty?
     Chef::Log.info(" prod config jar is empty ")
   else
-    Chef::Log.info(" config jar :: "+"#{config_jar}")
     remote_file solr_config+"/"+config_jar do
       source "#{config_url}"
       owner "#{node['solr']['user']}"
