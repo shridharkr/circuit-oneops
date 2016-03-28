@@ -131,35 +131,8 @@ bash 'upload_ext_jars' do
   only_if { ::File.exists?("#{node['user']['dir']}/tmp/tgz/#{solr_file_woext}/example/lib") }
 end
 
-zk_select = ci[:zk_select]
-if "#{zk_select}".include? "Internal"
-  Chef::Log.info("Download zookeeper from gec-nexus: http://gec-maven-nexus.walmart.com/nexus/content/groups/public/org/apache/zookeeper/3.4.6/zookeeper-3.4.6.tar.gz")
-  remote_file "#{node['zookeeper']['filepath']}" do
-    source "#{node['zookeeper']['url']}"
-    owner "#{node['solr']['user']}"
-    group "#{node['solr']['user']}"
-    mode '0644'
-    action :create_if_missing
-  end
+zk_host_fqdns = ci[:zk_host_fqdns]
 
-  ## Install zookeeper
-  bash "install_zookeeper" do
-    user "#{node['solr']['user']}"
-    Chef::Log.info("Install zookeeper locally.")
-    code <<-EOH
-      cd #{node['user']['dir']}
-      chown app:app #{node['zookeeper']['filepath']}
-      tar -xvf #{node['zookeeper']['filepath']}
-      chown app:app #{node['zookeeper']['filename']}/
-      #{node['zookeeper']['filename']}/bin/zkServer.sh stop       
-      mv #{node['zookeeper']['filename']}/conf/zoo_sample.cfg #{node['user']['dir']}/zookeeper-3.4.6/conf/zoo.cfg
-      #{node['zookeeper']['filename']}/bin/zkServer.sh start
-    EOH
-  end
-  zk_host_fqdns = "#{node['ipaddress']}:2181"
-else
-  zk_host_fqdns = ci[:zk_host_fqdns]
-end
 bash "update_zookeeper_string" do
   code <<-EOH
     grep -q -F 'zkHost' #{node['tomcat']['dir']}/bin/setenv.sh || echo 'export CATALINA_OPTS=\"\$CATALINA_OPTS -DzkHost=#{zk_host_fqdns}\"' >> #{node['tomcat']['dir']}/bin/setenv.sh
