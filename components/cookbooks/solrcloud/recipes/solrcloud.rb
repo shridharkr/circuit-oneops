@@ -91,7 +91,6 @@ end
 
 Chef::Log.info('UnPack solr.war and extract the WEB-INF/lib to solr-war-lib/ folder')
 bash 'unpack_solr_war' do
-  user "#{node['solr']['user']}"
   code <<-EOH
     cd #{node['user']['dir']}
     rm -rf solr-*.txt
@@ -114,15 +113,13 @@ bash 'unpack_solr_war' do
 end
 
 bash 'unpack_conf_dir' do
-  user "#{node['solr']['user']}"
   code <<-EOH
     cp -irf #{node['user']['dir']}/tmp/tgz/#{solr_file_woext}/example/example-DIH/solr/solr/conf/* #{node['user']['dir']}/solr-config/default/
   EOH
   only_if { ::File.exists?("#{node['user']['dir']}/tmp/tgz/#{solr_file_woext}/example/example-DIH/solr/solr/conf") }
 end
 
-bash 'upload_ext_jars' do
-  user "#{node['solr']['user']}"
+bash 'upload_ext_jars' do  
   code <<-EOH
     cp #{node['user']['dir']}/tmp/tgz/#{solr_file_woext}/example/lib/ext/*.jar #{solr_war_lib}
     cp #{node['user']['dir']}/tmp/tgz/#{solr_file_woext}/example/lib/ext/*.jar #{node['tomcat']['dir']}/lib
