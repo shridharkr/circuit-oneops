@@ -2,7 +2,7 @@
 # Cookbook Name:: solrcloud
 # Recipe:: customconfig.rb
 #
-# The recipie downloads the custom config from nexus uploads to Zookeeper.
+# The recipie downloads the custom config uploads to Zookeeper.
 #
 #
 
@@ -15,29 +15,13 @@ Chef::Resource::RubyBlock.send(:include, Java::Util)
 solr_config = "/app/solr-config";
 
 ci = node.workorder.rfcCi.ciAttributes;
-config_name = ci[:custom_config_name]
-config_url = ci[:custom_config_url]
-list_port_nos = ci[:list_port_nos]
-num_local_instances = ci[:num_local_instances]
-
+config_name = ci['custom_config_name']
+config_url = ci['custom_config_url']
 config_dir = '';
 config_jar = '';
 delete_config = "sudo find . ! -name \"*.jar\" -exec rm -r {} \\;";
-zk_host_fqdns = '';
+zk_host_fqdns = ci['zk_host_fqdns']
 
-
-if node.workorder.rfcCi.ciAttributes.deploy_all_dcs == 'true'
-  zk_host_fqdns = ""; ### get zookeeper from local design
-  if "#{zk_host_fqdns}".empty?
-    zk_host_fqdns = ci[:zk_host_fqdns]
-  end
-end
-
-if node.workorder.rfcCi.ciAttributes.deploy_embed_zkp == 'true'
-  if !"#{num_local_instances}".empty? && !"#{list_port_nos}".empty?
-    zk_host_fqdns = "#{node['ipaddress']}:2181";
-  end
-end
 
 Chef::Log.info('Create Directory "solr-war-lib"')
 directory "#{solr_config}/prod" do
@@ -57,15 +41,12 @@ end
 if "#{config_url}".empty?
   Chef::Log.info(" prod config url is empty ")
 else
-  Chef::Log.info(" config_url --- "+"#{config_url}")
   config_dir = "#{config_url}".split("/").last.split(".jar").first;
   config_jar = "#{config_dir}"+".jar";
-  Chef::Log.info(" config_jar --- "+"#{config_jar}")
 
   if "#{config_jar}".empty?
     Chef::Log.info(" prod config jar is empty ")
   else
-    Chef::Log.info(" config jar :: "+"#{config_jar}")
     remote_file solr_config+"/"+config_jar do
       source "#{config_url}"
       owner "#{node['solr']['user']}"
@@ -93,7 +74,7 @@ else
     not_if { ::File.exists?("#{solr_config}/#{config_dir}.txt") }
   end
 
-  downloadconfig("#{zkpfqdn}","#{custom_config_name}")
-  uploadprodconfig("#{zkpfqdn}","#{custom_config_name}")
+  downloadconfig("#{zkpfqdn}","#{config_name}")
+  uploadprodconfig("#{zkpfqdn}","#{config_name}")
 end
 
