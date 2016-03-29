@@ -33,15 +33,16 @@ stop() {
   # check if the process is already stopped by seeing if the pid file exists.
   if [ ! -f $CASS_PID ]; then
     echo "Cassandra is already stopped."
-    exit 0
-  fi
-  echo -n $"Stopping $prog: "
-  if kill -9 `cat $CASS_PID`; then
-    RETVAL=0
-    echo_success
   else
-    RETVAL=1
-    echo_failure
+    echo -n $"Stopping $prog: "
+    if kill `cat $CASS_PID`; then
+      sleep 5
+      RETVAL=0
+      echo_success
+    else
+      RETVAL=1
+      echo_failure
+    fi
   fi
   echo
   [ $RETVAL = 0 ]
