@@ -21,7 +21,6 @@ Chef::Log.info("tenant_id: #{tenant_id} client_id: #{client_id} client_secret: #
     credentials = MsRest::TokenCredentials.new(token_provider)
 end
 
-
   if express_route_enabled == 'true'
     begin
   client = ResourceManagementClient.new(credentials)
@@ -58,7 +57,7 @@ rescue  MsRestAzure::AzureOperationError =>e
       end
 
 end
-elsif express_route_enabled == 'false'
+elsif express_route_enabled == 'false' || express_route_enabled == nil
   begin
   client = ResourceManagementClient.new(credentials)
   client.subscription_id = subscription_id
@@ -89,6 +88,5 @@ rescue  MsRestAzure::AzureOperationError =>e
         ex.set_backtrace('')
         raise ex
       end
-
-end
+  end
 end

@@ -26,9 +26,21 @@
 # PGPDBAAS 2613 & 3322 
 include_recipe 'shared::set_provider'
 
+if node.workorder.services.has_key?("storage")
+  cloud_name = node[:workorder][:cloud][:ciName]
+  storage_service = node[:workorder][:services][:storage][cloud_name]
+  storage = storage_service["ciAttributes"]
+  storage_provider = storage_service["ciClassName"].split(".").last.downcase
+  node.set['storage_provider_class'] = storage_provider
+end
 
- provider = node['provider_class']
+Chef::Log.info("Cloud Storage Provider: #{storage_provider}")
+if storage_provider =~ /azureblobs/
+  include_recipe 'azureblobs::add_storage'
+  #return true
+end
 
+provider = node['provider_class']
 
 size_config = node.workorder.rfcCi.ciAttributes["size"]
 size_scale = size_config[-1,1]
@@ -76,6 +88,7 @@ vols = Array.new
 
 # openstack+kvm doesn't use explicit device names, just set and order
 openstack_dev_set = ['b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v']
+azure_dev_set = ['c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v']
 block_index = ""
 ["p","o","n","m","l","k","j","i"].each do |i|      
   dev = "/dev/vxd#{i}0"
@@ -90,12 +103,15 @@ Array(1..slice_count).each do |i|
   dev = ""
   if node.storage_provider_class =~ /cinder/
     dev = "/dev/vd#{openstack_dev_set[i]}"
+  elsif node.storage_provider_class =~ /azure/
+    dev = "/dev/sd#{azure_dev_set[i]}"
   else
     dev = "/dev/xvd#{block_index}#{i.to_s}"
   end
 
   Chef::Log.info("adding dev: #{dev} size: #{slice_size}G")
   volume = nil
+  Chef::Log.info("node.storage_provider_class ---> #{node.storage_provider_class}")
   case node.storage_provider_class
   when /cinder/
     
@@ -151,8 +167,12 @@ Array(1..slice_count).each do |i|
     if retry_count >= max_retry_count
       Chef::Log.error("took more than 10minutes for volume: "+volume.id.to_s+" to be ready and still isn't")
     end
-    
-  else
+
+    when /azureblobs/
+
+      volume = slice_size
+
+    else
     # aws
     avail_zone = ''
     node.storage_provider.describe_availability_zones.body['availabilityZoneInfo'].each do |az|
@@ -166,8 +186,13 @@ Array(1..slice_count).each do |i|
     volume.save
   end
 
-  Chef::Log.info("added "+volume.id.to_s)
-  vols.push(volume.id.to_s+":"+dev)
+  if node.storage_provider_class =~ /azure/
+    Chef::Log.error("Adding #{dev} to the device list")
+    vols.push(volume.to_s+":"+dev)
+  else
+    Chef::Log.info("added "+volume.id.to_s)
+    vols.push(volume.id.to_s+":"+dev)
+  end
 end
 
 puts "***RESULT:device_map="+vols.join(" ")
