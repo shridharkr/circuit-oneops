@@ -179,6 +179,7 @@ module AzureDns
       hash_of_removed_aliases = []
       types = ['aliases', 'current_aliases', 'full_aliases', 'current_full_aliases']
       hash_of_all_aliases = get_all_aliases(node_workorder_rfcci_json,  is_hostname_entry, types)
+      if !hash_of_all_aliases.empty?
       index = 0
       while index < 3
         hash_aliase = hash_of_all_aliases.fetch(index)
@@ -190,6 +191,7 @@ module AzureDns
         end unless all_current_aliases.nil? unless all_aliases.nil?
         hash_of_removed_aliases.push(name: hash_aliase[:name], values: all_aliases)
         index+=2
+      end
       end
       hash_of_removed_aliases
     end
@@ -219,7 +221,7 @@ module AzureDns
 
         if !value.nil?
           Chef::Log.info("azuredns:remove_old_aliases.rb - short alias dns_name: #{alias_name} value: #{value.first}")
-          entries.push({:name => alias_name, :values => value.first })
+          entries.push(:name => alias_name, :values => value.first)
           # deletable_entries.push({:name => alias_name, :values => value.first })
         else
           Chef::Log.info("azuredns:remove_old_aliases.rb - Nothing to remove")
@@ -231,7 +233,7 @@ module AzureDns
           # get the value from azure
           value = @recordset.get_existing_records_for_recordset('CNAME', alias_platform_dns_name)
           if !value.nil?
-            entries.push({:name => alias_platform_dns_name, :values => value.first })
+            entries.push(:name => alias_platform_dns_name, :values => value.first)
           else
             Chef::Log.info('azuredns:remove_old_aliases.rb - Nothing to remove')
           end
