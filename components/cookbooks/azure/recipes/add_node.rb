@@ -38,7 +38,7 @@ include_recipe "azure::build_storage_profile_for_add_node"
 include_recipe "azure::build_network_profile_for_add_node"
 
 # get the availability set to use
-include_recipe "azure::get_availability_set"
+availability_set = AzureCompute::AvailabilitySet.new(compute_service)
 
 # create the VM in the platform specific resource group and availability set
 client = ComputeManagementClient.new(node['azureCredentials'])
@@ -60,7 +60,7 @@ end
 
 props.storage_profile = node['storageProfile']
 props.network_profile = node['networkProfile']
-props.availability_set = node['availability_set']
+props.availability_set = availability_set.get(node['platform-resource-group'], node['platform-availability-set'])
 
 params = VirtualMachine.new
 params.type = 'Microsoft.Compute/virtualMachines'
