@@ -1,9 +1,13 @@
 require File.expand_path('../../../azure/libraries/utils.rb', __FILE__)
+require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
 require 'azure_mgmt_network'
 
 ::Chef::Recipe.send(:include, Utils)
 ::Chef::Recipe.send(:include, Azure::ARM::Network)
 ::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
+
+#set the proxy if it exists as a cloud var
+AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 # get platform resource group and availability set
 include_recipe 'azure::get_platform_rg_and_as'
