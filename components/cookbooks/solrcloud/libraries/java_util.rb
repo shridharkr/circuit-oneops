@@ -15,7 +15,6 @@ module Java
     include Chef::Mixin::ShellOut
 
     def downloadconfig(zkHost,configname)
-      Chef::Log.info('Download prod config through zookeeper ZkCLI')
       begin
         bash 'download_config' do
           Chef::Log.info("java -classpath .:#{node['user']['dir']}/solr-war-lib/* org.apache.solr.cloud.ZkCLI -cmd downconfig -zkhost #{zkHost} -confdir #{node['user']['dir']}/solr-config/#{configname} -confname #{configname}")
@@ -35,10 +34,8 @@ module Java
     end
 
     def uploadprodconfig(zkHost,configname)
-      Chef::Log.info('Upload PROD config through zookeeper ZkCLI')
       begin
-        bash 'upload_prod_config' do
-          Chef::Log.info("Uploading config to zookeeper")
+        bash 'upload_prod_config' do          
           code <<-EOH
             java -classpath .:#{node['user']['dir']}/solr-war-lib/* org.apache.solr.cloud.ZkCLI -cmd upconfig -zkhost #{zkHost} -confdir #{node['user']['dir']}/solr-config/prod -confname #{configname}
           EOH
@@ -57,7 +54,6 @@ module Java
       Chef::Log.info('Upload PROD config through zookeeper ZkCLI')
       begin
         bash 'upload_default_config' do
-          Chef::Log.info("Uploading config to zookeeper")
           Chef::Log.info("java -classpath .:#{node['user']['dir']}/solr-war-lib/* org.apache.solr.cloud.ZkCLI -cmd upconfig -zkhost #{zkHost} -confdir #{node['user']['dir']}/solr-config/default -confname #{configname}")
           code <<-EOH
             java -classpath .:#{node['user']['dir']}/solr-war-lib/* org.apache.solr.cloud.ZkCLI -cmd upconfig -zkhost #{zkHost} -confdir #{node['user']['dir']}/solr-config/default -confname #{configname}

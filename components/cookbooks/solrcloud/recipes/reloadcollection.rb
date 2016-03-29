@@ -6,16 +6,14 @@
 #
 #
 
-ci = node.workorder.ci.ciAttributes;
-collection_name = ci[:collection_name]
+args = ::JSON.parse(node.workorder.arglist)
+collection_name = args["PhysicalCollectionName"]
 
-Chef::Log.info('Reload Collection to Solr Cloud ')
 begin
   bash 'reload_collection' do
     user "#{node['solr']['user']}"
-    Chef::Log.info("http://#{node['ipaddress']}:8080/solr/admin/collections?action=RELOAD&name=#{collection_name}")
     code <<-EOH
-      curl 'http://#{node['ipaddress']}:8080/solr/admin/collections?action=RELOAD&name=#{collection_name}'
+      curl '#{node['solr']['collection_url']}?action=RELOAD&name=#{collection_name}'
     EOH
     not_if { "#{collection_name}".empty? }
   end

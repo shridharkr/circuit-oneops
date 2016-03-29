@@ -2,17 +2,18 @@
 # Cookbook Name:: solrcloud
 # Recipe:: createcollection.rb
 #
-# The recipie reloads collection to the solr cloud.
+# The recipie creates collection to the solr cloud.
 #
 #
 
 ci = node.workorder.ci.ciAttributes;
-collection_name = ci[:collection_name]
-num_shards = ci[:num_shards]
-replication_factor = ci[:replication_factor]
-max_shards_per_node = ci[:max_shards_per_node]
-config_name = ci[:config_name]
+args = ::JSON.parse(node.workorder.arglist)
+collection_name = args["PhysicalCollectionName"]
+num_shards = args["NumberOfShards"]
+replication_factor = args["ReplicationFactor"]
+max_shards_per_node = args["MaxShardsPerNode"]
 
+config_name = ci[:config_name]
 custom_config_name = ci[:custom_config_name]
 custom_config_name = custom_config_name.delete(' ');
 
@@ -30,8 +31,7 @@ if !"#{collection_name}".empty?
 end
 
 begin
-  if !"#{custom_config_name}".empty?
-    Chef::Log.info('Download custom config through zookeeper ZkCLI')
+  if !"#{custom_config_name}".empty?    
     bash 'download_custom_config' do
       code <<-EOH
         cd "#{node['solr']['user']}"
@@ -41,21 +41,17 @@ begin
     if !"#{collection_name}".empty? || !"#{num_shards}".empty? || !"#{replication_factor}".empty? || !"#{max_shards_per_node}".empty?
       bash 'create_collection_w_custom_config' do
         user "#{node['solr']['user']}"
-        Chef::Log.info(' Creating Collection')
-        Chef::Log.info("http://#{node['ipaddress']}:8080/solr/admin/collections?action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{custom_config_name}")
         code <<-EOH
-          curl 'http://#{node['ipaddress']}:8080/solr/admin/collections?action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{custom_config_name}'
+          curl '#{node['solr']['collection_url']}?action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{custom_config_name}'
         EOH
       end
     end
   else
     if !"#{collection_name}".empty? || !"#{num_shards}".empty? || !"#{replication_factor}".empty? || !"#{max_shards_per_node}".empty?
       bash 'create_collection_w_default_config' do
-        user "#{node['solr']['user']}"
-        Chef::Log.info(' Creating Collection')
-        Chef::Log.info("http://#{node['ipaddress']}:8080/solr/admin/collections?action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{config_name}")
+        user "#{node['solr']['user']}"        
         code <<-EOH
-          curl 'http://#{node['ipaddress']}:8080/solr/admin/collections?action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{config_name}'
+          curl '#{node['solr']['collection_url']}?action=CREATE&name=#{collection_name}&numShards=#{num_shards}&replicationFactor=#{replication_factor}&maxShardsPerNode=#{max_shards_per_node}&collection.configName=#{config_name}'
         EOH
       end
     end
