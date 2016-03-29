@@ -260,3 +260,15 @@ attribute 'pam_groupdn',
 recipe "repair", "Repair"
 recipe "upgrade-os-all", "Upgrade OS Packages"
 recipe "upgrade-os-security", "Upgrade OS Security Packages Only"
+
+recipe "upgrade-os-package",
+ :description => 'upgrading a specific package',
+        :args => {
+  "path" => {
+    "name" => "package",
+    "description" => "package name",
+    "defaultValue" => "",
+    "required" => true,
+    "dataType" => "string"
+  }
+}
