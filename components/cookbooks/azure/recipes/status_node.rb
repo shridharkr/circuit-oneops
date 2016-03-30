@@ -5,8 +5,8 @@ require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
 ::Chef::Recipe.send(:include, Azure::ARM::Compute)
 ::Chef::Recipe.send(:include, Azure::ARM::Compute::Models)
 
-#set the proxy if it exists as a cloud var
-AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+#set the proxy if it exists as a system prop
+AzureCommon::AzureUtils.set_proxy_from_env(node)
 
 include_recipe 'azure::get_platform_rg_and_as'
 include_recipe "azure::get_credentials"

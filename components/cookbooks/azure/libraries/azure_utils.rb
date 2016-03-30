@@ -31,5 +31,20 @@ module AzureCommon
       end
     end
 
+    # if there is an apiproxy cloud var define, set it on the env.
+    def self.set_proxy_from_env(node)
+      cloud_name = node['workorder']['cloud']['ciName']
+      compute_service =
+        node['workorder']['services']['compute'][cloud_name]['ciAttributes']
+      Chef::Log.info("ENV VARS ARE: #{compute_service['env_vars']}")
+      env_vars_hash = JSON.parse(compute_service['env_vars'])
+      Chef::Log.info("APIPROXY is: #{env_vars_hash['apiproxy']}")
+
+      if !env_vars_hash['apiproxy'].nil?
+        ENV['http_proxy'] = env_vars_hash['apiproxy']
+        ENV['https_proxy'] = env_vars_hash['apiproxy']
+      end
+    end
+
   end
 end

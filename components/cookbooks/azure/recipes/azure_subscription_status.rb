@@ -5,8 +5,14 @@ require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
 ::Chef::Recipe.send(:include, Azure::ARM::Resources)
 ::Chef::Recipe.send(:include, Azure::ARM::Resources::Models)
 
-#set the proxy if it exists as a cloud var
-AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+# Set the proxy if apiproxy exists as a system var.
+env_vars = node['workorder']['ci']['ciAttributes']['env_vars']
+env_vars_hash = JSON.parse(env_vars)
+Chef::Log.info("APIPROXY is: #{env_vars_hash['apiproxy']}")
+if !env_vars_hash['apiproxy'].nil?
+  ENV['http_proxy'] = env_vars_hash['apiproxy']
+  ENV['https_proxy'] = env_vars_hash['apiproxy']
+end
 
 subscription_details = node[:workorder][:ci][:ciAttributes]
 

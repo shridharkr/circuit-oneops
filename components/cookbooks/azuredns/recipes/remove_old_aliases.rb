@@ -1,4 +1,8 @@
 require File.expand_path('../../libraries/record_set.rb', __FILE__)
+require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
+
+#set the proxy if it exists as a cloud var
+AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 cloud_name = node['workorder']['cloud']['ciName']
 domain_name = node['workorder']['services']['dns'][cloud_name]['ciAttributes']['zone']
