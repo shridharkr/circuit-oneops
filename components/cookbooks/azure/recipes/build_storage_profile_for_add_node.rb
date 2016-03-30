@@ -258,20 +258,24 @@ disk_size_map = JSON.parse(compute_service['ephemeral_disk_sizemap'] )
 vm_size = node['workorder']['rfcCi']['ciAttributes']['size']
 Chef::Log.info("data disk size from size map: #{disk_size_map[vm_size]} ")
 
-#Add a data disk
-data_disk1 = DataDisk.new
-data_disk1.name = "#{server_name}-datadisk"
-data_disk1.lun = 0
-data_disk1.disk_size_gb = disk_size_map[vm_size]
-data_disk1.vhd = VirtualHardDisk.new
-data_disk1.vhd.uri = "https://#{storage_account_name}.blob.core.windows.net/vhds/#{storage_account_name}-#{server_name}-data1.vhd"
-data_disk1.caching = CachingTypes::ReadWrite
-data_disk1.create_option = DiskCreateOptionTypes::Empty
 
-storage_profile.data_disks = Array.[](data_disk1)
-Chef::Log.info("Data Disk Name is: '#{data_disk1.name}' ")
-Chef::Log.info("Data Disk VHD URI is: #{data_disk1.vhd.uri}")
+#if the VM exists already data disk property need not be updated. Updating the datadisk size will result in an error.
 
+if node.VM_exists == false
+
+  #Add a data disk
+  data_disk1 = DataDisk.new
+  data_disk1.name = "#{server_name}-datadisk"
+  data_disk1.lun = 0
+  data_disk1.disk_size_gb = disk_size_map[vm_size]
+  data_disk1.vhd = VirtualHardDisk.new
+  data_disk1.vhd.uri = "https://#{storage_account_name}.blob.core.windows.net/vhds/#{storage_account_name}-#{server_name}-data1.vhd"
+  data_disk1.caching = CachingTypes::ReadWrite
+  data_disk1.create_option = DiskCreateOptionTypes::Empty
+  storage_profile.data_disks = Array.[](data_disk1)
+  Chef::Log.info("Data Disk Name is: '#{data_disk1.name}' ")
+  Chef::Log.info("Data Disk VHD URI is: #{data_disk1.vhd.uri}")
+end
 node.set['storageProfile'] = storage_profile
 
 Chef::Log.info("Exiting azure storage profile")
