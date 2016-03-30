@@ -138,6 +138,72 @@ module Cassandra
       return seeds
     end
 
+    #Check if the cassandra is running, allow #seconds to start running
+    def cassandra_running(seconds=120)
+      begin
+        Timeout::timeout(seconds) do
+          running = false
+          while !running do
+            puts `service cassandra status 2> /dev/null`
+            if $? == 0
+              running = true
+            end
+            Chef::Log.info "Cassandra process is not running. Will try after 5 sec."
+            sleep 5
+          end
+          return running
+        end
+      rescue Timeout::Error 
+        Chef::Log.info "Cassandra is not running. Wait time exceeded.."
+        return false
+      end
+    end
+ 
+    def port_open(ip, port=9160)
+      begin
+        if !cassandra_running
+          puts "***FAULT:FATAL=Cassandra not running"
+          e = Exception.new("no backtrace")
+          e.set_backtrace("")
+          raise e         
+        end
+        TCPSocket.new(ip, port).close
+        return true
+      rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError
+        Chef::Log.info("Port is not open. will after 10 sec")
+        sleep 10
+        retry
+      end
+    end
+    
+    def get_yaml_seeds
+      yaml = YAML::load_file('/opt/cassandra/conf/cassandra.yaml')
+      return yaml['seed_provider'][0]['parameters'][0]['seeds'].split(',')
+    end
+    
+    def all_nodes_up
+      seeds = get_yaml_seeds
+      if seeds == nil || seeds.size <= 1 then
+        return true
+      end
+      rows = `/opt/cassandra/bin/nodetool -h #{seeds[0]} status`.split("\n")
+      Chef::Log.info("ring rows: #{rows.inspect}")
+      rows.each do |row|
+        parts = row.split(" ")
+        next unless parts.size == 8  
+        Chef::Log.info("Node status #{parts[1]} : #{parts[0]}")
+        if parts[0] =~ '/DN/' then
+          puts "***FAULT:FATAL=Cassandra is down #{parts[1]} "
+          e = Exception.new("no backtrace")
+          e.set_backtrace("")
+          raise e
+        elsif parts[0] !~ '/UN/' then
+          return false
+        end
+      end
+      return true
+    end
+
   end
 
 end

@@ -49,19 +49,24 @@ else
   execute "service cassandra stop; pkill -9f jsvc; true"
   
   ruby_block "startup" do
+    Chef::Resource::RubyBlock.send(:include, Cassandra::Util)
     block do
       replace_option = ""
       bash_option = ""
       if node.has_key?("cassandra_replace_option") && !node.cassandra_replace_option.nil?
         bash_option = "JVM_OPTS=\"#{node.cassandra_replace_option}\" "
+        while(!all_nodes_up) do
+          sleep 5
+        end
       end
       cmd = "#{bash_option}/etc/init.d/cassandra start"
       Chef::Log.info("starting using: #{cmd}")
       cmd_result = shell_out(cmd)
       cmd_result.error!
+      port_open(private_ip)
     end
   end
-
+ 
   execute "remove ring_join=false from /etc/default/cassandra" do
     command "sed -i 's/-Dcassandra.join_ring=false //g' /etc/default/cassandra"
   end  
