@@ -163,7 +163,7 @@ ruby_block 'create-iscsi-volume-ruby-block' do
           end
           if flag == true
             vols.push dev_id
-            node.set["raid_device"] = dev_id
+            #node.set["raid_device"] = dev_id
             dev_list += dev_id+" "
             i = i+1
             next
@@ -555,8 +555,9 @@ ruby_block 'create-storage-ebs-volume' do
   only_if { storage != nil && is_primary && token_class !~ /virtualbox|vagrant/}
   block do
 
-   raid_device = node.raid_device
 
+   raid_device = node.raid_device
+   Chef::Log.info("node" +node.inspect)
     devices = Array.new
     if ::File.exists?(raid_device)
       Chef::Log.info(raid_device+" exists.")
