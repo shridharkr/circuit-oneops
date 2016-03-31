@@ -50,10 +50,11 @@ class Chef
       end
 
       def action_create
-        create_ssl
-	#update_key_location unless current_resource.key_location == new_resource.key_location
-	#update_cert_location unless current_resource.cert_location == new_resource.cert_location
-	#update_mode unless current_resource.mode == new_resource.mode
+        create_ssl if !current_resource.exists
+        create_ssl_alt if current_resource.exists
+        #update_key_location unless current_resource.key_location == new_resource.key_location
+        #update_cert_location unless current_resource.cert_location == new_resource.cert_location
+        #update_mode unless current_resource.mode == new_resource.mode
 
       end
 
@@ -72,14 +73,23 @@ class Chef
           key_content_blob = ::File.open("#{new_resource.key_location}", "rb").read
           cert_content_blob = ::File.open("#{new_resource.cert_location}", "rb").read
           cacert_content_blob = ::File.open("#{new_resource.cacert_location}", "rb").read if !new_resource.cacert_location.nil?
-	  #load_balancer.client['Management.KeyCertificate'].key_delete("#{new_resource.mode}", ["#{new_resource.ssl_id}"])
-	  #load_balancer.client['Management.KeyCertificate'].certificate_delete("#{new_resource.mode}", ["#{new_resource.ssl_id}"])
           load_balancer.client['Management.KeyCertificate'].certificate_import_from_pem("#{new_resource.mode}", ["#{new_resource.ssl_id}"], [cert_content_blob],'true')
           load_balancer.client['Management.KeyCertificate'].key_import_from_pem("#{new_resource.mode}", ["#{new_resource.ssl_id}"], [key_content_blob],'true')
           load_balancer.client['Management.KeyCertificate'].certificate_import_from_pem("#{new_resource.mode}", ["cacert-#{new_resource.ssl_id}"], [cacert_content_blob],'true') if !cacert_content_blob.nil?
 
           new_resource.updated_by_last_action(true)
         end
+      end
+
+      def create_ssl_alt
+        converge_by("Create #{new_resource} ssl_alt ") do
+          key_content_blob = ::File.open("#{new_resource.key_location}", "rb").read
+          cert_content_blob = ::File.open("#{new_resource.cert_location}", "rb").read
+          cacert_content_blob = ::File.open("#{new_resource.cacert_location}", "rb").read if !new_resource.cacert_location.nil?
+          load_balancer.client['Management.KeyCertificate'].certificate_import_from_pem("#{new_resource.mode}", ["#{new_resource.ssl_id}-alt"], [cert_content_blob],'true')
+          load_balancer.client['Management.KeyCertificate'].key_import_from_pem("#{new_resource.mode}", ["#{new_resource.ssl_id}-alt"], [key_content_blob],'true')
+          load_balancer.client['Management.KeyCertificate'].certificate_import_from_pem("#{new_resource.mode}", ["cacert-#{new_resource.ssl_id}-alt"], [cacert_content_blob],'true') if !cacert_content_blob.nil?
+  end
       end
 
       #

@@ -18,7 +18,7 @@ require_relative "../libraries/resource_config_sync"
 node.loadbalancers.each do |lb|
 	profiles_list = [{ 'profile_context' =>  'PROFILE_CONTEXT_TYPE_ALL', 'profile_name'	=> "/Common/tcp"}]
 	profiles_list = [{ 'profile_context' =>  'PROFILE_CONTEXT_TYPE_ALL', 'profile_name'	=> "/Common/http"}] if ["SSL","HTTPS","HTTP"].include?(lb[:vprotocol].upcase)
-	profiles_list.push({'profile_context' => 'PROFILE_CONTEXT_TYPE_CLIENT', 'profile_name'	=>	"#{node.cert_name}" }) if lb[:vprotocol] == ("SSL" || "HTTPS")
+	profiles_list.push({'profile_context' => 'PROFILE_CONTEXT_TYPE_CLIENT', 'profile_name'	=>	"#{node.cert_name}" }) if lb[:vprotocol] == "HTTPS"
 	n = f5_bigip_getsetlbip "#{lb['name']}" do
 		ipv46 "#{ip}"
 		f5_ip "#{node.f5_host}"
@@ -103,7 +103,7 @@ end
 node.dcloadbalancers.each do |lb|
 	profiles_list = [{ 'profile_context' =>  'PROFILE_CONTEXT_TYPE_ALL', 'profile_name'	=> "/Common/tcp"}]
 	profiles_list = [{ 'profile_context' =>  'PROFILE_CONTEXT_TYPE_ALL', 'profile_name'	=> "/Common/http"}] if ["SSL","HTTPS","HTTP"].include?(lb[:vprotocol].upcase)
-	profiles_list.push({'profile_context' => 'PROFILE_CONTEXT_TYPE_CLIENT', 'profile_name'	=>	"#{node.certname}" }) if lb[:vprotocol] == ("SSL" || "HTTPS")
+	profiles_list.push({'profile_context' => 'PROFILE_CONTEXT_TYPE_CLIENT', 'profile_name'	=>	"#{node.cert_name}" }) if lb[:vprotocol] == "HTTPS"
 
 	n = f5_bigip_getsetlbip "#{lb['name']}" do
 		ipv46 "#{ip}"
@@ -117,7 +117,7 @@ node.dcloadbalancers.each do |lb|
 				vs_name lb[:name]
 				f5 node.f5_host
 				default_pool "#{lb[:sg_name]}"
-				destination_address	"1.1.1.4"
+				destination_address	node.ns_lbvserver_ip
 				connection_limit 12
 				destination_port lb[:vport].to_i
 				profiles profiles_list
@@ -131,7 +131,7 @@ node.dcloadbalancers.each do |lb|
 				vs_name lb[:name]
 				f5 node.f5_host
 				default_pool "#{lb[:sg_name]}"
-				destination_address	"1.1.1.4"
+				destination_address	node.ns_lbvserver_ip
 				connection_limit 12
 				destination_port lb[:vport].to_i
 				profiles profiles_list
@@ -146,7 +146,7 @@ node.dcloadbalancers.each do |lb|
 				vs_name lb[:name]
 				f5 node.f5_host
 				default_pool "#{lb[:sg_name]}"
-				destination_address	"1.1.1.4"
+				destination_address	node.ns_lbvserver_ip
 				connection_limit 12
 				destination_port lb[:vport].to_i
 				profiles profiles_list
@@ -158,7 +158,7 @@ node.dcloadbalancers.each do |lb|
 				vs_name lb[:name]
 				f5 node.f5_host
 				default_pool "#{lb[:sg_name]}"
-				destination_address	"1.1.1.4"
+				destination_address	node.ns_lbvserver_ip
 				connection_limit 12
 				destination_port lb[:vport].to_i
 				profiles profiles_list
