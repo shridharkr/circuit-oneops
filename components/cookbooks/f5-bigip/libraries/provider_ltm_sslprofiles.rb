@@ -88,9 +88,27 @@ class Chef
       #
       def update_key_cert
         converge_by("Update #{new_resource} cert key  method") do
+          kid = new_resource.keyid
+          cid = new_resource.certid
+          caid = new_resource.cacertid if !new_resource.cacertid.nil?
+          todel='-alt'
+          if @current_resource.exists
+            if !load_balancer.client['LocalLB.ProfileClientSSL'].get_key_file(["/Common/#{new_resource.sslprofile_name}"])[0].value.include?("#{new_resource.sslprofile_name}-alt")
+              kid = new_resource.sslprofile_name+'-alt.key'
+              cid = new_resource.sslprofile_name+'-alt.crt'
+              caid = new_resource.sslprofile_name+'-alt.crt' if !new_resource.cacertid.nil?
+              todel = ''
+            end
+          end
           Chef::Log.info "Update #{new_resource} cert key method"
-          load_balancer.client['LocalLB.ProfileClientSSL'].set_key_certificate_file([new_resource.sslprofile_name], [{"value" => "/Common/#{new_resource.keyid}", "default_flag" => "false"}] , [{"value" => "/Common/#{new_resource.certid}", "default_flag" => "false"}])
-          load_balancer.client['LocalLB.ProfileClientSSL'].set_chain_file_v2(["/Common/#{new_resource.sslprofile_name}"], [{"value" => "/Common/#{new_resource.cacertid}", "default_flag" => "false" }]) if !new_resource.cacertid.nil?
+          load_balancer.client['LocalLB.ProfileClientSSL'].set_key_certificate_file([new_resource.sslprofile_name], [{"value" => "/Common/#{kid}", "default_flag" => "false"}] , [{"value" => "/Common/#{cid}", "default_flag" => "false"}])
+          load_balancer.client['LocalLB.ProfileClientSSL'].set_chain_file_v2(["/Common/#{new_resource.sslprofile_name}"], [{"value" => "/Common/#{caid}", "default_flag" => "false" }]) if !new_resource.cacertid.nil?
+     
+          ssl_d = load_balancer.ltm.ssls("MANAGEMENT_MODE_DEFAULT").find { |p| p =~ /(^|\/)#{new_resource.sslprofile_name}#{todel}$/ } 
+          if !ssl_d.nil?
+            load_balancer.client['Management.KeyCertificate'].key_delete("MANAGEMENT_MODE_DEFAULT", ["/Common/#{new_resource.sslprofile_name}#{todel}"])
+            load_balancer.client['Management.KeyCertificate'].certificate_delete("MANAGEMENT_MODE_DEFAULT", ["/Common/#{new_resource.sslprofile_name}#{todel}"])
+          end
           current_resource.keyid(new_resource.keyid)
           current_resource.certid(new_resource.certid)
           current_resource.passphrase(new_resource.passphrase)
