@@ -11,10 +11,11 @@ require_relative "../libraries/resource_config_sync"
 lbs = [] + node.loadbalancers + node.dcloadbalancers
 
 lbs.each do |lb|
-
-  sg_name = lb[:sg_name]
-  f5_ltm_pool "#{sg_name}" do
-    pool_name "#{sg_name}"
+  lbparts = lb['name'].split("-")
+  lbparts.pop
+  base_pool_name =  "str-" + lbparts.join("-") + "-pool"
+  f5_ltm_pool "#{base_pool_name}" do
+    pool_name "#{base_pool_name}"
     f5 "#{node.f5_host}"
     action :delete
     notifies :run, "f5_config_sync[#{f5['hostname']}]", :delayed

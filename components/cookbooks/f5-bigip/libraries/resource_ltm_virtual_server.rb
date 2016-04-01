@@ -58,7 +58,7 @@ class Chef
         @resource_name = :f5_ltm_virtual_server
         @provider = Chef::Provider::F5LtmVirtualServer
         @action = :create
-        @allowed_actions = [:create, :delete]
+        @allowed_actions = [:create, :delete, :nothing]
 
         # This is equivalent to setting :name_attribute => true
         @vs_name = name

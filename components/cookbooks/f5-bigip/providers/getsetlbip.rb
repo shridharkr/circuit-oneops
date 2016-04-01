@@ -53,7 +53,6 @@ def get_lbip(f5_ip)
           lbvserver_ip = ipstr
           break
          end
-
       end
     end
     if lbvserver_ip.nil?
@@ -85,6 +84,8 @@ action :create do
   f5_ip = @new_resource.f5_ip
   if ip.nil? || ip.empty?
     get_lbip(f5_ip)
+  else
+    node.set["ns_lbvserver_ip"] = ip
   end
 end
 
