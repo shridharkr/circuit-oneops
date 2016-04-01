@@ -11,26 +11,30 @@ dc_level_ip = nil
 
 # uploads certkey
 include_recipe "f5-bigip::f5_add_cert_key"
-require_relative "../libraries/resource_ltm_virtual_server"
-require_relative "../libraries/resource_config_sync"
+#require_relative "../libraries/resource_ltm_virtual_server"
+#require_relative "../libraries/resource_config_sync"
 #require_relative "../resources/getsetlbip"
 
 node.loadbalancers.each do |lb|
 	profiles_list = [{ 'profile_context' =>  'PROFILE_CONTEXT_TYPE_ALL', 'profile_name'	=> "/Common/tcp"}]
 	profiles_list = [{ 'profile_context' =>  'PROFILE_CONTEXT_TYPE_ALL', 'profile_name'	=> "/Common/http"}] if ["SSL","HTTPS","HTTP"].include?(lb[:vprotocol].upcase)
-	profiles_list.push({'profile_context' => 'PROFILE_CONTEXT_TYPE_CLIENT', 'profile_name'	=>	"#{node.cert_name}" }) if lb[:vprotocol] == "HTTPS"
+	profiles_list.push({'profile_context' => 'PROFILE_CONTEXT_TYPE_CLIENT', 'profile_name'	=>	"#{node.cert_name}" }) if lb[:vprotocol] ==  "HTTPS"
+	lbparts = lb['name'].split("-")
+  	lbparts.pop
+	base_pool_name =  "str-" + lbparts.join("-") + "-pool"
+	#end
 	n = f5_bigip_getsetlbip "#{lb['name']}" do
 		ipv46 "#{ip}"
 		f5_ip "#{node.f5_host}"
-		action :create
+		action :nothing
 	end
 	n.run_action(:create)
 	if node.workorder.rfcCi.ciAttributes.stickiness == "true"
 		if ["SSL","HTTPS","HTTP"].include?(lb[:vprotocol].upcase)
-			f5_ltm_virtual_server "#{lb[:name]}" do
+			c_lb = f5_ltm_virtual_server "#{lb[:name]}" do
 				vs_name lb[:name]
 				f5 node.f5_host
-				default_pool "#{lb[:sg_name]}"
+				default_pool "#{base_pool_name}"
 				destination_address	node.ns_lbvserver_ip
 				connection_limit 12
 				destination_port lb[:vport].to_i
@@ -38,54 +42,63 @@ node.loadbalancers.each do |lb|
 				default_persistence_profile	'/Common/cookie'
 				fallback_persistence_profile '/Common/source_addr'
 				enabled true
-				action :create
-				notifies :run, "f5_config_sync[#{node.f5_host}]", :immediately
+				action :nothing
+				notifies :run, "f5_config_sync[#{node.f5_host}]", :delayed
 			end
 		else
-			f5_ltm_virtual_server "#{lb[:name]}" do
+			c_lb = f5_ltm_virtual_server "#{lb[:name]}" do
 				vs_name lb[:name]
 				f5 node.f5_host
-				default_pool "#{lb[:sg_name]}"
+				default_pool "#{base_pool_name}"
 				destination_address	node.ns_lbvserver_ip
 				connection_limit 12
 				destination_port lb[:vport].to_i
 				profiles profiles_list
 				default_persistence_profile '/Common/source_addr'
 				enabled true
-				action :create
-				notifies :run, "f5_config_sync[#{node.f5_host}]", :immediately
+				action :nothing
+				notifies :run, "f5_config_sync[#{node.f5_host}]", :delayed
 			end
 		end
 	else
 		if ["SSL","HTTPS","HTTP"].include?(lb[:vprotocol].upcase)
-			f5_ltm_virtual_server "#{lb[:name]}" do
+			c_lb = f5_ltm_virtual_server "#{lb[:name]}" do
 				vs_name lb[:name]
 				f5 node.f5_host
-				default_pool "#{lb[:sg_name]}"
+				default_pool "#{base_pool_name}"
 				destination_address	node.ns_lbvserver_ip
 				connection_limit 12
 				destination_port lb[:vport].to_i
 				profiles profiles_list
 				enabled true
-				action :create
-				notifies :run, "f5_config_sync[#{node.f5_host}]", :immediately
+				action :nothing
+				notifies :run, "f5_config_sync[#{node.f5_host}]", :delayed
 			end
 		else
-			f5_ltm_virtual_server "#{lb[:name]}" do
+			c_lb = f5_ltm_virtual_server "#{lb[:name]}" do
 				vs_name lb[:name]
 				f5 node.f5_host
-				default_pool "#{lb[:sg_name]}"
+				default_pool "#{base_pool_name}"
 				destination_address	node.ns_lbvserver_ip
 				connection_limit 12
 				destination_port lb[:vport].to_i
 				profiles profiles_list
 				enabled true
-				action :create
-				notifies :run, "f5_config_sync[#{node.f5_host}]", :immediately
+				action :nothing
+				notifies :run, "f5_config_sync[#{node.f5_host}]", :delayed
 			end
 		end		
 			
 	end
+	action = :create
+	if node.workorder.rfcCi.ciAttributes.has_key?("create_cloud_level_vips") &&
+     		node.workorder.rfcCi.ciAttributes.create_cloud_level_vips == "false"
+
+		Chef::Log.info("create_cloud_level_vips: #{node.workorder.rfcCi.ciAttributes.create_cloud_level_vips}")
+		action = :delete
+		cloud_level_ip = nil
+	end
+	c_lb.run_action(action)
 	cloud_level_ip = node["ns_lbvserver_ip"]	
 end
 
@@ -104,11 +117,15 @@ node.dcloadbalancers.each do |lb|
 	profiles_list = [{ 'profile_context' =>  'PROFILE_CONTEXT_TYPE_ALL', 'profile_name'	=> "/Common/tcp"}]
 	profiles_list = [{ 'profile_context' =>  'PROFILE_CONTEXT_TYPE_ALL', 'profile_name'	=> "/Common/http"}] if ["SSL","HTTPS","HTTP"].include?(lb[:vprotocol].upcase)
 	profiles_list.push({'profile_context' => 'PROFILE_CONTEXT_TYPE_CLIENT', 'profile_name'	=>	"#{node.cert_name}" }) if lb[:vprotocol] == "HTTPS"
+        lbparts = lb['name'].split("-")
+        lbparts.pop
+        base_pool_name =  "str-" + lbparts.join("-") + "-pool"
+
 
 	n = f5_bigip_getsetlbip "#{lb['name']}" do
 		ipv46 "#{ip}"
 		f5_ip "#{node.f5_host}"
-		action :create
+		action :nothing
 	end
 	n.run_action(:create)
 	if node.workorder.rfcCi.ciAttributes.stickiness == "true"
@@ -116,7 +133,7 @@ node.dcloadbalancers.each do |lb|
 			f5_ltm_virtual_server "#{lb[:name]}" do
 				vs_name lb[:name]
 				f5 node.f5_host
-				default_pool "#{lb[:sg_name]}"
+				default_pool "#{base_pool_name}"
 				destination_address	node.ns_lbvserver_ip
 				connection_limit 12
 				destination_port lb[:vport].to_i
@@ -130,7 +147,7 @@ node.dcloadbalancers.each do |lb|
 			f5_ltm_virtual_server "#{lb[:name]}" do
 				vs_name lb[:name]
 				f5 node.f5_host
-				default_pool "#{lb[:sg_name]}"
+				default_pool "#{base_pool_name}"
 				destination_address	node.ns_lbvserver_ip
 				connection_limit 12
 				destination_port lb[:vport].to_i
@@ -145,7 +162,7 @@ node.dcloadbalancers.each do |lb|
 			f5_ltm_virtual_server "#{lb[:name]}" do
 				vs_name lb[:name]
 				f5 node.f5_host
-				default_pool "#{lb[:sg_name]}"
+				default_pool "#{base_pool_name}"
 				destination_address	node.ns_lbvserver_ip
 				connection_limit 12
 				destination_port lb[:vport].to_i
@@ -157,7 +174,7 @@ node.dcloadbalancers.each do |lb|
 			f5_ltm_virtual_server "#{lb[:name]}" do
 				vs_name lb[:name]
 				f5 node.f5_host
-				default_pool "#{lb[:sg_name]}"
+				default_pool "#{base_pool_name}"
 				destination_address	node.ns_lbvserver_ip
 				connection_limit 12
 				destination_port lb[:vport].to_i
