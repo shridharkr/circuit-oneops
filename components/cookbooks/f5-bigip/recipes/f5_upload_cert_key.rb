@@ -1,5 +1,5 @@
 #
-# netscaler::upload_cert_key - scp's the cert and key
+# f5-bigip::f5_upload_cert_key - scp's the cert and key
 #
 
 require 'net/scp'
@@ -16,7 +16,7 @@ ci = certs.first
 # uses lb cloud service
 cloud_name = node[:workorder][:cloud][:ciName]
 cloud_service = node[:workorder][:services][:lb][cloud_name][:ciAttributes]
-Chef::Log.info("upload netscaler: #{cloud_service[:host]}")
+Chef::Log.info("upload f5-bigip: #{cloud_service[:host]}")
 
 # write cert content to tmp file
 cert_file = "oo-cert-"+ci[:ciId].to_s+".cer"

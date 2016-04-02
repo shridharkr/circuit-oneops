@@ -8,7 +8,7 @@ platform_name = node.workorder.box.ciName
 
 cert_name = [env_name, assembly_name, platform_name, node.workorder.rfcCi.ciId.to_s].join("-") 
 
-# truncate for netscaler max cert name length of 31
+# truncate for f5-bigip max cert name length of 31
 if cert_name.length > 31
   cert_name = "oo-"+node.workorder.rfcCi.ciId.to_s 
   end

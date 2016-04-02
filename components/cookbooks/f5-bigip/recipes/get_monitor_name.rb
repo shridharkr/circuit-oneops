@@ -40,7 +40,7 @@ iport_map.each_pair do |iport,protocol|
   base_monitor_name =  "str-" + [env_name, assembly_name, platform_name, iport, lb_ci_id].join("-") + "-monitor"
   
   sg_name = [env_name, platform_name, cloud_name, iport, lb_ci_id, "svcgrp"].join("-")
-  # truncate for netscaler max monitor name length of 31 - port can be 5
+  # truncate for f5-bigip max monitor name length of 31 - port can be 5
   #if base_monitor_name.length > 26
   #  base_monitor_name = "str-" + lb_ci_id + "-"+ iport +"-monitor"
   #end
@@ -66,7 +66,7 @@ node.set["monitors"] = monitors
 previous_iport_map.keys.each do |iport|
   base_monitor_name =  [env_name, assembly_name, platform_name, iport, lb_ci_id].join("-") + "-monitor"
   
-  # truncate for netscaler max monitor name length of 31 - port can be 5
+  # truncate for f5-bigip max monitor name length of 31 - port can be 5
   if base_monitor_name.length > 26
     base_monitor_name = lb_ci_id + "-"+ iport +"-monitor"
   end
