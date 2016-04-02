@@ -84,7 +84,6 @@ end
     Chef::Log.info("manifest.Lb ciId: #{manifest_ci[:ciId]} index: #{index}" )  
     az = az_map.keys[index]
     
-    # check to see if dc vip is on another netscaler
     existing_az = ""
     found = false
     az_map.keys.each do |check_az|
@@ -133,12 +132,12 @@ end
        node.workorder.rfcCi.ciAttributes.availability_zone && az_orig != az
   
     host_old = az_map[node.workorder.rfcCi.ciAttributes.availability_zone]
-    Chef::Log.info("previous netscaler: #{host_old}")
+    Chef::Log.info("previous f5-bigip: #{host_old}")
 #    node.set["ns_conn_prev"] = gen_conn(cloud_service,host_old)
   end
   
   # ns host
-  Chef::Log.info("netscaler: #{host}")
+  Chef::Log.info("f5-bigip: #{host}")
 #  node.set["ns_conn"] = gen_conn(cloud_service,host)
   node.set["gslb_local_site"] = cloud_service[:gslb_site]
 

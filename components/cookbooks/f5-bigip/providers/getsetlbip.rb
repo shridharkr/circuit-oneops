@@ -10,7 +10,6 @@ include F5::Loader
 
 def get_lbip(f5_ip)
   lbvserver_name = @new_resource.name
-  #Re-Use IP from Nitro Netscaler API
   lbparts = lbvserver_name.split("-")
   lbparts.pop #Remove lb
   lbparts.pop #Remove ciid

@@ -1,7 +1,7 @@
 Description
 ===========
 
-Configured a netscaler with lbvserver/pool and vserver/vservice
+Configured a f5-bigip with lbvserver/pool and vserver/vservice
 
 Changes
 =======
@@ -11,8 +11,6 @@ Requirements
 
 Attributes
 ==========
-
-* `node['netscaler']['endpoint']` - the rest endpoint ex https://10.242.4.52/nitro/v1/config
 
 License and Author
 ==================

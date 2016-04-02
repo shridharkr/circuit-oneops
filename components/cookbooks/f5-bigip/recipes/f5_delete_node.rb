@@ -1,6 +1,6 @@
 #
-# Cookbook Name:: netscaler
-# Recipe:: delete_lbvserver
+# Cookbook Name:: f5-bigip
+# Recipe:: f5_delete_node
 #
 # Copyright 2013 Walmart Labs
 

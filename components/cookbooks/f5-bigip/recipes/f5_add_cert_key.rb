@@ -1,5 +1,5 @@
 #
-# netscaler::add_cert_key - adds a sslcertkey ns object to be bound with a lbvserver
+# f5-bigip::f5_add_cert_key - adds a sslcertkey ns object to be bound with a lbvserver
 #
 
 certs = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Certificate/}
@@ -51,7 +51,6 @@ include_recipe "f5-bigip::upload_cert_key"
 #        private String linkcertkeyname;
 #        private Boolean nodomaincheck;
 
-# escape certain chars to prevent netscaler response: Invalid JSON input
 #passphrase = node.cert[:passphrase].gsub("@","\\x40").gsub("?","\\x3f").gsub("&","\\x26")
 passphrase = node.cert[:passphrase]
 
