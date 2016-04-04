@@ -30,8 +30,10 @@ if node.workorder.services.has_key?("storage")
   cloud_name = node[:workorder][:cloud][:ciName]
   storage_service = node[:workorder][:services][:storage][cloud_name]
   storage = storage_service["ciAttributes"]
-  storage_provider = storage_service["ciClassName"].split(".").last.downcase
-  node.set['storage_provider_class'] = storage_provider
+  storage_provider =storage_service["ciClassName"].split(".").last.downcase
+  if storage_provider == "azureblobs"
+     node.set['storage_provider_class'] = storage_provider
+  end
 end
 
 Chef::Log.info("Cloud Storage Provider: #{storage_provider}")
@@ -107,7 +109,7 @@ Array(1..slice_count).each do |i|
 
   Chef::Log.info("adding dev: #{dev} size: #{slice_size}G")
   volume = nil
-  Chef::Log.info("node.storage_provider_class ---> #{node.storage_provider_class}")
+  Chef::Log.info("node.storage_provider_class #{node.storage_provider_class}")
   case node.storage_provider_class
   when /cinder/
     

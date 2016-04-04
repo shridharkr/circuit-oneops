@@ -197,7 +197,6 @@ if storage_index < 0
 end
 
 storage_account_name = storage_accounts[storage_index]
-storage_account_name = "oostg288491eus201"
 
 #Check for Storage account availability(if storage account is created or not)
 #Available means the storage account has not been created (need to create it)

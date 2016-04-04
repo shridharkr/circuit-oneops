@@ -334,7 +334,6 @@ ruby_block 'create-iscsi-volume-ruby-block' do
       if vols.size > 1
 
        cmd = "mdadm --create -l#{level} -n#{vols.size.to_s} --assume-clean --chunk=256 #{raid_device} #{dev_list} 2>&1"
-       Chef::Log.info("raid_device #{raid_device} has_created_raid #{has_created_raid} exec_count #{exec_count} #{max_retry}")
        until ::File.exists?(raid_device) || has_created_raid || exec_count > max_retry do
          Chef::Log.info(raid_device+" being created with: "+cmd)
 
@@ -484,7 +483,6 @@ ruby_block 'create-storage-non-ephemeral-volume' do
   block do
 
    raid_device = node.raid_device
-   Chef::Log.info("node" +node.inspect)
     devices = Array.new
     if ::File.exists?(raid_device)
       Chef::Log.info(raid_device+" exists.")
