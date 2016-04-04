@@ -471,6 +471,11 @@ plat_name = platform_name.gsub(/-/, "").downcase
 env_name = environment_name.gsub(/-/, "").downcase
 lb_name = "lb-#{plat_name}"
 
+cloud_name = node.workorder.cloud.ciName
+dc = node.workorder.services["lb"][cloud_name][:ciAttributes][:location]+"."
+dns_zone = node.workorder.services["dns"][cloud_name][:ciAttributes][:zone]
+dc_dns_zone = dc + dns_zone
+platform_ciId = node.workorder.box.ciId.to_s
 
 Chef::Log.info("Cloud Name: #{cloud_name}")
 Chef::Log.info("Org: #{org_name}")
@@ -559,6 +564,7 @@ end
 lb_rules = Array.new
 listeners = get_listeners()
 
+dc_lb_name = ''
 listeners.each do |listener|
   lbrule_name = "#{env_name}.#{platform_name}-#{listener.vport}_#{listener.iport}tcp-#{ci[:ciId]}-lbrule"
   Chef::Log.info("LBRule: #{lbrule_name}")
@@ -572,7 +578,14 @@ listeners.each do |listener|
     probe = probes[0]
   end
 
-  lb_rule = create_lb_rule(lb_rule_name, load_distribution, protocol, frontend_port, backend_port, probe, frontend_ip_config, backend_address_pool)  
+  service_type = listener.vprotocol
+  if service_type == "HTTPS"
+    service_type = "SSL"
+  end
+  dc_lb_name = [platform_name, environment_name, assembly_name, org_name, dc_dns_zone].join(".") +
+               '-'+service_type+"_"+frontend_port+"tcp-" + platform_ciId + "-lb"
+
+  lb_rule = create_lb_rule(lb_rule_name, load_distribution, protocol, frontend_port, backend_port, probe, frontend_ip_config, backend_address_pool)
   lb_rules.push(lb_rule)
 end
 
@@ -681,5 +694,6 @@ else
   msg = "AzureLB IP: #{lbip}"
   Chef::Log.info(msg)
   node.set[:azurelb_ip] = lbip
+  vname = { dc_lb_name => lbip}
+  puts "***RESULT:vnames=" + vname.to_json
 end
-
