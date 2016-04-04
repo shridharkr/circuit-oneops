@@ -17,7 +17,6 @@ module AzureNetwork
         response = promise.value!
         result = response.body
         result
-        
         rescue  MsRestAzure::AzureOperationError =>e
           Chef::Log.error("Error getting NSG '#{network_security_group_name}'")
           Chef::Log.error("Error Response: #{e.response}")
