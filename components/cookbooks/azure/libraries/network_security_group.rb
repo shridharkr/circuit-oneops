@@ -19,10 +19,18 @@ module AzureNetwork
         result
         
         rescue  MsRestAzure::AzureOperationError =>e
-        Chef::Log.error("Error getting NSG '#{network_security_group_name}'")
-        Chef::Log.error("Error Response: #{e.response}")
-        Chef::Log.error("Error Body: #{e.body}")
-        return nil
+          Chef::Log.error("Error getting NSG '#{network_security_group_name}'")
+          Chef::Log.error("Error Response: #{e.response}")
+          Chef::Log.error("Error Body: #{e.body}")
+          return nil
+        rescue Exception => e
+          msg = "Exception trying to get network security group #{network_security_group_name} from resource group: #{resource_group_name}"
+          Chef::Log.error("Azure::Network Security group -#{msg}")
+          puts "***FAULT:FATAL="+e.body.to_s
+          Chef::Log.error("Azure::Network Security group - Exception is: #{e.message}")
+          e = Exception.new('no backtrace')
+          e.set_backtrace('')
+          raise e
       end
     end
     
@@ -44,6 +52,14 @@ module AzureNetwork
         Chef::Log.error("Error response: #{e.response}")
         Chef::Log.error("Error Body: #{e.body}")
         return nil
+        rescue Exception => e
+          msg = "Exception trying to create network security group #{network_security_group_name} from resource group: #{resource_group_name}"
+          Chef::Log.error("Azure::Network Security group -#{msg}")
+          puts "***FAULT:FATAL="+e.body.to_s
+          Chef::Log.error("Azure::Network Security group - Exception is: #{e.message}")
+          e = Exception.new('no backtrace')
+          e.set_backtrace('')
+          raise e
       end
     end
     
@@ -59,6 +75,14 @@ module AzureNetwork
         Chef::Log.error("Error response: #{e.response}")
         Chef::Log.error("Error Body: #{e.body}")
         return nil
+        rescue Exception => e
+          msg = "Exception trying to create/update network security group #{network_security_group_name} from resource group: #{resource_group_name}"
+          Chef::Log.error("Azure::Network Security group -#{msg}")
+          puts "***FAULT:FATAL="+e.body.to_s
+          Chef::Log.error("Azure::Network Security group - Exception is: #{e.message}")
+          e = Exception.new('no backtrace')
+          e.set_backtrace('')
+          raise e
       end
     end
     
@@ -74,6 +98,14 @@ module AzureNetwork
         Chef::Log.error("Error Response: #{e.response}")
         Chef::Log.error("Error Body: #{e.body}")
         return nil
+        rescue Exception => e
+          msg = "Exception trying to list network security groups from #{resource_group_name} resource group"
+          Chef::Log.error("Azure::Network Security group -#{msg}")
+          puts "***FAULT:FATAL="+e.body.to_s
+          Chef::Log.error("Azure::Network Security group - Exception is: #{e.message}")
+          e = Exception.new('no backtrace')
+          e.set_backtrace('')
+          raise e
       end
     end
     
@@ -89,6 +121,14 @@ module AzureNetwork
         Chef::Log.error("Error Response: #{e.response}")
         Chef::Log.error("Error Body: #{e.body}")
         return nil
+        rescue Exception => e
+          msg = "Exception trying to delete network security group #{net_sec_group_name} from resource group: #{resource_group_name}"
+          Chef::Log.error("Azure::Network Security group -#{msg}")
+          puts "***FAULT:FATAL="+e.body.to_s
+          Chef::Log.error("Azure::Network Security group - Exception is: #{e.message}")
+          e = Exception.new('no backtrace')
+          e.set_backtrace('')
+          raise e
       end
     end
     
@@ -108,6 +148,14 @@ module AzureNetwork
         Chef::Log.error("Error Response: #{e.response}")
         Chef::Log.error("Error Body: #{e.body}")
         return nil
+      rescue Exception => e
+        msg = "Exception trying to create/update security rule #{security_rule_name} in securtiry group: #{network_security_group_name}"
+        Chef::Log.error("Azure::Network Security group -#{msg}")
+        puts "***FAULT:FATAL="+e.body.to_s
+        Chef::Log.error("Azure::Network Security group - Exception is: #{e.message}")
+        e = Exception.new('no backtrace')
+        e.set_backtrace('')
+        raise e
       end
     end
     
@@ -124,6 +172,14 @@ module AzureNetwork
         Chef::Log.error("Error Response: #{e.response}")
         Chef::Log.error("Error Body: #{e.body}")
         return nil
+      rescue Exception => e
+        msg = "Exception trying to delete security rule #{security_rule_name} from securtiry group: #{network_security_group_name}"
+        Chef::Log.error("Azure::Network Security group -#{msg}")
+        puts "***FAULT:FATAL="+e.body.to_s
+        Chef::Log.error("Azure::Network Security group - Exception is: #{e.message}")
+        e = Exception.new('no backtrace')
+        e.set_backtrace('')
+        raise e
       end
     end
     
@@ -140,6 +196,14 @@ module AzureNetwork
         Chef::Log.error("Error Response: #{e.response}")
         Chef::Log.error("Error Body: #{e.body}")
         return nil
+      rescue Exception => e
+        msg = "Exception trying to get security rule #{security_rule_name} from securtiry group: #{network_security_group_name}"
+        Chef::Log.error("Azure::Network Security group -#{msg}")
+        puts "***FAULT:FATAL="+e.body.to_s
+        Chef::Log.error("Azure::Network Security group - Exception is: #{e.message}")
+        e = Exception.new('no backtrace')
+        e.set_backtrace('')
+        raise e
       end
     end
     
@@ -156,6 +220,14 @@ module AzureNetwork
         Chef::Log.error("Error Response: #{e.response}")
         Chef::Log.error("Error Body: #{e.body}")
         return nil
+      rescue Exception => e
+        msg = "Exception trying to list security rules from securtiry group: #{network_security_group_name}"
+        Chef::Log.error("Azure::Network Security group -#{msg}")
+        puts "***FAULT:FATAL="+e.body.to_s
+        Chef::Log.error("Azure::Network Security group - Exception is: #{e.message}")
+        e = Exception.new('no backtrace')
+        e.set_backtrace('')
+        raise e
       end
     end
     
@@ -194,5 +266,5 @@ module AzureNetwork
 
   #end of class    
   end
-  #end of module
+#end of module
 end
