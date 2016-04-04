@@ -4,6 +4,7 @@ maintainer_email 'kowsalya.palaniappan@walmart.com'
 license          'All rights reserved'
 description      'Installs/Configures azureblobs'
 version          '0.1.0'
+depends		      "azureblobs"
 
 grouping 'default',
          :access => "global",

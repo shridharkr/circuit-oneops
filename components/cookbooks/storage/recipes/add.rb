@@ -35,10 +35,6 @@ if node.workorder.services.has_key?("storage")
 end
 
 Chef::Log.info("Cloud Storage Provider: #{storage_provider}")
-if storage_provider =~ /azureblobs/
-  include_recipe 'azureblobs::add_storage'
-  #return true
-end
 
 provider = node['provider_class']
 

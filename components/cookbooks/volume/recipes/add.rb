@@ -22,23 +22,10 @@
 # create a logical volume lvcreate with the name of the resource /dev/<resource>
 # use storage dep to gen a raid and lvm ontop
 
-require 'azure_mgmt_compute'
-require 'azure_mgmt_storage'
 package "lvm2"
 package "mdadm"
 
 include_recipe "shared::set_provider"
-
-# invoke recipe to get credentials
-include_recipe "azure::get_credentials"
-
-
-credentials = node['azureCredentials']
-
-# get platform resource group and availability set
-include_recipe 'azure::get_platform_rg_and_as'
-
-
 
  storage = nil
  node.workorder.payLoad[:DependsOn].each do |dep|
@@ -98,6 +85,14 @@ if node.workorder.services.has_key?("storage")
   node.set['storage_provider'] = storage_provider
 end
 
+
+if node[:storage_provider] =~ /azure/
+  device_maps = storage['ciAttributes']['device_map'].split(" ")
+  node.set[:device_maps] = device_maps
+  include_recipe "azureblobs::attach_datadisk"
+  vols = Array.new
+
+end
 ruby_block 'create-iscsi-volume-ruby-block' do
   block do
 
@@ -112,92 +107,20 @@ ruby_block 'create-iscsi-volume-ruby-block' do
 
     else
 
+      dev_list = ""
       if node[:storage_provider] =~ /azure/
-        device_maps = storage['ciAttributes']['device_map'].split(" ")
-        Chef::Log.info("device maps "+device_maps.inspect())
+        Chef::Log.info(" the storage device is already attached")
         vols = Array.new
-        dev_list = ""
-        i = 2
         device_maps.each do |dev_vol|
-          slice_size = dev_vol.split(":")[0]
+          vol_id = dev_vol.split(":")[0]
           dev_id = dev_vol.split(":")[1]
-          #dev_id = "/dev/sdd" + i.to_s()
-          Chef::Log.info("slice_size :#{slice_size}, dev_id: #{dev_id}")
-          provider = node[:iaas_provider]
-          storage_provider = node[:storage_provider]
-          Chef::Log.info("i am here storage_provider: "+storage_provider)
-
-        cloud_var=node.workorder.payLoad.OO_CLOUD_VARS
-        http_proxy=""
-        cloud_var.each do |var|
-          if var[:ciName] == "httpproxy"
-            http_proxy = var[:ciAttributes][:value]
-          end
-        end
-          ENV['http_proxy']=http_proxy
-
-        instance_name = node.workorder.payLoad.ManagedVia[0]["ciAttributes"]["instance_name"]
-        Chef::Log.info("i am here instance_id: "+instance_name)
-
-        cloud_name = node['workorder']['cloud']['ciName']
-        Chef::Log.info('cloud_name is: ' + cloud_name)
-        compute_service = node['workorder']['services']['compute'][cloud_name]['ciAttributes']
-
-# handle token and credentials
-        subscription_id = compute_service['subscription']
-        Chef::Log.info('Subscription id is: ' + subscription_id)
-        client = Azure::ARM::Compute::ComputeManagementClient.new(credentials)
-        client.subscription_id = subscription_id
-        promise = client.virtual_machines.get(node['platform-resource-group'], instance_name)
-        result = promise.value!
-        Chef::Log.info("vm info :"+result.body.inspect)
-        vm = result.body
-        storage_account_name = ((vm.properties.storage_profile.os_disk.vhd.uri).split(".")[0]).split("//")[1]
-        Chef::Log.info("storage account to use:"+storage_account_name)
-#Add a data disk
-          flag = false
-          (vm.properties.storage_profile.data_disks).each do |disk|
-              if disk.lun == i-1
-                flag = true
-              end
-          end
-          if flag == true
-            vols.push dev_id
-            #node.set["raid_device"] = dev_id
-            dev_list += dev_id+" "
-            i = i+1
-            next
-          end
-        data_disk2 = Azure::ARM::Compute::Models::DataDisk.new
-        data_disk2.name = "#{instance_name}-datadisk#{i.to_s}"
-          Chef::Log.info("data_disk2:"+data_disk2.name)
-        data_disk2.lun = i-1
-          Chef::Log.info("data_disk2 lun:"+data_disk2.lun.to_s)
-        data_disk2.disk_size_gb = slice_size
-        data_disk2.vhd = Azure::ARM::Compute::Models::VirtualHardDisk.new
-        data_disk2.vhd.uri = "https://#{storage_account_name}.blob.core.windows.net/vhds/#{storage_account_name}-#{instance_name}-data#{i.to_s}.vhd"
-          Chef::Log.info("data_disk2 uri:"+data_disk2.vhd.uri)
-        data_disk2.caching = Azure::ARM::Compute::Models::CachingTypes::ReadWrite
-        data_disk2.create_option = Azure::ARM::Compute::Models::DiskCreateOptionTypes::Empty
-
-        vm.properties.storage_profile.data_disks.push(data_disk2)
-       # client.virtual_machines = vm
-        start_time = Time.now.to_i
-        vm_promise = client.virtual_machines.create_or_update(node['platform-resource-group'], instance_name, vm)
-        my_vm = vm_promise.value!
-        end_time = Time.now.to_i
-        duration = end_time - start_time
-        Chef::Log.info("Azure VM updated in #{duration} seconds")
-        Chef::Log.info("VM: #{my_vm.body.name} UPDATED!!!")
-          Chef::Log.info("Adding #{dev_id} to the dev list")
           vols.push dev_id
-          node.set["raid_device"] = dev_id
           dev_list += dev_id+" "
-          i = i+1
-      end
-      else
+        end
+     else
         instance_id = node.workorder.payLoad.ManagedVia[0]["ciAttributes"]["instance_id"]
         Chef::Log.info("instance_id: "+instance_id)
+
         compute = provider.servers.get(instance_id)
 
       device_maps = storage['ciAttributes']['device_map'].split(" ")
@@ -347,6 +270,9 @@ ruby_block 'create-iscsi-volume-ruby-block' do
             vol.device = dev_id.gsub("xvd","sd")
             vol.server = compute
 
+            when /azure/
+              Chef::Log.info(" the storage device is already attached")
+
           end
         rescue Fog::Compute::AWS::Error=>e
           if e.message =~ /VolumeInUse/
@@ -395,7 +321,6 @@ ruby_block 'create-iscsi-volume-ruby-block' do
       end
 
 
-
       mode = "raid10"
       if node.workorder.rfcCi.ciAttributes.has_key?("mode")
         mode = node.workorder.rfcCi.ciAttributes["mode"]
@@ -434,6 +359,7 @@ ruby_block 'create-iscsi-volume-ruby-block' do
            Chef::Log.info(`#{ccmd}`)
          end
        end
+       node.set["raid_device"] = raid_device
      else
       Chef::Log.info ("No Raid Device ID :" +no_raid_device)
       raid_device = no_raid_device
@@ -551,10 +477,11 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
   end
 end
 
-ruby_block 'create-storage-ebs-volume' do
-  only_if { storage != nil && is_primary && token_class !~ /virtualbox|vagrant/}
-  block do
+ruby_block 'create-storage-non-ephemeral-volume' do
 
+
+  only_if { storage != nil && is_primary && token_class !~ /virtualbox|vagrant|azure/ }
+  block do
 
    raid_device = node.raid_device
    Chef::Log.info("node" +node.inspect)
@@ -563,8 +490,19 @@ ruby_block 'create-storage-ebs-volume' do
       Chef::Log.info(raid_device+" exists.")
       devices.push(raid_device)
     else
-      Chef::Log.info(raid_device+" missing.")
-      exit 1
+      Chef::Log.info("raid device " +raid_device+" missing.")
+      Chef::Log.info("Raid is disabled. So checking for storage devices.")
+      if node[:storage_provider] =~ /azure/
+        if ::File.exists?(node[:device])
+          Chef::Log.info("storage device " +node[:device]+" exists.")
+          devices.push(node[:device])
+        else
+          Chef::Log.info("No storage device named " +node[:device]+" found. Exiting ...")
+          exit 1
+        end
+      else
+        exit 1
+      end
     end
 
     total_size = 0
