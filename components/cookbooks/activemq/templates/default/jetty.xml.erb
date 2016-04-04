@@ -28,13 +28,11 @@
     <bean id="securityConstraint" class="org.eclipse.jetty.util.security.Constraint">
         <property name="name" value="BASIC" />
         <property name="roles" value="user,admin" />
-        <!-- set authenticate=false to disable login -->
         <property name="authenticate" value="<%= @authenabled %>" />
     </bean>
     <bean id="adminSecurityConstraint" class="org.eclipse.jetty.util.security.Constraint">
         <property name="name" value="BASIC" />
         <property name="roles" value="admin" />
-         <!-- set authenticate=false to disable login -->
         <property name="authenticate" value="true" />
     </bean>
     <bean id="securityConstraintMapping" class="org.eclipse.jetty.security.ConstraintMapping">
@@ -99,7 +97,7 @@
 
     <bean id="jettyPort" class="org.apache.activemq.web.WebConsolePort" init-method="start">
              <!-- the default port number for the web console -->
-        <property name="port" value="8161"/>
+        <property name="port" value="<%= @adminconsoleport %>"/>
     </bean>
 
     <bean id="Server" depends-on="jettyPort" class="org.eclipse.jetty.server.Server" init-method="start"
@@ -107,19 +105,18 @@
 
         <property name="connectors">
             <list>
-            	<% if @adminconsolesecure == 'false' %>
-				   <bean id="Connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
-	                  <property name="port" value="<%= @adminconsoleport%>" />
-	               </bean>
-                <!--keystore and password -->
-                <% else %>
-				   <bean id="SecureConnector" class="org.eclipse.jetty.server.ssl.SslSelectChannelConnector">
-						<property name="port" value="<%= @adminconsoleport%>" />
-						<property name="keystore" value="<%= @adminconsolekeystore%>" />
-						<property name="password" value="<%= @adminconsolekeystorepassword%>" />
-			       </bean>
-                <%end%>
-            </list>
+             <% if node['activemq']['adminconsolesecure'] == 'false' %>
+              <bean id="Connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
+               <property name="port" value="<%= @adminconsoleport%>" />
+             </bean>
+             <% else %>
+                <bean id="SecureConnector" class="org.eclipse.jetty.server.ssl.SslSelectChannelConnector">
+                   <property name="port" value="<%= @adminconsoleport%>" />
+                   <property name="keystore" value="file:<%= node['activemq']['adminconsolekeystore'] %>" />
+                   <property name="password" value="<%= node['activemq']['adminconsolekeystorepassword'] %>" />
+                </bean>
+              <% end %>
+          </list>
         </property>
 
         <property name="handler">
