@@ -1,5 +1,7 @@
 require File.expand_path('../../libraries/dns.rb', __FILE__)
 
+::Chef::Recipe.send(:include, AzureDns)
+
 # get platform resource group and availability set
 include_recipe 'azure::get_platform_rg_and_as'
 
