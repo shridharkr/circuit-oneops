@@ -34,7 +34,7 @@ end
 
 if cloud_service[:ciClassName] !~ /netscaler/i
   Chef::Log.info("lb cloud service is #{cloud_service} but this action is only supported for netscaler cloud service hence exiting...")
-  return
+  exit 0
 end
 
 #include_recipe "lb::get_lb_name"

@@ -15,9 +15,8 @@ user "#{node[:user][:username]}" do
   end
 end
 
-group "#{node[:user][:username]}" do
-  not_if "grep #{node[:user][:username]} /etc/group"
-end
+group "#{node[:user][:username]}"
+
 
 username = node[:user][:username]
 
