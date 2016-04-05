@@ -51,6 +51,26 @@ attribute 'client_secret',
               :category => '1.Authentication',
               :order => 4
           }
+attribute 'master_rg',
+          :description => "Master RG for Storage Account",
+          :encrypted => true,
+          :required => "required",
+          :default => "",
+          :format => {
+              :help => 'master resource group to hold the storage account',
+              :category => '1.Authentication',
+              :order => 5
+          }
+attribute 'storage_account',
+          :description => "Azure Storage Account Name",
+          :encrypted => true,
+          :required => "required",
+          :default => "",
+          :format => {
+              :help => 'storage account name',
+              :category => '1.Authentication',
+              :order => 6
+          }
 
 attribute 'region',
           :description => "Location",

@@ -26,18 +26,6 @@
 # PGPDBAAS 2613 & 3322 
 include_recipe 'shared::set_provider'
 
-if node.workorder.services.has_key?("storage")
-  cloud_name = node[:workorder][:cloud][:ciName]
-  storage_service = node[:workorder][:services][:storage][cloud_name]
-  storage = storage_service["ciAttributes"]
-  storage_provider =storage_service["ciClassName"].split(".").last.downcase
-  if storage_provider == "azureblobs"
-     node.set['storage_provider_class'] = storage_provider
-  end
-end
-
-Chef::Log.info("Cloud Storage Provider: #{storage_provider}")
-
 provider = node['provider_class']
 
 size_config = node.workorder.rfcCi.ciAttributes["size"]
@@ -167,8 +155,12 @@ Array(1..slice_count).each do |i|
     end
 
     when /azureblobs/
-
-      volume = slice_size
+      if node.workorder.services.has_key?("storage")
+        cloud_name = node[:workorder][:cloud][:ciName]
+        storage_service = node[:workorder][:services][:storage][cloud_name]
+        storage = storage_service["ciAttributes"]
+        volume = storage.master_rg+":"+storage.storage_account+":"+node.workorder.rfcCi.ciName+":"+slice_size.to_s
+      end
 
     else
     # aws

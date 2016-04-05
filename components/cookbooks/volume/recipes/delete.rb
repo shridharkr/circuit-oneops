@@ -134,10 +134,8 @@ ruby_block 'lvremove storage' do
       storage_provider = node.storage_provider
     
       instance_id = node.workorder.payLoad.ManagedVia[0]["ciAttributes"]["instance_id"]
-      Chef::Log.info("instance_id: "+instance_id)
-    
       device_maps = storage['ciAttributes']['device_map'].split(" ")
-    
+
       change_count = 1
       retry_count = 0
       while change_count > 0 && retry_count < max_retry_count
@@ -149,6 +147,8 @@ ruby_block 'lvremove storage' do
           Chef::Log.info("vol: "+vol_id)
            if provider_class =~ /rackspace|ibm/
             volume = storage_provider.volumes.get vol_id
+          elsif provider_class =~ /azure/
+            Chef::Log.info( "azure blobs will be detached in the storage step")
           else
             volume = provider.volumes.get  vol_id
           end
@@ -201,7 +201,6 @@ ruby_block 'lvremove storage' do
                 when /ibm/
                   compute = provider.servers.get instance_id
                   compute.detach(volume.id)
-    
                 else
                   # aws uses server_id
                   if volume.server_id == instance_id

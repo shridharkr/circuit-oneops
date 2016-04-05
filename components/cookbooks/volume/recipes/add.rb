@@ -31,6 +31,7 @@ include_recipe "shared::set_provider"
  node.workorder.payLoad[:DependsOn].each do |dep|
    if dep["ciClassName"] =~ /Storage/
       storage = dep
+      Chef::Log.info("storage"+storage.inspect)
       break
     end
   end
@@ -74,23 +75,11 @@ cloud_name = node[:workorder][:cloud][:ciName]
 token_class = node[:workorder][:services][:compute][cloud_name][:ciClassName].split(".").last.downcase
 include_recipe "shared::set_provider"
 
+storage_provider = node.storage_provider_class
 
-# need ruby block so package resource above run first
-if node.workorder.services.has_key?("storage")
-  cloud_name = node[:workorder][:cloud][:ciName]
-  storage_service = node[:workorder][:services][:storage][cloud_name]
-  storage = storage_service["ciAttributes"]
-  storage_provider = storage_service["ciClassName"].split(".").last.downcase
-  Chef::Log.info("storage_provider:#{storage_provider}")
-  node.set['storage_provider'] = storage_provider
-end
+if node[:storage_provider_class] =~ /azure/
 
-
-if node[:storage_provider] =~ /azure/
-  device_maps = storage['ciAttributes']['device_map'].split(" ")
-  node.set[:device_maps] = device_maps
   include_recipe "azureblobs::attach_datadisk"
-  vols = Array.new
 
 end
 ruby_block 'create-iscsi-volume-ruby-block' do
@@ -100,20 +89,16 @@ ruby_block 'create-iscsi-volume-ruby-block' do
     Chef::Log.info("Storage: "+storage.inspect.gsub("\n"," "))
     Chef::Log.info("------------------------------------------------------")
 
-
     if storage.nil?
-
        Chef::Log.info("no DependsOn Storage - skipping")
-
     else
-
       dev_list = ""
-      if node[:storage_provider] =~ /azure/
+      if node[:storage_provider_class] =~ /azure/
         Chef::Log.info(" the storage device is already attached")
         vols = Array.new
-        device_maps.each do |dev_vol|
-          vol_id = dev_vol.split(":")[0]
-          dev_id = dev_vol.split(":")[1]
+        node[:device_maps].each do |dev_vol|
+          vol_id = dev_vol.split(":")[3]
+          dev_id = dev_vol.split(":")[4]
           vols.push dev_id
           dev_list += dev_id+" "
         end
@@ -479,7 +464,7 @@ end
 ruby_block 'create-storage-non-ephemeral-volume' do
 
 
-  only_if { storage != nil && is_primary && token_class !~ /virtualbox|vagrant|azure/ }
+  only_if { storage != nil && is_primary && token_class !~ /virtualbox|vagrant/ }
   block do
 
    raid_device = node.raid_device
@@ -490,7 +475,7 @@ ruby_block 'create-storage-non-ephemeral-volume' do
     else
       Chef::Log.info("raid device " +raid_device+" missing.")
       Chef::Log.info("Raid is disabled. So checking for storage devices.")
-      if node[:storage_provider] =~ /azure/
+      if node[:storage_provider_class] =~ /azure/
         if ::File.exists?(node[:device])
           Chef::Log.info("storage device " +node[:device]+" exists.")
           devices.push(node[:device])
