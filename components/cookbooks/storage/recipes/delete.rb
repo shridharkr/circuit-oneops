@@ -23,7 +23,6 @@ provider_class = node[:workorder][:services][:storage][cloud_name][:ciClassName]
 include_recipe "shared::set_provider"           
 
 dev_map = node.workorder.rfcCi.ciAttributes["device_map"]
-Chef::Log.info("dev_map"+dev_map.inspect())
 if provider_class =~ /azure/
   include_recipe "azureblobs::detach_datadisk"
 

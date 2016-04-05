@@ -31,7 +31,6 @@ include_recipe "shared::set_provider"
  node.workorder.payLoad[:DependsOn].each do |dep|
    if dep["ciClassName"] =~ /Storage/
       storage = dep
-      Chef::Log.info("storage"+storage.inspect)
       break
     end
   end
@@ -78,10 +77,10 @@ include_recipe "shared::set_provider"
 storage_provider = node.storage_provider_class
 
 if node[:storage_provider_class] =~ /azure/
-
   include_recipe "azureblobs::attach_datadisk"
-
 end
+
+# need ruby block so package resource above run first
 ruby_block 'create-iscsi-volume-ruby-block' do
   block do
 
@@ -102,10 +101,12 @@ ruby_block 'create-iscsi-volume-ruby-block' do
           vols.push dev_id
           dev_list += dev_id+" "
         end
-     else
+      else
+        provider = node[:iaas_provider]
+        storage_provider = node[:storage_provider]
+
         instance_id = node.workorder.payLoad.ManagedVia[0]["ciAttributes"]["instance_id"]
         Chef::Log.info("instance_id: "+instance_id)
-
         compute = provider.servers.get(instance_id)
 
       device_maps = storage['ciAttributes']['device_map'].split(" ")
@@ -302,9 +303,7 @@ ruby_block 'create-iscsi-volume-ruby-block' do
 
       end
 
-
       end
-
 
       mode = "raid10"
       if node.workorder.rfcCi.ciAttributes.has_key?("mode")
@@ -313,7 +312,6 @@ ruby_block 'create-iscsi-volume-ruby-block' do
       level = mode.gsub("raid","")
       has_created_raid = false
       exec_count = 0
-      Chef::Log.info("Vols.size " + vols.size.to_s)
       max_retry = 10
 
       if vols.size > 1

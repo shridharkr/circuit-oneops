@@ -97,7 +97,6 @@ Array(1..slice_count).each do |i|
 
   Chef::Log.info("adding dev: #{dev} size: #{slice_size}G")
   volume = nil
-  Chef::Log.info("node.storage_provider_class #{node.storage_provider_class}")
   case node.storage_provider_class
   when /cinder/
     
