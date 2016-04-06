@@ -1,3 +1,7 @@
+require File.expand_path('../azure_utils.rb', __FILE__)
+
+::Chef::Recipe.send(:include, AzureCommon)
+
 # AzureCompute module for classes that are used in the compute step.
 module AzureCompute
   # Class for all things Availability Sets that we do in OneOps for Azure.
