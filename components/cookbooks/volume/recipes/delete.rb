@@ -135,7 +135,7 @@ ruby_block 'lvremove storage' do
     
       instance_id = node.workorder.payLoad.ManagedVia[0]["ciAttributes"]["instance_id"]
       Chef::Log.info("instance_id: "+instance_id)
-      
+
       device_maps = storage['ciAttributes']['device_map'].split(" ")
 
       change_count = 1

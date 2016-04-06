@@ -1,4 +1,4 @@
-require "azure"
+
 module AzureStorage
   class AzureBlobs
 

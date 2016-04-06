@@ -8,6 +8,7 @@ require 'base64'
 require 'net/https'
 require 'net/http'
 require 'rest_client'
+require 'azure'
 require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
 require File.expand_path('../../libraries/detachdisk.rb', __FILE__)
 
