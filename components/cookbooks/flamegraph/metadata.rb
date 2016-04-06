@@ -1,10 +1,10 @@
 name               'Flamegraph'
 description        'FlameGraph Installation For Java Apps'
 long_description   IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version            '1.0'
-maintainer         '@WalmartLabs'
-maintainer_email   'hburma1@email.wal-mart.com'
-license            'Copyright Walmart, All rights reserved.'
+version            "1.0"
+maintainer         "OneOps"
+maintainer_email   "support@oneops.com"
+license            "Apache License, Version 2.0"
 
 grouping 'default',
          :access => "global",
