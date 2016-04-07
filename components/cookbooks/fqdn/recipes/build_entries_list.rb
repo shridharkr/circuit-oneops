@@ -56,6 +56,8 @@ def get_dns_values (components)
         dns_record = attrs[:shared_ip]
       end
     else
+      # dns_record must be all lowercase
+      dns_record.downcase!
       # unless ends w/ . or is an ip address
       dns_record += '.' unless dns_record =~ /,|\.$|^\d+\.\d+\.\d+\.\d+$/
     end

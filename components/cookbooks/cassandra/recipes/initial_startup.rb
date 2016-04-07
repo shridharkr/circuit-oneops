@@ -45,6 +45,20 @@ else
     action [ :enable ]
   end
   
+
+  ci_cloud_ids = Cassandra::Util.sorted_ci_names(node,node.workorder.rfcCi.rfcAction)
+  index = ci_cloud_ids.index(node.workorder.rfcCi.ciName.split('-',2)[1])
+  
+  ruby_block "cluster_normal" do
+    Chef::Resource::RubyBlock.send(:include, Cassandra::Util)
+    block do
+      while(!cluster_normal?) do
+        Chef::Log.info("wait while node is moving/joining/leaving")
+        sleep 5
+      end
+    end
+  end
+
   # stop and cleanup
   execute "service cassandra stop; pkill -9f jsvc; true"
   
@@ -53,20 +67,43 @@ else
     block do
       replace_option = ""
       bash_option = ""
+      #add cassandra.replace_address JVM option to cassandra-env.sh
       if node.has_key?("cassandra_replace_option") && !node.cassandra_replace_option.nil?
-        bash_option = "JVM_OPTS=\"#{node.cassandra_replace_option}\" "
-        while(!all_nodes_up) do
-          sleep 5
-        end
+        bash_option = "JVM_OPTS=\\\"\\$JVM_OPTS #{node.cassandra_replace_option}\\\""
+        cmd = "sed -i '$ a #{bash_option}' /opt/cassandra/conf/cassandra-env.sh"
+        Chef::Log.info("Updating cassandra-env : #{cmd}")
+        cmd_result = shell_out(cmd)
+        cmd_result.error!
       end
-      cmd = "#{bash_option}/etc/init.d/cassandra start"
-      Chef::Log.info("starting using: #{cmd}")
+      #allow other nodes to bootstrap before
+      sleep_time = index.to_i * 60
+      Chef::Log.info("sleep for #{sleep_time} sec. to allow other nodes to bootstrap before")
+      sleep sleep_time
+      cmd = "service cassandra start"
       cmd_result = shell_out(cmd)
       cmd_result.error!
-      port_open(private_ip)
     end
   end
- 
+
+  ruby_block "cassandra_running" do
+    Chef::Resource::RubyBlock.send(:include, Cassandra::Util)
+    block do
+      if !cassandra_running
+          puts "***FAULT:FATAL=Cassandra isn't running on #{ip}"
+          e = Exception.new("no backtrace")
+          e.set_backtrace("")
+          raise e         
+      end
+    end
+  end
+  
+  ruby_block "check_port_open" do
+    Chef::Resource::RubyBlock.send(:include, Cassandra::Util)
+    block do
+      port_open?(private_ip)
+    end
+  end
+
   execute "remove ring_join=false from /etc/default/cassandra" do
     command "sed -i 's/-Dcassandra.join_ring=false //g' /etc/default/cassandra"
   end  

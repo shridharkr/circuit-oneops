@@ -48,19 +48,19 @@ resource 'couchbase',
                 "returnRelation": false, 
                 "relationName": "bom.DependsOn", 
                 "direction": "to", 
-                "targetClassName": "bom.Ring", 
+                "targetClassName": "bom.oneops.1.Ring", 
                 "relations": [ 
                   { "returnObject": false, 
                     "returnRelation": false, 
                     "relationName": "bom.DependsOn", 
                     "direction": "from",
-                    "targetClassName": "bom.Couchbase",
+                    "targetClassName": "bom.oneops.1.Couchbase",
                     "relations": [ 
                       {"returnObject": true, 
                        "returnRelation": false, 
                        "relationName": "bom.DependsOn", 
                        "direction": "from",
-                       "targetClassName": "bom.Compute"
+                       "targetClassName": "bom.oneops.1.Compute"
                       }
                     ]
                   } 
@@ -89,13 +89,13 @@ resource 'bucket',
                  "returnRelation": false, 
                  "relationName": "bom.DependsOn", 
                  "direction": "from", 
-                 "targetClassName": "bom.Ring", 
+                 "targetClassName": "bom.oneops.1.Ring", 
                  "relations": [ 
                    { "returnObject": true, 
                      "returnRelation": false, 
                      "relationName": "bom.DependsOn", 
                      "direction": "from",
-                     "targetClassName": "bom.Couchbase" 
+                     "targetClassName": "bom.oneops.1.Couchbase" 
                      
                    } 
                   ] 
@@ -123,13 +123,13 @@ resource 'couchbase-cluster',
                  "returnRelation": false,
                  "relationName": "bom.DependsOn",
                  "direction": "from",
-                 "targetClassName": "bom.Ring",
+                 "targetClassName": "bom.oneops.1.Ring",
                  "relations": [
                    { "returnObject": true,
                      "returnRelation": false,
                      "relationName": "bom.DependsOn",
                      "direction": "from",
-                     "targetClassName": "bom.Couchbase"
+                     "targetClassName": "bom.oneops.1.Couchbase"
 
                    }
                   ]
@@ -142,13 +142,13 @@ resource 'couchbase-cluster',
                  "returnRelation": false,
                  "relationName": "bom.DependsOn",
                  "direction": "from",
-                 "targetClassName": "bom.Ring",
+                 "targetClassName": "bom.oneops.1.Ring",
                  "relations": [
                    { "returnObject": true,
                      "returnRelation": false,
                      "relationName": "bom.DependsOn",
                      "direction": "to",
-                     "targetClassName": "bom.Bucket"
+                     "targetClassName": "bom.oneops.1.Bucket"
              }
                   ]
                }'

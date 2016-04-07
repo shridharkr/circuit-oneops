@@ -1,3 +1,6 @@
+dir=run_context.cookbook_collection["cassandra"].root_dir
+Chef::Log.info dir
+require "#{dir}/libraries/cassandra_util"
 nodes = node.workorder.payLoad.ManagedVia
 
 if node.workorder.has_key?("rfcCi")
@@ -21,41 +24,18 @@ if node.platform =~ /redhat|centos/
   cassandra_bin = "/opt/cassandra/bin"
   nodetool = "#{cassandra_bin}/nodetool"
 end
-
-def all_nodes_up
-  yaml = YAML::load_file('/opt/cassandra/conf/cassandra.yaml')
-  seeds = yaml['seed_provider'][0]['parameters'][0]['seeds'].split(',')
-  if seeds == nil || seeds.size <= 1 then
-    return true
-  end
-  rows = `/opt/cassandra/bin/nodetool -h #{seeds[0]} status`.split("\n")
-  Chef::Log.info("ring rows: #{rows.inspect}")
-  rows.each do |row|
-    parts = row.split(" ")
-    next unless parts.size == 8  
-    Chef::Log.info("Node status #{parts[1]} : #{parts[0]}")
-    if parts[0] =~ /DN/ then
-      puts "***FAULT:FATAL=Cassandra is down #{parts[1]} "
-      e = Exception.new("no backtrace")
-      e.set_backtrace("")
-      raise e
-    elsif parts[0] !~ /UN/ then
-      return false
-    end
-  end
-  return true
-end
-
-
 nodes.each do |compute|
   ip = compute[:ciAttributes][:private_ip]
 
   next if ip.nil? || ip.empty?
-  while(!all_nodes_up) do
-    sleep 5
-  end
   ruby_block "#{compute[:ciName]}_ring_join" do
+    Chef::Resource::RubyBlock.send(:include, Cassandra::Util)
     block do
+      while(!cluster_normal?) do
+        Chef::Log.info("wait while node is moving/joining/leaving")
+        sleep 5
+      end
+
       cmd = "#{nodetool} -h #{ip} join 2>&1"
       Chef::Log.info(cmd)
       result  = `#{cmd}`
