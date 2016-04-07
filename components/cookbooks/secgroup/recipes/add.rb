@@ -20,6 +20,9 @@
 include_recipe "secgroup::setup"
 
 case node[:provider_class]
+when /azure/
+    include_recipe "azure::add_net_sec_group"
+    
 when /ec2|openstack/
   include_recipe "secgroup::add_secgroup_"+node[:provider_class]
 

@@ -16,9 +16,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 default['activemq']['src_mirror'] = 'http://archive.apache.org/dist'
-default['activemq']['version'] = '5.11.1'
-default['activemq']['home'] = '/opt'
-default['activemq']['wrapper']['max_memory'] = '512'
-default['activemq']['wrapper']['useDedicatedTaskRunner'] = 'true'
+default['activemq']['runasuser'] = 'activemq'
