@@ -174,13 +174,15 @@ if node.has_key?("ns_ca_cert_name")
 
   Chef::Log.info("result: "+res)
   
-  if !res.include?("Done") || (res.include?("ERROR") && !res.include?("Resource already exists"))
-    message="link ssl certKey #{node.cert_name} #{node.ns_ca_cert_name} ...returned: "+res
-    Chef::Log.error( message )
-    puts "***FAULT:FATAL="+message
-    e = Exception.new("no backtrace")
-    e.set_backtrace("")
-    raise e    
+  if !res.include?("Done")
+    if (res.include?("ERROR") && !res.include?("Resource already exists"))
+      message="link ssl certKey #{node.cert_name} #{node.ns_ca_cert_name} ...returned: "+res
+      Chef::Log.error( message )
+      puts "***FAULT:FATAL="+message
+      e = Exception.new("no backtrace")
+      e.set_backtrace("")
+      raise e    
+    end
   end
 end
 
