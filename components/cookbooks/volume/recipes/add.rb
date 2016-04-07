@@ -343,7 +343,7 @@ ruby_block 'create-iscsi-volume-ruby-block' do
        end
        node.set["raid_device"] = raid_device
      else
-      Chef::Log.info ("No Raid Device ID :" +no_raid_device)
+      Chef::Log.info("No Raid Device ID :" +no_raid_device)
       raid_device = no_raid_device
       node.set["raid_device"] = no_raid_device
 

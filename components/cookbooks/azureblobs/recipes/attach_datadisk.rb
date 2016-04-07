@@ -18,7 +18,6 @@ storage = nil
 node.workorder.payLoad[:DependsOn].each do |dep|
   if dep["ciClassName"] =~ /Storage/
     storage = dep
-    Chef::Log.info("storage"+storage.inspect)
     break
   end
 end
@@ -28,12 +27,12 @@ if node.workorder.services.has_key?("storage")
   storage_service = node[:workorder][:services][:storage][cloud_name]
   storage = storage_service["ciAttributes"]
   device_maps = storage['ciAttributes']['device_map'].split(" ")
-  Chef::Log.info("device_maps"+device_maps)
+  OOLog.info("device_maps"+device_maps)
   node.set[:device_maps] = device_maps
 
 elsif storage != nil
   attr = storage[:ciAttributes]
-  Chef::Log.info("attr"+attr.inspect())
+  OOLog.info("attr"+attr.inspect())
   device_maps = attr['device_map'].split(" ")
   node.set[:device_maps] = device_maps
 end
@@ -45,7 +44,12 @@ subscription_id = compute_service['subscription']
 device_map = node[:device_maps]
 rgname = node['platform-resource-group']
 
-dev_id = AzureStorage::AzureBlobs.attach_disk(instance_name,subscription_id,rgname,node['azureCredentials'],device_map)
+if device_map != nil
+  OOLog.info("device_map "+device_map.inspect())
+  dev_id = AzureStorage::AzureBlobs.attach_disk(instance_name,subscription_id,rgname,node['azureCredentials'],device_map)
+else
+  OOLog.debug("device map is NULL. cannot proceed")
+end
 node.set["raid_device"] = dev_id
 node.set["device"] = dev_id
 

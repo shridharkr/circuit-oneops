@@ -158,7 +158,7 @@ Array(1..slice_count).each do |i|
         cloud_name = node[:workorder][:cloud][:ciName]
         storage_service = node[:workorder][:services][:storage][cloud_name]
         storage = storage_service["ciAttributes"]
-        volume = storage.master_rg+":"+storage.storage_account+":"+node.workorder.rfcCi.ciName+":"+slice_size.to_s
+        volume = storage.master_rg+":"+storage.storage_account+":"+(node.workorder.rfcCi.ciId).to_s+":"+slice_size.to_s
       end
 
     else

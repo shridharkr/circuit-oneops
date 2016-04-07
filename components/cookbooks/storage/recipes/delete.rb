@@ -25,11 +25,11 @@ include_recipe "shared::set_provider"
 dev_map = node.workorder.rfcCi.ciAttributes["device_map"]
 if provider_class =~ /azure/
   include_recipe "azureblobs::detach_datadisk"
-
+  return true
 end
 
 
-unless dev_map.nil? && provider_class !~ /azure/
+unless dev_map.nil?
   dev_map.split(" ").each do |dev|
     dev_parts = dev.split(":")
     vol_id = dev_parts[0]
