@@ -48,7 +48,7 @@ if device_map != nil
   OOLog.info("device_map "+device_map.inspect())
   dev_id = AzureStorage::AzureBlobs.attach_disk(instance_name,subscription_id,rgname,node['azureCredentials'],device_map)
 else
-  OOFatal.debug("device map is NULL. cannot proceed")
+  OOLog.fatal("device map is NULL. cannot proceed")
 end
 node.set["raid_device"] = dev_id
 node.set["device"] = dev_id
