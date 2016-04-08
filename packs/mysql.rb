@@ -82,6 +82,12 @@ end
     :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
 end
 
+relation "fqdn::depends_on::compute",
+  :only => [ '_default', 'single' ],
+  :relation_name => 'DependsOn',
+  :from_resource => 'fqdn',
+  :to_resource   => 'compute',
+  :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
 
 # managed_via
 [ 'mysql' ].each do |from|
