@@ -123,7 +123,7 @@ else
   
   ENV['HOME'] = '/tmp'
   require 'net/ssh'
-  ssh = Net::SSH.start(cloud_service[:host], cloud_service[:username],
+  ssh = Net::SSH.start(node.netscaler_host, cloud_service[:username],
                        :password => cloud_service[:password], :paranoid => Net::SSH::Verifiers::Null.new)
 
   cmd = "update ssl certKey #{node.cert_name} -cert #{node.ns_cert_file} "
@@ -164,7 +164,7 @@ if node.has_key?("ns_ca_cert_name")
     
     ENV['HOME'] = '/tmp'
     require 'net/ssh'
-    ssh = Net::SSH.start(cloud_service[:host], cloud_service[:username],
+    ssh = Net::SSH.start(node.netscaler_host, cloud_service[:username],
                          :password => cloud_service[:password], :paranoid => Net::SSH::Verifiers::Null.new)
   end
 
