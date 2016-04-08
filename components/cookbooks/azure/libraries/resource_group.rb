@@ -24,7 +24,7 @@ module AzureResources
     # this method will create/update the resource group with the info passed in
     def add(rg_name, location)
       begin
-        resource_group = ResourceGroup.new
+        resource_group = Azure::ARM::Resources::Models::ResourceGroup.new
         resource_group.location = location
 
         start_time = Time.now.to_i
@@ -43,10 +43,8 @@ module AzureResources
     # This method will retrieve the resource group from azure.
     def get(rg_name)
       begin
-        existance_promise = @client.resource_groups.check_existence(rg_name)
-        response = existance_promise.value!
-        result = response.body
-        result
+        response = @client.resource_groups.check_existence(rg_name).value!
+        response.body
       rescue MsRestAzure::AzureOperationError => e
         OOLog.fatal(e.body.values[0]['message'])
       rescue => ex
@@ -54,9 +52,23 @@ module AzureResources
       end
     end
 
-    # def delete
-    #
-    # end
+    # This method will delete the resource group
+    def delete(rg_name)
+      begin
+        start_time = Time.now.to_i
+        response = @client.resource_groups.delete(rg_name).value!
+        end_time = Time.now.to_i
+        OOLog.info("Resource Group deleted in #{end_time - start_time} seconds")
+      rescue MsRestAzure::AzureOperationError => e
+        OOLog.fatal(e.body.values[0]['message'])
+      rescue => ex
+        OOLog.fatal(ex.message)
+      end
+    end
+
+    def get_name()
+
+    end
 
   end
 end

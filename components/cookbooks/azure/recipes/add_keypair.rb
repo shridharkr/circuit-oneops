@@ -29,7 +29,7 @@ if rg
   OOLog.info("Resource Group '#{rg_name}' already exists. No need to create.")
 else
   # it doesn't exist, so add it.
-  OOLog.info("Creating Resource Group '#{rg_name}' ... ")
+  OOLog.info("Creating Resource Group '#{rg_name}' for location '#{location}'.")
   resource_group.add(rg_name, location)
 end
 
@@ -39,5 +39,3 @@ availability_set = AzureCompute::AvailabilitySet.new(compute_service)
 availability_set.add(rg_name, as_name, location)
 
 OOLog.info('Exiting add keypair')
-
-OOLog.fatal('Exit for Testing')

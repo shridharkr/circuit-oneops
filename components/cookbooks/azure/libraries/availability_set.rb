@@ -1,6 +1,9 @@
+require 'azure_mgmt_compute'
 require File.expand_path('../azure_utils.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, AzureCommon)
+::Chef::Recipe.send(:include, Azure::ARM::Compute)
+::Chef::Recipe.send(:include, Azure::ARM::Compute::Models)
 
 # AzureCompute module for classes that are used in the compute step.
 module AzureCompute
