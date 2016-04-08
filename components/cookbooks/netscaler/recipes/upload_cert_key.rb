@@ -16,7 +16,7 @@ ci = certs.first
 # uses lb cloud service
 cloud_name = node[:workorder][:cloud][:ciName]
 cloud_service = node[:workorder][:services][:lb][cloud_name][:ciAttributes]
-Chef::Log.info("upload netscaler: #{cloud_service[:host]}")
+Chef::Log.info("upload netscaler: #{node.netscaler_host}")
 
 # write cert content to tmp file
 cert_file = "oo-cert-"+ci[:ciId].to_s+".cer"
@@ -65,7 +65,7 @@ ENV['HOME'] = '/tmp'
 # use a persistent connection to transfer files
 # empty keys needed or else will prompt 
 Net::SCP.start(
- cloud_service[:host], 
+ node.netscaler_host, 
  cloud_service[:username], 
  :password => cloud_service[:password],
  :keys => []) do |scp|
