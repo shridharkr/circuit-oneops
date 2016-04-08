@@ -582,6 +582,13 @@ listeners.each do |listener|
     probe = probes[0]
   end
 
+  service_type = listener.vprotocol
+  if service_type == "HTTPS"
+    service_type = "SSL"
+  end
+  dc_lb_name = [platform_name, environment_name, assembly_name, org_name, dc_dns_zone].join(".") +
+                '-'+service_type+"_"+frontend_port+"tcp-" + platform_ciId + "-lb"
+
   lb_rule = create_lb_rule(lb_rule_name, load_distribution, protocol, frontend_port, backend_port, probe, frontend_ip_config, backend_address_pool)
   lb_rules.push(lb_rule)
 end
