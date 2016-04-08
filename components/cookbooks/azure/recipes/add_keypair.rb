@@ -2,9 +2,13 @@ require 'azure_mgmt_resources'
 require File.expand_path('../../libraries/availability_set.rb', __FILE__)
 require File.expand_path('../../libraries/resource_group.rb', __FILE__)
 require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
+require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, AzureCompute)
 ::Chef::Recipe.send(:include, AzureResources)
+
+#set the proxy if it exists as a cloud var
+AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 cloud_name = node[:workorder][:cloud][:ciName]
 compute_service =
