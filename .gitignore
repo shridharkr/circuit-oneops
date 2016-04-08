@@ -4,3 +4,4 @@ Gemfile.lock
 .arcconfig
 .chef
 **/.DS_Store
+.rspec

@@ -1,6 +1,7 @@
 require File.expand_path('../../libraries/record_set.rb', __FILE__)
 require File.expand_path('../../libraries/zone.rb', __FILE__)
 require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
+require File.expand_path('../../libraries/dns.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, AzureDns)
 

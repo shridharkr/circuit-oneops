@@ -29,6 +29,22 @@ include_recipe 'azure::get_platform_rg_and_as'
 # invoke recipe to get credentials
 include_recipe "azure::get_credentials"
 
+
+# create the VM in the platform specific resource group and availability set
+client = ComputeManagementClient.new(node['azureCredentials'])
+client.subscription_id = compute_service['subscription']
+
+node.set['VM_exists'] = false
+#check whether the VM with given name exists already
+begin
+  promise = client.virtual_machines.get(node['platform-resource-group'], node['server_name'])
+  result = promise.value!
+  node.set['VM_exists'] = true
+  rescue MsRestAzure::AzureOperationError => e
+   Chef::Log.debug("Error Body: #{e.body}")
+   Chef::Log.debug("VM doesn't exist. Leaving the VM_exists flag false")
+end
+
 # invoke recipe to build the OS profile
 include_recipe "azure::build_os_profile_for_add_node"
 
@@ -44,9 +60,7 @@ include_recipe "azure::build_network_profile_for_add_node"
 # get the availability set to use
 availability_set = AzureCompute::AvailabilitySet.new(compute_service)
 
-# create the VM in the platform specific resource group and availability set
-client = ComputeManagementClient.new(node['azureCredentials'])
-client.subscription_id = compute_service['subscription']
+
 
 # Create a model for new virtual machine
 props = VirtualMachineProperties.new

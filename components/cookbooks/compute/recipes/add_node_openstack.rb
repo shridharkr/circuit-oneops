@@ -119,7 +119,7 @@ ruby_block 'set flavor/image/availability_zone' do
       # size / flavor
       flavor = conn.flavors.get node.size_id
       Chef::Log.info("flavor: "+flavor.inspect.gsub("\n"," ").gsub("<","").gsub(">",""))
-      if image.nil?
+      if flavor.nil?
         Chef::Log.error("cannot find flavor: #{node.size_id}")
         exit 1
       end
