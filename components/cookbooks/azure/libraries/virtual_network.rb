@@ -1,17 +1,32 @@
-require 'azure_mgmt_network'
-require 'azure_mgmt_compute'
-
 module AzureNetwork
 
   class VirtualNetwork
 
-    # Include SDK modules to ease access to network classes.
-    include Azure::ARM::Network
-    include Azure::ARM::Network::Models
-
     def initialize(credentials, subscription_id)
       @client = Azure::ARM::Network::NetworkResourceProviderClient.new(credentials)
       @client.subscription_id = subscription_id
+    end
+
+    def create_update_network(resource_group_name, vnet_name, virtual_network)
+      begin
+
+        puts("Creating Virtual Network '#{vnet_name}' ...")
+        start_time = Time.now.to_i
+        promise = @client.virtual_networks.create_or_update(resource_group_name, vnet_name, virtual_network)
+        result = promise.value!
+        virtual_network_obj = result.body
+        end_time = Time.now.to_i
+        duration = end_time - start_time
+        Chef::Log.info('Successfully created/updated network name: ' + vnet_name)
+        puts("operation took #{duration} seconds")
+        return virtual_network_obj
+
+      rescue MsRestAzure::AzureOperationError => e
+        Chef::Log.error('***FAULT:FATAL=creating/updating ' + vnet_name + ' in resource group: ' + resource_group_name)
+        Chef::Log.error('***FAULT:FATAL=' + e.body.to_s)
+        exit 1
+      end
+
     end
 
     def get_vnet(resource_group_name, vnet_name)
