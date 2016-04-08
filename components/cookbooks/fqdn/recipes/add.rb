@@ -66,7 +66,7 @@ end
 Chef::Log.info("Depends on LB is: #{depends_on_lb}")
 if env.has_key?("global_dns") && env["global_dns"] == "true" && depends_on_lb &&
    !gdns_service.nil? && gdns_service["ciAttributes"]["gslb_authoritative_servers"] != '[]'
-   if provider =~ /infoblox/
+   if provider !~ /azuredns/
       include_recipe "netscaler::get_dc_lbvserver"
       include_recipe "netscaler::add_gslb_vserver"
       include_recipe "netscaler::add_gslb_service"

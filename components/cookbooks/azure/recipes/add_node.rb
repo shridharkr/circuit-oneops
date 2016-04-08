@@ -1,5 +1,6 @@
 require File.expand_path('../../libraries/utils.rb', __FILE__)
 require File.expand_path('../../libraries/hardware_profile.rb', __FILE__)
+require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
 require 'azure_mgmt_compute'
 require 'azure_mgmt_network'
 
@@ -11,6 +12,9 @@ require 'azure_mgmt_network'
 ::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
 
 total_start_time = Time.now.to_i
+
+#set the proxy if it exists as a cloud var
+AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 cloud_name = node['workorder']['cloud']['ciName']
 Chef::Log.info("Cloud Name: #{cloud_name}")
@@ -24,6 +28,22 @@ include_recipe 'azure::get_platform_rg_and_as'
 
 # invoke recipe to get credentials
 include_recipe "azure::get_credentials"
+
+
+# create the VM in the platform specific resource group and availability set
+client = ComputeManagementClient.new(node['azureCredentials'])
+client.subscription_id = compute_service['subscription']
+
+node.set['VM_exists'] = false
+#check whether the VM with given name exists already
+begin
+  promise = client.virtual_machines.get(node['platform-resource-group'], node['server_name'])
+  result = promise.value!
+  node.set['VM_exists'] = true
+  rescue MsRestAzure::AzureOperationError => e
+   Chef::Log.debug("Error Body: #{e.body}")
+   Chef::Log.debug("VM doesn't exist. Leaving the VM_exists flag false")
+end
 
 # invoke recipe to build the OS profile
 include_recipe "azure::build_os_profile_for_add_node"
@@ -40,9 +60,7 @@ include_recipe "azure::build_network_profile_for_add_node"
 # get the availability set to use
 availability_set = AzureCompute::AvailabilitySet.new(compute_service)
 
-# create the VM in the platform specific resource group and availability set
-client = ComputeManagementClient.new(node['azureCredentials'])
-client.subscription_id = compute_service['subscription']
+
 
 # Create a model for new virtual machine
 props = VirtualMachineProperties.new

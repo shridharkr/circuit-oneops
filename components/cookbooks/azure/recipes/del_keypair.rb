@@ -1,3 +1,7 @@
+require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
+
+#set the proxy if it exists as a cloud var
+AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 # Delete Resource Group
 include_recipe 'azure::del_resource_group'
