@@ -105,12 +105,4 @@ template "/etc/init.d/cassandra" do
   mode 0700
 end
 
-if dist.to_f > 2.0
-  template "/opt/cassandra/conf/logback.xml" do
-    source "logback.xml.erb"
-    owner "root"
-    group "root"
-    mode 0644
-  end  
-end
-
+include_recipe "cassandra::log4j_directives"
