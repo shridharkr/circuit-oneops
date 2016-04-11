@@ -17,12 +17,13 @@ Chef::Log.info("tenant_id: #{tenant_id} client_id: #{client_id} client_secret: #
 
 # Create authentication objects
   token_provider = MsRestAzure::ApplicationTokenProvider.new(tenant_id,client_id,client_secret)
-  if token_provider != nil
+if token_provider != nil
     credentials = MsRest::TokenCredentials.new(token_provider)
 end
 
-  if express_route_enabled == 'true'
-    begin
+
+if express_route_enabled == 'true'
+  begin
   client = ResourceManagementClient.new(credentials)
   client.subscription_id = subscription_id
   # First, check if resource group is already created
