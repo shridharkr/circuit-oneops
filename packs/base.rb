@@ -680,7 +680,7 @@ resource "hostname",
   :design => true,
   :requires => {
     :constraint => "0..1",
-    :services => "compute,dns",
+    :services => "dns",
     :help => "optional hostname dns entry"
   }           
            

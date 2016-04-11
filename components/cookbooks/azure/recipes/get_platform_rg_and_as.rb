@@ -48,8 +48,9 @@ cloud_name = node['workorder']['cloud']['ciName']
 
 if app_type == 'lb'
   location = node.workorder.services['lb'][cloud_name][:ciAttributes][:location]
+elsif app_type == 'fqdn'
+  location = node.workorder.services['dns'][cloud_name][:ciAttributes][:location]
 else
-  # location = node['workorder']['services']['compute'][cloud_name]['ciAttributes']['location']
   location = node.workorder.services['compute'][cloud_name][:ciAttributes][:location]
 end
 

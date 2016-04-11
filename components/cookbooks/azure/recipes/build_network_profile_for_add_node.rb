@@ -1,5 +1,6 @@
-require File.expand_path('../../libraries/utils.rb', __FILE__)
 require 'azure_mgmt_network'
+
+require File.expand_path('../../libraries/utils.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, Utils)
 ::Chef::Recipe.send(:include, Azure::ARM::Network)
@@ -230,8 +231,8 @@ else
     Chef::Log.info('Network name: ' + network_name)
     Chef::Log.info('ip_type: ' + ip_type)
     network = create_update_network(network_client, resource_group_name, location, network_name, network_address, dns_list, subnet_address_list)
-    end
   end
+end
 
 subnet = get_subnet_with_available_ips(network.body.properties.subnets, express_route_enabled)
 ci_id = node['workorder']['rfcCi']['ciId']
