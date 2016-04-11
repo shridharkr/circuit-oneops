@@ -26,7 +26,7 @@ pkg = node[:java][:jrejdk]
 
 case node['platform_family']
   when 'rhel'
-    # As of now, Server JRE and OpenJDK versions is not supported in RHEL.
+    # As of now, OpenJDK Server JRE is not supported in RHEL.
     if pkg == 'server-jre'
       exit_with_err "OpenJDK #{pkg} package is not available on #{node[:platform]}. Use Oracle flavor."
     end

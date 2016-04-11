@@ -1,4 +1,5 @@
 require File.expand_path('../../../azure/libraries/utils.rb', __FILE__)
+require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
 require 'azure_mgmt_compute'
 require 'azure_mgmt_network'
 
@@ -7,6 +8,9 @@ require 'azure_mgmt_network'
 ::Chef::Recipe.send(:include, Azure::ARM::Compute::Models)
 ::Chef::Recipe.send(:include, Azure::ARM::Network)
 ::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
+
+#set the proxy if it exists as a cloud var
+AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 # get platform resource group and availability set
 include_recipe 'azure::get_platform_rg_and_as'
@@ -572,7 +576,7 @@ listeners.each do |listener|
     probe = probes[0]
   end
 
-  lb_rule = create_lb_rule(lb_rule_name, load_distribution, protocol, frontend_port, backend_port, probe, frontend_ip_config, backend_address_pool)  
+  lb_rule = create_lb_rule(lb_rule_name, load_distribution, protocol, frontend_port, backend_port, probe, frontend_ip_config, backend_address_pool)
   lb_rules.push(lb_rule)
 end
 
@@ -682,4 +686,3 @@ else
   Chef::Log.info(msg)
   node.set[:azurelb_ip] = lbip
 end
-
