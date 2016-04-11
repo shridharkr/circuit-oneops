@@ -460,8 +460,6 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
 end
 
 ruby_block 'create-storage-non-ephemeral-volume' do
-
-
   only_if { storage != nil && is_primary && token_class !~ /virtualbox|vagrant/ }
   block do
 
@@ -472,8 +470,8 @@ ruby_block 'create-storage-non-ephemeral-volume' do
       devices.push(raid_device)
     else
       Chef::Log.info("raid device " +raid_device+" missing.")
-      Chef::Log.info("Raid is disabled. So checking for storage devices.")
       if node[:storage_provider_class] =~ /azure/
+        Chef::Log.info("Raid is disabled. So checking for storage devices.")
         if ::File.exists?(node[:device])
           Chef::Log.info("storage device " +node[:device]+" exists.")
           devices.push(node[:device])

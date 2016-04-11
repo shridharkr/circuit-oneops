@@ -46,7 +46,7 @@ rgname = node['platform-resource-group']
 
 if device_map != nil
   OOLog.info("device_map "+device_map.inspect())
-  dev_id = AzureStorage::AzureBlobs.attach_disk(instance_name,subscription_id,rgname,node['azureCredentials'],device_map)
+  dev_id = AzureStorage::AzureDatadisk.attach_disk(instance_name,subscription_id,rgname,node['azureCredentials'],device_map)
 else
   OOLog.fatal("device map is NULL. cannot proceed")
 end

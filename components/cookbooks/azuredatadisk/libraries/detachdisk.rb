@@ -1,5 +1,5 @@
 module AzureStorage
-  class AzureBlobs
+  class AzureDatadisk
 
     def self.get_credentials(tenant_id,client_id,client_secret)
       OOLog.info("tenant_id: #{tenant_id} client_id: #{client_id} client_secret: #{client_secret} ")
@@ -17,7 +17,7 @@ module AzureStorage
       end
     end
 
-    def self.delete_blob(storage_account_name,access_key,blobname)
+    def self.delete_disk(storage_account_name,access_key,blobname)
       c=Azure::Core.config()
       c.storage_access_key = access_key
       c.storage_account_name = storage_account_name

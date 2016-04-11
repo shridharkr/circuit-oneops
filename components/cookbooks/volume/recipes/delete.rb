@@ -53,7 +53,6 @@ if rfcAttrs.has_key?("mount_point") &&
     Chef::Log.info("clearing /etc/fstab entry for volume #{mount_point}")
     result = `grep -v #{mount_point} /etc/fstab > /tmp/fstab`
     `mv /tmp/fstab /etc/fstab`
-    `rm -rf /#{mount_point}`
   end
 
 # clear the tmpfs ramdisk entries from /etc/fstab
@@ -162,8 +161,7 @@ ruby_block 'lvremove storage' do
             volume = storage_provider.volumes.get vol_id
            elsif provider_class =~ /azure/
                `rm -rf #{mount_point}`
-             Chef::Log.info( "azure blobs will be detached in the storage step")
-             #return true
+             Chef::Log.info( "azure data disk will be detached in the storage step")
           else
             volume = provider.volumes.get  vol_id
           end

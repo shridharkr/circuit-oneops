@@ -1,6 +1,6 @@
 
 module AzureStorage
-  class AzureBlobs
+  class AzureDatadisk
 
     def self.attach_disk(instance_name, subscription_id,rg_name,credentials,device_maps )
       vols = Array.new
