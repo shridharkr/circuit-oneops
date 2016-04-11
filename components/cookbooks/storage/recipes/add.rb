@@ -74,7 +74,7 @@ vols = Array.new
 
 # openstack+kvm doesn't use explicit device names, just set and order
 openstack_dev_set = ['b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v']
-azure_dev_set = ['c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v']
+#azure_dev_set = ['c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v']
 block_index = ""
 ["p","o","n","m","l","k","j","i"].each do |i|      
   dev = "/dev/vxd#{i}0"
@@ -90,12 +90,14 @@ Array(1..slice_count).each do |i|
   if node.storage_provider_class =~ /cinder/
     dev = "/dev/vd#{openstack_dev_set[i]}"
   elsif node.storage_provider_class =~ /azure/
-    dev = "/dev/sd#{azure_dev_set[i]}"
+    dev = "/dev/sd#{openstack_dev_set[i+1]}"
   else
     dev = "/dev/xvd#{block_index}#{i.to_s}"
   end
 
   Chef::Log.info("adding dev: #{dev} size: #{slice_size}G")
+  Chef::Log.info("node.storage_provider_class"+node.storage_provider_class)
+
   volume = nil
   case node.storage_provider_class
   when /cinder/
@@ -153,7 +155,7 @@ Array(1..slice_count).each do |i|
       Chef::Log.error("took more than 10minutes for volume: "+volume.id.to_s+" to be ready and still isn't")
     end
 
-    when /azureblobs/
+    when /azuredatadisk/
       if node.workorder.services.has_key?("storage")
         cloud_name = node[:workorder][:cloud][:ciName]
         storage_service = node[:workorder][:services][:storage][cloud_name]

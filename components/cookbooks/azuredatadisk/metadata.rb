@@ -1,10 +1,9 @@
-name             'Azureblobs'
+name             'Azuredatadisk'
 maintainer       'walmart'
 maintainer_email 'kowsalya.palaniappan@walmart.com'
 license          'All rights reserved'
-description      'Installs/Configures azureblobs'
+description      'Installs/Configures azuredatadisk'
 version          '0.1.0'
-depends		      "azureblobs"
 
 grouping 'default',
          :access => "global",
@@ -58,8 +57,8 @@ attribute 'master_rg',
           :default => "",
           :format => {
               :help => 'master resource group to hold the storage account',
-              :category => '1.Authentication',
-              :order => 5
+              :category => '2.config',
+              :order => 1
           }
 attribute 'storage_account',
           :description => "Azure Storage Account Name",
@@ -68,8 +67,8 @@ attribute 'storage_account',
           :default => "",
           :format => {
               :help => 'storage account name',
-              :category => '1.Authentication',
-              :order => 6
+              :category => '2.config',
+              :order => 2
           }
 
 attribute 'region',
@@ -78,7 +77,7 @@ attribute 'region',
           :format => {
               :help => 'Use the location string',
               :category => '2.Config',
-              :order => 5,
+              :order => 3,
               :form => { 'field' => 'select', 'options_for_select' => [
                   ['Central US','centralus'],
                   ['East US','eastus'],

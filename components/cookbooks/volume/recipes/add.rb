@@ -76,8 +76,8 @@ include_recipe "shared::set_provider"
 
 storage_provider = node.storage_provider_class
 
-if node[:storage_provider_class] =~ /azure/
-  include_recipe "azureblobs::attach_datadisk"
+if node[:storage_provider_class] =~ /azure/ && !storage.nil?
+  include_recipe "azuredatadisk::attach_datadisk"
 end
 
 # need ruby block so package resource above run first
@@ -513,7 +513,8 @@ ruby_block 'create-storage-non-ephemeral-volume' do
 
     `lvdisplay /dev/#{platform_name}/#{logical_name}`
     if $?.to_i != 0
-      cmd = "lvcreate #{l_switch} #{size} -n #{logical_name} #{platform_name}"
+      # pipe yes to agree to clear filesystem signature
+      cmd = "yes | lvcreate #{l_switch} #{size} -n #{logical_name} #{platform_name}"
       Chef::Log.info("running: #{cmd} ..."+`#{cmd}`)
       if $? != 0
         Chef::Log.error("error in lvcreate")

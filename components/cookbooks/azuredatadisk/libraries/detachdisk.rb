@@ -36,19 +36,18 @@ module AzureStorage
         retry_count = 20
         begin
           if retry_count > 0
-            OOLog.info("trying to deleting the page blob:#{blobname} ....")
+            OOLog.info("Trying to delete the data disk page (page blob):#{blobname} ....")
             delete_result = service.delete_blob(container, blobname)
           end
           retry_count = retry_count-1
         end until delete_result == nil
-        OOLog.info("Successfully deleted the blob:#{blobname}")
         if delete_result !=nil && retry_count == 0
-          OOLog.error("Error in deleting the blob:#{blobname}")
+          OOLog.error("Error in deleting the data disk (page blob):#{blobname}")
         end
       rescue Exception => e
         OOLog.fatal(e.message)
       end
-
+      OOLog.info("Successfully deleted the Datadisk(page blob):#{blobname}")
     end
 
   end

@@ -45,6 +45,17 @@ if rfcAttrs.has_key?("mount_point") &&
     only_if { has_mounted }
   end
 
+  cloud_name = node[:workorder][:cloud][:ciName]
+  provider_class = node[:workorder][:services][:compute][cloud_name][:ciClassName].split(".").last.downcase
+
+  Chef::Log.info("provider: #{provider_class}")
+  if provider_class =~ /azure/
+    Chef::Log.info("clearing /etc/fstab entry for volume #{mount_point}")
+    result = `grep -v #{mount_point} /etc/fstab > /tmp/fstab`
+    `mv /tmp/fstab /etc/fstab`
+    `rm -rf /#{mount_point}`
+  end
+
 # clear the tmpfs ramdisk entries from /etc/fstab
  if(rfcAttrs["fstype"] == "tmpfs")
     Chef::Log.info("clearing /etc/fstab entry for fstype tmpfs")
@@ -95,7 +106,6 @@ end
 
 include_recipe "shared::set_provider"
 
-
 ruby_block 'lvremove storage' do
   block do
     
@@ -110,7 +120,7 @@ ruby_block 'lvremove storage' do
       raid_device = "/dev/md/"+ node.workorder.rfcCi.ciName
       retry_count = 0
       max_retry_count = 3
-    
+
       if provider_class =~ /rackspace/
         Chef::Log.info "no raid for rackspace"
       else
@@ -144,13 +154,16 @@ ruby_block 'lvremove storage' do
         change_count = 0
     
         device_maps.each do |dev_vol|
+
           vol_id = dev_vol.split(":")[0]
           dev_id = dev_vol.split(":")[1]
           Chef::Log.info("vol: "+vol_id)
            if provider_class =~ /rackspace|ibm/
             volume = storage_provider.volumes.get vol_id
-          elsif provider_class =~ /azure/
-            Chef::Log.info( "azure blobs will be detached in the storage step")
+           elsif provider_class =~ /azure/
+               `rm -rf #{mount_point}`
+             Chef::Log.info( "azure blobs will be detached in the storage step")
+             #return true
           else
             volume = provider.volumes.get  vol_id
           end

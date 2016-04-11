@@ -24,7 +24,7 @@ include_recipe "shared::set_provider"
 
 dev_map = node.workorder.rfcCi.ciAttributes["device_map"]
 if provider_class =~ /azure/
-  include_recipe "azureblobs::detach_datadisk"
+  include_recipe "azuredatadisk::detach_datadisk"
   return true
 end
 
