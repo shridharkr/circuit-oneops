@@ -24,7 +24,7 @@ client_secret = node['workorder']['services']['storage'][cloud_name]['ciAttribut
 subscription = node['workorder']['services']['storage'][cloud_name]['ciAttributes']['subscription']
 storage_account_name = node['workorder']['services']['storage'][cloud_name]['ciAttributes']['storage_account']
 
-node.set["azureCredentials"] = AzureStorage::AzureBlobs.get_credentials(tenant_id,client_id,client_secret)
+node.set["azureCredentials"] = AzureStorage::AzureDatadisk.get_credentials(tenant_id,client_id,client_secret)
 
 cloud_name = node[:workorder][:cloud][:ciName]
 storage_service = node[:workorder][:services][:storage][cloud_name]

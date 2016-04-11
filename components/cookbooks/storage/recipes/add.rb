@@ -74,7 +74,6 @@ vols = Array.new
 
 # openstack+kvm doesn't use explicit device names, just set and order
 openstack_dev_set = ['b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v']
-#azure_dev_set = ['c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v']
 block_index = ""
 ["p","o","n","m","l","k","j","i"].each do |i|      
   dev = "/dev/vxd#{i}0"
