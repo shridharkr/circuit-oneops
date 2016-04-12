@@ -4,6 +4,7 @@ require File.expand_path('../../libraries/model/dns_config.rb', __FILE__)
 require File.expand_path('../../libraries/model/monitor_config.rb', __FILE__)
 require File.expand_path('../../libraries/model/endpoint.rb', __FILE__)
 require File.expand_path('../../../azure/libraries/regions.rb', __FILE__)
+require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
 require 'azure_mgmt_network'
 
 ::Chef::Recipe.send(:include, Azure::ARM::Network)
@@ -173,6 +174,9 @@ end
 #################################################
 #                                               #
 #################################################
+
+#set the proxy if it exists as a cloud var
+AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 nsPathParts = node['workorder']['rfcCi']['nsPath'].split('/')
 cloud_name = node['workorder']['cloud']['ciName']
