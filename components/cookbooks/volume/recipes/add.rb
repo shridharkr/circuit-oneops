@@ -471,9 +471,9 @@ ruby_block 'create-storage-non-ephemeral-volume' do
     else
       Chef::Log.info("raid device " +raid_device+" missing.")
       if node[:storage_provider_class] =~ /azure/
-        Chef::Log.info("Raid is disabled. So checking for storage devices.")
+        Chef::Log.info("Checking for"+ node[:device] + "....")
         if ::File.exists?(node[:device])
-          Chef::Log.info("storage device " +node[:device]+" exists.")
+          Chef::Log.info("device "+node[:device]+" found. Using this device for logical volumes.")
           devices.push(node[:device])
         else
           Chef::Log.info("No storage device named " +node[:device]+" found. Exiting ...")
