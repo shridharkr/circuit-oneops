@@ -13,7 +13,7 @@
 #  action :delete
 #end
 
-filePath = node.workorder.rfcCi.ciAttributes.example_file_name
+filePath = node.workorder.rfcCi.ciAttributes.folderpath
 file "#{filePath}" do
   action :delete
 end

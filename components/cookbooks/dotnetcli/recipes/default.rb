@@ -6,4 +6,5 @@
 #
 # All rights reserved - Do Not Redistribute
 #
-default[:dotnetcli][:example_file_name] = '/tmp/helloworld3.txt'
+default[:dotnetcli][:folderpath] = "/usr/share/dotnet"
+default[:dotnetcli][:ostype]  = "centos-7.0"
