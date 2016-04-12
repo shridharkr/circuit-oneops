@@ -43,7 +43,6 @@ mirror = JSON.parse(mirror_svc[cloud][:ciAttributes][:mirrors]) if !mirror_svc.n
 base_url = ''
 # Search for dotnetcli mirror
 base_url = mirror[:dotnetcli] if !mirror.nil? && mirror.has_key?(:dotnetcli)
-version = node.dotnetcli.version
 
 if base_url.empty?
   # Search for cookbook default nexus mirror.
