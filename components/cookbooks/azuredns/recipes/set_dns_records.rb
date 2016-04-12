@@ -37,9 +37,6 @@ if node.has_key?('entries')
   OOLog.info("azuredns:set_dns_records.rb - Entries are: #{node['entries']}")
 else
   OOLog.fatal('missing entries failing')
-  e = Exception.new('no backtrace')
-  e.set_backtrace('')
-  raise e
 end
 
 dns.set_dns_records(node['entries'], node['dns_action'], ttl)
