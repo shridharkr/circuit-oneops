@@ -1,4 +1,4 @@
-name             'dotnetcli'
+name             'Dotnetcli'
 description      'Installs/Configures .NET CLI'
 version          '0.1.0'
 maintainer       'OneOps'
@@ -9,9 +9,9 @@ license          '.NET CLI'
 grouping 'default',
   :access => "global",
   :packages => [ 'base', 'mgmt.catalog', 'mgmt.manifest', 'catalog', 'manifest', 'bom' ]
-attribute 'example_file_name',
+attribute 'folderpath',
   :description => 'Dotnet Installation Folder',
-  :default => 'usr/share/dotnet',
+  :default => '/usr/share/dotnet',
   :format => {
     :help => 'Default name of the file to create',
     :category => '1.Global',
@@ -19,5 +19,26 @@ attribute 'example_file_name',
   }
 
 
-  #Please correct the following errors:
-  ### Error updating database. Cause: org.postgresql.util.PSQLException: ERROR: insert or update on table "dj_rfc_ci_attributes" violates foreign key constraint "dj_rfc_ci_attributes_atrid_fk" Detail: Key (attribute_id)=(19813) is not present in table "md_class_attributes". Where: SQL statement "INSERT INTO dj_rfc_ci_attributes( rfc_attr_id, rfc_id, attribute_id, old_attribute_value, new_attribute_value, owner, comments) VALUES (nextval('dj_pk_seq'), p_rfc_id, p_attribute_id, l_old_attr_value, p_new_attr_value, p_owner, p_comments) returning rfc_attr_id" PL/pgSQL function "dj_upsert_rfc_ci_attr" line 22 at SQL statement ### The error may involve com.oneops.cms.dj.dal.DJMapper.upsertRfcCIAttribute-Inline ### The error occurred while setting parameters ### SQL: {call dj_upsert_rfc_ci_attr(? ,?, ?, ?, ?, ?)} ### Cause: org.postgresql.util.PSQLException: ERROR: insert or update on table "dj_rfc_ci_attributes" violates foreign key constraint "dj_rfc_ci_attributes_atrid_fk" Detail: Key (attribute_id)=(19813) is not present in table "md_class_attributes". Where: SQL statement "INSERT INTO dj_rfc_ci_attributes( rfc_attr_id, rfc_id, attribute_id, old_attribute_value, new_attribute_value, owner, comments) VALUES (nextval('dj_pk_seq'), p_rfc_id, p_attribute_id, l_old_attr_value, p_new_attr_value, p_owner, p_comments) returning rfc_attr_id" PL/pgSQL function "dj_upsert_rfc_ci_attr" line 22 at SQL statement ; SQL []; ERROR: insert or update on table "dj_rfc_ci_attributes" violates foreign key constraint "dj_rfc_ci_attributes_atrid_fk" Detail: Key (attribute_id)=(19813) is not present in table "md_class_attributes". Where: SQL statement "INSERT INTO dj_rfc_ci_attributes( rfc_attr_id, rfc_id, attribute_id, old_attribute_value, new_attribute_value, owner, comments) VALUES (nextval('dj_pk_seq'), p_rfc_id, p_attribute_id, l_old_attr_value, p_new_attr_value, p_owner, p_comments) returning rfc_attr_id" PL/pgSQL function "dj_upsert_rfc_ci_attr" line 22 at SQL statement; nested exception is org.postgresql.util.PSQLException: ERROR: insert or update on table "dj_rfc_ci_attributes" violates foreign key constraint "dj_rfc_ci_attributes_atrid_fk" Detail: Key (attribute_id)=(19813) is not present in table "md_class_attributes". Where: SQL statement "INSERT INTO dj_rfc_ci_attributes( rfc_attr_id, rfc_id, attribute_id, old_attribute_value, new_attribute_value, owner, comments) VALUES (nextval('dj_pk_seq'), p_rfc_id, p_attribute_id, l_old_attr_value, p_new_attr_value, p_owner, p_comments) returning rfc_attr_id" PL/pgSQL function "dj_upsert_rfc_ci_attr" line 22 at SQL statement
+  # operating system
+  attribute 'ostype',
+  :description => "OS Type",
+  :required => "required",
+  :default => "centos-7.0",
+  :format => {
+    :help => 'OS types are mapped to the correct cloud provider OS images - see provider documentation for details',
+    :category => '1.Global',
+    :order => 2,
+    :form => { 'field' => 'select', 'options_for_select' => [
+    ['CentOS 7.0','centos-7.0'],['Ubuntu 14.04','ubuntu-14.04']]
+  }
+  }
+
+  attribute 'src_url',
+            :description => 'Source URL',
+            :required => 'required',
+            :default => 'https://dotnetcli.blob.core.windows.net/dotnet/beta/Binaries/Latest/dotnet-dev-centos-x64.latest.tar.gz',
+            :format => {
+                :help => 'location of the dotnet source distribution',
+                :category => '1.Global',
+                :order => 3
+            }

@@ -11,10 +11,11 @@ resource "dotnetcli",
   :design => true,
   :requires => {
     :constraint => "1..1",
-    :help => "USERID test component"
+    :help => "USERID test component",
+    :services => 'mirror'
   },
   :attributes => {
-  
+
   }
 
 resource "secgroup",
