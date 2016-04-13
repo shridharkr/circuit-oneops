@@ -29,8 +29,8 @@ destfile = "#{filePath}/Centos-0.0.5.tar.gz"
 
 Chef::Log.info("DotNet Installation directory [ #{filePath} ]")
 Chef::Log.info("DotNet destination file [ #{destfile} ]")
-Chef::Log.info("DotNet destination file [ #{operatingsystem} ]")
-Chef::Log.info("DotNet destination file [ #{url_public} ]")
+Chef::Log.info("Operating system [ #{operatingsystem} ]")
+Chef::Log.info("public URL [ #{url_public} ]")
 
 # Getting mirror location for dotnet package
 cloud = node.workorder.cloud.ciName
@@ -40,27 +40,31 @@ Chef::Log.info("Getting mirror service for #{cookbook}, cloud: #{cloud}")
 mirror_svc = node[:workorder][:services][:mirror]
 mirror = JSON.parse(mirror_svc[cloud][:ciAttributes][:mirrors]) if !mirror_svc.nil?
 
+Chef::Log.info("Printing: mirror node svc #{mirror_svc}, mirror: #{mirror}")
+
 base_url = ''
 # Search for dotnetcli mirror
-base_url = mirror[:dotnetcli] if !mirror.nil? && mirror.has_key?(:dotnetcli)
+base_url = mirror['dotnetcli']# if !mirror.nil? && mirror.has_key?(:dotnetcli)
+
+Chef::Log.info("Printing: base_url #{base_url}")
 
 if base_url.empty?
   # Search for cookbook default nexus mirror.
   Chef::Log.info('dotnetcli mirror is empty. ')
-#  base_url = node[cookbook][:nexus_mirror] if base_url.empty?
-  # Nexus url format
-#  base_url = "#{base_url}/#{pkg}/#{artifact}"
+  base_url = url_public
+
 end
 
-#Create directory for downloading package
+Chef::Log.info("Printing: base_url #{base_url}")
 
+#Create directory for downloading package
 
 execute "createdirectory" do
   command "mkdir -p #{filePath}"
 end
 
 remote_file "#{destfile}" do
-  source "http://repo.wal-mart.com/content/repositories/walmart/Microsoft/Dotnet/CLI/Centos/0.0.5/Centos-0.0.5.tar.gz"
+  source "#{base_url}"
 end
 Chef::Log.info("Downloaded DotNet binary file to destination")
 
@@ -72,6 +76,8 @@ sleep timewait
 Chef::Log.info("Installing..")
 
 execute "extract_tar" do
+  command "yum install libunwind"
+  command "yum install icu"
   command "tar -zxf #{destfile}"
   cwd "#{filePath}"
 end
