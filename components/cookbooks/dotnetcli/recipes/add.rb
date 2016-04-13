@@ -52,7 +52,6 @@ if base_url.empty?
   # Search for cookbook default nexus mirror.
   Chef::Log.info('dotnetcli mirror is empty. ')
   base_url = url_public
-
 end
 
 Chef::Log.info("Printing: base_url #{base_url}")
