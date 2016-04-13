@@ -1,33 +1,17 @@
 require File.expand_path('../../../azure/libraries/utils.rb', __FILE__)
+require File.expand_path('../../../azure/libraries/public_ip.rb', __FILE__)
+require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
 require 'azure_mgmt_network'
 
 ::Chef::Recipe.send(:include, Utils)
+::Chef::Recipe.send(:include, AzureCommon)
+::Chef::Recipe.send(:include, AzureNetwork)
 ::Chef::Recipe.send(:include, Azure::ARM::Network)
 ::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
 
 # get platform resource group and availability set
 include_recipe 'azure::get_platform_rg_and_as'
 
-def get_credentials(lb_service)
-  tenant_id = lb_service[:ciAttributes][:tenant_id]
-  client_id = lb_service[:ciAttributes][:client_id]
-  client_secret = lb_service[:ciAttributes][:client_secret]
-
-  begin
-    # Create authentication objects
-    token_provider = MsRestAzure::ApplicationTokenProvider.new(tenant_id,client_id,client_secret)
-    if token_provider != nil
-      credentials = MsRest::TokenCredentials.new(token_provider)
-      return credentials
-    else
-      raise "Could not retrieve azure credentials"
-      exit 1
-    end
-  rescue  MsRestAzure::AzureOperationError =>e
-    Chef::Log.error("Error acquiring a token from azure")
-    raise e
-  end
-end
 
 def delete_public_ip(credentials, subscription_id, rg_name, public_ip_name)
   begin
@@ -79,6 +63,10 @@ if lb_service.nil?
   exit 1
 end
 
+tenant_id = lb_service[:ciAttributes][:tenant_id]
+client_id = lb_service[:ciAttributes][:client_id]
+client_secret = lb_service[:ciAttributes][:client_secret]
+
 #Determine if express route is enabled
 xpress_route_enabled = true
 if lb_service[:ciAttributes][:express_route_enabled].nil?
@@ -117,8 +105,10 @@ Chef::Log.info("Security Group: #{security_group}")
 Chef::Log.info("Resource Group: #{resource_group_name}")
 Chef::Log.info("Load Balancer: #{lb_name}")
 
-credentials = get_credentials(lb_service)
+credentials = AzureCommon::AzureUtils.get_credentials(tenant_id, client_id, client_secret)
 
 delete_lb(credentials, subscription_id, resource_group_name, lb_name)
 
-delete_public_ip(credentials, subscription_id, resource_group_name, public_ip_name)
+pip_svc = AzureNetwork::PublicIp.new(credentials, subscription_id)
+# delete_public_ip(credentials, subscription_id, resource_group_name, public_ip_name)
+pip_svc.delete(resource_group_name, public_ip_name)
