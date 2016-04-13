@@ -1,6 +1,6 @@
 include_pack "base"
-name "dotnetcli"
-description "DotNetCLI"
+name "dotnet"
+description "DotNet"
 type "Platform"
 category "Worker Application"
 environment "single", {}
