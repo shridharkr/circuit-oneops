@@ -1,0 +1,1 @@
+include_recipe 'azure::azure_subscription_status'

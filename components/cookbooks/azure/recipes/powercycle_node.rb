@@ -1,8 +1,12 @@
 require 'azure_mgmt_compute'
 require 'json'
+require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, Azure::ARM::Compute)
 ::Chef::Recipe.send(:include, Azure::ARM::Compute::Models)
+
+#set the proxy if it exists as a system prop
+AzureCommon::AzureUtils.set_proxy_from_env(node)
 
 #Get Credentials
 include_recipe "azure::get_platform_rg_and_as"

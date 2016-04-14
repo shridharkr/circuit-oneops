@@ -25,6 +25,16 @@ module Cassandra
       cassandra_supported?(ver) && !cfg.nil? && !cfg.empty?
     end
 
+    # Checks if the Log4j config directives are supported.
+    # Applicable only if versions of Cassandra >= 1.2 and
+    # has a non empty config directive map.
+    #
+    def log4j_directive_supported?
+      ci = node.workorder.rfcCi.ciAttributes
+      cfg = ci.log4j_directives if ci.has_key?("log4j_directives")
+      !cfg.nil? && !cfg.empty?
+    end
+
     # Merge cassandra config directives to the given Cassandra
     # storage config YAML file. The method will error out if
     # it couldn't find the yaml config file.
@@ -138,15 +148,51 @@ module Cassandra
       return seeds
     end
 
-    #Check if the cassandra is running, allow #seconds to start running
-    def cassandra_running(seconds=120)
-      begin
-        Timeout::timeout(seconds) do
-          running = false
-          while !running do
-            cmd = "service cassandra status 2>&1"
-            Chef::Log.info(cmd)
-            result  = `#{cmd}`
+   # Returns hash of the key, value pairs from the propery file
+   def load_properties(properties_filename)
+      properties = {}
+      File.open(properties_filename, 'r') do |properties_file|
+        properties_file.read.each_line do |line|
+          line.strip!
+          if (line[0] != ?# and line[0] != ?=)
+            Chef::Log.info "line : #{line}"
+            i = line.index('=')
+            if (i)
+              properties[line[0..i - 1].strip] = line[i + 1..-1].strip
+            end
+          end
+        end      
+      end
+      return properties
+   end
+  
+   # Merge log4j property file with the config provided
+   def merge_log4j_directives(log4j_file, cfg)
+      Chef::Log.info "Log4j file: #{log4j_file}, log4j directive entries: #{cfg}"
+      # Always backup
+      bak_file = log4j_file.sub('.properties', '_template.properties')
+      File.rename(log4j_file, bak_file)
+      log_props = load_properties(bak_file)
+      cfg.each_key { |key|
+        val = parse_json(cfg[key])
+        log_props[key] = val
+      }
+      Chef::Log.info "Merged cassandra log4j : #{log_props.to_yaml}"
+      File.open(log4j_file, 'w') { |f|
+        log_props.each {|key,value| f.puts "#{key}=#{value}\n" }
+        Chef::Log.info "Saved Log4j config to #{log4j_file}"
+      }
+  end
+  
+  #Check if the cassandra is running, allow #seconds to start running
+  def cassandra_running(seconds=120)
+    begin
+      Timeout::timeout(seconds) do
+        running = false
+        while !running do
+          cmd = "service cassandra status 2>&1"
+          Chef::Log.info(cmd)
+          result  = `#{cmd}`
             if $? == 0
               running = true
               break
@@ -163,54 +209,53 @@ module Cassandra
     def port_open?(ip, port=9160)
       begin
         cmd = "service cassandra status 2>&1"
-        result  = `#{cmd}`
-        if $? == 0
-          Chef::Log.info("Check if port open on #{ip}")
-          TCPSocket.new(ip, port).close
-          return true
-        else
-          puts "***FAULT:FATAL=Cassandra isn't running on #{ip}"
-          e = Exception.new("no backtrace")
-          e.set_backtrace("")
-          raise e         
-        end
-      rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError
-        sleep 5
-        retry
+      result  = `#{cmd}`
+      if $? == 0
+        Chef::Log.info("Check if port open on #{ip}")
+        TCPSocket.new(ip, port).close
+        return true
+      else
+        puts "***FAULT:FATAL=Cassandra isn't running on #{ip}"
+        e = Exception.new("no backtrace")
+        e.set_backtrace("")
+        raise e         
+      end
+    rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError
+      sleep 5
+      retry
+    end
+  end
+  
+  def cluster_normal?(node)
+    yaml_file = '/opt/cassandra/conf/cassandra.yaml'
+    if node.platform !~ /redhat|centos/
+      yaml_file = "/etc/cassandra/cassandra.yaml"
+    end
+    yaml = YAML::load_file(yaml_file)
+    seeds = yaml['seed_provider'][0]['parameters'][0]['seeds'].split(',')
+    rows = `/opt/cassandra/bin/nodetool -h #{seeds[0]} status`.split("\n")
+    Chef::Log.info("ring rows: #{rows.inspect}")
+    rows.each do |row|
+      Chef::Log.info("row: #{row}")
+      parts = row.split(" ")
+      next unless parts.size == 8  
+      if parts[0] !~ /UN|DN|--/ then
+          Chef::Log.info("Node #{parts[1]} is in #{parts[0]} state")
+          return false
       end
     end
-    
-    def cluster_normal?(node)
-      yaml_file = '/opt/cassandra/conf/cassandra.yaml'
-      if node.platform !~ /redhat|centos/
-        yaml_file = "/etc/cassandra/cassandra.yaml"
-      end
-      yaml = YAML::load_file(yaml_file)
-      seeds = yaml['seed_provider'][0]['parameters'][0]['seeds'].split(',')
-      rows = `/opt/cassandra/bin/nodetool -h #{seeds[0]} status`.split("\n")
-      Chef::Log.info("ring rows: #{rows.inspect}")
-      rows.each do |row|
-        Chef::Log.info("row: #{row}")
-        parts = row.split(" ")
-        next unless parts.size == 8  
-        if parts[0] !~ /UN|DN|--/ then
-            Chef::Log.info("Node #{parts[1]} is in #{parts[0]} state")
-            return false
-        end
-      end
-      return true
-    end
+    return true
+  end
 
-   def self.sorted_ci_names(node, action)
-      computes = node.workorder.payLoad.has_key?("RequiresComputes") ? node.workorder.payLoad.RequiresComputes : node.workorder.payLoad.computes
-      ci_cloud_ids = []
-      computes.each do |compute|
-        next if !compute.has_key?"rfcAction" || compute[:rfcAction].nil? || compute[:rfcAction] != action
-        ci_cloud_ids.push compute[:ciName].split('-',2)[1]
-      end
-      return ci_cloud_ids.sort! { |x,y| (y.split('-')[1] == x.split('-')[1]) ? y.split('-')[0].to_i <=> x.split('-')[0].to_i : y.split('-')[1].to_i <=> x.split('-')[1].to_i }.reverse
+  def self.sorted_ci_names(node, action)
+     computes = node.workorder.payLoad.has_key?("RequiresComputes") ? node.workorder.payLoad.RequiresComputes : node.workorder.payLoad.computes
+     ci_cloud_ids = []
+     computes.each do |compute|
+       next if !compute.has_key?"rfcAction" || compute[:rfcAction].nil? || compute[:rfcAction] != action
+       ci_cloud_ids.push compute[:ciName].split('-',2)[1]
+     end
+     return ci_cloud_ids.sort! { |x,y| (y.split('-')[1] == x.split('-')[1]) ? y.split('-')[0].to_i <=> x.split('-')[0].to_i : y.split('-')[1].to_i <=> x.split('-')[1].to_i }.reverse
     end
-
   end
 
 end

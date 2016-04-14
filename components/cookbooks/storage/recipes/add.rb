@@ -26,9 +26,7 @@
 # PGPDBAAS 2613 & 3322 
 include_recipe 'shared::set_provider'
 
-
- provider = node['provider_class']
-
+provider = node['provider_class']
 
 size_config = node.workorder.rfcCi.ciAttributes["size"]
 size_scale = size_config[-1,1]
@@ -90,11 +88,15 @@ Array(1..slice_count).each do |i|
   dev = ""
   if node.storage_provider_class =~ /cinder/
     dev = "/dev/vd#{openstack_dev_set[i]}"
+  elsif node.storage_provider_class =~ /azure/
+    dev = "/dev/sd#{openstack_dev_set[i+1]}"
   else
     dev = "/dev/xvd#{block_index}#{i.to_s}"
   end
 
   Chef::Log.info("adding dev: #{dev} size: #{slice_size}G")
+  Chef::Log.info("node.storage_provider_class"+node.storage_provider_class)
+
   volume = nil
   case node.storage_provider_class
   when /cinder/
@@ -151,8 +153,16 @@ Array(1..slice_count).each do |i|
     if retry_count >= max_retry_count
       Chef::Log.error("took more than 10minutes for volume: "+volume.id.to_s+" to be ready and still isn't")
     end
-    
-  else
+
+    when /azuredatadisk/
+      if node.workorder.services.has_key?("storage")
+        cloud_name = node[:workorder][:cloud][:ciName]
+        storage_service = node[:workorder][:services][:storage][cloud_name]
+        storage = storage_service["ciAttributes"]
+        volume = storage.master_rg+":"+storage.storage_account+":"+(node.workorder.rfcCi.ciId).to_s+":"+slice_size.to_s
+      end
+
+    else
     # aws
     avail_zone = ''
     node.storage_provider.describe_availability_zones.body['availabilityZoneInfo'].each do |az|
@@ -166,8 +176,13 @@ Array(1..slice_count).each do |i|
     volume.save
   end
 
-  Chef::Log.info("added "+volume.id.to_s)
-  vols.push(volume.id.to_s+":"+dev)
+  if node.storage_provider_class =~ /azure/
+    Chef::Log.error("Adding #{dev} to the device list")
+    vols.push(volume.to_s+":"+dev)
+  else
+    Chef::Log.info("added "+volume.id.to_s)
+    vols.push(volume.id.to_s+":"+dev)
+  end
 end
 
 puts "***RESULT:device_map="+vols.join(" ")

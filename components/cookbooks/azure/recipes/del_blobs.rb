@@ -47,7 +47,6 @@ def remove_blob(blob_uri,storage_account,access_key)
 
   auth_str = "SharedKey "+storage_account+":"+signature
   Chef::Log.debug( "auth_str:"+auth_str)
-  #ENV['http_proxy']="http://sysproxy.wal-mart.com:8080/"
   RestClient.proxy = ENV['http_proxy']
   Chef::Log.debug(RestClient.proxy)
   RestClient.delete uri_str,{:authorization => auth_str, :'x-ms-version' =>'2009-09-19', :'x-ms-date' => time_now}
