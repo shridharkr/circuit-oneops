@@ -180,8 +180,12 @@ module Cassandra
       end
     end
     
-    def cluster_normal?
-      yaml = YAML::load_file('/opt/cassandra/conf/cassandra.yaml')
+    def cluster_normal?(node)
+      yaml_file = '/opt/cassandra/conf/cassandra.yaml'
+      if node.platform !~ /redhat|centos/
+        yaml_file = "/etc/cassandra/cassandra.yaml"
+      end
+      yaml = YAML::load_file(yaml_file)
       seeds = yaml['seed_provider'][0]['parameters'][0]['seeds'].split(',')
       rows = `/opt/cassandra/bin/nodetool -h #{seeds[0]} status`.split("\n")
       Chef::Log.info("ring rows: #{rows.inspect}")
@@ -189,7 +193,7 @@ module Cassandra
         Chef::Log.info("row: #{row}")
         parts = row.split(" ")
         next unless parts.size == 8  
-        if parts[0] !~ /UN|DN/ then
+        if parts[0] !~ /UN|DN|--/ then
             Chef::Log.info("Node #{parts[1]} is in #{parts[0]} state")
             return false
         end

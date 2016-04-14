@@ -52,7 +52,7 @@ else
   ruby_block "cluster_normal" do
     Chef::Resource::RubyBlock.send(:include, Cassandra::Util)
     block do
-      while(!cluster_normal?) do
+      while(!cluster_normal?(node)) do
         Chef::Log.info("wait while node is moving/joining/leaving")
         sleep 5
       end
