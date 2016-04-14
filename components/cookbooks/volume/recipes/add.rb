@@ -74,10 +74,13 @@ cloud_name = node[:workorder][:cloud][:ciName]
 token_class = node[:workorder][:services][:compute][cloud_name][:ciClassName].split(".").last.downcase
 include_recipe "shared::set_provider"
 
+storage_provider = node.storage_provider_class
+
+if node[:storage_provider_class] =~ /azure/ && !storage.nil?
+  include_recipe "azuredatadisk::attach_datadisk"
+end
 
 # need ruby block so package resource above run first
-
-
 ruby_block 'create-iscsi-volume-ruby-block' do
   block do
 
@@ -85,19 +88,26 @@ ruby_block 'create-iscsi-volume-ruby-block' do
     Chef::Log.info("Storage: "+storage.inspect.gsub("\n"," "))
     Chef::Log.info("------------------------------------------------------")
 
-
     if storage.nil?
-
        Chef::Log.info("no DependsOn Storage - skipping")
-
     else
+      dev_list = ""
+      if node[:storage_provider_class] =~ /azure/
+        Chef::Log.info(" the storage device is already attached")
+        vols = Array.new
+        node[:device_maps].each do |dev_vol|
+          vol_id = dev_vol.split(":")[3]
+          dev_id = dev_vol.split(":")[4]
+          vols.push dev_id
+          dev_list += dev_id+" "
+        end
+      else
+        provider = node[:iaas_provider]
+        storage_provider = node[:storage_provider]
 
-      provider = node[:iaas_provider]
-      storage_provider = node[:storage_provider]
-
-      instance_id = node.workorder.payLoad.ManagedVia[0]["ciAttributes"]["instance_id"]
-      Chef::Log.info("instance_id: "+instance_id)
-      compute = provider.servers.get(instance_id)
+        instance_id = node.workorder.payLoad.ManagedVia[0]["ciAttributes"]["instance_id"]
+        Chef::Log.info("instance_id: "+instance_id)
+        compute = provider.servers.get(instance_id)
 
       device_maps = storage['ciAttributes']['device_map'].split(" ")
       vols = Array.new
@@ -246,6 +256,9 @@ ruby_block 'create-iscsi-volume-ruby-block' do
             vol.device = dev_id.gsub("xvd","sd")
             vol.server = compute
 
+            when /azure/
+              Chef::Log.info(" the storage device is already attached")
+
           end
         rescue Fog::Compute::AWS::Error=>e
           if e.message =~ /VolumeInUse/
@@ -290,6 +303,8 @@ ruby_block 'create-iscsi-volume-ruby-block' do
 
       end
 
+      end
+
       mode = "raid10"
       if node.workorder.rfcCi.ciAttributes.has_key?("mode")
         mode = node.workorder.rfcCi.ciAttributes["mode"]
@@ -297,6 +312,7 @@ ruby_block 'create-iscsi-volume-ruby-block' do
       level = mode.gsub("raid","")
       has_created_raid = false
       exec_count = 0
+      max_retry = 10
 
       if vols.size > 1
 
@@ -325,8 +341,9 @@ ruby_block 'create-iscsi-volume-ruby-block' do
            Chef::Log.info(`#{ccmd}`)
          end
        end
+       node.set["raid_device"] = raid_device
      else
-      Chef::Log.info ("No Raid Device ID :" +no_raid_device)
+      Chef::Log.info("No Raid Device ID :" +no_raid_device)
       raid_device = no_raid_device
       node.set["raid_device"] = no_raid_device
 
@@ -442,19 +459,29 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
   end
 end
 
-ruby_block 'create-storage-ebs-volume' do
-  only_if { storage != nil && is_primary && token_class !~ /virtualbox|vagrant/}
+ruby_block 'create-storage-non-ephemeral-volume' do
+  only_if { storage != nil && is_primary && token_class !~ /virtualbox|vagrant/ }
   block do
 
    raid_device = node.raid_device
-
     devices = Array.new
     if ::File.exists?(raid_device)
       Chef::Log.info(raid_device+" exists.")
       devices.push(raid_device)
     else
-      Chef::Log.info(raid_device+" missing.")
-      exit 1
+      Chef::Log.info("raid device " +raid_device+" missing.")
+      if node[:storage_provider_class] =~ /azure/
+        Chef::Log.info("Checking for"+ node[:device] + "....")
+        if ::File.exists?(node[:device])
+          Chef::Log.info("device "+node[:device]+" found. Using this device for logical volumes.")
+          devices.push(node[:device])
+        else
+          Chef::Log.info("No storage device named " +node[:device]+" found. Exiting ...")
+          exit 1
+        end
+      else
+        exit 1
+      end
     end
 
     total_size = 0
@@ -484,7 +511,8 @@ ruby_block 'create-storage-ebs-volume' do
 
     `lvdisplay /dev/#{platform_name}/#{logical_name}`
     if $?.to_i != 0
-      cmd = "lvcreate #{l_switch} #{size} -n #{logical_name} #{platform_name}"
+      # pipe yes to agree to clear filesystem signature
+      cmd = "yes | lvcreate #{l_switch} #{size} -n #{logical_name} #{platform_name}"
       Chef::Log.info("running: #{cmd} ..."+`#{cmd}`)
       if $? != 0
         Chef::Log.error("error in lvcreate")

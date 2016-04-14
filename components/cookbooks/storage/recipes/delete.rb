@@ -23,6 +23,12 @@ provider_class = node[:workorder][:services][:storage][cloud_name][:ciClassName]
 include_recipe "shared::set_provider"           
 
 dev_map = node.workorder.rfcCi.ciAttributes["device_map"]
+if provider_class =~ /azure/
+  include_recipe "azuredatadisk::detach_datadisk"
+  return true
+end
+
+
 unless dev_map.nil?
   dev_map.split(" ").each do |dev|
     dev_parts = dev.split(":")

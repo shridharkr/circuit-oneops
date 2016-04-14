@@ -8,7 +8,7 @@ image_map = '{
     }'
 
 repo_map = '{
-      "centos-7.0":"sudo yum clean all; sudo yum -d0 -e0 -y install rsync yum-utils; sudo yum -d0 -e0 -y install epel-release",
+      "centos-7.0":"sudo yum clean all; sudo yum -d0 -e0 -y install rsync yum-utils; sudo yum -d0 -e0 -y install epel-release; sudo yum -d0 -e0 -y install gcc-c++",
 }'
 
 env_vars = '{ "rubygems":"https://rubygems.org/"}'
