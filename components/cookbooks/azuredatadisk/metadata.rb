@@ -1,7 +1,7 @@
 name             'Azuredatadisk'
 maintainer       'walmart'
 maintainer_email 'kowsalya.palaniappan@walmart.com'
-license          'All rights reserved'
+license          'Apache License, Version 2.0'
 description      'Installs/Configures azuredatadisk'
 version          '0.1.0'
 
