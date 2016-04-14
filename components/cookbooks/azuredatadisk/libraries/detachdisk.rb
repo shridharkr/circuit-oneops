@@ -13,7 +13,7 @@ module AzureStorage
            raise e
          end
         rescue  MsRestAzure::AzureOperationError =>e
-          OOLog.error("Error acquiring a token from azure")
+          OOLog.debug("Error acquiring a token from azure")
       end
     end
 
@@ -42,10 +42,10 @@ module AzureStorage
           retry_count = retry_count-1
         end until delete_result == nil
         if delete_result !=nil && retry_count == 0
-          OOLog.error("Error in deleting the data disk (page blob):#{blobname}")
+          OOLog.debug("Error in deleting the data disk (page blob):#{blobname}")
         end
       rescue Exception => e
-        OOLog.fatal(e.message)
+        OOLog.info(e.message)
       end
       OOLog.info("Successfully deleted the Datadisk(page blob):#{blobname}")
     end
