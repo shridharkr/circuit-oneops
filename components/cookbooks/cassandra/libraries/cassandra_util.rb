@@ -227,19 +227,22 @@ module Cassandra
   end
   
   def cluster_normal?(node)
-    yaml_file = '/opt/cassandra/conf/cassandra.yaml'
-    if node.platform !~ /redhat|centos/
-      yaml_file = "/etc/cassandra/cassandra.yaml"
+    yaml_file = '/etc/cassandra/cassandra.yaml'
+    nodetool = "nodetool"
+    if node.platform =~ /redhat|centos/
+      yaml_file = "/opt/cassandra/conf/cassandra.yaml"
+      nodetool = "/opt/cassandra/bin/nodetool"
     end
     yaml = YAML::load_file(yaml_file)
     seeds = yaml['seed_provider'][0]['parameters'][0]['seeds'].split(',')
-    rows = `/opt/cassandra/bin/nodetool -h #{seeds[0]} status`.split("\n")
+    rows = `#{nodetool} -h #{seeds[0]} status`.split("\n")
     Chef::Log.info("ring rows: #{rows.inspect}")
     rows.each do |row|
       Chef::Log.info("row: #{row}")
       parts = row.split(" ")
       next unless parts.size == 8  
-      if parts[0] !~ /UN|DN|--/ then
+      next unless IPAddress.valid? parts[1] 
+      if parts[0] !~ /UN|DN/ then
           Chef::Log.info("Node #{parts[1]} is in #{parts[0]} state")
           return false
       end
