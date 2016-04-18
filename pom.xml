@@ -13,27 +13,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.0.0-walmart-01</version>
-        <executions>
-          <execution>
-            <id>enforce-banned-dependencies</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <bannedDependencies>
-                  <excludesUrl>http://gec-maven-nexus.walmart.com/nexus/service/local/artifact/maven/content?r=devtools&amp;g=com.walmart.platform.devtools.blacklist&amp;a=BlacklistedArtifacts&amp;v=LATEST&amp;e=txt</excludesUrl>
-                </bannedDependencies>
-              </rules>
-              <fail>true</fail>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>${plugin.assembly.version}</version>
         <executions>
@@ -75,18 +54,6 @@
       </plugin>
     </plugins>
   </build>
-  <distributionManagement>
-    <repository>
-      <id>${releases.version.id}</id>
-      <url>${releases.upload.url}</url>
-      <uniqueVersion>true</uniqueVersion>
-    </repository>
-    <snapshotRepository>
-      <id>${snapshot.version.id}</id>
-      <url>${snapshot.upload.url}</url>
-      <uniqueVersion>false</uniqueVersion>
-    </snapshotRepository>
-  </distributionManagement>
   <scm>
     <connection>${scm.field}</connection>
     <developerConnection>${scm.field} </developerConnection>
@@ -94,15 +61,5 @@
     <tag>circuit-oneops-1-5.0.135</tag>
   </scm>
   <pluginRepositories>
-    <pluginRepository>
-      <id>nexus_plugin_release</id>
-      <url>${nexus.plugin.url}</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
   </pluginRepositories>
 </project>
