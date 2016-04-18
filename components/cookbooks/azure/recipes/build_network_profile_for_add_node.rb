@@ -10,9 +10,12 @@ def create_public_ip_address(network_client, resource_group_name, public_ip_addr
     public_ip_if= network_client.public_ip_addresses.create_or_update(resource_group_name, public_ip_address.name, public_ip_address)
     result = public_ip_if.value!
   rescue MsRestAzure::AzureOperationError => ex
-    Chef::Log.error('***FAULT:FATAL=creating/updating ' + public_ip_address.name + ' in resource group: ' + resource_group_name)
-    Chef::Log.error('***FAULT:FATAL=' + ex.body.to_s)
-    exit 1
+    msg = "Failed to create public ip: #{public_ip_address.name} in resource group: #{resource_group_name}"
+    puts "***FAULT:FATAL=#{msg}"
+    Chef::Log.error("#{msg} with Azure error: #{e.body.values[0]['message']}")
+    ex = Exception.new('no backtrace')
+    ex.set_backtrace('')
+    raise ex
   end
 
   return result.body
@@ -38,9 +41,12 @@ def create_network_interface(network_client, resource_group_name, nic_name, netw
     nic = network_client.network_interfaces.create_or_update(resource_group_name, nic_name, network_interface)
     result = nic.value!
   rescue MsRestAzure::AzureOperationError => e
-    Chef::Log.error('***FAULT:FATAL=creating/updating ' + nic_name + ' in resource group: ' + resource_group_name)
-    Chef::Log.error('***FAULT:FATAL=' + e.body.to_s)
-    exit 1
+    msg = "Failed creating NIC: #{nic_name} in resource group: #{resource_group_name}"
+    Chef::Log.error("#{msg} with Azure error: #{e.body.values[0]['message']}")
+    puts("***FAULT:FATAL=#{msg}")
+    ex = Exception.new('no backtrace')
+    ex.set_backtrace('')
+    raise ex
   end
 
   return result.body
@@ -109,8 +115,13 @@ def get_subnet_with_available_ips(subnets, express_route_enabled)
     end
   end
 
-  Chef::Log.error('***FAULT:FATAL=- No IP address available in any of the Subnets allocated. limit exceeded')
-  exit 1
+  # return message that no ips remain to be allocated.
+  msg = 'No IP addresses available in any of the subnets allocated.  Limit exceeded'
+  Chef::Log.error("#{msg}")
+  puts("***FAULT:FATAL=#{msg}")
+  ex = Exception.new('no backtrace')
+  ex.set_backtrace('')
+  raise ex
 end
 
 def define_subnet_objects(network_name, subnet_address_list)
@@ -168,9 +179,12 @@ def create_update_network(network_client, resource_group_name, location, network
     network = promise.value!
     Chef::Log.info('Successfully created/updated network name: ' + network_name)
   rescue MsRestAzure::AzureOperationError => e
-    Chef::Log.error('***FAULT:FATAL=creating/updating ' + network_name + ' in resource group: ' + resource_group_name)
-    Chef::Log.error('***FAULT:FATAL=' + e.body.to_s)
-    exit 1
+    msg = "Failed creating Network: #{network_name} in resource group: #{resource_group_name}"
+    Chef::Log.error("#{msg} with Azure error: #{e.body.values[0]['message']}")
+    puts("***FAULT:FATAL=#{msg}")
+    ex = Exception.new('no backtrace')
+    ex.set_backtrace('')
+    raise ex
   end
 
   return network
@@ -217,8 +231,10 @@ if express_route_enabled == 'true'
   Chef::Log.info('Network name: ' + network_name)
   network = get_network(network_client, master_resource_group_name, network_name)
   if network == nil
-    Chef::Log.error('***FAULT:FATAL=Express route connections to azure require the network and subnet address ranges to be preconfigured.')
-    exit 1
+    puts('***FAULT:FATAL=Express route connections to azure require the network and subnet address ranges to be preconfigured.')
+    ex = Exception.new('no backtrace')
+    ex.set_backtrace('')
+    raise ex
   end
 else
   network_name = 'vnet_'+ resource_group_name

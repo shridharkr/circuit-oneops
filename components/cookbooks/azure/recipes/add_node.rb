@@ -29,7 +29,6 @@ include_recipe 'azure::get_platform_rg_and_as'
 # invoke recipe to get credentials
 include_recipe "azure::get_credentials"
 
-
 # create the VM in the platform specific resource group and availability set
 client = ComputeManagementClient.new(node['azureCredentials'])
 client.subscription_id = compute_service['subscription']
@@ -40,9 +39,8 @@ begin
   promise = client.virtual_machines.get(node['platform-resource-group'], node['server_name'])
   result = promise.value!
   node.set['VM_exists'] = true
-  rescue MsRestAzure::AzureOperationError => e
-   Chef::Log.debug("Error Body: #{e.body}")
-   Chef::Log.debug("VM doesn't exist. Leaving the VM_exists flag false")
+rescue MsRestAzure::AzureOperationError => e
+  Chef::Log.debug("VM doesn't exist. Leaving the VM_exists flag false")
 end
 
 # invoke recipe to build the OS profile
@@ -59,8 +57,6 @@ include_recipe "azure::build_network_profile_for_add_node"
 
 # get the availability set to use
 availability_set = AzureCompute::AvailabilitySet.new(compute_service)
-
-
 
 # Create a model for new virtual machine
 props = VirtualMachineProperties.new
@@ -97,7 +93,7 @@ begin
   puts "***RESULT:instance_id="+my_new_vm.body.id
 rescue MsRestAzure::AzureOperationError => e
   puts '***FAULT:FATAL=creating a VM in resource group: ' + node['platform-resource-group']
-  Chef::Log.error("Error Body: #{e.body}")
+  Chef::Log.error("Error Body: #{e.body.values[0]['message']}")
   e = Exception.new('no backtrace')
   e.set_backtrace('')
   raise e
@@ -127,7 +123,7 @@ begin
   node.set['ip'] = obj['properties']['ipAddress']
 rescue MsRestAzure::AzureOperationError => e
   puts '***FAULT:FATAL=creating a public IP in resource group: ' + node['platform-resource-group']
-  Chef::Log.error("Error Body: #{e.body}")
+  Chef::Log.error("Error Body: #{e.body.values[0]['message']}")
   Chef::Log.error("Error retrieving public ip address")
   e = Exception.new('no backtrace')
   e.set_backtrace('')

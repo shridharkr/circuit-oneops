@@ -1,3 +1,5 @@
+require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
+
 # Common class for common methods, like get_credentials.
 
 module AzureCommon
@@ -15,9 +17,10 @@ module AzureCommon
           e = Exception.new('Could not retrieve azure credentials')
           raise e
         end
-      rescue  MsRestAzure::AzureOperationError => e
-        Chef::Log.error('Error acquiring a token from azure')
-        raise e
+      rescue MsRestAzure::AzureOperationError => e
+        OOLog.fatal("Error acquiring a token from Azure: #{e.body.values[0]['message']}")
+      rescue => ex
+        OOLog.fatal("Error acquiring a token from Azure: #{ex.message}")
       end
     end
 

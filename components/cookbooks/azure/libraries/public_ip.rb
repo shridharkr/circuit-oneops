@@ -1,5 +1,4 @@
-#::Chef::Recipe.send(:include, Azure::ARM::Network)
-#::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
+require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
 
 module AzureNetwork
 
@@ -7,7 +6,8 @@ module AzureNetwork
   class PublicIp
 
     def initialize(credentials, subscription_id)
-      @client = Azure::ARM::Network::NetworkResourceProviderClient.new(credentials)
+      @client =
+        Azure::ARM::Network::NetworkResourceProviderClient.new(credentials)
       @client.subscription_id = subscription_id
     end
 
@@ -18,21 +18,10 @@ module AzureNetwork
         response = promise.value!
         result = response.body
         return result
-      rescue  MsRestAzure::AzureOperationError =>e
-        msg = "Exception trying to get public ip #{public_ip_name} from resource group: #{resource_group_name}"
-        puts "***FAULT:FATAL=#{msg}"
-        Chef::Log.error("Azure::PublicIp - Exception is: #{e.body}")
-        e = Exception.new('no backtrace')
-        e.set_backtrace('')
-        raise e
-      rescue Exception => e
-        msg = "Exception trying to get public ip #{public_ip_name} from resource group: #{resource_group_name}"
-        Chef::Log.error("Azure::PublicIp -#{msg}")
-        puts "***FAULT:FATAL="+e.body.to_s
-        Chef::Log.error("Azure::PublicIp - Exception is: #{e.message}")
-        e = Exception.new('no backtrace')
-        e.set_backtrace('')
-        raise e
+      rescue MsRestAzure::AzureOperationError => e
+        OOLog.fatal("Exception trying to get public ip #{public_ip_name} from resource group: #{resource_group_name}. Exception is: #{e.body.values[0]['message']}")
+      rescue => e
+        OOLog.fatal("Exception trying to get public ip #{public_ip_name} from resource group: #{resource_group_name}. Exception is: #{e.message}")
       end
     end
 
@@ -42,12 +31,10 @@ module AzureNetwork
         response = promise.value!
         result = response.body
         return result
-      rescue  MsRestAzure::AzureOperationError =>e
-        msg = "Error deleting PublicIP '#{public_ip_name}' in ResourceGroup '#{resource_group_name}'"
-        puts "***FAULT:FATAL=#{msg}"
-        Chef::Log.error("Azure::PublicIp - Error Response: #{e.response}")
-        Chef::Log.error("Azure::PublicIp - Error Body: #{e.body}")
-        exit 1
+      rescue MsRestAzure::AzureOperationError => e
+        OOLog.fatal("Error deleting PublicIP '#{public_ip_name}' in ResourceGroup '#{resource_group_name}'. Exception is: #{e.body.values[0]['message']}")
+      rescue => e
+        OOLog.fatal("Error deleting PublicIP '#{public_ip_name}' in ResourceGroup '#{resource_group_name}'. Exception is: #{e.message}")
       end
     end
 
@@ -60,24 +47,13 @@ module AzureNetwork
         result = response.body
         return result
       rescue MsRestAzure::AzureOperationError => ex
-        msg = "Exception trying to create/update public ip #{public_ip_address.name} from resource group: #{resource_group_name}"
-        Chef::Log.error("Azure::PublicIp -#{msg}")
-        puts "***FAULT:FATAL="+ex.body.to_s
-        Chef::Log.error("Azure::PublicIp - Exception is: #{ex.body}")
-        e = Exception.new('no backtrace')
-        e.set_backtrace('')
-        raise e
-      rescue Exception => e
-        msg = "Exception trying to create/update public ip #{public_ip_address.name} from resource group: #{resource_group_name}"
-        puts "***FAULT:FATAL=#{msg}"
-        Chef::Log.error("Azure::PublicIp - Exception is: #{e.message}")
-        e = Exception.new('no backtrace')
-        e.set_backtrace('')
-        raise e
+        OOLog.fatal("Exception trying to create/update public ip #{public_ip_address.name} from resource group: #{resource_group_name}. Exception is: #{ex.body.values[0]['message']}")
+      rescue => e
+        OOLog.fatal("Exception trying to create/update public ip #{public_ip_address.name} from resource group: #{resource_group_name}. Exception is: #{e.message}")
       end
     end
 
-    # this fuction checks whether the public ip belongs to the given resource group 
+    # this fuction checks whether the public ip belongs to the given resource group
     def check_existence_publicip(resource_group_name, public_ip_name)
       begin
         promise = @client.public_ip_addresses.get(resource_group_name, public_ip_name)
@@ -85,22 +61,16 @@ module AzureNetwork
         result = response.body
         return true
       rescue  MsRestAzure::AzureOperationError =>e
-        Chef::Log.info("Azure::PublicIp - Exception is: #{e.body}")
+        OOLog.info("Azure::PublicIp - Exception is: #{e.body}")
         error_response = e.body["error"]
-        Chef::Log.info("Error Response code:" +error_response["code"])
+        OOLog.info("Error Response code:" +error_response["code"])
         if(error_response["code"] == "ResourceNotFound")
           return false
         else
           return true
         end
-      rescue Exception => e
-        msg = "Exception trying to get public ip #{public_ip_name} from resource group: #{resource_group_name}"
-        Chef::Log.error("Azure::PublicIp -#{msg}")
-        puts "***FAULT:FATAL="+e.body.to_s
-        Chef::Log.error("Azure::PublicIp - Exception is: #{e.message}")
-        e = Exception.new('no backtrace')
-        e.set_backtrace('')
-        raise e
+      rescue => e
+        OOLog.fatal("Exception trying to get public ip #{public_ip_name} from resource group: #{resource_group_name}. Exception is: #{e.message}")
       end
     end
 

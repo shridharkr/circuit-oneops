@@ -42,14 +42,15 @@ begin
     puts("Resource Group created in #{duration} seconds")
   end
 rescue MsRestAzure::AzureOperationError => e
-  puts "***FAULT:FATAL="+e.message
-  Chef::Log.error("AzureOperationError Response: #{e.response}")
-  Chef::Log.error("AzureOperationError Body: #{e.body}")
+  puts "***FAULT:FATAL="+e.body.values[0]['message']
+  Chef::Log.error("AzureOperationError Message: #{e.body.values[0]['message']}")
   e = Exception.new('no backtrace')
   e.set_backtrace('')
   raise e
-rescue =>ex
+rescue => ex
   puts "***FAULT:FATAL="+ex.message
+  ex = Exception.new('no backtrace')
+  ex.set_backtrace('')
   raise ex
 end
 

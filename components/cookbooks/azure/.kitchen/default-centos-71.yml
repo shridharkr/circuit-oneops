@@ -1,0 +1,6 @@
+---
+hostname: 127.0.0.1
+port: '2200'
+username: vagrant
+ssh_key: /Volumes/Development/GitClones/opensource/circuit-oneops-1/components/cookbooks/azure/.kitchen/kitchen-vagrant/kitchen-azure-default-centos-71/.vagrant/machines/default/virtualbox/private_key
+last_action: create

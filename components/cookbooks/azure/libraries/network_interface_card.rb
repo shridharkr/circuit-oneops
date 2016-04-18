@@ -1,3 +1,5 @@
+require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
+
 module AzureNetwork
   class NetworkInterfaceCard
 
@@ -12,11 +14,10 @@ module AzureNetwork
         response = promise.value!
         result = response.body
         return result
-      rescue  MsRestAzure::AzureOperationError =>e
-        Chef::Log.error("Error getting NIC '#{nic_name}'")
-        Chef::Log.error("Error Response: #{e.response}")
-        Chef::Log.error("Error Body: #{e.body}")
-        return nil
+      rescue MsRestAzure::AzureOperationError => e
+        OOLog.fatal("Error getting NIC '#{nic_name}', Error: #{e.body.values[0]['message']}")
+      rescue => ex
+        OOLog.fatal("Error getting NIC '#{nic_name}', Error: #{ex.message}")
       end
     end
 
@@ -36,11 +37,10 @@ module AzureNetwork
         duration = end_time - start_time
         puts("NIC '#{nic_name}' was updated in #{duration} seconds")
         return result
-      rescue  MsRestAzure::AzureOperationError =>e
-        Chef::Log.error("Error creating/updating NIC '#{nic_name}' ")
-        Chef::Log.error("Error Response: #{e.response}")
-        Chef::Log.error("Error Body: #{e.body}")
-        return nil
+      rescue MsRestAzure::AzureOperationError => e
+        OOLog.fatal("Error creating/updating NIC '#{nic_name}', Error: #{e.body.values[0]['message']}")
+      rescue => ex
+        OOLog.fatal("Error creating/updating NIC '#{nic_name}', Error: #{ex.message}")
       end
 
     end

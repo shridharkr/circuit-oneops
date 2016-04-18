@@ -1,4 +1,5 @@
 require 'azure_mgmt_network'
+require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
 
 module AzureNetwork
 
@@ -26,7 +27,7 @@ module AzureNetwork
         puts("operation took #{duration} seconds")
         return result
 
-      rescue  MsRestAzure::AzureOperationError =>e
+      rescue  MsRestAzure::AzureOperationError => e
         puts 'Error creating Virtual Network'
         puts("Error Response: #{e.response}")
         puts("Error Body: #{e.body}")

@@ -17,7 +17,7 @@ module AzureNetwork
       result = response.body
       result
     rescue MsRestAzure::AzureOperationError => e
-      OOLog.fatal("AzureOperationError Exception trying to get network security group #{network_security_group_name} Response: #{e.response} Body: #{e.body}")
+      OOLog.fatal("AzureOperationError Exception trying to get network security group #{network_security_group_name} Response: #{e.body.values[0]['message']}")
     rescue Exception => e
       OOLog.fatal("Azure::Network Security group - Exception trying to get network security group #{network_security_group_name} from resource group: #{resource_group_name}\n\rAzure::Network Security group - Exception is: #{e.message}")
     end
@@ -35,7 +35,7 @@ module AzureNetwork
       result = response.body
       result
     rescue MsRestAzure::AzureOperationError => e
-      OOLog.fatal("AzureOperationError Exception trying to create network security group #{net_sec_group_name} response: #{e.response} Body: #{e.body}")
+      OOLog.fatal("AzureOperationError Exception trying to create network security group #{net_sec_group_name} response: #{e.body.values[0]['message']}")
     rescue Exception => e
       OOLog.fatal("Exception trying to create network security group #{net_sec_group_name} #{e.body.to_s} Exception is: #{e.message}")
     end
@@ -46,7 +46,7 @@ module AzureNetwork
       result = response.body
       result
     rescue MsRestAzure::AzureOperationError => e
-      OOLog.fatal("AzureOperationError exception trying to create/update network security group #{net_sec_group_name} Error response: #{e.response} Error Body: #{e.body}")
+      OOLog.fatal("AzureOperationError exception trying to create/update network security group #{net_sec_group_name} Error response: #{e.body.values[0]['message']}")
     rescue Exception => e
       OOLog.fatal("Azure::Network Security group - Exception trying to create/update network security group #{net_sec_group_name} Exception: #{e.message}")
     end
@@ -57,7 +57,7 @@ module AzureNetwork
       result = response.body
       result
     rescue MsRestAzure::AzureOperationError => e
-      OOLog.fatal("AzureOperationError exception trying to list network security groups from #{resource_group_name} resource group Response: #{e.response} Body: #{e.body}")
+      OOLog.fatal("AzureOperationError exception trying to list network security groups from #{resource_group_name} resource group Response: #{e.body.values[0]['message']}")
     rescue Exception => e
       OOLog.fatal("Exception trying to list network security groups from #{resource_group_name} resource group #{e.body.to_s} Exception is: #{e.message}")
     end
@@ -68,7 +68,7 @@ module AzureNetwork
       result = response.body
       result
     rescue MsRestAzure::AzureOperationError => e
-      OOLog.fatal("AzureOperationError Error deleting NSG #{net_sec_group_name} Error Response: #{e.response} Error Body: #{e.body}")
+      OOLog.fatal("AzureOperationError Error deleting NSG #{net_sec_group_name} Error Response: #{e.body.values[0]['message']}")
     rescue Exception => e
       OOLog.fatal("Exception trying to delete network security group #{net_sec_group_name} Error body: #{e.body.to_s} Exception is: #{e.message}")
     end
@@ -83,7 +83,7 @@ module AzureNetwork
       result = response.body
       result
     rescue MsRestAzure::AzureOperationError => e
-      OOLog.fatal("AzureOperationError trying to get the '#{security_rule_name}' Security Rule Response: #{e.response} Body: #{e.body}")
+      OOLog.fatal("AzureOperationError trying to get the '#{security_rule_name}' Security Rule Response: #{e.body.values[0]['message']}")
     rescue Exception => e
       OOLog.fatal("Exception trying to create/update security rule #{security_rule_name} #{e.body.to_s} Exception is: #{e.message}")
     end
@@ -95,7 +95,7 @@ module AzureNetwork
       result = response.body
       result
     rescue MsRestAzure::AzureOperationError => e
-      OOLog.fatal("AzureOperationError Error trying to delete the '#{security_rule_name}' Security Rule - Response: #{e.response}  Body: #{e.body}")
+      OOLog.fatal("AzureOperationError Error trying to delete the '#{security_rule_name}' Security Rule - Response: #{e.body.values[0]['message']}")
     rescue Exception => e
       OOLog.fatal("Exception trying to delete security rule #{security_rule_name} #{e.body.to_s} Exception is: #{e.message}")
     end
@@ -107,7 +107,7 @@ module AzureNetwork
       result = response.body
       result
     rescue MsRestAzure::AzureOperationError => e
-      OOLog.fatal("Error trying to get the '#{security_rule_name}' Security Rule - Response: #{e.response} - Body: #{e.body}")
+      OOLog.fatal("Error trying to get the '#{security_rule_name}' Security Rule - Response: #{e.body.values[0]['message']}")
     rescue Exception => e
       OOLog.fatal("Exception trying to get security rule #{security_rule_name} #{e.body.to_s} - Exception is: #{e.message}")
     end
@@ -119,7 +119,7 @@ module AzureNetwork
       result = response.body
       result
     rescue MsRestAzure::AzureOperationError => e
-      OOLog.fatal("AzureOperationError Error trying to listing Security Rules in '#{resource_group_name}' Response: #{e.response} Body: #{e.body}")
+      OOLog.fatal("AzureOperationError Error trying to listing Security Rules in '#{resource_group_name}' Response: #{e.body.values[0]['message']}")
     rescue Exception => e
       OOLog.fatal("Exception trying to list security rules from securtiry group: #{network_security_group_name} #{e.body.to_s} - Exception: #{e.message}")
     end

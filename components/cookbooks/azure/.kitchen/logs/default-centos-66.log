@@ -1,0 +1,75 @@
+I, [2016-04-17T07:35:29.754147 #17985]  INFO -- default-centos-66: -----> Creating <default-centos-66>...
+I, [2016-04-17T07:35:30.880100 #17985]  INFO -- default-centos-66: Bringing machine 'default' up with 'virtualbox' provider...
+I, [2016-04-17T07:35:31.045725 #17985]  INFO -- default-centos-66: ==> default: Box 'bento/centos-6.6' could not be found. Attempting to find and install...
+I, [2016-04-17T07:35:31.045885 #17985]  INFO -- default-centos-66:     default: Box Provider: virtualbox
+I, [2016-04-17T07:35:31.046093 #17985]  INFO -- default-centos-66:     default: Box Version: >= 0
+I, [2016-04-17T07:35:31.940617 #17985]  INFO -- default-centos-66: The box 'bento/centos-6.6' could not be found or
+I, [2016-04-17T07:35:31.940688 #17985]  INFO -- default-centos-66: could not be accessed in the remote catalog. If this is a private
+I, [2016-04-17T07:35:31.940715 #17985]  INFO -- default-centos-66: box on HashiCorp's Atlas, please verify you're logged in via
+I, [2016-04-17T07:35:31.940736 #17985]  INFO -- default-centos-66: `vagrant login`. Also, please double-check the name. The expanded
+I, [2016-04-17T07:35:31.940758 #17985]  INFO -- default-centos-66: URL and error message are shown below:
+I, [2016-04-17T07:35:31.940777 #17985]  INFO -- default-centos-66: 
+I, [2016-04-17T07:35:31.940796 #17985]  INFO -- default-centos-66: URL: ["https://atlas.hashicorp.com/bento/centos-6.6"]
+I, [2016-04-17T07:35:31.940812 #17985]  INFO -- default-centos-66: Error: The requested URL returned error: 404 Not Found
+E, [2016-04-17T07:35:31.984533 #17985] ERROR -- default-centos-66: Create failed on instance <default-centos-66>.
+E, [2016-04-17T07:35:31.984751 #17985] ERROR -- default-centos-66: ------Exception-------
+E, [2016-04-17T07:35:31.984788 #17985] ERROR -- default-centos-66: Class: Kitchen::ShellOut::ShellCommandFailed
+E, [2016-04-17T07:35:31.984815 #17985] ERROR -- default-centos-66: Message: Expected process to exit with [0], but received '1'
+---- Begin output of vagrant up --no-provision --provider virtualbox ----
+STDOUT: Bringing machine 'default' up with 'virtualbox' provider...
+==> default: Box 'bento/centos-6.6' could not be found. Attempting to find and install...
+    default: Box Provider: virtualbox
+    default: Box Version: >= 0
+STDERR: The box 'bento/centos-6.6' could not be found or
+could not be accessed in the remote catalog. If this is a private
+box on HashiCorp's Atlas, please verify you're logged in via
+`vagrant login`. Also, please double-check the name. The expanded
+URL and error message are shown below:
+
+URL: ["https://atlas.hashicorp.com/bento/centos-6.6"]
+Error: The requested URL returned error: 404 Not Found
+---- End output of vagrant up --no-provision --provider virtualbox ----
+Ran vagrant up --no-provision --provider virtualbox returned 1
+E, [2016-04-17T07:35:31.984852 #17985] ERROR -- default-centos-66: ---Nested Exception---
+E, [2016-04-17T07:35:31.984875 #17985] ERROR -- default-centos-66: Class: Mixlib::ShellOut::ShellCommandFailed
+E, [2016-04-17T07:35:31.984893 #17985] ERROR -- default-centos-66: Message: Expected process to exit with [0], but received '1'
+---- Begin output of vagrant up --no-provision --provider virtualbox ----
+STDOUT: Bringing machine 'default' up with 'virtualbox' provider...
+==> default: Box 'bento/centos-6.6' could not be found. Attempting to find and install...
+    default: Box Provider: virtualbox
+    default: Box Version: >= 0
+STDERR: The box 'bento/centos-6.6' could not be found or
+could not be accessed in the remote catalog. If this is a private
+box on HashiCorp's Atlas, please verify you're logged in via
+`vagrant login`. Also, please double-check the name. The expanded
+URL and error message are shown below:
+
+URL: ["https://atlas.hashicorp.com/bento/centos-6.6"]
+Error: The requested URL returned error: 404 Not Found
+---- End output of vagrant up --no-provision --provider virtualbox ----
+Ran vagrant up --no-provision --provider virtualbox returned 1
+E, [2016-04-17T07:35:31.984920 #17985] ERROR -- default-centos-66: ------Backtrace-------
+E, [2016-04-17T07:35:31.984957 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/shell_out.rb:73:in `rescue in run_command'
+E, [2016-04-17T07:35:31.984990 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/shell_out.rb:61:in `run_command'
+E, [2016-04-17T07:35:31.985009 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/kitchen-vagrant-0.20.0/lib/kitchen/driver/vagrant.rb:343:in `run_command'
+E, [2016-04-17T07:35:31.985024 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/kitchen-vagrant-0.20.0/lib/kitchen/driver/vagrant.rb:302:in `run'
+E, [2016-04-17T07:35:31.985043 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/kitchen-vagrant-0.20.0/lib/kitchen/driver/vagrant.rb:373:in `run_vagrant_up'
+E, [2016-04-17T07:35:31.985057 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/kitchen-vagrant-0.20.0/lib/kitchen/driver/vagrant.rb:96:in `create'
+E, [2016-04-17T07:35:31.985071 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/instance.rb:449:in `public_send'
+E, [2016-04-17T07:35:31.985090 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/instance.rb:449:in `block in perform_action'
+E, [2016-04-17T07:35:31.985107 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/instance.rb:510:in `call'
+E, [2016-04-17T07:35:31.985124 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/instance.rb:510:in `block in synchronize_or_call'
+E, [2016-04-17T07:35:31.985140 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/instance.rb:508:in `synchronize'
+E, [2016-04-17T07:35:31.985156 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/instance.rb:508:in `synchronize_or_call'
+E, [2016-04-17T07:35:31.985170 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/instance.rb:478:in `block in action'
+E, [2016-04-17T07:35:31.985185 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/rubies/ruby-2.0.0-p643/lib/ruby/2.0.0/benchmark.rb:281:in `measure'
+E, [2016-04-17T07:35:31.985201 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/instance.rb:477:in `action'
+E, [2016-04-17T07:35:31.985218 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/instance.rb:449:in `perform_action'
+E, [2016-04-17T07:35:31.985231 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/instance.rb:359:in `create_action'
+E, [2016-04-17T07:35:31.985246 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/instance.rb:348:in `block in transition_to'
+E, [2016-04-17T07:35:31.985262 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/instance.rb:347:in `each'
+E, [2016-04-17T07:35:31.985277 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/instance.rb:347:in `transition_to'
+E, [2016-04-17T07:35:31.985294 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/instance.rb:138:in `converge'
+E, [2016-04-17T07:35:31.985311 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/command.rb:176:in `public_send'
+E, [2016-04-17T07:35:31.985326 #17985] ERROR -- default-centos-66: /Users/kpgriff/.rvm/gems/ruby-2.0.0-p643/gems/test-kitchen-1.7.3/lib/kitchen/command.rb:176:in `block (2 levels) in run_action'
+E, [2016-04-17T07:35:31.985348 #17985] ERROR -- default-centos-66: ----------------------

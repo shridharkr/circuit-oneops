@@ -1,3 +1,5 @@
+require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
+
 # Class to handle the hardware profile for the azure compute.
 # Nothing much happening here, just setting the vm size on the hardware profile for now.
 module AzureCompute
@@ -6,10 +8,7 @@ module AzureCompute
     def build_profile(vm_size)
       # vm_size is required for the overall creation of the VM, so we will check here and make sure we throw an exception
       # that it isn't present.
-      if(vm_size == nil)
-        ex = Exception.new('vm_size cannot be nil.  It is required!')
-        raise ex
-      end
+      OOLog.fatal('vm_size cannot be nil.  It is required!') if vm_size.nil?
 
       hardware_profile = Azure::ARM::Compute::Models::HardwareProfile.new
       hardware_profile.vm_size = vm_size
