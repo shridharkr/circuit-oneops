@@ -106,12 +106,12 @@ ruby_block 'set flavor/image/availability_zone' do
     if ! rfcCi["ciAttributes"]["instance_id"].nil? && ! rfcCi["ciAttributes"]["instance_id"].empty?
       server = conn.servers.get(rfcCi["ciAttributes"]["instance_id"])      
     else
-      #conn.servers.all.each do |i| 
-      #  if i.name == node.server_name && i.os_ext_sts_task_state != "deleting" && i.state != "DELETED" 
-      #    server = i
-      #    break
-      #  end
-      #end
+      conn.servers.all.each do |i| 
+        if i.name == node.server_name && i.os_ext_sts_task_state != "deleting" && i.state != "DELETED" 
+          server = i
+          break
+        end
+      end
       puts "***RESULT:instance_id=#{server.id}" unless server.nil?
     end
 

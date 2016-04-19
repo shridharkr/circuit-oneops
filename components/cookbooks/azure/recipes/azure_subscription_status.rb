@@ -26,6 +26,7 @@ express_route_enabled = subscription_details['express_route_enabled']
 OOLog.info("tenant_id: #{tenant_id} client_id: #{client_id} client_secret: #{client_secret} subscription: #{subscription_id}")
 
 # Create authentication objects
+
 token_provider = MsRestAzure::ApplicationTokenProvider.new(tenant_id, client_id, client_secret)
 if !token_provider.nil?
   credentials = MsRest::TokenCredentials.new(token_provider)
@@ -55,7 +56,7 @@ rescue MsRestAzure::AzureOperationError => e
     OOLog.fatal('Error verifying the subscription and credentials for #{subscription_id}')
   end
 end
-elsif express_route_enabled == 'false'
+elsif express_route_enabled == 'false' || express_route_enabled == nil
   begin
   client = ResourceManagementClient.new(credentials)
   client.subscription_id = subscription_id
