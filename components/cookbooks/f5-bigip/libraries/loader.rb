@@ -92,14 +92,10 @@ module F5
     def create_icontrol(hostname)
       load_dependencies
 
-      #ONEOPS Specific Code
       cloud_name = node[:workorder][:cloud][:ciName]
       if node[:workorder][:services].has_key?(:lb)
 	      cloud_service = node[:workorder][:services][:lb][cloud_name][:ciAttributes]
-      else
-	      cloud_service = node[:workorder][:services][:gdns][cloud_name][:ciAttributes]
       end
-# END of ONEOPS
       F5::IControl.new(hostname,
                        cloud_service[:username],
                        cloud_service[:password],
