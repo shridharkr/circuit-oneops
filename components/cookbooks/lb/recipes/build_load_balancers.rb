@@ -52,7 +52,7 @@ end
 
 def get_ns_service_type(cloud_service_type, service_type)
   case cloud_service_type
-  when "cloud.service.Netscaler"
+  when "cloud.service.Netscaler" , "cloud.service.F5-bigip"
 
     case service_type.upcase
     when "HTTPS"
@@ -224,6 +224,6 @@ node.set["loadbalancers"] = loadbalancers
 node.set["dcloadbalancers"] = dcloadbalancers
 node.set["cleanup_loadbalancers"] = cleanup_loadbalancers
 
-if cloud_service[:ciClassName] != "cloud.service.Netscaler"
+if cloud_service[:ciClassName] != ("cloud.service.Netscaler" || "cloud.service.F5-bigip")
   node.set["lb_name"] = [env_name, platform_name, ci[:ciId].to_s].join(".")
 end
