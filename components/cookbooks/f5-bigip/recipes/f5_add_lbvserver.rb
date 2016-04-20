@@ -11,9 +11,6 @@ dc_level_ip = nil
 
 # uploads certkey
 include_recipe "f5-bigip::f5_add_cert_key"
-#require_relative "../libraries/resource_ltm_virtual_server"
-#require_relative "../libraries/resource_config_sync"
-#require_relative "../resources/getsetlbip"
 
 node.loadbalancers.each do |lb|
 	profiles_list = [{ 'profile_context' =>  'PROFILE_CONTEXT_TYPE_ALL', 'profile_name'	=> "/Common/tcp"}]

@@ -22,17 +22,7 @@ end
 
 
 
-#::Chef::Recipe.send(:include, F5::Loader)
-#require File.expand_path('../../libraries/loader.rb', __FILE__)
-#require_relative "../libraries/loader"
-#Chef::Resource.send(:include, F5::Loader)
 Chef::Recipe.send(:include, F5::Loader)
-#require_relative "../libraries/resource_ltm_node"
-#require_relative "../libraries/resource_config_sync"
-#Chef::Resource.send(:include, ::Chef::Provider::F5LtmNode)
-#Chef::Recipe.send(:include, ::Chef::Provider::F5LtmNode)
-#require File.expand_path('../../libraries/provider_ltm_node.rb', __FILE__)
-
 
 def check_for_lbvserver(f5_host,lbvserver_name)
   vs = search_virtual_server("#{f5_host}").ltm.virtual_servers.find { |v| v.name =~ /(^|\/)"#{lbvserver_name}"$/ }
@@ -41,7 +31,6 @@ def check_for_lbvserver(f5_host,lbvserver_name)
 end
 
 
-#######ONEOPS START
   cloud_name = node[:workorder][:cloud][:ciName]
   if node[:workorder][:services].has_key?(:lb)
     cloud_service = node[:workorder][:services][:lb][cloud_name][:ciAttributes]
@@ -140,8 +129,6 @@ end
   Chef::Log.info("f5-bigip: #{host}")
 #  node.set["ns_conn"] = gen_conn(cloud_service,host)
   node.set["gslb_local_site"] = cloud_service[:gslb_site]
-
-######ONEOPS END
 
 computes = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Compute/}
 computes.each do |compute|
