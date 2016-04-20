@@ -19,7 +19,7 @@ attribute 'flavor',
               :help => 'The flavor of Java to use.',
               :category => '1.Source',
               :order => 1,
-              :form => {'field' => 'select', 'options_for_select' => [['Oracle Java', 'oracle'], ['OpenJDK', 'openjdk']]}
+              :form => {:field => 'select', :options_for_select => [['Oracle Java', 'oracle'], ['OpenJDK', 'openjdk']]}
           }
 
 attribute 'jrejdk',
@@ -31,7 +31,7 @@ attribute 'jrejdk',
               :help => 'Java package type to be installed. Server JRE support is only for Java 7 or later',
               :category => '1.Source',
               :order => 2,
-              :form => {'field' => 'select', 'options_for_select' => [['JRE', 'jre'], ['JDK', 'jdk'], ['Server JRE', 'server-jre']]}
+              :form => {:field => 'select', :options_for_select => [['JRE', 'jre'], ['JDK', 'jdk'], ['Server JRE', 'server-jre']]}
           }
 
 attribute 'version',
@@ -43,7 +43,7 @@ attribute 'version',
               :help => 'The version of Java.',
               :category => '1.Source',
               :order => 3,
-              :form => {'field' => 'select', 'options_for_select' => [['6', '6'], ['7', '7'], ['8', '8']]}
+              :form => {:field => 'select', :options_for_select => [['6', '6'], ['7', '7'], ['8', '8']]}
           }
 
 attribute 'uversion',
@@ -81,7 +81,7 @@ attribute 'sysdefault',
           :format => {
               :category => '2.Destination',
               :order => 2,
-              :form => {'field' => 'checkbox'}
+              :form => {:field => 'checkbox'}
           }
 
 recipe 'repair', 'Repair Java'

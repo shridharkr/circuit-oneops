@@ -1,4 +1,5 @@
 require File.expand_path('../../libraries/utils.rb', __FILE__)
+require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
 require 'azure_mgmt_compute'
 require 'azure_mgmt_network'
 require 'azure_mgmt_storage'
@@ -10,6 +11,9 @@ require 'azure_mgmt_storage'
 ::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
 ::Chef::Recipe.send(:include, Azure::ARM::Storage)
 ::Chef::Recipe.send(:include, Azure::ARM::Storage::Models)
+
+#set the proxy if it exists as a cloud var
+AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 #Get the vm object from azure given a resource group and compute name
 def get_vm(client, resource_group_name, vm_name)
