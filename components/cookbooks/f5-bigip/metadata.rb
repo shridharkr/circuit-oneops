@@ -3,7 +3,8 @@ description      "F5 BigIP"
 version          "0.1"
 maintainer       "OneOps"
 maintainer_email "support@oneops.com"
-license          "Copyright OneOps, All rights reserved."
+license          "Apache License, Version 2.0"
+
 
 grouping 'default',
   :access => "global",
