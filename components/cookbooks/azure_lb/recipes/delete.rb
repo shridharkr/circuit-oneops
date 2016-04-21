@@ -1,13 +1,17 @@
 require File.expand_path('../../../azure/libraries/utils.rb', __FILE__)
 require File.expand_path('../../../azure/libraries/public_ip.rb', __FILE__)
 require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
+require File.expand_path('../../../azure_lb/libraries/load_balancer', __FILE__)
+
+# /opt/oneops/inductor/circuit-oneops-1/components/cookbooks/azure_lb/azure_lb/libraries/load_balancer
+
 require 'azure_mgmt_network'
 
 ::Chef::Recipe.send(:include, Utils)
 ::Chef::Recipe.send(:include, AzureCommon)
 ::Chef::Recipe.send(:include, AzureNetwork)
-::Chef::Recipe.send(:include, Azure::ARM::Network)
-::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
+# ::Chef::Recipe.send(:include, Azure::ARM::Network)
+# ::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
 
 #set the proxy if it exists as a cloud var
 AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
@@ -16,21 +20,21 @@ AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 include_recipe 'azure::get_platform_rg_and_as'
 
 
-def delete_public_ip(credentials, subscription_id, rg_name, public_ip_name)
-  begin
-    client = NetworkResourceProviderClient.new(credentials)
-    client.subscription_id = subscription_id
-    promise = client.public_ip_addresses.delete(rg_name, public_ip_name)
-    response = promise.value!
-    result = response.body
-    return result
-  rescue  MsRestAzure::AzureOperationError =>e
-    puts("Error deleting PublicIP '#{public_ip_name}' in ResourceGroup '#{rg_name}'")
-    puts("Error Response: #{e.response}")
-    puts("Error Body: #{e.body}")
-    exit 1
-  end
-end
+# def delete_public_ip(credentials, subscription_id, rg_name, public_ip_name)
+#   begin
+#     client = NetworkResourceProviderClient.new(credentials)
+#     client.subscription_id = subscription_id
+#     promise = client.public_ip_addresses.delete(rg_name, public_ip_name)
+#     response = promise.value!
+#     result = response.body
+#     return result
+#   rescue  MsRestAzure::AzureOperationError =>e
+#     puts("Error deleting PublicIP '#{public_ip_name}' in ResourceGroup '#{rg_name}'")
+#     puts("Error Response: #{e.response}")
+#     puts("Error Body: #{e.body}")
+#     exit 1
+#   end
+# end
 
 def delete_lb(credentials, subscription_id, rg_name, lb_name)
   begin
@@ -110,8 +114,12 @@ Chef::Log.info("Load Balancer: #{lb_name}")
 
 credentials = AzureCommon::AzureUtils.get_credentials(tenant_id, client_id, client_secret)
 
-delete_lb(credentials, subscription_id, resource_group_name, lb_name)
+lb_svc = AzureNetwork::LoadBalancer.new(credentials, subscription_id)
+# delete_lb(credentials, subscription_id, resource_group_name, lb_name)
+lb_svc.delete(resource_group_name, lb_name)
 
 pip_svc = AzureNetwork::PublicIp.new(credentials, subscription_id)
 # delete_public_ip(credentials, subscription_id, resource_group_name, public_ip_name)
 pip_svc.delete(resource_group_name, public_ip_name)
+
+

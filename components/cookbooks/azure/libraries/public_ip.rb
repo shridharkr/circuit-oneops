@@ -1,5 +1,7 @@
-#::Chef::Recipe.send(:include, Azure::ARM::Network)
-#::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
+require 'azure_mgmt_network'
+
+::Chef::Recipe.send(:include, Azure::ARM::Network)
+::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
 
 module AzureNetwork
 
