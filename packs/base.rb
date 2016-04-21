@@ -727,7 +727,7 @@ end
     :relation_name => 'DependsOn',
     :from_resource => from,
     :to_resource   => 'compute',
-    :attributes    => { "propagate_to" => 'from', "flex" => false, "min" => 1, "max" => 1 }
+    :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
 end
 
 

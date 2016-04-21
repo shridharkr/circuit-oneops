@@ -1,10 +1,20 @@
 require File.expand_path('../../libraries/public_ip.rb', __FILE__)
 require File.expand_path('../../../azure/libraries/azure_utils', __FILE__)
 require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
+require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
 require 'azure_mgmt_network'
 
 ::Chef::Recipe.send(:include, AzureCommon)
+::Chef::Recipe.send(:include, AzureNetwork)
+::Chef::Recipe.send(:include, Utils)
+::Chef::Recipe.send(:include, Azure::ARM::Network)
+::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
 
+#set the proxy if it exists as a cloud var
+AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+
+# get credentials
+include_recipe 'azure::get_credentials'
 
 
 cloud_name = node['workorder']['cloud']['ciName']
