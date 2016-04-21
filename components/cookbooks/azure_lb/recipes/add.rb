@@ -1,5 +1,6 @@
 require File.expand_path('../../../azure/libraries/utils.rb', __FILE__)
 require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
+require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
 require 'azure_mgmt_compute'
 require 'azure_mgmt_network'
 
@@ -15,30 +16,6 @@ AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 # get platform resource group and availability set
 include_recipe 'azure::get_platform_rg_and_as'
 
-def get_credentials(lb_service)
-  tenant_id = lb_service[:ciAttributes][:tenant_id]
-  client_id = lb_service[:ciAttributes][:client_id]
-  client_secret = lb_service[:ciAttributes][:client_secret]
-
-  begin
-    # Create authentication objects
-    token_provider = MsRestAzure::ApplicationTokenProvider.new(tenant_id,client_id,client_secret)
-    if token_provider != nil
-      credentials = MsRest::TokenCredentials.new(token_provider)
-      return credentials
-    else
-      msg = "Could not retrieve azure credentials"
-      Chef::Log.error(msg)
-      # puts "***FAULT:FATAL=#{msg}"
-      raise(msg)
-    end
-  rescue  MsRestAzure::AzureOperationError =>e
-    msg = "Error acquiring authentication token from azure"
-    # puts "***FAULT:FATAL=#{msg}"
-    Chef::Log.error(msg)
-    raise(msg)
-  end
-end
 
 def get_vnet(credentials, subscription_id, resource_group_name, vnet_name)
   begin
@@ -440,17 +417,14 @@ if !node.workorder.services["lb"].nil?
 end
 
 if lb_service.nil?
-  Chef::Log.error("missing lb service. services: #{node.workorder.services.inspect}")
-  msg = "missing lb service services"
-  puts("***FAULT:FATAL=#{msg}")
-  raise(msg)
+  OOLog.fatal("Missing lb service! Cannot continue.")
 end
 
-
 location = lb_service[:ciAttributes][:location]
+tenant_id = lb_service[:ciAttributes][:tenant_id]
+client_id = lb_service[:ciAttributes][:client_id]
+client_secret = lb_service[:ciAttributes][:client_secret]
 subscription_id = lb_service[:ciAttributes][:subscription]
-
-
 
 #Determine if express route is enabled
 xpress_route_enabled = true
@@ -476,14 +450,14 @@ env_name = environment_name.gsub(/-/, "").downcase
 lb_name = "lb-#{plat_name}"
 
 
-Chef::Log.info("Cloud Name: #{cloud_name}")
-Chef::Log.info("Org: #{org_name}")
-Chef::Log.info("Assembly: #{asmb_name}")
-Chef::Log.info("Platform: #{platform_name}")
-Chef::Log.info("Environment: #{env_name}")
-Chef::Log.info("Security Group: #{security_group}")
-Chef::Log.info("Resource Group: #{resource_group_name}")
-Chef::Log.info("Load Balancer: #{lb_name}")
+OOLog.info("Cloud Name: #{cloud_name}")
+OOLog.info("Org: #{org_name}")
+OOLog.info("Assembly: #{asmb_name}")
+OOLog.info("Platform: #{platform_name}")
+OOLog.info("Environment: #{env_name}")
+OOLog.info("Security Group: #{security_group}")
+OOLog.info("Resource Group: #{resource_group_name}")
+OOLog.info("Load Balancer: #{lb_name}")
 
 # ===== Create a LB =====
 #   # LB Creation Steps
@@ -496,7 +470,7 @@ Chef::Log.info("Load Balancer: #{lb_name}")
 #   # 6 - Inbound NAT rules
 #   # 7 - Create LB
 
-credentials = get_credentials(lb_service)
+credentials = AzureCommon::AzureUtils.get_credentials(tenant_id, client_id, client_secret)
 public_ip_name = ''
 public_ip = nil
 subnet = nil
@@ -505,24 +479,17 @@ if xpress_route_enabled
   vnet_name = lb_service[:ciAttributes][:network]
   master_rg = lb_service[:ciAttributes][:resource_group]
 
-
   vnet = get_vnet(credentials, subscription_id, master_rg, vnet_name)
 
   if vnet.nil?
-    msg = "Could not retrieve vnet '#{vnet_name}' from express route"
-    Chef::Log.error(msg)
-    puts "***FAULT:FATAL=#{msg}"
-    raise msg
+    OOLog.fatal("Could not retrieve vnet '#{vnet_name}' from express route")
   end
 
   if vnet.properties.subnets.count < 1
-    msg = "VNET '#{vnet_name}' does not have subnets"
-    Chef::Log.error(msg)
-    puts "***FAULT:FATAL=#{msg}"
-    raise msg
+    OOLog.fatal("VNET '#{vnet_name}' does not have subnets")
   end
 
-  #NOTE: for simplicity, we are going to grab the first subnet.
+  #NOTE: for simplicity, we are going to grab the first subnet. This might change
   subnet = vnet.properties.subnets[0]
 
 else

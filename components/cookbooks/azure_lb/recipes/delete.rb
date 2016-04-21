@@ -30,29 +30,30 @@ end
 tenant_id = lb_service[:ciAttributes][:tenant_id]
 client_id = lb_service[:ciAttributes][:client_id]
 client_secret = lb_service[:ciAttributes][:client_secret]
-
+subscription_id = lb_service[:ciAttributes][:subscription]
 #Determine if express route is enabled
-xpress_route_enabled = true
-if lb_service[:ciAttributes][:express_route_enabled].nil?
-  #We cannot assume express route is enabled if it is not set
-  xpress_route_enabled = false
-elsif lb_service[:ciAttributes][:express_route_enabled] == "false"
-  xpress_route_enabled = false
-end
+# xpress_route_enabled = true
+# if lb_service[:ciAttributes][:express_route_enabled].nil?
+#   #We cannot assume express route is enabled if it is not set
+#   xpress_route_enabled = false
+# elsif lb_service[:ciAttributes][:express_route_enabled] == "false"
+#   xpress_route_enabled = false
+# end
+
 
 
 platform_name = node.workorder.box.ciName
-environment_name = node.workorder.payLoad.Environment[0]["ciName"]
-assembly_name = node.workorder.payLoad.Assembly[0]["ciName"]
-org_name = node.workorder.payLoad.Organization[0]["ciName"]
-security_group = "#{environment_name}.#{assembly_name}.#{org_name}"
 resource_group_name = node['platform-resource-group']
-location = lb_service[:ciAttributes][:location]
-subscription_id = lb_service[:ciAttributes][:subscription]
+# environment_name = node.workorder.payLoad.Environment[0]["ciName"]
+# assembly_name = node.workorder.payLoad.Assembly[0]["ciName"]
+# org_name = node.workorder.payLoad.Organization[0]["ciName"]
+# security_group = "#{environment_name}.#{assembly_name}.#{org_name}"
+# location = lb_service[:ciAttributes][:location]
 
-asmb_name = assembly_name.gsub(/-/, "").downcase
+
+# asmb_name = assembly_name.gsub(/-/, "").downcase
+# env_name = environment_name.gsub(/-/, "").downcase
 plat_name = platform_name.gsub(/-/, "").downcase
-env_name = environment_name.gsub(/-/, "").downcase
 lb_name = "lb-#{plat_name}"
 
 nameutil = Utils::NameUtils.new()
