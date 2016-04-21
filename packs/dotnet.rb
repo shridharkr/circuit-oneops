@@ -6,8 +6,7 @@ category "Worker Application"
 environment "single", {}
 environment "redundant", {}
 resource "dotnetcli",
-  :cookbook => "1.dotnetcli",
-  :source => Chef::Config[:register],
+  :cookbook => "oneops.1.dotnetcli",
   :design => true,
   :requires => {
     :constraint => "1..1",
@@ -19,7 +18,7 @@ resource "dotnetcli",
   }
 
 resource "secgroup",
-  :cookbook => "secgroup",
+  :cookbook => "oneops.1.secgroup",
   :design => true,
   :attributes => {
     "inbound" => '[ "22 22 tcp 0.0.0.0/0" ]'
