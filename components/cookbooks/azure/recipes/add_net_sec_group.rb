@@ -1,22 +1,43 @@
 require File.expand_path('../../libraries/network_security_group.rb', __FILE__)
+require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
+require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
+require File.expand_path('../../libraries/resource_group.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, AzureNetwork)
 ::Chef::Recipe.send(:include, Azure::ARM::Network)
 ::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
-include_recipe 'azure::get_credentials'
-include_recipe 'azure::get_platform_rg_and_as'
 
-cloud_name = node['workorder']['cloud']['ciName']
-subscription = node['workorder']['services']['compute'][cloud_name]['ciAttributes']['subscription']
-location = node['workorder']['services']['compute'][cloud_name]['ciAttributes']['location']
+#set the proxy if it exists as a cloud var
+AzureCommon::AzureUtils.set_proxy(node[:workorder][:payLoad][:OO_CLOUD_VARS])
+
+include_recipe 'azure::get_credentials'
 credentials = node['azureCredentials']
-resource_group_name = node['platform-resource-group']
-network_security_group_name = node['name']
-node['secgroup']['inbound']
+
+# get all necessary info from node
+cloud_name = node[:workorder][:cloud][:ciName]
+compute_service =
+  node[:workorder][:services][:compute][cloud_name][:ciAttributes]
+nsPathParts = node[:workorder][:rfcCi][:nsPath].split('/')
+org = nsPathParts[1]
+assembly = nsPathParts[2]
+environment = nsPathParts[3]
+platform_ci_id = node[:workorder][:box][:ciId]
+location = compute_service[:location]
+
+subscription = compute_service[:subscription]
+network_security_group_name = node[:name]
+
+# Get resource group name
+resource_group_name =
+  AzureResources::ResourceGroup.get_name(org,
+                                         assembly,
+                                         platform_ci_id,
+                                         environment,
+                                         location)
 
 # Creating security rules objects
 nsg = AzureNetwork::NetworkSecurityGroup.new(credentials, subscription)
-rules = node['secgroup']['inbound'].tr('"[]\\', '').split(',')
+rules = node[:secgroup][:inbound].tr('"[]\\', '').split(',')
 sec_rules = []
 priority = 100
 reg_ex = /\d+\s\d+\s([A-Za-z]+|\*)\s\S+/
@@ -26,7 +47,7 @@ rules.each do |item|
   end
   item2 = item.split(' ')
   security_rule_access = SecurityRuleAccess::Allow
-  security_rule_description = node['secgroup']['description']
+  security_rule_description = node[:secgroup][:description]
   security_rule_destination_addres_prefix = item2[3]
   security_rule_destination_port_range = item2[1].to_i
   security_rule_direction = SecurityRuleDirection::Inbound
