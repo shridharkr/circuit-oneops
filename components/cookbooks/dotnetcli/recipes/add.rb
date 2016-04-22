@@ -48,11 +48,7 @@ base_url = mirror['dotnetcli']# if !mirror.nil? && mirror.has_key?(:dotnetcli)
 
 Chef::Log.info("Printing: base_url #{base_url}")
 
-if base_url.empty?
-  # Search for cookbook default nexus mirror.
-  Chef::Log.info('dotnetcli mirror is empty. ')
-  base_url = url_public
-end
+base_url = url_public if base_url.nil? || base_url.empty?
 
 Chef::Log.info("Printing: base_url #{base_url}")
 
