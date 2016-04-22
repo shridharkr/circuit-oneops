@@ -1,48 +1,77 @@
-require File.expand_path('../../libraries/utils.rb', __FILE__)
-require File.expand_path('../../libraries/hardware_profile.rb', __FILE__)
-require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
 require 'azure_mgmt_compute'
-require 'azure_mgmt_network'
 
-::Chef::Recipe.send(:include, Utils)
-::Chef::Recipe.send(:include, AzureCompute)
 ::Chef::Recipe.send(:include, Azure::ARM::Compute)
 ::Chef::Recipe.send(:include, Azure::ARM::Compute::Models)
-::Chef::Recipe.send(:include, Azure::ARM::Network)
-::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
 
 total_start_time = Time.now.to_i
 
 #set the proxy if it exists as a cloud var
 AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
-cloud_name = node['workorder']['cloud']['ciName']
-Chef::Log.info("Cloud Name: #{cloud_name}")
-compute_service = node['workorder']['services']['compute'][cloud_name]['ciAttributes']
-express_route_enabled = compute_service['express_route_enabled']
+######################################
+# get everything needed from the node
+# and info that you will need for all the recipes
+######################################
+cloud_name = node[:workorder][:cloud][:ciName]
+OOLog.info("Cloud Name: #{cloud_name}")
+compute_service =
+  node[:workorder][:services][:compute][cloud_name][:ciAttributes]
+location = compute_service[:location]
+express_route_enabled = compute_service[:express_route_enabled]
+OOLog.info('Express Route is enabled: ' + express_route_enabled )
+subscription = compute_service[:subscription]
+OOLog.info("Subscription ID: #{subscription}")
+ci_id = node[:workorder][:rfcCi][:ciId]
+OOLog.info('ci_id:'+ci_id.to_s)
 
-Chef::Log.info("Subscription ID: #{compute_service['subscription']}")
+# this is the resource group the preconfigured vnet will be in
+master_resource_group_name = compute_service[:resource_group]
+# preconfigured vnet name
+preconfigured_network_name = compute_service[:network]
+
+#TODO:validate data entry with regex.
+# we get these values if it's NOT express route.
+network_address = compute_service[:network_address].strip
+subnet_address_list = (compute_service[:subnet_address]).split(',')
+dns_list = (compute_service[:dns_ip]).split(',')
 
 # get platform resource group and availability set
 include_recipe 'azure::get_platform_rg_and_as'
 
-# invoke recipe to get credentials
-include_recipe "azure::get_credentials"
+resource_group_name = node['platform-resource-group']
+OOLog.info('Resource group name: ' + resource_group_name)
 
+if express_route_enabled == 'true'
+  ip_type = 'private'
+else
+  ip_type = 'public'
+end
+
+OOLog.info('ip_type: ' + ip_type)
+
+# get the credentials needed to call Azure SDK
+creds =
+  AzureCommon::AzureUtils.get_credentials(compute_service[:tenant_id],
+                                          compute_service[:client_id],
+                                          compute_service[:client_secret]
+                                         )
+
+# must do this until all is refactored to use the util above.
+node.set['azureCredentials'] = creds
 
 # create the VM in the platform specific resource group and availability set
-client = ComputeManagementClient.new(node['azureCredentials'])
-client.subscription_id = compute_service['subscription']
+client = ComputeManagementClient.new(creds)
+client.subscription_id = subscription
 
 node.set['VM_exists'] = false
 #check whether the VM with given name exists already
 begin
-  promise = client.virtual_machines.get(node['platform-resource-group'], node['server_name'])
+  promise = client.virtual_machines.get(resource_group_name, node['server_name'])
   result = promise.value!
   node.set['VM_exists'] = true
-  rescue MsRestAzure::AzureOperationError => e
-   Chef::Log.debug("Error Body: #{e.body}")
-   Chef::Log.debug("VM doesn't exist. Leaving the VM_exists flag false")
+rescue MsRestAzure::AzureOperationError => e
+  OOLog.debug("Error Body: #{e.body}")
+  OOLog.debug("VM doesn't exist. Leaving the VM_exists flag false")
 end
 
 # invoke recipe to build the OS profile
@@ -54,90 +83,97 @@ hwprofile = AzureCompute::HardwareProfile.new()
 # invoke recipe to build the storage profile
 include_recipe "azure::build_storage_profile_for_add_node"
 
-# invoke recipe to build the network profile
-include_recipe "azure::build_network_profile_for_add_node"
+# invoke class to build the network profile
+# include_recipe "azure::build_network_profile_for_add_node"
+network_interface_cls =
+  AzureNetwork::NetworkInterfaceCard.new(creds, subscription)
+network_interface_cls.location = location
+network_interface_cls.rg_name = resource_group_name
+network_interface_cls.ci_id = ci_id
+
+network_profile =
+  network_interface_cls.build_network_profile(express_route_enabled,
+                                              master_resource_group_name,
+                                              preconfigured_network_name,
+                                              network_address,
+                                              subnet_address_list,
+                                              dns_list,
+                                              ip_type)
+
+# set the ip on the node as the private ip
+node.set['ip'] = network_interface_cls.private_ip
+# write the ip information to stdout for the inductor to pick up and use.
+if ip_type == 'private'
+  puts "***RESULT:private_ip="+node['ip']
+  puts "***RESULT:public_ip="+node['ip']
+  puts "***RESULT:dns_record="+node['ip']
+else
+  puts "***RESULT:private_ip="+node['ip']
+end
 
 # get the availability set to use
 availability_set = AzureCompute::AvailabilitySet.new(compute_service)
 
-
-
 # Create a model for new virtual machine
 props = VirtualMachineProperties.new
-
 props.os_profile = node['osProfile']
 
 begin
   props.hardware_profile = hwprofile.build_profile(node['size_id'])
-rescue Exception => ex
-  puts "***FAULT:FATAL=#{ex.message}"
-  ex = Exception.new('no backtrace')
-  e.set_backtrace('')
-  raise ex
+rescue => ex
+  OOLog.fatal("Error getting hardware profile: #{ex.message}")
 end
 
 props.storage_profile = node['storageProfile']
-props.network_profile = node['networkProfile']
-props.availability_set = availability_set.get(node['platform-resource-group'], node['platform-availability-set'])
+props.network_profile = network_profile
+props.availability_set = availability_set.get(resource_group_name, node['platform-availability-set'])
 
 params = VirtualMachine.new
 params.type = 'Microsoft.Compute/virtualMachines'
 params.properties = props
-params.location = compute_service['location']
+params.location = location
 begin
   start_time = Time.now.to_i
-  Chef::Log.info("Creating New Azure VM :" + node['server_name'])
+  OOLog.info("Creating New Azure VM :" + node['server_name'])
   # create the VM in the platform resource group
-  vm_promise = client.virtual_machines.create_or_update(node['platform-resource-group'], node['server_name'], params)
+  vm_promise = client.virtual_machines.create_or_update(resource_group_name, node['server_name'], params)
   my_new_vm = vm_promise.value!
   end_time = Time.now.to_i
   duration = end_time - start_time
-  Chef::Log.info("Azure VM created in #{duration} seconds")
-	Chef::Log.info("New VM: #{my_new_vm.body.name} CREATED!!!")
+  OOLog.info("Azure VM created in #{duration} seconds")
+	OOLog.info("New VM: #{my_new_vm.body.name} CREATED!!!")
   puts "***RESULT:instance_id="+my_new_vm.body.id
 rescue MsRestAzure::AzureOperationError => e
-  puts '***FAULT:FATAL=creating a VM in resource group: ' + node['platform-resource-group']
-  Chef::Log.error("Error Body: #{e.body}")
-  e = Exception.new('no backtrace')
-  e.set_backtrace('')
-  raise e
-rescue Exception => ex
-  puts "***FAULT:FATAL=#{ex.message}"
-  ex = Exception.new('no backtrace')
-  ex.set_backtrace('')
-  raise ex
+  OOLog.fatal("Error Creating VM: #{e.body}")
+rescue => ex
+  OOLog.fatal("Error Creating VM: #{ex.message}")
 end
 
-if express_route_enabled == 'false'
-  networkclient = NetworkResourceProviderClient.new(node['azureCredentials'])
-  networkclient.subscription_id = compute_service['subscription']
-  nameutil = Utils::NameUtils.new()
-  public_ip_name = nameutil.get_component_name("publicip",node['workorder']['rfcCi']['ciId'])
-  Chef::Log.info("public ip name: #{public_ip_name }")
-  Chef::Log.info("RG Name: #{node['platform-resource-group']}")
-begin
-  promise = networkclient.public_ip_addresses.get(node['platform-resource-group'], public_ip_name)
-  details = promise.value!
-  obj=JSON.parse(details.response.body)
-  Chef::Log.info("public ip found:"+ obj['properties']['ipAddress'] )
-  puts "***RESULT:public_ip="+obj['properties']['ipAddress']
-  # need to add public ip as the dns record for the dns records later.
-  # if the LB exists, it will be overwritten with the LB public ip.
-  puts "***RESULT:dns_record="+obj['properties']['ipAddress']
-  node.set['ip'] = obj['properties']['ipAddress']
-rescue MsRestAzure::AzureOperationError => e
-  puts '***FAULT:FATAL=creating a public IP in resource group: ' + node['platform-resource-group']
-  Chef::Log.error("Error Body: #{e.body}")
-  Chef::Log.error("Error retrieving public ip address")
-  e = Exception.new('no backtrace')
-  e.set_backtrace('')
-  raise e
-rescue Exception => ex
-  puts "***FAULT:FATAL=#{ex.message}"
-  ex = Exception.new('no backtrace')
-  ex.set_backtrace('')
-  raise ex
-end
+# for public deployments we need to get the public ip address after the vm
+# is created
+# if express_route_enabled == 'false'
+if ip_type == 'public'
+  # need to get the public ip that was assigned to the VM
+  begin
+    # get the pip name
+    nameutil = Utils::NameUtils.new()
+    public_ip_name = nameutil.get_component_name("publicip",ci_id)
+    OOLog.info("public ip name: #{public_ip_name }")
+
+    pip = AzureNetwork::PublicIp.new(creds,subscription)
+    publicip = pip.get(resource_group_name, public_ip_name)
+    obj=JSON.parse(publicip)
+    pubip_address = obj['properties']['ipAddress']
+    OOLog.info("public ip found: #{pubip_address}")
+    # set the public ip and dns record on stdout for the inductor
+    puts "***RESULT:public_ip=#{pubip_address}"
+    puts "***RESULT:dns_record=#{pubip_address}"
+    node.set['ip'] = pubip_address
+  rescue MsRestAzure::AzureOperationError => e
+    OOLog.fatal("Error getting pip from Azure: #{e.body}")
+  rescue => ex
+    OOLog.fatal("Error getting pip from Azure: #{ex.message}")
+  end
 end
 
 include_recipe "compute::ssh_port_wait"
@@ -167,4 +203,4 @@ metadata = {
 puts "***RESULT:metadata="+JSON.dump(metadata)
 total_end_time = Time.now.to_i
 duration = total_end_time - total_start_time
-Chef::Log.info("Total Time for azure::add_node recipe is #{duration} seconds")
+OOLog.info("Total Time for azure::add_node recipe is #{duration} seconds")
