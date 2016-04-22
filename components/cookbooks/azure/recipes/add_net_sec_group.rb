@@ -1,8 +1,13 @@
 require File.expand_path('../../libraries/network_security_group.rb', __FILE__)
+require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, AzureNetwork)
 ::Chef::Recipe.send(:include, Azure::ARM::Network)
 ::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
+
+#set the proxy if it exists as a cloud var
+AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+
 include_recipe 'azure::get_credentials'
 include_recipe 'azure::get_platform_rg_and_as'
 
