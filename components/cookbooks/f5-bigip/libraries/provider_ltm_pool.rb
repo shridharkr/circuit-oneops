@@ -35,7 +35,8 @@ class Chef
       end
 
       def action_create
-        create_pool unless current_resource.exists
+        load_balancer.ltm.pools.refresh_all
+        create_pool if load_balancer.ltm.pools.find { |p| p.name =~ /(^|\/)#{@new_resource.pool_name}$/ }.nil?
 
         set_lb_method unless current_resource.lb_method == new_resource.lb_method
 

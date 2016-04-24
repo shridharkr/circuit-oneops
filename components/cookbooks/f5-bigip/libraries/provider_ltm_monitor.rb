@@ -32,7 +32,8 @@ class Chef
       end
 
       def action_create # rubocop:disable CyclomaticComplexity
-        create_template unless current_resource.exists
+       	load_balancer.ltm.monitors.refresh_all 
+        create_template if load_balancer.ltm.monitors.find { |m| m.name =~ /(^|\/)#{@new_resource.monitor_name}$/ }.nil?
 
         set_template_destination if current_resource.dest_addr_type != new_resource.dest_addr_type
         set_template_destination if current_resource.dest_addr_ip != new_resource.dest_addr_ip
