@@ -92,7 +92,7 @@ module F5
           values.each_with_index { |v, idx| @pools[idx].monitors = v }
         end
 
-        private
+        #private
 
         def pools_members
           @pools.map { |p| p.members.map { |m| m.to_hash } }

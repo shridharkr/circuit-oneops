@@ -68,4 +68,5 @@ f5_ltm_sslprofiles  "#{node.cert_name}" do
   keyid "#{node.cert_name}.key"
   certid  "#{node.cert_name}.crt"
   passphrase  "#{passphrase}"
+  notifies :run, "f5_config_sync[#{node.f5_host}]", :delayed
 end

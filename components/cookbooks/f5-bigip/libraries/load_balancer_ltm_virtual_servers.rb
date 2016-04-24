@@ -122,7 +122,7 @@ module F5
           refresh('rule', 'rules')
         end
 
-        private
+        #private
 
         def refresh_all
           @virtual_servers = @client['LocalLB.VirtualServer']

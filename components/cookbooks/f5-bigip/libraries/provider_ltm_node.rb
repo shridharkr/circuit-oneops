@@ -32,8 +32,7 @@ class Chef
 
       def action_create
         # If node doesn't exist
-        #delete_node if current_resource.exists
-	create_node if !current_resource.exists
+	create_node if load_balancer.ltm.nodes.find { |n| n['name'] =~ /(^|\/)#{@new_resource.node_name}$/ }.nil?
 
         # If enable state isn't what we want
         set_enabled unless current_resource.enabled == new_resource.enabled
