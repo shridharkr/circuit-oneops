@@ -1,17 +1,20 @@
-include_pack "base"
+include_pack "custom"
+
 name "dotnet"
 description "DotNet"
 type "Platform"
 category "Worker Application"
+
 environment "single", {}
 environment "redundant", {}
+
 resource "dotnetcli",
   :cookbook => "1.dotnetcli",
   :source => Chef::Config[:register],
   :design => true,
   :requires => {
     :constraint => "1..1",
-    :help => "USERID test component",
+    :help => "dotnetcli install component",
     :services => 'mirror'
   },
   :attributes => {
@@ -29,7 +32,9 @@ resource "secgroup",
     :services => "compute"
   }
 # depends_on
-[ { :from => 'dotnetcli', :to => 'compute' } ].each do |link|
+[ { :from => 'dotnetcli',  :to => 'os' },
+  { :from => 'build',   :to => 'dotnetcli' } ].each do |link|
+
   relation "#{link[:from]}::depends_on::#{link[:to]}",
     :relation_name => 'DependsOn',
     :from_resource => link[:from],
