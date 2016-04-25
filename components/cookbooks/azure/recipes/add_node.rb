@@ -161,7 +161,8 @@ if ip_type == 'public'
     OOLog.info("public ip name: #{public_ip_name }")
 
     pip = AzureNetwork::PublicIp.new(creds,subscription)
-    publicip = pip.get(resource_group_name, public_ip_name)
+    publicip_details = pip.get(resource_group_name, public_ip_name)
+    publicip = publicip_details.response.body
     obj=JSON.parse(publicip)
     pubip_address = obj['properties']['ipAddress']
     OOLog.info("public ip found: #{pubip_address}")

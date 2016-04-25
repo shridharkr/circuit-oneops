@@ -39,8 +39,7 @@ module AzureNetwork
       begin
         promise =
           @client.public_ip_addresses.get(resource_group_name, public_ip_name)
-        response = promise.value!
-        response.body
+        promise.value!
       rescue MsRestAzure::AzureOperationError => e
         OOLog.fatal("Exception trying to get public ip #{public_ip_name} from resource group: #{resource_group_name}, Exception: #{e.body}")
       rescue => e

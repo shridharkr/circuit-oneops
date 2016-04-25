@@ -30,7 +30,7 @@ module AzureNetwork
         publicip = AzureNetwork::PublicIp.new(@creds, @subscription)
         publicip.location = @location
         # get public ip object
-        public_ip_address = publicip.define_public_ip_address(@ci_id)
+        public_ip_address = publicip.build_public_ip_object(@ci_id)
         # create public ip
         public_ip_if =
           publicip.create_update(@rg_name,
@@ -109,7 +109,9 @@ module AzureNetwork
       subnet_cls = AzureNetwork::Subnet.new(creds, subscription)
 
       # if the express route is enabled we will look for a preconfigured vnet
-      if express_route_enabled
+      if express_route_enabled == 'true'
+        OOLog.info("Master resource group: '#{master_rg}'")
+        OOLog.info("Pre VNET: '#{pre_vnet}'")
         #TODO add checks for master rg and preconf vnet
         virtual_network.name = pre_vnet
         # get the preconfigured vnet from Azure
@@ -118,9 +120,11 @@ module AzureNetwork
         OOLog.fatal('Expressroute requires preconfigured networks') if network.nil?
       else
         network_name = 'vnet_'+ @rg_name
+        OOLog.info("Using RG: '#{@rg_name}' to find vnet: '#{network_name}'")
         virtual_network.name = network_name
-        network = virtual_network.get(@rg_name)
-        if network.nil?
+        # network = virtual_network.get(@rg_name)
+        if !virtual_network.exists?(@rg_name)
+        # if network.nil?
           # set the network info on the object
           virtual_network.address = network_address
           virtual_network.sub_address = subnet_address_list
@@ -129,12 +133,13 @@ module AzureNetwork
           # build the network object
           new_vnet = virtual_network.build_network_object
           # create the vnet
-          network = virtual_network.create_update(@rg_name,
-                                                  network_name,
-                                                  new_vnet
-                                                 )
+          network = virtual_network.create_update(@rg_name, new_vnet)
+        else
+          network = virtual_network.get(@rg_name)
         end
       end
+
+      OOLog.info("Network is: '#{network}'")
 
       subnetlist = network.body.properties.subnets
       # get the subnet to use for the network
