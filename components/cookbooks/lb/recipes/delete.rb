@@ -51,6 +51,7 @@ when /f5-bigip/
 
    include_recipe "f5-bigip::f5_delete_lbvserver"
    include_recipe "f5-bigip::f5_delete_pool"
+   include_recipe "f5-bigip::f5_delete_monitor"
    include_recipe "f5-bigip::f5_delete_node"
 
 when /netscaler/

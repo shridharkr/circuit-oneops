@@ -61,7 +61,9 @@ class Chef
       # Create action for f5_icontrol_virtual_server provider
       #
       def action_create # rubocop:disable CyclomaticComplexity
-        create_virtual_server unless current_resource.exists
+        #create_virtual_server unless current_resource.exists
+        load_balancer.ltm.virtual_servers.refresh_all 
+        create_virtual_server if load_balancer.ltm.virtual_servers.find { |v| v.name =~ /(^|\/)#{@new_resource.vs_name}$/ }.nil?
 
         set_default_pool unless current_resource.default_pool == new_resource.default_pool
 

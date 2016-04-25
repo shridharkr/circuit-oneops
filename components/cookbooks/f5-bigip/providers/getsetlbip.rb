@@ -4,7 +4,6 @@
 #
 
 require 'excon'
-require 'f5-icontrol'
 
 include F5::Loader
 
