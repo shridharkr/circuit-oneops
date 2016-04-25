@@ -42,3 +42,5 @@ attribute 'folderpath',
                 :category => '1.Global',
                 :order => 3
             }
+
+recipe 'repair', 'Repair Dotnetcli'
