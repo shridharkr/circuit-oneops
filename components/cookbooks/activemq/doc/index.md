@@ -591,3 +591,7 @@ edit the following variables, provide appropriate values:
 OneOps GUI provide built in action panels that ActiveMQ pack implement for server start, stop, restart, repair operations.
 
 Users are encouraged to manage ActiveMQ server life cycle via OneOps operations page.
+
+
+##FAQs
+
