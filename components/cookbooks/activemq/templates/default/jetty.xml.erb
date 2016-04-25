@@ -126,8 +126,7 @@
              <bean id="Connector" class="org.eclipse.jetty.server.ServerConnector">
                    <constructor-arg ref="Server" />
                     <!-- see the jettyPort bean -->
-                   <property name="host" value="#{systemProperties['jetty.host']}" />
-                   <property name="port" value="#{systemProperties['jetty.port']}" />
+                   <property name="port" value="<%= @adminconsoleport%>" />
                </bean>
               <% else %>
                  <bean id="SecureConnector" class="org.eclipse.jetty.server.ServerConnector">
