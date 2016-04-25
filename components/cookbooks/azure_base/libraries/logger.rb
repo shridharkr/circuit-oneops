@@ -2,9 +2,9 @@ module OOLog
   def fatal(msg)
     Chef::Log.error(msg)
     puts "***FAULT:FATAL=#{msg}"
-    ex = Exception.new('no backtrace')
+    e = Exception.new('no backtrace')
     e.set_backtrace('')
-    raise ex
+    raise e
   end
 
   def info(msg)

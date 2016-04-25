@@ -82,7 +82,6 @@ end
     :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
 end
 
-
 # managed_via
 [ 'mysql' ].each do |from|
   relation "#{from}::managed_via::compute",
