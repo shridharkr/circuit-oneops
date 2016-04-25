@@ -1,7 +1,7 @@
+require 'azure_mgmt_network'
 require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
+require File.expand_path('../../libraries/public_ip.rb', __FILE__)
 
-::Chef::Recipe.send(:include, AzureNetwork)
-::Chef::Recipe.send(:include, Utils)
 ::Chef::Recipe.send(:include, Azure::ARM::Network)
 ::Chef::Recipe.send(:include, Azure::ARM::Network::Models)
 
