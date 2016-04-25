@@ -9,7 +9,6 @@ module AzureNetwork
 
     def create_update_network(resource_group_name, vnet_name, virtual_network)
       begin
-
         puts("Creating Virtual Network '#{vnet_name}' ...")
         start_time = Time.now.to_i
         promise = @client.virtual_networks.create_or_update(resource_group_name, vnet_name, virtual_network)
@@ -72,7 +71,6 @@ module AzureNetwork
 
     def get_subscription_vnets
       begin
-
         puts("Getting subscription vnets ...")
         start_time = Time.now.to_i
         promise = @client.virtual_networks.list_all()
@@ -80,11 +78,8 @@ module AzureNetwork
         result = response.body
         end_time = Time.now.to_i
         duration = end_time - start_time
-
         puts("operation took #{duration} seconds")
-
         return result
-
       rescue  MsRestAzure::AzureOperationError =>e
         puts 'Error creating Virtual Network'
         puts("Error Response: #{e.response}")

@@ -1,11 +1,10 @@
-require 'azure_mgmt_network'
-
-
 module AzureNetwork
-  include Azure::ARM::Network
-  include Azure::ARM::Network::Models
 
   class LoadBalancer
+
+    # include Azure::ARM::Network
+    # include Azure::ARM::Network::Models
+
     attr_reader :client, :subscription_id
 
     def initialize(credentials, subscription_id)
@@ -56,7 +55,7 @@ module AzureNetwork
 
     def get(resource_group_name, load_balancer_name)
       begin
-        puts("Fetching load balancer '#{load_balancer_name}' from '#{resource_group_name}'")
+        puts("Fetching load balancer '#{load_balancer_name}' from '#{resource_group_name}' ")
         start_time = Time.now.to_i
         promise = @client.load_balancers.get(resource_group_name, load_balancer_name)
         response = promise.value!
@@ -66,7 +65,7 @@ module AzureNetwork
         puts("operation took #{duration} seconds")
         return result
       rescue  MsRestAzure::AzureOperationError =>e
-        puts("Error getting LoadBalancer '#{load_balancer_name}' in ResourceGroup '#{resource_group_name}'")
+        puts("Error getting LoadBalancer '#{load_balancer_name}' in ResourceGroup '#{resource_group_name}' ")
         puts("Error Response: #{e.response}")
         puts("Error Body: #{e.body}")
         result = Azure::ARM::Network::Models::LoadBalancer.new
@@ -80,9 +79,9 @@ module AzureNetwork
         lb.location = location
         lb.properties = lb_props
 
-        puts("Creating/Updating load balancer '#{load_balancer_name}' from '#{resource_group_name}'")
+        puts("Creating/Updating load balancer '#{load_balancer_name}' in '#{resource_group_name}' ")
         start_time = Time.now.to_i
-        promise = @client.load_balancers.create_or_update(rg_name, lb_name, lb)
+        promise = @client.load_balancers.create_or_update(resource_group_name, load_balancer_name, lb)
         response = promise.value!
         result = response.body
         end_time = Time.now.to_i
@@ -99,7 +98,7 @@ module AzureNetwork
 
     def delete(resource_group_name, load_balancer_name)
       begin
-        puts("Deleting load balancer '#{load_balancer_name}' from '#{resource_group_name}'")
+        puts("Deleting load balancer '#{load_balancer_name}' from '#{resource_group_name}' ")
         start_time = Time.now.to_i
         promise = @client.load_balancers.delete(resource_group_name, load_balancer_name)
         response = promise.value!
@@ -124,12 +123,14 @@ module AzureNetwork
 
       frontend_ipconfig_props = Azure::ARM::Network::Models::FrontendIpConfigurationPropertiesFormat.new
 
+      ipallocation_method = Azure::ARM::Network::Models::IpAllocationMethod::Dynamic
+
       if public_ip.nil?
-        frontend_ipconfig_props.private_ipallocation_method = Azure::ARM::Network::Models::IPAllocationMethod::Dynamic
+        frontend_ipconfig_props.private_ipallocation_method = ipallocation_method
         frontend_ipconfig_props.subnet = subnet
       else
         frontend_ipconfig_props.public_ipaddress = public_ip
-        frontend_ipconfig_props.private_ipallocation_method = Azure::ARM::Network::Models::IPAllocationMethod::Dynamic
+        frontend_ipconfig_props.private_ipallocation_method = ipallocation_method
       end
 
       frontend_ipconfig_props.inbound_nat_rules = []
@@ -197,7 +198,7 @@ module AzureNetwork
       lb_rule_props.backend_address_pool = backend_address_pool
       lb_rule_props.frontend_ipconfiguration = frontend_ipconfig
 
-      lb_rule = AzureLLARM::Network::Models::LoadBalancingRule.new
+      lb_rule = Azure::ARM::Network::Models::LoadBalancingRule.new
       lb_rule.name = lb_rule_name
       lb_rule.properties = lb_rule_props
 
@@ -237,4 +238,5 @@ module AzureNetwork
     end
 
   end
+
 end
