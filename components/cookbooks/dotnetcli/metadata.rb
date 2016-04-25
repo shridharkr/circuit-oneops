@@ -43,4 +43,4 @@ attribute 'folderpath',
                 :order => 3
             }
 
-recipe 'repair', 'Repair dotnetcli'
+recipe 'repair', 'Repair Dotnetcli'
