@@ -33,7 +33,8 @@ APP_LONG_NAME="ActiveMQ Broker"
 ACTIVEMQ_HOME="../.."
 
 source /etc/profile.d/oneops.sh
-
+export ACTIVEMQ_ENCRYPTION_PASSWORD=`cat <%= node['activemq']['enckeypath'] %><%= node['activemq']['enckey'] %>`
+ 
 # Wrapper
 WRAPPER_CMD="wrapper"
 WRAPPER_CONF="wrapper.conf"
@@ -543,17 +544,20 @@ case "$1" in
     'start')
         checkUser $1 touchlock
         start
+        export ACTIVEMQ_ENCRYPTION_PASSWORD=''
         ;;
 
     'stop')
         checkUser $1
         stopit
+        export ACTIVEMQ_ENCRYPTION_PASSWORD=''
         ;;
 
     'restart')
         checkUser $1 touchlock
         stopit
         start
+        export ACTIVEMQ_ENCRYPTION_PASSWORD=''
         ;;
 
     'status')
