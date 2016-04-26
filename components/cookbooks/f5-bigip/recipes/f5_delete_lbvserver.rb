@@ -113,6 +113,8 @@ Chef::Log.info("f5: #{host}")
 
 node.set["f5_host"] = host
 
+f5_config_sync node.f5_host
+
 #node.set["f5_host"] = '10.246.255.149'
 lbs = node.loadbalancers + node.dcloadbalancers
 lbs.each do |lb|
