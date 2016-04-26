@@ -11,8 +11,8 @@ def create_public_ip_address(network_client, resource_group_name, public_ip_addr
     public_ip_if= network_client.public_ip_addresses.create_or_update(resource_group_name, public_ip_address.name, public_ip_address)
     result = public_ip_if.value!
   rescue MsRestAzure::AzureOperationError => ex
-    Chef::Log.error('***FAULT:FATAL=creating/updating ' + public_ip_address.name + ' in resource group: ' + resource_group_name)
-    Chef::Log.error('***FAULT:FATAL=' + ex.body.to_s)
+    OOLog.error('***FAULT:FATAL=creating/updating ' + public_ip_address.name + ' in resource group: ' + resource_group_name)
+    OOLog.error('***FAULT:FATAL=' + ex.body.to_s)
     exit 1
   end
 
@@ -28,19 +28,19 @@ def define_public_ip_address(location, ci_id)
   nameutil = Utils::NameUtils.new()
   public_ip_address.name = nameutil.get_component_name("publicip",ci_id)
   public_ip_address.properties = public_ip_configs
-  Chef::Log.info('Public IP name is: ' + public_ip_address.name)
+  OOLog.info('Public IP name is: ' + public_ip_address.name)
   return public_ip_address
 end
 
 def create_network_interface(network_client, resource_group_name, nic_name, network_interface)
-  Chef::Log.info('Creating/Updating nic name: ' + nic_name)
+  OOLog.info('Creating/Updating nic name: ' + nic_name)
   resource_group_name = node.set['platform-resource-group'] #TODO: delete this line after test
   begin
     nic = network_client.network_interfaces.create_or_update(resource_group_name, nic_name, network_interface)
     result = nic.value!
   rescue MsRestAzure::AzureOperationError => e
-    Chef::Log.error('***FAULT:FATAL=creating/updating ' + nic_name + ' in resource group: ' + resource_group_name)
-    Chef::Log.error('***FAULT:FATAL=' + e.body.to_s)
+    OOLog.error('***FAULT:FATAL=creating/updating ' + nic_name + ' in resource group: ' + resource_group_name)
+    OOLog.error('***FAULT:FATAL=' + e.body.to_s)
     exit 1
   end
 
@@ -57,7 +57,7 @@ def define_network_interface(nic_ip_config, location, ci_id)
   network_interface.name = nameutil.get_component_name("nic",ci_id)
   network_interface.properties = network_interface_props
 
-  Chef::Log.info('Network Interface name is: ' + network_interface.name)
+  OOLog.info('Network Interface name is: ' + network_interface.name)
   return network_interface
 end
 
@@ -75,14 +75,14 @@ def define_nic_ip_config(ip_type, ci_id, subnet, network_client, resource_group_
   nameutil = Utils::NameUtils.new()
   nic_ip_config.name = nameutil.get_component_name("privateip",ci_id)
   nic_ip_config.properties = nic_ip_config_props
-  Chef::Log.info('NIC IP name is: ' + nic_ip_config.name)
+  OOLog.info('NIC IP name is: ' + nic_ip_config.name)
   return nic_ip_config
 end
 
 def get_subnet_with_available_ips(subnets, express_route_enabled)
 
   subnets.each do |subnet|
-    Chef::Log.info('checking for ip availability in ' + subnet.name)
+    OOLog.info('checking for ip availability in ' + subnet.name)
     address_prefix = subnet.properties.address_prefix
 
     if express_route_enabled == 'true'
@@ -90,34 +90,34 @@ def get_subnet_with_available_ips(subnets, express_route_enabled)
     else
       total_num_of_ips_possible = (2 ** (32 - (address_prefix.split('/').last.to_i)))-2 #Broadcast(1)+Gateway(1)
     end
-    Chef::Log.info("Total number of ips possible is: #{total_num_of_ips_possible.to_s}")
+    OOLog.info("Total number of ips possible is: #{total_num_of_ips_possible.to_s}")
 
     if subnet.properties.ip_configurations.nil?
       no_ips_inuse = 0
     else
       no_ips_inuse = subnet.properties.ip_configurations.length
     end
-    Chef::Log.info("Num of ips in use: #{no_ips_inuse.to_s}")
+    OOLog.info("Num of ips in use: #{no_ips_inuse.to_s}")
 
     remaining_ips = total_num_of_ips_possible - (no_ips_inuse)
     if remaining_ips == 0
-      Chef::Log.info("No IP address remaining in the Subnet '#{subnet.name}'")
-      Chef::Log.info("Total number of subnets(subnet_name_list.count) = #{(subnets.count).to_s}")
-      Chef::Log.info('checking the next subnet')
+      OOLog.info("No IP address remaining in the Subnet '#{subnet.name}'")
+      OOLog.info("Total number of subnets(subnet_name_list.count) = #{(subnets.count).to_s}")
+      OOLog.info('checking the next subnet')
       next #check the next subnet
     else
       return subnet
     end
   end
 
-  Chef::Log.error('***FAULT:FATAL=- No IP address available in any of the Subnets allocated. limit exceeded')
+  OOLog.error('***FAULT:FATAL=- No IP address available in any of the Subnets allocated. limit exceeded')
   exit 1
 end
 
 def define_subnet_objects(network_name, subnet_address_list)
   sub_nets = Array.new
   for i in 0..subnet_address_list.length-1
-    Chef::Log.info('subnet_address_list[' + i.to_s + ']: ' + subnet_address_list[i].strip)
+    OOLog.info('subnet_address_list[' + i.to_s + ']: ' + subnet_address_list[i].strip)
     subnet_properties = SubnetPropertiesFormat.new
     subnet_properties.address_prefix = subnet_address_list[i].strip
 
@@ -125,20 +125,20 @@ def define_subnet_objects(network_name, subnet_address_list)
     subnet.name = 'subnet_' + i.to_s + '_' + network_name
     subnet.properties = subnet_properties
     sub_nets.push(subnet)
-    Chef::Log.info('Subnet name is: ' + subnet.name)
+    OOLog.info('Subnet name is: ' + subnet.name)
   end
 
   return sub_nets
 end
 
 def define_network_object(location, network_name, network_address, dns_list, subnet_address_list)
-  Chef::Log.info('network_address: ' + network_address)
+  OOLog.info('network_address: ' + network_address)
   address_space = AddressSpace.new
   address_space.address_prefixes = [network_address]
 
   ns_list = Array.new
   for i in 0..dns_list.length-1
-    Chef::Log.info('dns address[' + i.to_s + ']: ' + dns_list[i].strip)
+    OOLog.info('dns address[' + i.to_s + ']: ' + dns_list[i].strip)
     ns_list.push(dns_list[i].strip)
   end
   dhcp_options = DhcpOptions.new
@@ -163,14 +163,14 @@ end
 def create_update_network(network_client, resource_group_name, location, network_name, network_address, dns_list, subnet_address_list)
   virtual_network = define_network_object(location, network_name, network_address, dns_list, subnet_address_list)
 
-  Chef::Log.info('Creating/Updating network name: ' + network_name)
+  OOLog.info('Creating/Updating network name: ' + network_name)
   begin
     promise = network_client.virtual_networks.create_or_update(resource_group_name, network_name, virtual_network)
     network = promise.value!
-    Chef::Log.info('Successfully created/updated network name: ' + network_name)
+    OOLog.info('Successfully created/updated network name: ' + network_name)
   rescue MsRestAzure::AzureOperationError => e
-    Chef::Log.error('***FAULT:FATAL=creating/updating ' + network_name + ' in resource group: ' + resource_group_name)
-    Chef::Log.error('***FAULT:FATAL=' + e.body.to_s)
+    OOLog.error('***FAULT:FATAL=creating/updating ' + network_name + ' in resource group: ' + resource_group_name)
+    OOLog.error('***FAULT:FATAL=' + e.body.to_s)
     exit 1
   end
 
@@ -178,13 +178,13 @@ def create_update_network(network_client, resource_group_name, location, network
 end
 
 def get_network(network_client, resource_group_name, network_name)
-  Chef::Log.info('Searching if network ' + network_name + ' already exist')
+  OOLog.info('Searching if network ' + network_name + ' already exist')
   begin
     promise = network_client.virtual_networks.get(resource_group_name, network_name)
     network = promise.value!
   rescue MsRestAzure::AzureOperationError => e
-    Chef::Log.error('Network ' + network_name + ' not found')
-    Chef::Log.error('Error: ' + e.body.to_s)
+    OOLog.error('Network ' + network_name + ' not found')
+    OOLog.error('Error: ' + e.body.to_s)
     return nil
   end
 
@@ -199,7 +199,7 @@ compute_service = node['workorder']['services']['compute'][cloud_name]['ciAttrib
 network_client = NetworkResourceProviderClient.new(node['azureCredentials'])
 network_client.subscription_id = compute_service['subscription']
 
-Chef::Log.info('Building Network Profile for add_node...')
+OOLog.info('Building Network Profile for add_node...')
 location = compute_service['location'].gsub(" ","").downcase
 express_route_enabled = compute_service['express_route_enabled']
 if express_route_enabled == 'true'
@@ -208,17 +208,17 @@ else
   ip_type = 'public'
 end
 resource_group_name = node.set['platform-resource-group']
-Chef::Log.info('Resource group name: ' + resource_group_name)
+OOLog.info('Resource group name: ' + resource_group_name)
 
 if express_route_enabled == 'true'
   master_resource_group_name = compute_service['resource_group']
   network_name = compute_service['network']
-  Chef::Log.info('Express Route is enabled: ' + express_route_enabled )
-  Chef::Log.info('Master Resource group name: ' + master_resource_group_name)
-  Chef::Log.info('Network name: ' + network_name)
+  OOLog.info('Express Route is enabled: ' + express_route_enabled )
+  OOLog.info('Master Resource group name: ' + master_resource_group_name)
+  OOLog.info('Network name: ' + network_name)
   network = get_network(network_client, master_resource_group_name, network_name)
   if network == nil
-    Chef::Log.error('***FAULT:FATAL=Express route connections to azure require the network and subnet address ranges to be preconfigured.')
+    OOLog.error('***FAULT:FATAL=Express route connections to azure require the network and subnet address ranges to be preconfigured.')
     exit 1
   end
 else
@@ -228,21 +228,21 @@ else
     network_address = compute_service['network_address'].strip
     subnet_address_list = (compute_service['subnet_address']).split(',')
     dns_list = (compute_service['dns_ip']).split(',') #TODO:validate data entry
-    Chef::Log.info('Network name: ' + network_name)
-    Chef::Log.info('ip_type: ' + ip_type)
+    OOLog.info('Network name: ' + network_name)
+    OOLog.info('ip_type: ' + ip_type)
     network = create_update_network(network_client, resource_group_name, location, network_name, network_address, dns_list, subnet_address_list)
   end
 end
 
 subnet = get_subnet_with_available_ips(network.body.properties.subnets, express_route_enabled)
 ci_id = node['workorder']['rfcCi']['ciId']
-Chef::Log.info('ci_id:'+ci_id.to_s)
+OOLog.info('ci_id:'+ci_id.to_s)
 nic_ip_config = define_nic_ip_config(ip_type, ci_id, subnet, network_client, resource_group_name, location)
 network_interface = define_network_interface(nic_ip_config, location, ci_id)
 nic = create_network_interface(network_client, resource_group_name, network_interface.name, network_interface)
 network_interface.id = nic.id
 private_ip = nic.properties.ip_configurations[0].properties.private_ipaddress
-Chef::Log.info('Private IP is: ' + private_ip)
+OOLog.info('Private IP is: ' + private_ip)
 node.set['ip'] = private_ip
 
 network_profile = NetworkProfile.new
@@ -257,4 +257,4 @@ else
   puts "***RESULT:private_ip="+node['ip']
 end
 
-Chef::Log.info("Exiting network profile")
+OOLog.info("Exiting network profile")
