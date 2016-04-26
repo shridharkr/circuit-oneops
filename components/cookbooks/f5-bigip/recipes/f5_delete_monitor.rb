@@ -13,6 +13,6 @@ node.monitors.each do |mon|
     f5 "#{node.f5_host}"
     monitor_name  mon_name
     action :delete
-    notifies :run, "f5_config_sync[#{f5['hostname']}]", :delayed
+    notifies :run, "f5_config_sync[#{node.f5_host}]", :immediately
   end
 end

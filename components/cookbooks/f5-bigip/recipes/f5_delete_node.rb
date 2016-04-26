@@ -20,6 +20,6 @@ computes.each do |compute|
 		f5 "#{node.f5_host}"
 		node_name server_key
 		action :delete
-		notifies :run, "f5_config_sync[#{f5['hostname']}]", :delayed
+		notifies :run, "f5_config_sync[#{node.f5_host}]", :immediately
 	end
 end
