@@ -33,6 +33,7 @@ module AzureDns
       record_type = 'ptr' if dns_name =~ /^\d+\.\d+\.\d+\.\d+$/
       record_type
     end
+
     def create_zone
       @zone = AzureDns::Zone.new(@dns_attributes, @azure_rest_token, @platform_resource_group)
       zone_exist = @zone.check_for_zone
