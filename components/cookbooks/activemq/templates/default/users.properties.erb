@@ -17,6 +17,6 @@
 
 <%= @adminusername%>=<%= @adminpassword%>
 
-<% JSON.parse(node[:activemq][:users]).map{ |k,v| %>
+<% @encypwdusers.each_pair do |k, v| %>
 <%= "#{k}" %>=<%= "#{v}" %>
-<%}%>
+<% end %>
