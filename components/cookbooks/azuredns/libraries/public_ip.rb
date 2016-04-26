@@ -85,8 +85,8 @@ module AzureDns
           Chef::Log.info('setting domain label: ' + new_dns_settings.domain_name_label)
           unless public_ip_name.nil?
             pip = @pubip.get(@resource_group, public_ip_name)
-            pip['properties']['dns_settings'] = new_dns_settings
-            # update the public ip with the new dns settings
+            pip.properties.dns_settings = new_dns_settings
+            ## update the public ip with the new dns settings
             @pubip.create_update(@resource_group, public_ip_name, pip)
           end
         end
