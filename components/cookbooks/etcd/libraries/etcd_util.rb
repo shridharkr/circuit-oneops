@@ -35,6 +35,9 @@ module Etcd
     # @return true if the  package is available.
     #
     def is_pkg_avail?(pkg_name, version)
+
+      return false unless is_platform_supported?
+
       script = "yum list available #{pkg_name}-#{version}"
       Chef::Log.info "Checking the package: #{script}"
       cmd = shell_out(script, :live_stream => Chef::Log)
