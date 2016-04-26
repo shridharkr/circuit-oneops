@@ -18,7 +18,7 @@ lbs.each do |lb|
     pool_name "#{base_pool_name}"
     f5 "#{node.f5_host}"
     action :delete
-    notifies :run, "f5_config_sync[#{f5['hostname']}]", :delayed
+    notifies :run, "f5_config_sync[#{node.f5_host}]", :immediately
   end
 
 end
