@@ -77,6 +77,13 @@ when /netscaler/
   include_recipe "netscaler::add_servicegroup"  
   include_recipe "netscaler::logout"
   lb_dns_name = node.ns_lbvserver_ip  
+
+when /f5-bigip/
+
+  include_recipe "f5-bigip::f5_add_server"
+  include_recipe "f5-bigip::f5_add_pool"
+  include_recipe "f5-bigip::f5_add_lbvserver"
+  lb_dns_name = node.ns_lbvserver_ip
   
 when /rackspace/
 
