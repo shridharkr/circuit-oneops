@@ -1,4 +1,4 @@
-require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
+#require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
 # AzureRegions class to have all the Azure-Regions to Region Code mappings
 
 module AzureRegions
