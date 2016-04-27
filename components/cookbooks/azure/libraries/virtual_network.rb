@@ -20,11 +20,6 @@ module AzureNetwork
       @client.subscription_id = subscription
     end
 
-<<<<<<< HEAD
-    def create_update_network(resource_group_name, vnet_name, virtual_network)
-      begin
-        puts("Creating Virtual Network '#{vnet_name}' ...")
-=======
     # this method creates the vnet object that is later passed in to create
     # the vnet
     def build_network_object
@@ -64,7 +59,6 @@ module AzureNetwork
     def create_update(resource_group_name, virtual_network)
       begin
         OOLog.info("Creating Virtual Network '#{@name}' ...")
->>>>>>> master
         start_time = Time.now.to_i
         promise = @client.virtual_networks.create_or_update(resource_group_name, @name, virtual_network)
         response = promise.value!
@@ -125,25 +119,13 @@ module AzureNetwork
     # this method will return a list of vnets from the subscription
     def list_all
       begin
-<<<<<<< HEAD
-        puts("Getting subscription vnets ...")
-=======
         OOLog.info("Getting subscription vnets ...")
->>>>>>> master
         start_time = Time.now.to_i
         promise = @client.virtual_networks.list_all()
         response = promise.value!
         result = response.body
         end_time = Time.now.to_i
         duration = end_time - start_time
-<<<<<<< HEAD
-        puts("operation took #{duration} seconds")
-        return result
-      rescue  MsRestAzure::AzureOperationError =>e
-        puts 'Error creating Virtual Network'
-        puts("Error Response: #{e.response}")
-        puts("Error Body: #{e.body}")
-=======
         OOLog.info("operation took #{duration} seconds")
         result
       rescue MsRestAzure::AzureOperationError => e
@@ -178,7 +160,6 @@ module AzureNetwork
         end
       rescue => ex
         OOLog.fatal("Error getting virtual network: #{@name} from resource group #{resource_group_name}.  Exception: #{ex.message}")
->>>>>>> master
       end
     end
 
