@@ -277,8 +277,7 @@ resource "keystore",
          :design => true,
          :requires => {"constraint" => "0..1"},
          :attributes => {
-             "keystore_filename" => "$OO_LOCAL{keystorepath}",
-             "keystore_password" => "$OO_LOCAL{keystorepassword}"
+             "keystore_filename" => "$OO_LOCAL{keystorepath}"
   }
 
 resource "queue",
@@ -377,11 +376,7 @@ resource "topic",
 
 variable "keystorepath",
          :description => 'Keystore path',
-         :value => '/opt/activemq/conf/broker.ks'
-
-variable "keystorepassword",
-         :description => 'Keystore password',
-         :value => 'password'
+         :value => '/opt/keystore/broker.ks'
 
 resource "compute",
   :cookbook => "oneops.1.compute",
@@ -486,8 +481,16 @@ end
     :attributes    => {"flex" => false, "min" => 1, "max" => 1 }
 end
 
+[ 'hostname' ].each do |from|
+  relation "#{from}::depends_on::compute",
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'compute',
+    :attributes    => { "propagate_to" => 'from', "flex" => false, "min" => 1, "max" => 1 }
+end
+
 # managed_via
-['user-activemq', 'java', 'artifact','configfile', 'storage','build', 'keystore','haproxy', 'volume-externalstorage','activemq', 'vol-data', 'hostname', 'activemq-daemon'].each do |from|
+['user-activemq', 'java', 'artifact','configfile', 'storage','build', 'keystore','haproxy', 'volume-externalstorage','activemq', 'vol-data', 'activemq-daemon'].each do |from|
   relation "#{from}::managed_via::compute",
   :except => ['_default'],
   :relation_name => 'ManagedVia',

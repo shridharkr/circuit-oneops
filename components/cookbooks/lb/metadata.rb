@@ -7,6 +7,7 @@ license          "Apache License, Version 2.0"
 depends          "netscaler"
 depends          "azure_lb"
 depends          "neutron"
+depends          "f5-bigip"
 
 grouping 'default',
   :access => "global",

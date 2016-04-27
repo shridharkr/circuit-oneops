@@ -1,8 +1,10 @@
-require File.expand_path('../../libraries/record_set.rb', __FILE__)
-require File.expand_path('../../libraries/zone.rb', __FILE__)
-require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
 require File.expand_path('../../libraries/dns', __FILE__)
+require File.expand_path('../../libraries/zone.rb', __FILE__)
+require File.expand_path('../../libraries/record_set.rb', __FILE__)
 require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
+require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
+
+
 
 ::Chef::Recipe.send(:include, AzureDns)
 
@@ -41,9 +43,6 @@ if node.has_key?('entries')
   OOLog.info("azuredns:set_dns_records.rb - Entries are: #{node['entries']}")
 else
   OOLog.fatal('missing entries failing')
-  e = Exception.new('no backtrace')
-  e.set_backtrace('')
-  raise e
 end
 
 dns.set_dns_records(node['entries'], node['dns_action'], ttl)

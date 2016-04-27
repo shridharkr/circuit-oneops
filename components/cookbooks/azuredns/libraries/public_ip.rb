@@ -1,9 +1,4 @@
-require 'chef'
-require ::File.expand_path('../../../azure/libraries/public_ip.rb', __FILE__)
-require ::File.expand_path('../../../azure/libraries/utils.rb', __FILE__)
 
-::Chef::Recipe.send(:include, AzureNetwork)
-::Chef::Recipe.send(:include, Utils)
 # AzureDns Module
 module AzureDns
   # PublicIp Class
@@ -116,7 +111,11 @@ module AzureDns
             ip_found = @pubip.check_existence_publicip(@resource_group, public_ip_name)
             next unless ip_found
             Chef::Log.info('found !')
-            pip = @pubip.get(@resource_group, public_ip_name)
+            pip_response = @pubip.get(@resource_group, public_ip_name)
+            pip = pip_response.body
+            OOLog.info("PIP IS: #{pip.inspect}")
+            OOLog.info("PIP Properties are: '#{pip.properties.inspect}'")
+            OOLog.info("PIP DNS Settings are: '#{pip.properties.dns_settings}'")
             pip.properties.dns_settings = new_dns_settings
             Chef::Log.info('updating domain label: ' + new_dns_settings.domain_name_label)
             # update the public ip with the new dns settings

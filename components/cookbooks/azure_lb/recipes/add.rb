@@ -12,17 +12,17 @@ include_recipe 'azure::get_platform_rg_and_as'
 # ==============================================================
 
 def create_publicip(credentials, subscription_id, location, resource_group_name, public_ip_name)
-  begin
-    pip_props = Azure::ARM::Network::Models::PublicIpAddressPropertiesFormat.new
-    pip_props.idle_timeout_in_minutes = 5
-    pip_props.public_ipallocation_method = Azure::ARM::Network::Models::IpAllocationMethod::Dynamic
+  pip_props = Azure::ARM::Network::Models::PublicIpAddressPropertiesFormat.new
+  pip_props.idle_timeout_in_minutes = 5
+  pip_props.public_ipallocation_method = Azure::ARM::Network::Models::IpAllocationMethod::Dynamic
 
-    pip_svc = AzureNetwork::PublicIp.new(credentials, subscription_id)
-    pip = pip_svc.create_update(location, resource_group_name, public_ip_name, pip_props)
-    return pip
-  rescue Exception => e
-    OOLog.fatal(e.message)
-  end
+  public_ip_address = Azure::ARM::Network::Models::PublicIpAddress.new
+  public_ip_address.location = location
+  public_ip_address.properties = pip_props
+
+  pip_svc = AzureNetwork::PublicIp.new(credentials, subscription_id)
+  pip = pip_svc.create_update(resource_group_name, public_ip_name, public_ip_address)
+  return pip
 end
 
 def get_probes_from_wo
@@ -247,7 +247,6 @@ environment_name = node.workorder.payLoad.Environment[0]["ciName"]
 resource_group_name = node['platform-resource-group']
 
 
-# asmb_name = assembly_name.gsub(/-/, "").downcase
 plat_name = platform_name.gsub(/-/, "").downcase
 env_name = environment_name.gsub(/-/, "").downcase
 lb_name = "lb-#{plat_name}"
@@ -275,7 +274,6 @@ if xpress_route_enabled
 
   vnet_svc = AzureNetwork::VirtualNetwork.new(credentials, subscription_id)
   vnet = vnet_svc.get_vnet(master_rg, vnet_name)
-  # vnet = get_vnet(credentials, subscription_id, master_rg, vnet_name)
 
   if vnet.nil?
     OOLog.fatal("Could not retrieve vnet '#{vnet_name}' from express route")
@@ -344,10 +342,10 @@ else
 
     vm_svc = AzureCompute::VirtualMachine.new(credentials, subscription_id)
     nic_svc = AzureNetwork::NetworkInterfaceCard.new(credentials, subscription_id)
+    nic_svc.rg_name = resource_group_name
 
     # Traverse the compute-natrules
     compute_natrules.each do |compute|
-
       #Get the azure VM
       vm = vm_svc.get(resource_group_name, compute[:instance_name])
 
@@ -355,15 +353,16 @@ else
         OOLog.info("VM Not Fetched: '#{compute[:instance_name]}' ")
         next #could not find VM. Nothing to be done; skipping
       else
-
         #the asumption is that each VM will have only one NIC
         nic = vm.properties.network_profile.network_interfaces[0]
         nic_name = get_nic_name(nic.id)
-        nic = nic_svc.get(resource_group_name, nic_name)
+        # nic = nic_svc.get(resource_group_name, nic_name)
+        nic = nic_svc.get(nic_name)
 
         if nic.nil?
           next #Could not find NIC. Nothing to be done; skipping
         else
+          #Update the NIC with LB info - Associate VM with LB
           nic.properties.ip_configurations[0].properties.load_balancer_backend_address_pools = backend_address_pools
           nic.properties.ip_configurations[0].properties.load_balancer_inbound_nat_rules = [compute[:nat_rule]]
           nic = nic_svc.create_update(location, resource_group_name, nic_name, nic.properties)

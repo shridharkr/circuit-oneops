@@ -15,18 +15,21 @@ include_recipe 'azure::get_platform_rg_and_as'
 include_recipe 'azuredns::get_azure_token'
 
 cloud_name = node['workorder']['cloud']['ciName']
-zone_name = node['workorder']['services']['dns'][cloud_name]['ciAttributes']['zone']
+zone_name =
+    node['workorder']['services']['dns'][cloud_name]['ciAttributes']['zone']
 
 cloud_service = node['workorder']['services']['dns'][cloud_name]
 service_attrs = cloud_service['ciAttributes']
 
-dns = AzureDns::DNS.new(service_attrs, node['azure_rest_token'], node['platform-resource-group'])
+dns = AzureDns::DNS.new(service_attrs, node['azure_rest_token'],
+                        node['platform-resource-group'])
 
 # ex) customer_domain: env.asm.org.oneops.com
 customer_domain = dns.normalize_customer_domain(node.customer_domain)
 
 customer_domain = dns.remove_zone_name_from_customer_domain(customer_domain, zone_name)
-OOLog.info("azuredns:remove_old_aliases.rb - NEW customer_domain is: #{customer_domain}")
+OOLog.info("azuredns:remove_old_aliases.rb
+            - NEW customer_domain is: #{customer_domain}")
 
 
 # Checking if the platform is active
