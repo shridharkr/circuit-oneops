@@ -121,7 +121,7 @@ attribute 'adminpassword',
               :filter => {'all' => {'visible' => 'authenabled:eq:true'}},
               :order => 3
           }
-
+          
 attribute 'adminconsoleport',
           :description => 'Web Console Port',
           :required => 'required',
@@ -178,7 +178,16 @@ attribute 'restapisupport',
               :form => {'field' => 'checkbox'},
               :order => 9
           }
-
+          
+attribute 'pwdencyenabled',
+          :description => 'Enabled Password Encryption',
+          :default => 'true',
+          :format => {
+              :category => '2.Administration',
+              :help => 'Enable Password Encryption for Users.',
+              :form => {'field' => 'checkbox'},
+              :order => 10
+          }
 
 attribute 'initmemory',
           :description => 'Init Memory (MB)',
@@ -260,7 +269,6 @@ attribute 'adminconsolekeystore',
 attribute 'adminconsolekeystorepassword',
           :description => 'Keystore password',
           :encrypted => true,
-          :default => '$OO_LOCAL{keystorepassword}',
           :format => {
               :category => '4.Authentication and Authorization',
               :help => 'Keystore password',

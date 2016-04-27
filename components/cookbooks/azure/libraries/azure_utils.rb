@@ -9,10 +9,12 @@ module AzureCommon
     def self.get_credentials(tenant_id, client_id, client_secret)
       begin
         # Create authentication objects
-        token_provider = MsRestAzure::ApplicationTokenProvider.new(tenant_id,client_id,client_secret)
-        if token_provider != nil
-          credentials = MsRest::TokenCredentials.new(token_provider)
-          credentials
+        token_provider =
+          MsRestAzure::ApplicationTokenProvider.new(tenant_id,
+                                                    client_id,
+                                                    client_secret)
+        if !token_provider.nil?
+          MsRest::TokenCredentials.new(token_provider)
         else
           e = Exception.new('Could not retrieve azure credentials')
           raise e
