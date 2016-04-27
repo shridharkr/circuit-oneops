@@ -37,14 +37,14 @@ module AzureNetwork
     # resource group and pip name
     def get(resource_group_name, public_ip_name)
       begin
-        puts("Fetching public IP '#{public_ip_name}' from '#{resource_group_name}' ")
+        OOLog.info("Fetching public IP '#{public_ip_name}' from '#{resource_group_name}' ")
         start_time = Time.now.to_i
         promise = @client.public_ip_addresses.get(resource_group_name, public_ip_name)
         response = promise.value!
         result = response.body
         end_time = Time.now.to_i
         duration = end_time - start_time
-        puts("operation took #{duration} seconds")
+        OOLog.info("operation took #{duration} seconds")
         return result
       rescue MsRestAzure::AzureOperationError => e
         OOLog.fatal("Exception trying to get public ip #{public_ip_name} from resource group: #{resource_group_name}, Exception: #{e.body}")
@@ -56,14 +56,14 @@ module AzureNetwork
     # this function deletes the public ip
     def delete(resource_group_name, public_ip_name)
       begin
-        puts("Deleting public IP '#{public_ip_name}' from '#{resource_group_name}' ")
+        OOLog.info("Deleting public IP '#{public_ip_name}' from '#{resource_group_name}' ")
         start_time = Time.now.to_i
         promise = @client.public_ip_addresses.delete(resource_group_name, public_ip_name)
         response = promise.value!
         result = response.body
         end_time = Time.now.to_i
         duration = end_time - start_time
-        puts("operation took #{duration} seconds")
+        OOLog.info("operation took #{duration} seconds")
         return result
       rescue MsRestAzure::AzureOperationError => e
         OOLog.fatal("Error deleting PublicIP '#{public_ip_name}' in ResourceGroup '#{resource_group_name}'. Exception: #{e.body}")
@@ -77,7 +77,7 @@ module AzureNetwork
     # to already be created.
     def create_update(resource_group_name, public_ip_name, public_ip_address)
       begin
-        puts("Creating/Updating public IP '#{public_ip_name}' from '#{resource_group_name}' ")
+        OOLog.info("Creating/Updating public IP '#{public_ip_name}' from '#{resource_group_name}' ")
         start_time = Time.now.to_i
         promise = @client.public_ip_addresses.create_or_update(resource_group_name,
                                                                public_ip_name,
@@ -86,7 +86,7 @@ module AzureNetwork
         result = response.body
         end_time = Time.now.to_i
         duration = end_time - start_time
-        puts("operation took #{duration} seconds")
+        OOLog.info("operation took #{duration} seconds")
         return result
       rescue MsRestAzure::AzureOperationError => ex
         OOLog.fatal("Exception trying to create/update public ip #{public_ip_address.name} from resource group: #{resource_group_name}.  Exception: #{ex.body}")
@@ -99,7 +99,7 @@ module AzureNetwork
     # resource group
     def check_existence_publicip(resource_group_name, public_ip_name)
       begin
-        puts("Checking existance of public IP '#{public_ip_name}' in '#{resource_group_name}' ")
+        OOLog.info("Checking existance of public IP '#{public_ip_name}' in '#{resource_group_name}' ")
         start_time = Time.now.to_i
         promise =
           @client.public_ip_addresses.get(resource_group_name, public_ip_name)
@@ -107,7 +107,7 @@ module AzureNetwork
         result = response.body
         end_time = Time.now.to_i
         duration = end_time - start_time
-        puts("operation took #{duration} seconds")
+        OOLog.info("operation took #{duration} seconds")
         return true
       rescue MsRestAzure::AzureOperationError => e
         OOLog.info("Azure::PublicIp - Exception is: #{e.body}")
