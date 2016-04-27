@@ -137,6 +137,7 @@ def get_connection
   Chef::Log.info("netscaler: #{host}")
   node.set["ns_conn"] = gen_conn(cloud_service,host)
   node.set["gslb_local_site"] = cloud_service[:gslb_site]
+  node.set["netscaler_host"] = host
 
 end  
   

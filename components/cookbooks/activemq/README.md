@@ -18,6 +18,11 @@ Opscode cookbooks:
 * `activemq[:version]` - version to install.
 * `activemq[:deploy]` - directory to deploy to (/opt by default)
 
+# VERSIONS:
+
+Tested with versions 5.9 onwards till 5.13.2(latest)
+
+
 # USAGE:
 
 Simply add `recipe[activemq]` to a run list.

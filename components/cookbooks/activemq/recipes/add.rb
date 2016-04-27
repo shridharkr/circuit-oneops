@@ -29,8 +29,25 @@ dest_file = "#{tmp}/apache-activemq-#{version}-bin.tar.gz"
 
 runasuser ="#{node['activemq']['runasuser']}"
 
-# Jetty beans are different for 5.13.0 onwards
-config_ver = "#{version == '5.13.0' ? '5.13.0' :''}"
+# Find major, minor version
+vMj, vMn = version.split(".")
+vminorjetty=12
+vMinor=vMn.to_i
+# Config templates are same for jetty 5.13 and earlier
+if vMinor >= 13
+    vminorjetty=13
+end
+config_ver = "#{vMj+ '.' + vminorjetty.to_s == '5.12' ? '5.12' :''}"
+
+vminoramq=11
+# Config templates are same for activemq.xml 5.12 and earlier
+if vMinor >= 12
+    vminoramq=12
+end
+
+config_ver_amqxml = "#{vMj+ '.' + vminoramq.to_s == '5.11' ? '5.11' :''}"
+
+Chef::Log.info("config_ver:  #{config_ver}")
 
 # Try component mirrors first, if empty try cloud mirrors, if empty use cookbook mirror attribute
 source_list = JSON.parse(node.activemq.mirrors).map! { |mirror| "#{mirror}/#{tarball}" }
@@ -42,7 +59,7 @@ end
 source_list = [node['activemq']['src_mirror']] if source_list.empty?
 
 users=[]
-usersstr=''
+#usersstr=''
 
 JSON.parse(node[:activemq][:users]).keys.each do |k|
     users.push(k)
@@ -63,20 +80,14 @@ unless File.exists?("#{activemq_home}/bin/activemq")
     end
 end
 
-#extract the tar
-execute "tar zxf #{dest_file}" do
-    cwd "#{node['activemq']['installpath']}"
-
-end
-
-directory "/data" do
+directory "#{node[:activemq][:datapath]}" do
     mode 00755
     owner "#{runasuser}"
     group "#{runasuser}"
     recursive true
 end
 
-directory "/log" do
+directory "#{node[:activemq][:installpath]}" do
     mode 00755
     owner "#{runasuser}"
     group "#{runasuser}"
@@ -90,6 +101,26 @@ directory "#{logpath}" do
     recursive true
 end
 
+directory "#{node[:activemq][:enckeypath]}" do
+    mode 00755
+    owner "#{runasuser}"
+    group "#{runasuser}"
+    recursive true
+end
+
+directory "#{node[:activemq][:adminconsolekeystore]}" do
+    mode 00644
+    owner "#{runasuser}"
+    group "#{runasuser}"
+    recursive true
+end
+
+#extract the tar
+execute "tar zxf #{dest_file}" do
+    cwd "#{node['activemq']['installpath']}"
+
+end
+
 arch = (node['kernel']['machine'] == 'x86_64') ? 'x86-64' : 'x86-32'
 
 #change permission
@@ -101,6 +132,8 @@ end
 
 link '/etc/init.d/activemq' do
     to "#{activemq_home}/bin/linux-#{arch}/activemq"
+    owner "#{runasuser}"
+    group "#{runasuser}"
 end
 
 # control script via template for adminstatus / cloud priority
@@ -112,23 +145,11 @@ end
 # Symlink so the default wrapper.conf can find the native wrapper library
 link "#{activemq_home}/bin/linux" do
     to "#{activemq_home}/bin/linux-#{arch}"
+    owner "#{runasuser}"
+    group "#{runasuser}"
 end
 
-service 'activemq' do
-    supports :restart => true, :status => true, :stop => true, :start => true
-    action [:stop]
-end
-
-# Create a generic 'activemq' symlink for easy access.
-link "/#{node['activemq']['installpath']}/activemq" do
-    to "#{activemq_home}"
-end
-
-# Symlink the wrapper's pidfile location into /var/run
-link '/var/run/activemq.pid' do
-    to "#{activemq_home}/bin/linux/ActiveMQ.pid"
-    not_if 'test -f /var/run/activemq.pid'
-end
+include_recipe "activemq::stop"
 
 template "#{activemq_home}/bin/linux/wrapper.conf" do
     source "wrapper.conf.erb"
@@ -138,12 +159,29 @@ template "#{activemq_home}/bin/linux/wrapper.conf" do
         :logpath =>  node[:activemq][:logpath],
         :logsize => node[:activemq][:logsize]
     })
-    notifies :stop, 'service[activemq]'
+end
+
+# Create a generic 'activemq' symlink for easy access.
+link "#{node['activemq']['installpath']}/activemq" do
+    to "#{activemq_home}"
+    owner "#{runasuser}"
+    group "#{runasuser}"
+end
+
+
+# Symlink the wrapper's pidfile location into /var/run
+link '/var/run/activemq.pid' do
+    to "#{activemq_home}/bin/linux/ActiveMQ.pid"
+    not_if 'test -f /var/run/activemq.pid'
+    owner "#{runasuser}"
+    group "#{runasuser}"
 end
 
 link '/var/run/activemq.pid' do
     to "#{activemq_home}/bin/ActiveMQ.pid"
     not_if 'test -f /var/run/activemq.pid'
+    owner "#{runasuser}"
+    group "#{runasuser}"
 end
 
 template "#{activemq_home}/conf/jetty-realm.properties" do
@@ -165,7 +203,7 @@ template "#{activemq_home}/conf/jetty.xml" do
 end
 
 template "#{activemq_home}/conf/activemq.xml" do
-    source 'activemq.xml.erb'
+    source "activemq#{config_ver_amqxml}.xml.erb"
     variables({
         :datadirectory => node[:activemq][:datapath],
         :storeusage => node[:activemq][:storeusage],
@@ -174,6 +212,7 @@ template "#{activemq_home}/conf/activemq.xml" do
     })
     mode 0644
 end
+
 # Add brokerusename and brokerpassword backward compatibilty
 
 template "#{activemq_home}/conf/credentials.properties" do
@@ -187,12 +226,75 @@ template "#{activemq_home}/conf/credentials.properties" do
     mode 0644
 end
 
+file "#{node['activemq']['enckeypath']}#{node['activemq']['enckey']}" do
+    encpassword =Activemq::Helper::getencpasswordkey(node)
+    content encpassword
+    mode '0644'
+    action :create_if_missing
+    not_if {::File.exists?("#{node['activemq']['enckeypath']}#{node['activemq']['enckey']}")}
+end
+
+cookbook_file "#{activemq_home}/amq-messaging-resource.jar" do
+    source 'amq-messaging-resource.jar'
+    owner "#{runasuser}"
+    group "#{runasuser}"
+    mode '0777'
+    action :create
+end
+
+encypwdusers=Hash.new
+
+#get encrypted pwds and users[]
+ruby_block 'Encryption-Required' do
+  block do
+    Chef::Resource::RubyBlock.send(:include, Activemq::Helper)
+       enckey=`cat "#{node['activemq']['enckeypath']}#{node['activemq']['enckey']}"`
+        Activemq::Helper::encrypt(node, node[:activemq][:adminpassword],enckey,"adminencpwd")
+
+        if node[:activemq][:brokerpassword].to_s != ''
+         Activemq::Helper::encrypt(node, node[:activemq][:brokerpassword],enckey,"brokerencpwd")
+        end
+
+        JSON.parse(node[:activemq][:users]).each do |key,val|
+            Activemq::Helper::encrypt(node, "#{val}",enckey,"")
+            encypwdusers["#{key}"] ="ENC(#{node[:activemq][:encpwd]})"
+        end
+  end
+    only_if {node.activemq.pwdencyenabled == 'true' && ::File.exists?("#{node['activemq']['enckeypath']}#{node['activemq']['enckey']}")}
+end
+
+#get encrypted pwds and users[]
+ruby_block 'Encryption-Not-Required' do
+  block do
+        node[:activemq][:adminencpwd]=node[:activemq][:adminpassword]
+        node[:activemq][:brokerencpwd]=node[:activemq][:brokerpassword]
+        JSON.parse(node[:activemq][:users]).each do |key,val|
+            encypwdusers["#{key}"] ="#{val}"
+        end
+  end
+    only_if {node.activemq.pwdencyenabled == 'false'}
+end
+
+template "#{activemq_home}/conf/credentials-enc.properties" do
+    source 'credentials-enc.properties.erb'
+    variables( lazy {{
+        :adminusername => node[:activemq][:adminusername],
+        :adminpassword => node[:activemq][:adminencpwd],
+        :brokerusername => node[:activemq][:brokerusername],
+        :brokerpassword => node[:activemq][:brokerencpwd],
+        :encypwdusers => encypwdusers
+    }})
+    mode 0644
+    only_if {node.activemq.pwdencyenabled == 'true'}
+end
+
 template "#{activemq_home}/conf/users.properties" do
     source 'users.properties.erb'
-    variables({
+     variables( lazy {{
         :adminusername => node[:activemq][:adminusername],
-        :adminpassword => node[:activemq][:adminpassword]
-    })
+        :adminpassword => node[:activemq][:adminencpwd],
+        :encypwdusers => encypwdusers
+     }})
     mode 0644
 end
 
@@ -262,14 +364,6 @@ end
 template "#{activemq_home}/conf/jmx.password" do
     source "jmx.password.erb"
     mode 0644
-end
-
-cookbook_file "#{activemq_home}/amq-messaging-resource.jar" do
-    source 'amq-messaging-resource.jar'
-    owner "#{runasuser}"
-    group "#{runasuser}"
-    mode '0777'
-    action :create
 end
 
 execute "chown-user" do
