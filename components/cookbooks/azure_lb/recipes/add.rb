@@ -392,4 +392,3 @@ else
   node.set[:azurelb_ip] = lbip
 end
 
-raise("Stop Execution")

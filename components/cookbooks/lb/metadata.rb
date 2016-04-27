@@ -57,7 +57,7 @@ attribute 'persistence_type',
     :help => 'Session persistence type',
     :order => 4,
     :filter => {"all" => {"visible" => "stickiness:eq:true"}},
-    :form => { 'field' => 'select', 'options_for_select' => [['SourceIP','sourceip'],['SourceIpProtocol','SourceIpProtocol'],['cookieinsert','cookieinsert']] }
+    :form => { 'field' => 'select', 'options_for_select' => [['SourceIP','sourceip'],['cookieinsert','cookieinsert']] }
   }
 
 attribute 'cookie_domain',
