@@ -36,9 +36,9 @@ module AzureResources
         end_time = Time.now.to_i
         OOLog.info("Resource Group created in #{end_time - start_time} seconds")
       rescue MsRestAzure::AzureOperationError => e
-        OOLog.fatal(e.body.values[0][:message])
+        OOLog.fatal("Error creating resource group: #{e.body}")
       rescue => ex
-        OOLog.fatal(ex.message)
+        OOLog.fatal("Error creating resource group: #{ex.message}")
       end
     end
 
@@ -48,9 +48,9 @@ module AzureResources
         response = @client.resource_groups.check_existence(rg_name).value!
         response.body
       rescue MsRestAzure::AzureOperationError => e
-        OOLog.fatal(e.body.values[0][:message])
+        OOLog.fatal("Error getting resource group: #{e.body}")
       rescue => ex
-        OOLog.fatal(ex.message)
+        OOLog.fatal("Error getting resource group: #{ex.message}")
       end
     end
 
@@ -62,9 +62,9 @@ module AzureResources
         end_time = Time.now.to_i
         OOLog.info("Resource Group deleted in #{end_time - start_time} seconds")
       rescue MsRestAzure::AzureOperationError => e
-        OOLog.fatal(e.body.values[0][:message])
+        OOLog.fatal("Error deleting resource group: #{e.body}")
       rescue => ex
-        OOLog.fatal(ex.message)
+        OOLog.fatal("Error deleting resource group: #{ex.message}")
       end
     end
 
