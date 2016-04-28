@@ -40,12 +40,10 @@ module AzureNetwork
         OOLog.info("Fetching public IP '#{public_ip_name}' from '#{resource_group_name}' ")
         start_time = Time.now.to_i
         promise = @client.public_ip_addresses.get(resource_group_name, public_ip_name)
-        response = promise.value!
-        result = response.body
         end_time = Time.now.to_i
         duration = end_time - start_time
         OOLog.info("operation took #{duration} seconds")
-        return result
+        return promise.value!
       rescue MsRestAzure::AzureOperationError => e
         OOLog.fatal("Exception trying to get public ip #{public_ip_name} from resource group: #{resource_group_name}, Exception: #{e.body}")
       rescue => e
