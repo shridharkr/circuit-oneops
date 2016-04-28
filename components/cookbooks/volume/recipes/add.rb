@@ -60,11 +60,6 @@ node.set["raid_device"] = raid_device
 platform_name = node.workorder.box.ciName
 logical_name = node.workorder.rfcCi.ciName
 
-is_primary = true
-if node.workorder.rfcCi.ciName[-1,1] != "1"
-  is_primary = false
-end
-
 is_single = true
 if node.workorder.box[:ciAttributes][:availability] != "single"
   is_single = false
@@ -460,7 +455,7 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
 end
 
 ruby_block 'create-storage-non-ephemeral-volume' do
-  only_if { storage != nil && is_primary && token_class !~ /virtualbox|vagrant/ }
+  only_if { storage != nil && token_class !~ /virtualbox|vagrant/ }
   block do
 
    raid_device = node.raid_device
@@ -569,7 +564,7 @@ ruby_block 'filesystem' do
     # result attr updates cms
     Chef::Log.info("***RESULT:device="+_device)
 
-    if is_primary || _device =~ /-eph\//
+    if _device =~ /-eph\//
 
       `mountpoint -q #{_mount_point}`
       if $?.to_i == 0
@@ -611,7 +606,7 @@ ruby_block 'filesystem' do
 	end
         `mv /tmp/fstab /etc/fstab`
       else
-       Chef::Log.info("non-single platform w/ ebs - letting crm / resouce mgmt mount")
+       Chef::Log.info("non-single platform w/ non-ephemeral storage - letting crm / resouce mgmt mount")
       end
 
       	if token_class =~ /azure/
