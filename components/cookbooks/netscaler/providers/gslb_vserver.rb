@@ -57,36 +57,33 @@ end
 def clean_domain(domain, gslb_vserver_name)
   conn = @new_resource.connection
   
-  Chef::Log.info("Clearing domain bindings - this will take a few min")
+  Chef::Log.info("Getting gslb vserver domain binding for #{@new_resource.domain}")
   # need to use gslbvserver list to check domains - cannot call gslbvserver_domain_binding without a key/name    
-  resp_obj = JSON.parse(conn.request(:method=>:get, :path=>"/nitro/v1/config/gslbvserver").body)
-  resp_obj["gslbvserver"].each do |lbo|
+  resp_obj = JSON.parse(conn.request(:method=>:get, 
+    :path=>"/nitro/v1/config/gslbdomain_gslbvserver_binding/#{@new_resource.domain}").body)
   
-     lb = lbo["name"]
-     next if lb == gslb_vserver_name
-     
-     resp_obj = JSON.parse(conn.request(:method=>:get, 
-       :path=>"/nitro/v1/config/gslbvserver_domain_binding/#{lb}").body)
+  if !resp_obj.has_key?("gslbdomain_gslbvserver_binding")
+    Chef::Log.info("no gslbdomain_gslbvserver_binding")
+    return
+  end
   
-     if resp_obj.has_key?("gslbvserver_domain_binding") &&
-        resp_obj["gslbvserver_domain_binding"].size>0 &&
-        resp_obj["gslbvserver_domain_binding"][0]["domainname"] == @new_resource.domain
-        Chef::Log.info(resp_obj.inspect)
+  resp_obj["gslbdomain_gslbvserver_binding"].each do |lbo|
+  
+    Chef::Log.info(lbo.inspect)
+    gslbvs = lbo["vservername"]
+      
+    # delete old gslbvserver and binding
+    resp_obj = JSON.parse(conn.request(
+      :method=>:delete, 
+      :path=>"/nitro/v1/config/gslbvserver/#{gslbvs}").body)
 
-        # delete old gslbvserver and binding
-        resp_obj = JSON.parse(conn.request(
-          :method=>:delete, 
-          :path=>"/nitro/v1/config/gslbvserver/#{lb}").body)
+    if resp_obj["errorcode"] != 0
+      Chef::Log.error( "domain bind delete #{@new_resource.domain} resp: #{resp_obj.inspect}")
+      exit 1      
+    else
+      Chef::Log.info( "domain bind delete #{@new_resource.domain} resp: #{resp_obj.inspect}")
+    end
 
-        if resp_obj["errorcode"] != 0
-          Chef::Log.error( "domain bind delete #{@new_resource.domain} resp: #{resp_obj.inspect}")
-          exit 1      
-        else
-          Chef::Log.info( "domain bind delete #{@new_resource.domain} resp: #{resp_obj.inspect}")
-        end
-
-        break
-     end
   end   
 end
 

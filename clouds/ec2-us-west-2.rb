@@ -32,7 +32,7 @@ service "us-west-2",
   :source => [Chef::Config[:register], Chef::Config[:version].split(".").first].join('.'),
   :attributes => {
     :region => 'us-west-2',
-    :availability_zones => "[\"us-west-2a\",\"us-west-2b\",\"us-west-2c\",\"us-west-2d\",\"us-west-2e\"]",
+    :availability_zones => "[\"us-west-2a\",\"us-west-2b\",\"us-west-2c\"]",
     :imagemap => image_map,
     :repo_map => repo_map
   }
