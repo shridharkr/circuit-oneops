@@ -1,5 +1,3 @@
-#require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
-
 # Common class for common methods, like get_credentials.
 module AzureCommon
   class AzureUtils

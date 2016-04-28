@@ -1,5 +1,3 @@
-require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
-
 # Class to handle the hardware profile for the azure compute.
 # Nothing much happening here, just setting the vm size on the hardware profile for now.
 module AzureCompute

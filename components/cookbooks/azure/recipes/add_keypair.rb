@@ -1,4 +1,5 @@
 require 'azure_mgmt_resources'
+require 'azure_mgmt_compute'
 require File.expand_path('../../libraries/availability_set.rb', __FILE__)
 require File.expand_path('../../libraries/resource_group.rb', __FILE__)
 require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
