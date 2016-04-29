@@ -81,8 +81,8 @@ include_recipe 'fqdn::build_entries_list'
 if provider =~ /azuredns/
   include_recipe 'azuredns::set_dns_records'
 
-  compute_service = node['workorder']['services']['compute'][cloud_name]['ciAttributes']
-  express_route_enabled = compute_service['express_route_enabled']
+  dns_service = node['workorder']['services']['dns'][cloud_name]['ciAttributes']
+  express_route_enabled = dns_service['express_route_enabled']
 
   Chef::Log.info("express_route_enable is: #{express_route_enabled}")
 

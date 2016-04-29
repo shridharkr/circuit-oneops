@@ -19,8 +19,9 @@
 module Java
 
   module Util
-    require 'json'
 
+    require 'json'
+    require 'uri'
     include Chef::Mixin::ShellOut
 
     # Returns the current java version installed on the system
@@ -224,6 +225,14 @@ module Java
       Chef::Log.info("Package url: #{base_url}/#{file_name}")
       extract_dir = get_extract_dir(pkg, version, update)
       return base_url, file_name, extract_dir
+    end
+
+    # Checks if the given string is a valid http/https URL
+    #
+    # @param - URL string to check
+    def url_valid?(url)
+      url = URI.parse(url) rescue false
+      url.kind_of?(URI::HTTP) || url.kind_of?(URI::HTTPS)
     end
 
     # Exit the chef application process with the given error message

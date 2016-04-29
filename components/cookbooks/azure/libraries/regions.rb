@@ -1,3 +1,4 @@
+#require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
 # AzureRegions class to have all the Azure-Regions to Region Code mappings
 
 module AzureRegions
@@ -44,10 +45,7 @@ module AzureRegions
         when 'westus'
           abbr = 'wus'
         else
-          msg = "Azure location/region not found in Resource Group abbreviation List"
-          Chef::Log.error(msg)
-          puts "***FAULT:FATAL=#{msg}"
-          raise(msg)
+          OOLog.fatal("Azure location/region, '#{region}' not found in Resource Group abbreviation List")
       end
       return abbr
     end

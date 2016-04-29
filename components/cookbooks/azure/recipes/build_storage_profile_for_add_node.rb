@@ -1,6 +1,7 @@
 require 'azure_mgmt_compute'
 require 'azure_mgmt_storage'
 require File.expand_path('../../libraries/regions.rb', __FILE__)
+require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, Azure::ARM::Compute)
 ::Chef::Recipe.send(:include, Azure::ARM::Compute::Models)
@@ -66,10 +67,11 @@ def get_subscription_vms(subscription, credentials)
     promise = client.virtual_machines.list_all()
     result = promise.value!
     return result.body
-  rescue  MsRestAzure::AzureOperationError =>e
-    Chef::Log.error('Error getting subscription VMs')
-    Chef::Log.error("Error Response: #{e.response}")
-    Chef::Log.error("Error Body: #{e.body}")
+  rescue  MsRestAzure::AzureOperationError => e
+    OOLog.fatal(
+      "Error getting subscription VMs: #{e.body.values[0]['message']}")
+  rescue => ex
+    OOLog.fatal("Error getting subscription VMs: #{ex.message}")
   end
 end
 
@@ -93,10 +95,10 @@ def get_resource_group_vms(credentials, subscription, rg_name)
     promise = client.virtual_machines.list(rg_name)
     result = promise.value!
     return result.body
-  rescue  MsRestAzure::AzureOperationError =>e
-    Chef::Log.error('Error getting subscription VMs')
-    Chef::Log.error("Error Response: #{e.response}")
-    Chef::Log.error("Error Body: #{e.body}")
+  rescue  MsRestAzure::AzureOperationError => e
+    OOLog.fatal("Error getting VMs from a resource group: #{e.body.values[0]['message']}")
+  rescue => ex
+    OOLog.fatal("Error getting VMs from a resource group: #{ex.message}")
   end
 end
 
@@ -121,11 +123,10 @@ def storage_name_avail?(storage_client, storage_account_name)
      response = promise.value!
      result = response.body
      return result.name_available
-   rescue  MsRestAzure::AzureOperationError =>e
-     Chef::Log.error("Error checking availability of #{storage_account_name}")
-     Chef::Log.error("Error Response: #{e.response}")
-     Chef::Log.error("Error Body: #{e.body}")
-     return nil
+   rescue  MsRestAzure::AzureOperationError => e
+     OOLog.fatal("Error checking availability of #{storage_account_name}: #{e.body.values[0]['message']}")
+   rescue => ex
+     OOLog.fatal("Error checking availability of #{storage_account_name}: #{ex.message}")
    end
 end
 
@@ -150,10 +151,10 @@ def create_storage_account(storage_client, location, resource_group_name, storag
     Chef::Log.info("Storage Account created in #{duration} seconds")
 
     return result
-  rescue  MsRestAzure::AzureOperationError =>e
-    Chef::Log.error("Error Response: #{e.response}")
-    Chef::Log.error("Error Body: #{e.body}")
-   return nil
+  rescue MsRestAzure::AzureOperationError => e
+    OOLog.fatal("Error creating storage account: #{e.body.values[0]['message']}")
+  rescue => ex
+    OOLog.fatal("Error creating storage account: #{ex.message}")
   end
 end
 
@@ -190,10 +191,7 @@ storage_accounts = generate_storage_account_names(generated_name)
 
 storage_index = calculate_storage_index(storage_accounts, vm_count)
 if storage_index < 0
-  msg = "***FAULT:FATAL=No storage account can be selected!"
-  Chef::Log.error(msg)
-  # puts(msg)
-  raise(msg)
+  OOLog.fatal("***FAULT:FATAL=No storage account can be selected!")
 end
 
 storage_account_name = storage_accounts[storage_index]
@@ -205,10 +203,7 @@ if storage_name_avail?(storage_client, storage_account_name)
   #It is available; Need to create storage account
   storage_account = create_storage_account(storage_client, location, resource_group_name, storage_account_name)
   if storage_account.nil?
-    msg = "***FAULT:FATAL=Could not create storage account #{storage_account_name}"
-    Chef::Log.error(msg)
-    puts(msg)
-    raise(msg)
+    OOLog.fatal("***FAULT:FATAL=Could not create storage account #{storage_account_name}")
   end
 else
   Chef::Log.info("No need to create Storage Account: #{storage_account_name}")
@@ -217,7 +212,6 @@ end
 msg = "***RESULT:Storage_Account_Name=#{storage_account_name}"
 Chef::Log.info(msg)
 # puts(msg)
-
 
 Chef::Log.info("ImageID: #{node['image_id']}")
 
@@ -257,7 +251,6 @@ storage_profile.os_disk.create_option = DiskCreateOptionTypes::FromImage
 disk_size_map = JSON.parse(compute_service['ephemeral_disk_sizemap'] )
 vm_size = node['workorder']['rfcCi']['ciAttributes']['size']
 Chef::Log.info("data disk size from size map: #{disk_size_map[vm_size]} ")
-
 
 #if the VM exists already data disk property need not be updated. Updating the datadisk size will result in an error.
 
