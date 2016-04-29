@@ -84,24 +84,6 @@ def delete_vm_storage(credentials, subscription_id, resource_group_name,storage_
     node.set['storage_key2'] = storage_account_keys.body.key2
     Chef::Log.info('vhd_uri : ' + node['vhd_uri'] )
 
-    #Get the full name of the block blob associated with the deleted vm.
-    include_recipe "azure::get_blob_list"
-    num_blob_names = node['blobs'].xpath("/EnumerationResults/Blobs/Blob/Name")
-    Chef::Log.debug("Total Number of blobs: #{num_blob_names.count}")
-    extract_text = ''
-    num_blob_names.each do |blob_elem|
-      Chef::Log.debug ("ELEMENT: #{blob_elem}")
-      Chef::Log.debug ("INNER TEXT: #{blob_elem.text}")
-      if ((blob_elem.text).split(".").first == node['server_name']) and /status/.match(blob_elem.text)
-        Chef::Log.debug ("Found the block blob associated with the deleted VM: #{blob_elem.text}")
-        extract_text = blob_elem.text
-      end
-    end
-    @arr = extract_text.split('.')
-      Chef::Log.debug('id from azure : ' + @arr[1])
-    node.set["block_blob_uri"]="https://"+storage_account+".blob.core.windows.net/vhds/"+node['server_name']+"."+@arr[1]+".status"
-    Chef::Log.info('block blob : ' + node["block_blob_uri"] )
-
     #Delete both page(vhd) blob and block blob
     include_recipe "azure::del_blobs"
   end
@@ -169,7 +151,7 @@ begin
       delete_nic(credentials, subscription_id, compute_service['resource_group'], nic_name)
     end
     #delete the blobs
-    #Delete both Page blob(vhd) and Block Blob from the storage account
+    #Delete both Page blob(vhd) from the storage account
     delete_vm_storage(credentials, subscription_id, node['platform-resource-group'],storage_account)
   end
 rescue MsRestAzure::AzureOperationError => e
