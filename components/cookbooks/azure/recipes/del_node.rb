@@ -1,6 +1,5 @@
 require File.expand_path('../../libraries/utils.rb', __FILE__)
 require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
-require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
 require 'azure_mgmt_compute'
 require 'azure_mgmt_network'
 require 'azure_mgmt_storage'
@@ -30,10 +29,11 @@ def get_vm(client, resource_group_name, vm_name)
       puts("VM fetched in #{duration} seconds")
 
       return result.body
-    rescue MsRestAzure::AzureOperationError => e
-      OOLog.fatal("Error fetching vm: #{e.body.values[0]['message']}")
-    rescue => ex
-      OOLog.fatal("Error fetching vm: #{ex.message}")
+    rescue  MsRestAzure::AzureOperationError =>e
+      puts 'Error fetching VM'
+      puts("Error Response: #{e.response}")
+      puts("Error Body: #{e.body}")
+      return nil
     end
 end
 
@@ -49,9 +49,11 @@ def delete_nic(credentials, subscription_id, resource_group_name, nic_name)
     duration = end_time - start_time
     Chef::Log.info("Deleting NIC '#{nic_name}' in #{duration} seconds")
   rescue MsRestAzure::AzureOperationError => e
-    OOLog.fatal("***FAULT:FATAL=Error deleting NIC, resource group: '#{resource_group_name}', NIC name: '#{nic_name}', Error: #{e.body.values[0]['message']}")
-  rescue => ex
-    OOLog.fatal("***FAULT:FATAL=Error deleting NIC, resource group: '#{resource_group_name}', NIC name: '#{nic_name}', Error: #{ex.message}")
+    puts("***FAULT:FATAL deleting NIC, resource group: '#{resource_group_name}', NIC name: '#{nic_name}'")
+    Chef::Log.error("Exception is=#{e.message}")
+    e = Exception.new("no backtrace")
+    e.set_backtrace("")
+    raise e
   end
 end
 
@@ -149,13 +151,17 @@ begin
       delete_nic(credentials, subscription_id, compute_service['resource_group'], nic_name)
     end
     #delete the blobs
-    #Delete both Page blob(vhd) from the storage account
+    #Delete both disks (data and OS) from the storage account
     delete_vm_storage(credentials, subscription_id, node['platform-resource-group'],storage_account)
   end
 rescue MsRestAzure::AzureOperationError => e
-  OOLog.fatal("Error deleting VM, resource group: #{node['platform-resource-group']}, VM name: #{node['server_name']}. Exception is=#{e.body.values[0]['message']}")
-rescue => ex
-  OOLog.fatal("Error deleting VM, resource group: #{node['platform-resource-group']}, VM name: #{node['server_name']}. Exception is=#{ex.message}")
+   puts("***FAULT:FATAL deleting VM, resource group: #{node['platform-resource-group']}, VM name: #{node['server_name']}. Exception is=#{e.message}")
+   Chef::Log.error("***FAULT:Error deleting VM. Resource Group: #{node['platform-resource-group']} , VM name: #{node['server_name']}")
+   Chef::Log.error("***FAULT:Error deleting VM: #{e.body}")
+   Chef::Log.error("Error body: #{e.body}")
+   e = Exception.new("no backtrace")
+   e.set_backtrace("")
+   raise e
  ensure
    end_time = Time.now.to_i
    duration = end_time - start_time

@@ -559,9 +559,7 @@ ruby_block 'filesystem' do
     Chef::Log.info("filesystem type: "+_fstype+" device: "+_device +" mount_point: "+_mount_point)
     # result attr updates cms
     Chef::Log.info("***RESULT:device="+_device)
-
-    if _device =~ /-eph\//
-
+    
       `mountpoint -q #{_mount_point}`
       if $?.to_i == 0
         Chef::Log.info("device #{_mount_point} already mounted.")
@@ -591,8 +589,7 @@ ruby_block 'filesystem' do
       if result.to_i != 0
          Chef::Log.error("mount error: #{result.to_s}")
       end
-
-    end   
+  
       	# clear and add to fstab again to make sure has current attrs on update
       	result = `grep -v #{_device} /etc/fstab > /tmp/fstab`
 	  ::File.open("/tmp/fstab","a") do |fstab|

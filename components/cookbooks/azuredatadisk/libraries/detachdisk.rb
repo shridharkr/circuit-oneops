@@ -17,7 +17,7 @@ module AzureStorage
       end
     end
 
-    def self.delete_disk(storage_account_name,access_key,blobname)
+    def self.delete_disk(storage_account_name,access_key,blobname,lock_state)
       c=Azure::Core.config()
       c.storage_access_key = access_key
       c.storage_account_name = storage_account_name
@@ -27,10 +27,12 @@ module AzureStorage
       container = "vhds"
       # Delete a Blob
       begin
-        lease_time_left = service.break_lease(container, blobname)
-        OOLog.info("Waiting for the lease time on #{blobname} to expire")
-        if lease_time_left < 10
-          sleep lease_time_left+10
+        if lock_state == 1
+          lease_time_left = service.break_lease(container, blobname)
+          OOLog.info("Waiting for the lease time on #{blobname} to expire")
+          if lease_time_left < 10
+            sleep lease_time_left+10
+          end
         end
         delete_result = "success"
         retry_count = 20
