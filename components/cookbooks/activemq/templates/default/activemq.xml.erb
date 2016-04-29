@@ -22,12 +22,27 @@
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
     <!-- Allows us to use system properties as variables in this configuration file -->
+   <% if node['activemq']['pwdencyenabled'] == 'false' %>
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <value>file:${activemq.conf}/credentials.properties</value>
         </property>
     </bean>
-
+    <% else %>
+     <bean id="environmentVariablesConfiguration" class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+       <property name="algorithm" value="PBEWithMD5AndDES" />
+       <property name="passwordEnvName" value="ACTIVEMQ_ENCRYPTION_PASSWORD" />
+     </bean>
+                                                                      
+     <bean id="configurationEncryptor" class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+       <property name="config" ref="environmentVariablesConfiguration" />
+     </bean> 
+     
+     <bean id="propertyConfigurer" class="org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer">
+       <constructor-arg ref="configurationEncryptor" />
+       <property name="location" value="file:${activemq.conf}/credentials-enc.properties"/>
+     </bean> 
+    <% end %>
     <!--
         The <broker> element is used to configure the ActiveMQ broker.
     -->

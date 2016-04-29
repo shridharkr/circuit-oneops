@@ -6,3 +6,4 @@
 service "activemq" do
   action [:stop, :disable]
 end
+

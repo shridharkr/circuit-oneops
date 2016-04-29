@@ -504,8 +504,8 @@ resource "storage",
   :cookbook => "oneops.1.storage",
   :design => true,
   :attributes => {
-    "size"        => '12G',
-    "slice_count" => '4'
+    "size"        => '20G',
+    "slice_count" => '1'
   },
   :requires => { "constraint" => "0..*", "services" => "storage" }
 
@@ -703,6 +703,7 @@ end
   { :from => 'share',       :to => 'os' },
   { :from => 'logstash',    :to => 'os' },
   { :from => 'logstash',    :to => 'compute' },
+  { :from => 'storage',     :to => 'compute' },
   { :from => 'volume',      :to => 'storage' },
   { :from => 'share',       :to => 'volume'  },
   { :from => 'volume',      :to => 'user' },
@@ -727,7 +728,7 @@ end
     :relation_name => 'DependsOn',
     :from_resource => from,
     :to_resource   => 'compute',
-    :attributes    => { "propagate_to" => 'from', "flex" => false, "min" => 1, "max" => 1 }
+    :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
 end
 
 

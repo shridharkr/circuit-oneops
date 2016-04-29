@@ -18,3 +18,7 @@
 #
 default['activemq']['src_mirror'] = 'http://archive.apache.org/dist'
 default['activemq']['runasuser'] = 'activemq'
+default['activemq']['pwdencyenabled'] = 'true'
+default['activemq']['enckeypath'] = '/var/lib/activemq/'
+default['activemq']['enckey'] = '.key'
+

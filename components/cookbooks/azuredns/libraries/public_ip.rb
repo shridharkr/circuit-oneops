@@ -1,9 +1,4 @@
-require 'chef'
-require ::File.expand_path('../../../azure/libraries/public_ip.rb', __FILE__)
-require ::File.expand_path('../../../azure/libraries/utils.rb', __FILE__)
 
-::Chef::Recipe.send(:include, AzureNetwork)
-::Chef::Recipe.send(:include, Utils)
 # AzureDns Module
 module AzureDns
   # PublicIp Class
@@ -34,7 +29,7 @@ module AzureDns
         full_hostname = full_hostname.tr('.', '-')
         new_dns_settings = Azure::ARM::Network::Models::PublicIpAddressDnsSettings.new
         new_dns_settings.domain_name_label = (full_hostname.length >= 61) ? full_hostname.slice!(0, 60) : full_hostname
-        pip['properties']['dns_settings'] = new_dns_settings
+        pip.properties.dns_settings = new_dns_settings
         @pubip.create_update(@resource_group, public_ip_name, pip)
       end
     end
@@ -85,8 +80,8 @@ module AzureDns
           Chef::Log.info('setting domain label: ' + new_dns_settings.domain_name_label)
           unless public_ip_name.nil?
             pip = @pubip.get(@resource_group, public_ip_name)
-            pip['properties']['dns_settings'] = new_dns_settings
-            # update the public ip with the new dns settings
+            pip.properties.dns_settings = new_dns_settings
+            ## update the public ip with the new dns settings
             @pubip.create_update(@resource_group, public_ip_name, pip)
           end
         end
@@ -116,8 +111,12 @@ module AzureDns
             ip_found = @pubip.check_existence_publicip(@resource_group, public_ip_name)
             next unless ip_found
             Chef::Log.info('found !')
-            pip = @pubip.get(@resource_group, public_ip_name)
-            pip['properties']['dns_settings'] = new_dns_settings
+            pip_response = @pubip.get(@resource_group, public_ip_name)
+            pip = pip_response.body
+            OOLog.info("PIP IS: #{pip.inspect}")
+            OOLog.info("PIP Properties are: '#{pip.properties.inspect}'")
+            OOLog.info("PIP DNS Settings are: '#{pip.properties.dns_settings}'")
+            pip.properties.dns_settings = new_dns_settings
             Chef::Log.info('updating domain label: ' + new_dns_settings.domain_name_label)
             # update the public ip with the new dns settings
             @pubip.create_update(@resource_group, public_ip_name, pip)
