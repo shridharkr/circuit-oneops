@@ -92,7 +92,7 @@ attribute 'environment',
           }
 
 attribute 'authenabled',
-          :description => 'Enabled console authentication ',
+          :description => 'Enable console authentication ',
           :default => 'true',
           :format => {
               :category => '2.Administration',
@@ -121,7 +121,7 @@ attribute 'adminpassword',
               :filter => {'all' => {'visible' => 'authenabled:eq:true'}},
               :order => 3
           }
-          
+
 attribute 'adminconsoleport',
           :description => 'Web Console Port',
           :required => 'required',
@@ -157,6 +157,7 @@ attribute 'advisorysupport',
               :help => 'Advisory messages are event message regarding what is happening on JMS provider as well as what''s happening with producers, consumers and destinations.',
               :category => '2.Administration',
               :form => {'field' => 'checkbox'},
+              :filter => {'all' => {'visible' => 'false'}},
               :order => 7
           }
 attribute 'operationssupport',
@@ -178,9 +179,9 @@ attribute 'restapisupport',
               :form => {'field' => 'checkbox'},
               :order => 9
           }
-          
+
 attribute 'pwdencyenabled',
-          :description => 'Enabled Password Encryption',
+          :description => 'Enable Password Encryption',
           :default => 'true',
           :format => {
               :category => '2.Administration',
@@ -188,6 +189,45 @@ attribute 'pwdencyenabled',
               :form => {'field' => 'checkbox'},
               :order => 10
           }
+attribute 'custombeans',
+  :description => "Beans Support",
+  :data_type => "text",
+  :format => {
+    :help => 'Beans needed for the configuration. ',
+    :category => '2.Administration',
+    :order => 11
+ }
+
+attribute 'customplugins',
+  :description => "Plugins Support",
+  :data_type => "text",
+  :format => {
+    :help => 'Plugins needed for the configuration. ',
+    :category => '2.Administration',
+    :order => 12
+ }
+
+attribute 'kahadbattributes',
+  :description => "Kahadb Attributes",
+  :data_type => "hash",
+  :format => {
+    :help => 'Configuration attributes for Kahadb element. ',
+    :category => '2.Administration',
+    :order => 13
+  }
+
+attribute 'brokerattributes',
+  :description => "Broker Attributes",
+  :data_type => "hash",
+  :default => '{
+         "useJMX":"true",
+         "advisorySupport":"false"
+      }',
+  :format => {
+    :help => 'Configuration attributes for Broker.',
+    :category => '2.Administration',
+    :order => 14
+  }
 
 attribute 'initmemory',
           :description => 'Init Memory (MB)',
