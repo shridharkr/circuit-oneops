@@ -190,44 +190,44 @@ attribute 'pwdencyenabled',
               :order => 10
           }
 attribute 'custombeans',
-  :description => "Beans Support",
-  :data_type => "text",
-  :format => {
-    :help => 'Beans needed for the configuration. ',
-    :category => '2.Administration',
-    :order => 11
- }
+          :description => "Beans Support",
+          :data_type => "text",
+          :format => {
+            :help => 'Beans needed for the configuration. ',
+            :category => '2.Administration',
+            :order => 11
+          }
 
 attribute 'customplugins',
-  :description => "Plugins Support",
-  :data_type => "text",
-  :format => {
-    :help => 'Plugins needed for the configuration. ',
-    :category => '2.Administration',
-    :order => 12
- }
+      :description => "Plugins Support",
+      :data_type => "text",
+      :format => {
+        :help => 'Plugins needed for the configuration. ',
+        :category => '2.Administration',
+        :order => 12
+        }
 
 attribute 'kahadbattributes',
-  :description => "Kahadb Attributes",
-  :data_type => "hash",
-  :format => {
-    :help => 'Configuration attributes for Kahadb element. ',
-    :category => '2.Administration',
-    :order => 13
-  }
+      :description => "Kahadb Attributes",
+      :data_type => "hash",
+      :format => {
+        :help => 'Configuration attributes for Kahadb element. ',
+        :category => '2.Administration',
+        :order => 13
+      }
 
 attribute 'brokerattributes',
-  :description => "Broker Attributes",
-  :data_type => "hash",
-  :default => '{
-         "useJMX":"true",
-         "advisorySupport":"false"
-      }',
-  :format => {
-    :help => 'Configuration attributes for Broker.',
-    :category => '2.Administration',
-    :order => 14
-  }
+      :description => "Broker Attributes",
+      :data_type => "hash",
+      :default => '{
+             "useJmx":"true",
+             "advisorySupport":"false"
+          }',
+      :format => {
+        :help => 'Configuration attributes for Broker.',
+        :category => '2.Administration',
+        :order => 14
+      }
 
 attribute 'initmemory',
           :description => 'Init Memory (MB)',
