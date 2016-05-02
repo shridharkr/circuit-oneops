@@ -139,8 +139,6 @@ module AzureNetwork
         end
       end
 
-      OOLog.info("Network is: '#{network}'")
-
       subnetlist = network.body.properties.subnets
       # get the subnet to use for the network
       subnet =
