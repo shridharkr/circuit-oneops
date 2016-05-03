@@ -67,9 +67,15 @@ module AzureNetwork
 
     def get(nic_name)
       begin
+        OOLog.info("Fetching NIC '#{nic_name}' ")
+        start_time = Time.now.to_i
         promise = @client.network_interfaces.get(@rg_name, nic_name)
         response = promise.value!
-        response.body
+        result = response.body
+        end_time = Time.now.to_i
+        duration = end_time - start_time
+        OOLog.info("operation took #{duration} seconds")
+        result
       rescue MsRestAzure::AzureOperationError => e
         OOLog.fatal("Error getting NIC: #{nic_name}. Excpetion: #{e.body}")
       rescue => ex
@@ -86,10 +92,13 @@ module AzureNetwork
           @client.network_interfaces.create_or_update(@rg_name,
                                                       network_interface.name,
                                                       network_interface)
+
         response = promise.value!
         result = response.body
         end_time = Time.now.to_i
         duration = end_time - start_time
+        puts("operation took #{duration} seconds")
+        return result
         OOLog.info("NIC '#{network_interface.name}' was updated in #{duration} seconds")
         result
       rescue MsRestAzure::AzureOperationError => e
@@ -124,7 +133,7 @@ module AzureNetwork
         virtual_network.name = network_name
         # network = virtual_network.get(@rg_name)
         if !virtual_network.exists?(@rg_name)
-        # if network.nil?
+          # if network.nil?
           # set the network info on the object
           virtual_network.address = network_address
           virtual_network.sub_address = subnet_address_list
@@ -139,13 +148,11 @@ module AzureNetwork
         end
       end
 
-      OOLog.info("Network is: '#{network}'")
-
       subnetlist = network.body.properties.subnets
       # get the subnet to use for the network
       subnet =
-        subnet_cls.get_subnet_with_available_ips(subnetlist,
-                                                 express_route_enabled)
+          subnet_cls.get_subnet_with_available_ips(subnetlist,
+                                                   express_route_enabled)
 
       # define the NIC ip config object
       nic_ip_config = define_nic_ip_config(ip_type, subnet)
@@ -158,7 +165,7 @@ module AzureNetwork
 
       # retrieve and set the private ip
       @private_ip =
-        nic.properties.ip_configurations[0].properties.private_ipaddress
+          nic.properties.ip_configurations[0].properties.private_ipaddress
       OOLog.info('Private IP is: ' + @private_ip)
 
       # set the nic id on the network_interface object

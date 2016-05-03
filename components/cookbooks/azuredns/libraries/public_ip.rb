@@ -29,7 +29,7 @@ module AzureDns
         full_hostname = full_hostname.tr('.', '-')
         new_dns_settings = Azure::ARM::Network::Models::PublicIpAddressDnsSettings.new
         new_dns_settings.domain_name_label = (full_hostname.length >= 61) ? full_hostname.slice!(0, 60) : full_hostname
-        pip['properties']['dns_settings'] = new_dns_settings
+        pip.properties.dns_settings = new_dns_settings
         @pubip.create_update(@resource_group, public_ip_name, pip)
       end
     end
