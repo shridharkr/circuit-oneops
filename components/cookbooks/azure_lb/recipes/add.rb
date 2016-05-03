@@ -382,7 +382,7 @@ else
   pip_svc = AzureNetwork::PublicIp.new(credentials, subscription_id)
   public_ip = pip_svc.get(resource_group_name, public_ip_name)
   if public_ip != nil
-    lbip = public_ip.properties.ip_address
+    lbip = public_ip.body.properties.ip_address
   end
 end
 
