@@ -8,7 +8,7 @@ if cmd.to_i > 0
   raise e
 end
 sdate = Time.now.strftime("%y%m%d%H%M%S")
-log_file = "/var/log/cassandra/nodetool_#{sdate}.txt"
+log_file = "/tmp/nodetool_#{sdate}.txt"
 args = ::JSON.parse(node.workorder.arglist)
 nodetool_arguments = args["nodetool_args"]
 
