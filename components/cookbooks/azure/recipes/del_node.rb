@@ -31,7 +31,9 @@ def get_vm(client, resource_group_name, vm_name)
 
       return result.body
     rescue MsRestAzure::AzureOperationError => e
-      OOLog.fatal("Error fetching vm: #{e.body.values[0]['message']}")
+      puts 'Error fetching VM'
+      puts("Error Body: #{e.body}")
+      return nil
     rescue => ex
       OOLog.fatal("Error fetching vm: #{ex.message}")
     end

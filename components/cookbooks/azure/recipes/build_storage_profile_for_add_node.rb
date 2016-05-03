@@ -124,7 +124,10 @@ def storage_name_avail?(storage_client, storage_account_name)
      result = response.body
      return result.name_available
    rescue  MsRestAzure::AzureOperationError => e
-     OOLog.fatal("Error checking availability of #{storage_account_name}: #{e.body.values[0]['message']}")
+     Chef::Log.info("ERROR checking availability of #{storage_account_name}")
+     Chef::Log.info("ERROR Body: #{e.body}")
+     return nil
+#    OOLog.fatal("Error checking availability of #{storage_account_name}: #{e.body.values[0]['message']}")
    rescue => ex
      OOLog.fatal("Error checking availability of #{storage_account_name}: #{ex.message}")
    end
