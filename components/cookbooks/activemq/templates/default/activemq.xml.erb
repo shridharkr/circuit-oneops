@@ -43,10 +43,20 @@
        <property name="location" value="file:${activemq.conf}/credentials-enc.properties"/>
      </bean>
     <% end %>
+
+    <% if node[:activemq].has_key?(:custombeans) %>
+      <%= node[:apache][:custombeans].gsub(/\r\n?/,"\n") %>
+    <% end %>
+
     <!--
         The <broker> element is used to configure the ActiveMQ broker.
     -->
-    <broker brokerName="activemq"  useJmx="true" advisorySupport="<%= node['activemq']['advisorysupport'] %>"  dataDirectory="<%= @datadirectory %>">
+    <broker brokerName="activemq"  dataDirectory="<%= @datadirectory %>" <% JSON.parse(node[:activemq][:brokerattributes]).map{ |k,v| %>  <%= "'#{k}'" %>=<%= "'#{v}'" %>  <%}%>>
+     <plugins>
+      <% if node[:activemq].has_key?(:customplugins) %>
+        <%= node[:activemq][:customplugins].gsub(/\r\n?/,"\n") %>
+      <% end %>
+     </plugins>
 
         <destinationPolicy>
             <policyMap>
@@ -117,7 +127,7 @@
             http://activemq.apache.org/persistence.html
         -->
         <persistenceAdapter>
-            <kahaDB directory="<%= @datadirectory %>/kahadb"/>
+            <kahaDB directory="<%= @datadirectory %>/kahadb" <% JSON.parse(node[:activemq][:kahadbattributes]).map{ |k,v| %><%= "#{k}" %>=<%= "'#{v}'" %>  <%}%>/>
         </persistenceAdapter>
 
 
