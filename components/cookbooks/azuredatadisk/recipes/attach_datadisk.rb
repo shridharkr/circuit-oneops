@@ -1,6 +1,7 @@
 
 require 'azure_mgmt_compute'
 require 'azure_mgmt_storage'
+require 'azure'
 require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
 require File.expand_path('../../libraries/attachdisk.rb', __FILE__)
 # invoke recipe to get credentials
