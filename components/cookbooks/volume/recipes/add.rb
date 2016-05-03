@@ -60,10 +60,6 @@ node.set["raid_device"] = raid_device
 platform_name = node.workorder.box.ciName
 logical_name = node.workorder.rfcCi.ciName
 
-is_single = true
-if node.workorder.box[:ciAttributes][:availability] != "single"
-  is_single = false
-end
 
 cloud_name = node[:workorder][:cloud][:ciName]
 token_class = node[:workorder][:services][:compute][cloud_name][:ciClassName].split(".").last.downcase
@@ -311,7 +307,7 @@ ruby_block 'create-iscsi-volume-ruby-block' do
 
       if vols.size > 1
 
-       cmd = "mdadm --create -l#{level} -n#{vols.size.to_s} --assume-clean --chunk=256 #{raid_device} #{dev_list} 2>&1"
+       cmd = "yes |mdadm --create -l#{level} -n#{vols.size.to_s} --assume-clean --chunk=256 #{raid_device} #{dev_list} 2>&1"
        until ::File.exists?(raid_device) || has_created_raid || exec_count > max_retry do
          Chef::Log.info(raid_device+" being created with: "+cmd)
 
@@ -563,9 +559,7 @@ ruby_block 'filesystem' do
     Chef::Log.info("filesystem type: "+_fstype+" device: "+_device +" mount_point: "+_mount_point)
     # result attr updates cms
     Chef::Log.info("***RESULT:device="+_device)
-
-    if _device =~ /-eph\//
-
+    
       `mountpoint -q #{_mount_point}`
       if $?.to_i == 0
         Chef::Log.info("device #{_mount_point} already mounted.")
@@ -595,19 +589,14 @@ ruby_block 'filesystem' do
       if result.to_i != 0
          Chef::Log.error("mount error: #{result.to_s}")
       end
-
-    end
-      if is_single || _device =~ /-eph\//
+  
       	# clear and add to fstab again to make sure has current attrs on update
       	result = `grep -v #{_device} /etc/fstab > /tmp/fstab`
 	  ::File.open("/tmp/fstab","a") do |fstab|
           fstab.puts("#{_device} #{_mount_point} #{_fstype} #{_options} 1 1")
           Chef::Log.info("adding to fstab #{_device} #{_mount_point} #{_fstype} #{_options} 1 1")
 	end
-        `mv /tmp/fstab /etc/fstab`
-      else
-       Chef::Log.info("non-single platform w/ non-ephemeral storage - letting crm / resouce mgmt mount")
-      end
+        `mv /tmp/fstab /etc/fstab`    
 
       	if token_class =~ /azure/
             `sudo mkdir /opt/oneops/workorder`
