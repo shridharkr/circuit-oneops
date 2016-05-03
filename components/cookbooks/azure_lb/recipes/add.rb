@@ -273,18 +273,19 @@ if xpress_route_enabled
   master_rg = lb_service[:ciAttributes][:resource_group]
 
   vnet_svc = AzureNetwork::VirtualNetwork.new(credentials, subscription_id)
-  vnet = vnet_svc.get_vnet(master_rg, vnet_name)
+  vnet_svc.name = vnet_name
+  vnet = vnet_svc.get(master_rg)
 
   if vnet.nil?
     OOLog.fatal("Could not retrieve vnet '#{vnet_name}' from express route")
   end
 
-  if vnet.properties.subnets.count < 1
+  if vnet.body.properties.subnets.count < 1
     OOLog.fatal("VNET '#{vnet_name}' does not have subnets")
   end
 
   #NOTE: for simplicity, we are going to grab the first subnet. This might change
-  subnet = vnet.properties.subnets[0]
+  subnet = vnet.body.properties.subnets[0]
 
 else
   # Public IP Config
@@ -343,6 +344,7 @@ else
     vm_svc = AzureCompute::VirtualMachine.new(credentials, subscription_id)
     nic_svc = AzureNetwork::NetworkInterfaceCard.new(credentials, subscription_id)
     nic_svc.rg_name = resource_group_name
+    nic_svc.location = location
 
     # Traverse the compute-natrules
     compute_natrules.each do |compute|
@@ -365,7 +367,7 @@ else
           #Update the NIC with LB info - Associate VM with LB
           nic.properties.ip_configurations[0].properties.load_balancer_backend_address_pools = backend_address_pools
           nic.properties.ip_configurations[0].properties.load_balancer_inbound_nat_rules = [compute[:nat_rule]]
-          nic = nic_svc.create_update(location, resource_group_name, nic_name, nic.properties)
+          nic = nic_svc.create_update(nic)
         end
       end
     end #end of compute_natrules loop
@@ -390,4 +392,3 @@ else
   OOLog.info("AzureLB IP: #{lbip}")
   node.set[:azurelb_ip] = lbip
 end
-
