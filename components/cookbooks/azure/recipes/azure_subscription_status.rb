@@ -26,6 +26,7 @@ express_route_enabled = subscription_details['express_route_enabled']
 OOLog.info("tenant_id: #{tenant_id} client_id: #{client_id} client_secret: #{client_secret} subscription: #{subscription_id}")
 
 # Create authentication objects
+
 token_provider = MsRestAzure::ApplicationTokenProvider.new(tenant_id, client_id, client_secret)
 if !token_provider.nil?
   credentials = MsRest::TokenCredentials.new(token_provider)
@@ -33,29 +34,29 @@ end
 
 if express_route_enabled == 'true'
   begin
-  client = ResourceManagementClient.new(credentials)
-  client.subscription_id = subscription_id
-  # First, check if resource group is already created
-  response = client.resource_groups.check_existence(resource_group_name).value!
-  OOLog.info('response from azure:' + response.inspect)
-  if response.body == true
-    OOLog.info('Subscription details entered are verified')
-  else
-    OOLog.fatal("Error verifying the subscription and credentials for #{subscription_id}")
+    client = ResourceManagementClient.new(credentials)
+    client.subscription_id = subscription_id
+    # First, check if resource group is already created
+    response = client.resource_groups.check_existence(resource_group_name).value!
+    OOLog.info('response from azure:' + response.inspect)
+    if response.body == true
+      OOLog.info('Subscription details entered are verified')
+    else
+      OOLog.fatal("Error verifying the subscription and credentials for #{subscription_id}")
+    end
+  rescue MsRestAzure::AzureOperationError => e
+    Chef::Log.error("Error verifying the subscription and credentials for #{subscription_id}")
+    node.set['status_result'] = 'Error'
+    if e.body != nil
+      error_response = e.body['error']
+      Chef::Log.error('Error Response code:' + error_response['code'] + '\n\rError Response message:' + error_response['message'])
+      OOLog.fatal(error_response['message'])
+    else
+      Chef::Log.error('Error:' + e.inspect)
+      OOLog.fatal('Error verifying the subscription and credentials for #{subscription_id}')
+    end
   end
-rescue MsRestAzure::AzureOperationError => e
-  Chef::Log.error("Error verifying the subscription and credentials for #{subscription_id}")
-  node.set['status_result'] = 'Error'
-  if e.body != nil
-    error_response = e.body['error']
-    Chef::Log.error('Error Response code:' + error_response['code'] + '\n\rError Response message:' + error_response['message'])
-    OOLog.fatal(error_response['message'])
-  else
-    Chef::Log.error('Error:' + e.inspect)
-    OOLog.fatal('Error verifying the subscription and credentials for #{subscription_id}')
-  end
-end
-elsif express_route_enabled == 'false'
+elsif express_route_enabled == 'false' || express_route_enabled == nil
   begin
   client = ResourceManagementClient.new(credentials)
   client.subscription_id = subscription_id

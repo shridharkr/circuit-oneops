@@ -1,5 +1,4 @@
 # Common class for common methods, like get_credentials.
-
 module AzureCommon
   class AzureUtils
 
@@ -7,17 +6,18 @@ module AzureCommon
     def self.get_credentials(tenant_id, client_id, client_secret)
       begin
         # Create authentication objects
-        token_provider = MsRestAzure::ApplicationTokenProvider.new(tenant_id,client_id,client_secret)
-        if token_provider != nil
-          credentials = MsRest::TokenCredentials.new(token_provider)
-          credentials
-        else
-          e = Exception.new('Could not retrieve azure credentials')
-          raise e
-        end
-      rescue  MsRestAzure::AzureOperationError => e
-        Chef::Log.error('Error acquiring a token from azure')
-        raise e
+        token_provider =
+          MsRestAzure::ApplicationTokenProvider.new(tenant_id,
+                                                    client_id,
+                                                    client_secret)
+
+        OOLog.fatal('Azure Token Provider is nil') if token_provider.nil?
+
+        MsRest::TokenCredentials.new(token_provider)
+      rescue MsRestAzure::AzureOperationError => e
+        OOLog.fatal("Error acquiring a token from Azure: #{e.body}")
+      rescue => ex
+        OOLog.fatal("Error acquiring a token from Azure: #{ex.message}")
       end
     end
 
@@ -36,9 +36,9 @@ module AzureCommon
       cloud_name = node['workorder']['cloud']['ciName']
       compute_service =
         node['workorder']['services']['compute'][cloud_name]['ciAttributes']
-      Chef::Log.info("ENV VARS ARE: #{compute_service['env_vars']}")
+      OOLog.info("ENV VARS ARE: #{compute_service['env_vars']}")
       env_vars_hash = JSON.parse(compute_service['env_vars'])
-      Chef::Log.info("APIPROXY is: #{env_vars_hash['apiproxy']}")
+      OOLog.info("APIPROXY is: #{env_vars_hash['apiproxy']}")
 
       if !env_vars_hash['apiproxy'].nil?
         ENV['http_proxy'] = env_vars_hash['apiproxy']

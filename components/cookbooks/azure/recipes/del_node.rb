@@ -1,5 +1,6 @@
 require File.expand_path('../../libraries/utils.rb', __FILE__)
 require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
+require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
 require 'azure_mgmt_compute'
 require 'azure_mgmt_network'
 require 'azure_mgmt_storage'
@@ -29,11 +30,12 @@ def get_vm(client, resource_group_name, vm_name)
       puts("VM fetched in #{duration} seconds")
 
       return result.body
-    rescue  MsRestAzure::AzureOperationError =>e
+    rescue MsRestAzure::AzureOperationError => e
       puts 'Error fetching VM'
-      puts("Error Response: #{e.response}")
       puts("Error Body: #{e.body}")
       return nil
+    rescue => ex
+      OOLog.fatal("Error fetching vm: #{ex.message}")
     end
 end
 
@@ -49,11 +51,9 @@ def delete_nic(credentials, subscription_id, resource_group_name, nic_name)
     duration = end_time - start_time
     Chef::Log.info("Deleting NIC '#{nic_name}' in #{duration} seconds")
   rescue MsRestAzure::AzureOperationError => e
-    puts("***FAULT:FATAL deleting NIC, resource group: '#{resource_group_name}', NIC name: '#{nic_name}'")
-    Chef::Log.error("Exception is=#{e.message}")
-    e = Exception.new("no backtrace")
-    e.set_backtrace("")
-    raise e
+    OOLog.fatal("***FAULT:FATAL=Error deleting NIC, resource group: '#{resource_group_name}', NIC name: '#{nic_name}', Error: #{e.body.values[0]['message']}")
+  rescue => ex
+    OOLog.fatal("***FAULT:FATAL=Error deleting NIC, resource group: '#{resource_group_name}', NIC name: '#{nic_name}', Error: #{ex.message}")
   end
 end
 
@@ -84,25 +84,7 @@ def delete_vm_storage(credentials, subscription_id, resource_group_name,storage_
     node.set['storage_key2'] = storage_account_keys.body.key2
     Chef::Log.info('vhd_uri : ' + node['vhd_uri'] )
 
-    #Get the full name of the block blob associated with the deleted vm.
-    include_recipe "azure::get_blob_list"
-    num_blob_names = node['blobs'].xpath("/EnumerationResults/Blobs/Blob/Name")
-    Chef::Log.debug("Total Number of blobs: #{num_blob_names.count}")
-    extract_text = ''
-    num_blob_names.each do |blob_elem|
-      Chef::Log.debug ("ELEMENT: #{blob_elem}")
-      Chef::Log.debug ("INNER TEXT: #{blob_elem.text}")
-      if ((blob_elem.text).split(".").first == node['server_name']) and /status/.match(blob_elem.text)
-        Chef::Log.debug ("Found the block blob associated with the deleted VM: #{blob_elem.text}")
-        extract_text = blob_elem.text
-      end
-    end
-    @arr = extract_text.split('.')
-      Chef::Log.debug('id from azure : ' + @arr[1])
-    node.set["block_blob_uri"]="https://"+storage_account+".blob.core.windows.net/vhds/"+node['server_name']+"."+@arr[1]+".status"
-    Chef::Log.info('block blob : ' + node["block_blob_uri"] )
-
-    #Delete both page(vhd) blob and block blob
+    #Delete both osdisk and datadisk blob
     include_recipe "azure::del_blobs"
   end
 end
@@ -173,13 +155,9 @@ begin
     delete_vm_storage(credentials, subscription_id, node['platform-resource-group'],storage_account)
   end
 rescue MsRestAzure::AzureOperationError => e
-   puts("***FAULT:FATAL deleting VM, resource group: #{node['platform-resource-group']}, VM name: #{node['server_name']}. Exception is=#{e.message}")
-   Chef::Log.error("***FAULT:Error deleting VM. Resource Group: #{node['platform-resource-group']} , VM name: #{node['server_name']}")
-   Chef::Log.error("***FAULT:Error deleting VM: #{e.body}")
-   Chef::Log.error("Error body: #{e.body}")
-   e = Exception.new("no backtrace")
-   e.set_backtrace("")
-   raise e
+  OOLog.fatal("Error deleting VM, resource group: #{node['platform-resource-group']}, VM name: #{node['server_name']}. Exception is=#{e.body.values[0]['message']}")
+rescue => ex
+  OOLog.fatal("Error deleting VM, resource group: #{node['platform-resource-group']}, VM name: #{node['server_name']}. Exception is=#{ex.message}")
  ensure
    end_time = Time.now.to_i
    duration = end_time - start_time

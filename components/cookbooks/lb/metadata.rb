@@ -7,6 +7,7 @@ license          "Apache License, Version 2.0"
 depends          "netscaler"
 depends          "azure_lb"
 depends          "neutron"
+depends          "f5-bigip"
 
 grouping 'default',
   :access => "global",
@@ -57,7 +58,7 @@ attribute 'persistence_type',
     :help => 'Session persistence type',
     :order => 4,
     :filter => {"all" => {"visible" => "stickiness:eq:true"}},
-    :form => { 'field' => 'select', 'options_for_select' => [['sourceip','sourceip'],['cookieinsert','cookieinsert']] }
+    :form => { 'field' => 'select', 'options_for_select' => [['SourceIP','sourceip'],['cookieinsert','cookieinsert']] }
   }
 
 attribute 'cookie_domain',

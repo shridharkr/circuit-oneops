@@ -123,7 +123,7 @@ else
   
   ENV['HOME'] = '/tmp'
   require 'net/ssh'
-  ssh = Net::SSH.start(cloud_service[:host], cloud_service[:username],
+  ssh = Net::SSH.start(node.netscaler_host, cloud_service[:username],
                        :password => cloud_service[:password], :paranoid => Net::SSH::Verifiers::Null.new)
 
   cmd = "update ssl certKey #{node.cert_name} -cert #{node.ns_cert_file} "
@@ -164,7 +164,7 @@ if node.has_key?("ns_ca_cert_name")
     
     ENV['HOME'] = '/tmp'
     require 'net/ssh'
-    ssh = Net::SSH.start(cloud_service[:host], cloud_service[:username],
+    ssh = Net::SSH.start(node.netscaler_host, cloud_service[:username],
                          :password => cloud_service[:password], :paranoid => Net::SSH::Verifiers::Null.new)
   end
 
@@ -174,13 +174,15 @@ if node.has_key?("ns_ca_cert_name")
 
   Chef::Log.info("result: "+res)
   
-  if !res.include?("Done") || (res.include?("ERROR") && !res.include?("Resource already exists"))
-    message="link ssl certKey #{node.cert_name} #{node.ns_ca_cert_name} ...returned: "+res
-    Chef::Log.error( message )
-    puts "***FAULT:FATAL="+message
-    e = Exception.new("no backtrace")
-    e.set_backtrace("")
-    raise e    
+  if !res.include?("Done")
+    if (res.include?("ERROR") && !res.include?("Resource already exists"))
+      message="link ssl certKey #{node.cert_name} #{node.ns_ca_cert_name} ...returned: "+res
+      Chef::Log.error( message )
+      puts "***FAULT:FATAL="+message
+      e = Exception.new("no backtrace")
+      e.set_backtrace("")
+      raise e    
+    end
   end
 end
 
