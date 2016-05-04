@@ -22,7 +22,8 @@ module Q2
     require 'nokogiri'
 
     def self.deleteDestPolicy(config_xml, dest_type, dest_name)
-       origxml = IO.read(config_xml)
+       origxml0 = IO.read(config_xml)
+       origxml = origxml0.sub('<broker xmlns="http://activemq.apache.org/schema/core" ', "<broker ")
        origdoc = Nokogiri::XML(origxml)
        dest_policies = origdoc.at('destinationPolicy')
        if ( dest_policies == nil )
@@ -46,12 +47,14 @@ module Q2
        #delete this policy
        Chef::Log.info("#{dest_type} #{dest_name} destination policy deleted: " + dest_policy.to_html.gsub(/\&gt;/, '>'))
        dest_policy.replace('')
-       File.open(config_xml,"w") { |f| f << origdoc.to_html.gsub(/\&gt;/, '>') }
+       resultdoc = origdoc.to_html.sub("<broker ", '<broker xmlns="http://activemq.apache.org/schema/core" ')
+       File.open(config_xml,"w") { |f| f << resultdoc.gsub(/\&gt;/, '>') }
        #puts origdoc.to_xhtml(indent:3).gsub(/\&gt;/, '>')
     end
 
     def self.processDestPolicy(config_xml, dest_type, dest_name, policies)
-        origxml = IO.read(config_xml)
+        origxml0 = IO.read(config_xml)
+        origxml = origxml0.sub('<broker xmlns="http://activemq.apache.org/schema/core" ', "<broker ")
         origdoc = Nokogiri::XML(origxml)
         dest_policies = origdoc.at('destinationPolicy')
 
@@ -119,7 +122,8 @@ module Q2
 
         #puts origdoc.to_html
         # overwrite original xml config file
-        File.open(config_xml,"w") { |f| f << origdoc.to_html.gsub(/\&gt;/, '>') }
+        resultdoc = origdoc.to_html.sub("<broker ", '<broker xmlns="http://activemq.apache.org/schema/core" ')
+        File.open(config_xml,"w") { |f| f << resultdoc.gsub(/\&gt;/, '>') }
         #puts origdoc.to_xhtml(indent:3).gsub(/\&gt;/, '>')
     end
   end
