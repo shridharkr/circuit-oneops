@@ -34,16 +34,16 @@ resource 'volume',
                          'options' => ''
          }
 
-resource "java",
-  :cookbook => "oneops.1.java",
-  :design => true,
-  :requires => {
-    :constraint => "0..1",
-    :help => "java programming language environment"
-  },
-  :attributes => {
+resource 'java',
+         :cookbook => 'oneops.1.java',
+         :design => true,
+         :requires => {
+             :constraint => '0..1',
+             :services => '*mirror',
+             :help => 'Java Programming Language Environment'
+         },
+         :attributes => {}
 
-  }
 
 resource 'elasticsearch',
          :cookbook => 'oneops.1.es',

@@ -33,20 +33,20 @@
        <property name="algorithm" value="PBEWithMD5AndDES" />
        <property name="passwordEnvName" value="ACTIVEMQ_ENCRYPTION_PASSWORD" />
      </bean>
-                                                                      
+
      <bean id="configurationEncryptor" class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
        <property name="config" ref="environmentVariablesConfiguration" />
-     </bean> 
+     </bean>
      <bean id="propertyConfigurer" class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer">
        <constructor-arg ref="configurationEncryptor" />
        <property name="location" value="file:${activemq.conf}/credentials-enc.properties"/>
-     </bean> 
+     </bean>
     <% end %>
-    
+
     <% if node[:activemq].has_key?(:custombeans) %>
       <%= node[:activemq][:custombeans].gsub(/\r\n?/,"\n") %>
     <% end %>
-    
+
     <!--
         The <broker> element is used to configure the ActiveMQ broker.
     -->
@@ -183,4 +183,3 @@
     <import resource="jetty.xml"/>
 
 </beans>
-

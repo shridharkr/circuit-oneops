@@ -103,17 +103,17 @@ resource "secgroup",
     :services => "compute"
   }
 
-resource "java",
-  :cookbook => "oneops.1.java",
-  :design => true,
-  :requires => {
-    :constraint => "1..1",
-    :help => "java programming language environment"
-  },
-  :attributes => {
-  :version => '7'
-  }
-
+resource 'java',
+         :cookbook => 'oneops.1.java',
+         :design => true,
+         :requires => {
+             :constraint => '1..1',
+             :services => '*mirror',
+             :help => 'Java Programming Language Environment'
+         },
+         :attributes => {
+             :version => '7'
+         }
 
 # depends_on
 [ { :from => 'jboss',     :to => 'os' },
