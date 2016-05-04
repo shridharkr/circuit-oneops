@@ -54,9 +54,21 @@ module Cassandra
       bak_file = config_file.sub('.yaml', '_template.yaml')
       File.rename(config_file, bak_file)
       yaml = YAML::load_file(bak_file)
+      puts cfg
+
       cfg.each_key { |key|
+        # if key == "data_file_directories"
+        #   val = cfg[key]
+        # else
+        #   val = parse_json(cfg[key])
+        # end
+        # yaml[key] = val
+        print key
+        print cfg[key]
+        
         val = parse_json(cfg[key])
         yaml[key] = val
+
       }
       Chef::Log.info "Merged cassandra YAML config: #{yaml.to_yaml}"
 
@@ -161,11 +173,11 @@ module Cassandra
               properties[line[0..i - 1].strip] = line[i + 1..-1].strip
             end
           end
-        end      
+        end
       end
       return properties
    end
-  
+
    # Merge log4j property file with the config provided
    def merge_log4j_directives(log4j_file, cfg)
       Chef::Log.info "Log4j file: #{log4j_file}, log4j directive entries: #{cfg}"
@@ -183,7 +195,7 @@ module Cassandra
         Chef::Log.info "Saved Log4j config to #{log4j_file}"
       }
   end
-  
+
   end
 
 end

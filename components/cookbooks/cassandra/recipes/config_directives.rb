@@ -10,6 +10,27 @@ ruby_block 'update_config_directives' do
   Chef::Resource::RubyBlock.send(:include, Cassandra::Util)
   block do
     cfg = JSON.parse(node.workorder.rfcCi.ciAttributes.config_directives)
+
+    if node[:workorder][:rfcCi][:ciAttributes].has_key?("cluster")
+      cfg["cluster_name"] = node[:workorder][:rfcCi][:ciAttributes][:cluster]
+    end
+
+    if node[:workorder][:rfcCi][:ciAttributes].has_key?("num_tokens")
+      cfg["num_tokens"] = node[:workorder][:rfcCi][:ciAttributes][:num_tokens]
+    end
+
+    if node[:workorder][:rfcCi][:ciAttributes].has_key?("partitioner")
+      cfg["partitioner"] = node[:workorder][:rfcCi][:ciAttributes][:partitioner]
+    end
+
+    if node[:workorder][:rfcCi][:ciAttributes].has_key?("auth_enabled")
+      cfg["authenticator"] = node[:auth_enabled] == 'true' ? 'PasswordAuthenticator' : 'AllowAllAuthenticator'
+      cfg["authorizer"] = node[:auth_enabled] == 'true' ? 'CassandraAuthorizer' : 'AllowAllAuthorizer'
+    end
+
+    seed_provider_string = "[{\"class_name\"=>\"org.apache.cassandra.locator.SimpleSeedProvider\", \"parameters\"=>[{\"seeds\"=>\"10.0.1.95\"}]}]"
+    cfg["seed_provider"] = seed_provider_string.to_json
+
     yaml_file = '/opt/cassandra/conf/cassandra.yaml'
     Chef::Application.fatal!("Can't find the YAML config file - #{yaml_file} ") if !File.exists? yaml_file
     merge_conf_directives(yaml_file, cfg)
