@@ -62,6 +62,11 @@ when /azure_lb/
   include_recipe "azure_lb::add"
   lb_dns_name = node.azurelb_ip
 
+when /azure_gateway/
+
+  include_recipe "azure_gateway::add"
+  lb_dns_name = node.azure_ag_ip
+
 when /netscaler/
 
   # clear connection for replace (delete+add)
@@ -77,6 +82,13 @@ when /netscaler/
   include_recipe "netscaler::add_servicegroup"  
   include_recipe "netscaler::logout"
   lb_dns_name = node.ns_lbvserver_ip  
+
+when /f5-bigip/
+
+  include_recipe "f5-bigip::f5_add_server"
+  include_recipe "f5-bigip::f5_add_pool"
+  include_recipe "f5-bigip::f5_add_lbvserver"
+  lb_dns_name = node.ns_lbvserver_ip
   
 when /rackspace/
 

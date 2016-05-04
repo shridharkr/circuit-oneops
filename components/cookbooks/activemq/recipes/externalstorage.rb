@@ -30,5 +30,3 @@ end
 node.set[:activemq][:datapath]="#{mount_point}"
 
 Chef::Log.info("datapath #{node['activemq']['datapath']}")
-
-

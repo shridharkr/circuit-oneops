@@ -195,7 +195,82 @@ module Cassandra
         Chef::Log.info "Saved Log4j config to #{log4j_file}"
       }
   end
+  
+  #Check if the cassandra is running, allow #seconds to start running
+  def cassandra_running(seconds=120)
+    begin
+      Timeout::timeout(seconds) do
+        running = false
+        while !running do
+          cmd = "service cassandra status 2>&1"
+          Chef::Log.info(cmd)
+          result  = `#{cmd}`
+            if $? == 0
+              running = true
+              break
+            end
+            sleep 5
+          end
+          return running
+        end
+      rescue Timeout::Error 
+        return false
+      end
+    end
+ 
+    def port_open?(ip, port=9160)
+      begin
+        cmd = "service cassandra status 2>&1"
+      result  = `#{cmd}`
+      if $? == 0
+        Chef::Log.info("Check if port open on #{ip}")
+        TCPSocket.new(ip, port).close
+        return true
+      else
+        puts "***FAULT:FATAL=Cassandra isn't running on #{ip}"
+        e = Exception.new("no backtrace")
+        e.set_backtrace("")
+        raise e         
+      end
+    rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError
+      sleep 5
+      retry
+    end
+  end
+  
+  def cluster_normal?(node)
+    yaml_file = '/etc/cassandra/cassandra.yaml'
+    nodetool = "nodetool"
+    if node.platform =~ /redhat|centos/
+      yaml_file = "/opt/cassandra/conf/cassandra.yaml"
+      nodetool = "/opt/cassandra/bin/nodetool"
+    end
+    yaml = YAML::load_file(yaml_file)
+    seeds = yaml['seed_provider'][0]['parameters'][0]['seeds'].split(',')
+    rows = `#{nodetool} -h #{seeds[0]} status`.split("\n")
+    Chef::Log.info("ring rows: #{rows.inspect}")
+    rows.each do |row|
+      Chef::Log.info("row: #{row}")
+      parts = row.split(" ")
+      next unless parts.size == 8  
+      next unless IPAddress.valid? parts[1] 
+      if parts[0] !~ /UN|DN/ then
+          Chef::Log.info("Node #{parts[1]} is in #{parts[0]} state")
+          return false
+      end
+    end
+    return true
+  end
 
+  def self.sorted_ci_names(node, action)
+     computes = node.workorder.payLoad.has_key?("RequiresComputes") ? node.workorder.payLoad.RequiresComputes : node.workorder.payLoad.computes
+     ci_cloud_ids = []
+     computes.each do |compute|
+       next if !compute.has_key?"rfcAction" || compute[:rfcAction].nil? || compute[:rfcAction] != action
+       ci_cloud_ids.push compute[:ciName].split('-',2)[1]
+     end
+     return ci_cloud_ids.sort! { |x,y| (y.split('-')[1] == x.split('-')[1]) ? y.split('-')[0].to_i <=> x.split('-')[0].to_i : y.split('-')[1].to_i <=> x.split('-')[1].to_i }.reverse
+    end
   end
 
 end

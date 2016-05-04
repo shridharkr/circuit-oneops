@@ -591,3 +591,25 @@ edit the following variables, provide appropriate values:
 OneOps GUI provide built in action panels that ActiveMQ pack implement for server start, stop, restart, repair operations.
 
 Users are encouraged to manage ActiveMQ server life cycle via OneOps operations page.
+
+
+##FAQs
+### How to add plugins?
+* On the oneops GUI go to design and select the "activemq" component.
+* Edit the activemq component.
+* Update the custom beans in the Custom plugins attribute.
+  <loggingBrokerPlugin logAll="true" logConnectionEvents="false"/>
+  <timeStampingBrokerPlugin zeroExpirationOverride="1000" ttlCeiling="60000" futureOnly="true"/>
+  <traceBrokerPathPlugin/>
+* Above mentioned values will be updated in the activemq.xml
+
+### How to add beans?
+* On the oneops GUI go to design and select the "activemq" component.
+* Edit the activemq component.
+* Update the custom beans in the Custom Bean attribute
+  eg:
+  <bean id="logQuery" class="io.fabric8.insight.log.log4j.Log4jLogQuery"
+          lazy-init="false" scope="singleton"
+          init-method="start" destroy-method="stop">
+    </bean>
+* Above mentioned values will be updated in the activemq.xml

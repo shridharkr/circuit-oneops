@@ -44,7 +44,7 @@ dev_map.split(" ").each do |dev|
   component_name = dev.split(":")[2]
   dev_name = dev_id.split("/").last
   blobname = "#{storage.storage_account}-#{component_name}-datadisk-#{dev_name}.vhd"
-  AzureStorage::AzureDatadisk.delete_disk(storage_account_name,key1,blobname)
+  AzureStorage::AzureDatadisk.delete_disk(storage_account_name,key1,blobname,1)
 
 end
 

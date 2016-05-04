@@ -30,15 +30,9 @@ module AzureCompute
           puts 'Availability Set Not Found!  Create It!'
           return nil
         end
-        puts("***FAULT:FATAL=#{e.body.values[0]['message']}")
-        e = Exception.new('no backtrace')
-        e.set_backtrace('')
-        raise e
+        OOLog.fatal("Error getting availability set: #{e.body}")
       rescue => ex
-        puts("***FAULT:FATAL=#{ex.message}")
-        ex = Exception.new('no backtrace')
-        ex.set_backtrace('')
-        raise ex
+        OOLog.fatal("Error getting availability set: #{ex.message}")
       end
     end
 
@@ -49,12 +43,12 @@ module AzureCompute
       # check if it exists
       existance_promise = get(resource_group, availability_set)
       if !existance_promise.nil?
-        Chef::Log.info("Availability Set #{existance_promise.name} exists
+        OOLog.info("Availability Set #{existance_promise.name} exists
                         in the #{existance_promise.location} region.")
       else
         # need to create the availability set
-        Chef::Log.info("Creating Availability Set
-                        '#{availability_set}' in #{location} region")
+        OOLog.info("Creating Availability Set
+                      '#{availability_set}' in #{location} region")
         avail_set = get_avail_set_props(location)
         begin
           start_time = Time.now.to_i
@@ -65,17 +59,11 @@ module AzureCompute
           response.body
           end_time = Time.now.to_i
           duration = end_time - start_time
-          Chef::Log.info("Availability Set created in #{duration} seconds")
+          OOLog.info("Availability Set created in #{duration} seconds")
         rescue MsRestAzure::AzureOperationError => e
-          puts("***FAULT:FATAL=#{e.body.values[0]['message']}")
-          e = Exception.new('no backtrace')
-          e.set_backtrace('')
-          raise e
+          OOLog.fatal("Error adding an availability set: #{e.body}")
         rescue => ex
-          puts "***FAULT:FATAL=#{ex.message}"
-          ex = Exception.new('no backtrace')
-          ex.set_backtrace('')
-          raise ex
+          OOLog.fatal("Error adding an availability set: #{ex.message}")
         end
       end
     end
