@@ -110,20 +110,21 @@ resource 'activemq',
       }
     }
 
-resource "java",
-    :cookbook => "oneops.1.java",
-    :design => true,
-    :requires => {
-      :constraint => '1..1',
-      :help => 'Java Programming Language Environment'
-    },
-    :attributes => {
-      :install_dir => "/usr/lib/jvm",
-      :jrejdk => "jdk",
-      :version => "7",
-      :sysdefault => "true",
-      :flavor => "openjdk"
-    }
+resource 'java',
+         :cookbook => 'oneops.1.java',
+         :design => true,
+         :requires => {
+             :constraint => '1..1',
+             :services => '*mirror',
+             :help => 'Java Programming Language Environment'
+         },
+         :attributes => {
+             :install_dir => '/usr/lib/jvm',
+             :jrejdk => 'jdk',
+             :version => '7',
+             :sysdefault => 'true',
+             :flavor => 'openjdk'
+         }
 
 resource "vol-data",
     :cookbook => "oneops.1.volume",
