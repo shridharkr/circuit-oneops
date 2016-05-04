@@ -28,8 +28,10 @@ ruby_block 'update_config_directives' do
       cfg["authorizer"] = node[:auth_enabled] == 'true' ? 'CassandraAuthorizer' : 'AllowAllAuthorizer'
     end
 
-    seed_provider_string = "[{\"class_name\"=>\"org.apache.cassandra.locator.SimpleSeedProvider\", \"parameters\"=>[{\"seeds\"=>\"10.0.1.95\"}]}]"
-    cfg["seed_provider"] = seed_provider_string.to_json
+    puts "seeds: #{node[:initial_seeds].join(",")}"
+
+    cfg["seed_provider"]=[{"class_name"=>"org.apache.cassandra.locator.SimpleSeedProvider", "parameters"=>[{"seeds"=>node[:initial_seeds].join(",")}]}]
+    puts "full cfg: #{cfg.to_yaml}"
 
     yaml_file = '/opt/cassandra/conf/cassandra.yaml'
     Chef::Application.fatal!("Can't find the YAML config file - #{yaml_file} ") if !File.exists? yaml_file

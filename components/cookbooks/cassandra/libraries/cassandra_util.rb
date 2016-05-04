@@ -57,18 +57,14 @@ module Cassandra
       puts cfg
 
       cfg.each_key { |key|
-        # if key == "data_file_directories"
-        #   val = cfg[key]
-        # else
-        #   val = parse_json(cfg[key])
-        # end
-        # yaml[key] = val
-        print key
-        print cfg[key]
-        
-        val = parse_json(cfg[key])
+        if key == "data_file_directories"
+          val = parse_json(cfg[key]).split(",")
+        elsif key == "seed_provider"
+          val = cfg[key]
+        else
+          val = parse_json(cfg[key])
+        end
         yaml[key] = val
-
       }
       Chef::Log.info "Merged cassandra YAML config: #{yaml.to_yaml}"
 
@@ -195,7 +191,7 @@ module Cassandra
         Chef::Log.info "Saved Log4j config to #{log4j_file}"
       }
   end
-  
+
   #Check if the cassandra is running, allow #seconds to start running
   def cassandra_running(seconds=120)
     begin
@@ -213,11 +209,11 @@ module Cassandra
           end
           return running
         end
-      rescue Timeout::Error 
+      rescue Timeout::Error
         return false
       end
     end
- 
+
     def port_open?(ip, port=9160)
       begin
         cmd = "service cassandra status 2>&1"
@@ -230,14 +226,14 @@ module Cassandra
         puts "***FAULT:FATAL=Cassandra isn't running on #{ip}"
         e = Exception.new("no backtrace")
         e.set_backtrace("")
-        raise e         
+        raise e
       end
     rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError
       sleep 5
       retry
     end
   end
-  
+
   def cluster_normal?(node)
     yaml_file = '/etc/cassandra/cassandra.yaml'
     nodetool = "nodetool"
@@ -252,8 +248,8 @@ module Cassandra
     rows.each do |row|
       Chef::Log.info("row: #{row}")
       parts = row.split(" ")
-      next unless parts.size == 8  
-      next unless IPAddress.valid? parts[1] 
+      next unless parts.size == 8
+      next unless IPAddress.valid? parts[1]
       if parts[0] !~ /UN|DN/ then
           Chef::Log.info("Node #{parts[1]} is in #{parts[0]} state")
           return false
