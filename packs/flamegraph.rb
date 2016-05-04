@@ -222,22 +222,22 @@ resource "user-app",
 
 
 resource "java",
-	  :cookbook => "oneops.1.java",
-	  :design => true,
-	  :requires => {
-	  	:constraint => "1..1",
-		:services => "mirror",
-		:help => "Java Programming Language Environment"
-          },
-	  :attributes => {
-	  	:install_dir => "/usr/lib/jvm",
-	  	:flavor => "oracle",
-	        :jrejdk => "jdk",
-		:version => "8",
-		:uversion => "66",
-		:binpath => "",
-		:sysdefault => "true"
-	  }
+				 :cookbook => "oneops.1.java",
+				 :design => true,
+				 :requires => {
+						 :constraint => "1..1",
+						 :services => "mirror",
+						 :help => "Java Programming Language Environment"
+				 },
+				 :attributes => {
+						 :install_dir => "/usr/lib/jvm",
+						 :flavor => "oracle",
+						 :jrejdk => "jdk",
+						 :version => "8",
+						 :uversion => "66",
+						 :binpath => "",
+						 :sysdefault => "true"
+				 }
 
 # depends_on
 [ { :from => 'nginx',  :to => 'compute' },
