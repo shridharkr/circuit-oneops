@@ -29,6 +29,13 @@ execute "delete ActiveMQ Topic" do
   only_if { node.topic.destinationtype.strip.to_s != 'T' }
 end
 
+ruby_block "Delete Destination Policy" do
+  block do
+     Chef::Resource::RubyBlock.send(:include, Topic::Activemq_dest_config_util)
+     Topic::Activemq_dest_config_util::deleteDestPolicy("#{activemq_home}/conf/activemq.xml", 'T', "#{appresourcename}")
+  end
+end
+
 execute "delete destination" do
    command "sed -i /#{node['topic']['destinationtype']}-#{appresourcename}-#{node['topic']['destinationtype']}/d #{activemq_home}/conf/activemq.xml"
 end

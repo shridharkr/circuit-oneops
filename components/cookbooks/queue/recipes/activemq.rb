@@ -112,6 +112,13 @@ bash "handle destination auth" do
   EOH
 end
 
+ruby_block "Handle Destination Policy" do
+  block do
+     Chef::Resource::RubyBlock.send(:include, Q2::Activemq_dest_config_util)
+     Q2::Activemq_dest_config_util::processDestPolicy("#{activemq_home}/conf/activemq.xml", 'Q', "#{fullname}", "#{node['queue']['destinationpolicy']}")
+  end
+end
+
 execute "ActiveMQ Queue" do
   cwd "#{amq[:ciAttributes][:installpath]}/activemq"
   command "java -cp 'amq-messaging-resource.jar:*' io.strati.amq.MessagingResources -s #{node[:fqdn]} -r queue  -dn #{fullname} -mm  #{node[:queue][:maxmemorysize]}"
