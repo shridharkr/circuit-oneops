@@ -76,6 +76,24 @@ module AzureCompute
       end
     end
 
+    def restart(resource_group_name, vm_name)
+      begin
+        OOLog.info("Restarting VM: #{vm_name} in resource group: #{resource_group_name}")
+        start_time = Time.now.to_i
+        response = @client.virtual_machines.restart(resource_group_name, vm_name).value!
+        end_time = Time.now.to_i
+        duration = end_time - start_time
+        OOLog.info("VM restarted in #{duration} seconds")
+        response
+      rescue
+        OOLog.info("Error fetching VM")
+        OOLog.info("Error Response: #{e.response}")
+        OOLog.info("Error Body: #{e.body}")
+        # result = Azure::ARM::Compute::Models::VirtualMachine.new
+        return nil
+      end
+    end
+
   end
 
 end
