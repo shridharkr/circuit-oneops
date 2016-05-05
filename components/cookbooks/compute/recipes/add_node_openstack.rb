@@ -530,10 +530,3 @@ ruby_block 'handle ssh port closed' do
     
   end
 end
-
-if !compute_service[:initial_user].empty?
-  node.set["use_initial_user"] = true
-  initial_user = compute_service[:initial_user]
-  # put initial_user on the node for the following recipes
-  node.set[:initial_user] = initial_user
-end
