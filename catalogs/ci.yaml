@@ -168,34 +168,7 @@ cis: !map:Mash
           remote: origin
           environment: "{}"
           submodules: "false"
-          key: |-
-            -----BEGIN RSA PRIVATE KEY-----
-            MIIEowIBAAKCAQEAzgwIIQxI58e9v/lnRuKfPCDiYom0+Fuyo3p+RZlBDem4JXRg
-            b+RgroX3rrQ40sIZCXU25jgw+asw1IhaoKVW6Xe93zcO1zzaND+gos24WW/hIg++
-            6JtTpm6gaTcO7jfVjXBURkFViUSL6lSzff4+D6XBzlOvvDC2sX3Ro+Jo3Fjy8/qK
-            B6Ord0lO90iXLy5itOovteL5JKpllod2XclyjW2MbE9/H4mdRiq38qbMnDEyiDkC
-            x75Lsbwv+2EH8wmo+mQzr0RRV79D8BubmiaVXnjWIHxUM2iNWfSOmnh10uEj+b2H
-            qEkB0RofMgKEdMyrzhsHxJ3BZqtyQJwNP8MUawIDAQABAoIBAA6kOjum9NNLlUc8
-            AMO/vNL3/z5DTNHNKk+Fl814S3AiqIw4zdWFo/0i1evbMKKBWmgapTEM0yYarRid
-            K9t4hEmI0bw33F0dHOBTmSWYer4YPiY+ejFrQDF2cP2pBO2WmB052zM2104uycZ4
-            CF0uoNhZzgDMX5N+3qyUJT6BCzSFGPCMBNAG208PVwX1CU2DFJBOFO6xWqO8UdD0
-            7eCCjFNorbeHo4gOnzWOVgKM2iMfqpkzSV1V43lgZ7it2otjtjmqaLw+3Ux91jj5
-            N02DPzSIrS/vJlAqWsfdL5jOHGdAw7vDNy+KWVdqBe4jVScSYjdJyeCwT8Na5rjp
-            hAKk60ECgYEA6r4akgnBa8PUKV7y8vCDxYUACB+kkHih/UbG9wv+Cvn1AmVDbaiT
-            NAVEScCgopCsep6jsPEYIFRwfz3EL+jd6OOBqbWaAnskW5UG8jY6PUEljDU4P5WX
-            Xh/kE2N28bBXO/G+ySFIPgF4gFidTGCPkiabWqkDJmSj0GjHlQxBuyECgYEA4LSx
-            /kGELMuqBj7IkllcfvylbYW8mqK+t0oorTI3wvCzkjTtqnc6nZN92C+O1uAMEoMR
-            k/1HoTUsaBB6MysVnkLv0eV1OymcrrOdahQhS/peywMo6UgwyDL5lok0IgvvtqNm
-            pG32N4m+PdEGfO99EhYZpBD77y/W0E3I3/pIygsCgYAPxGkgegtF48dyZ/BFpSYU
-            tFRGN2nkUlX/HyvqGCIeNp/gY1DeIr6QdfIaShgAE1uieNlh3y/RrBpKUanF1gxh
-            wjZJYetQU1kj1aS7zCypRKDzA/gdPT0Hk3jMXJf2r/OMETbRZ6zkjVC8vjcClFHQ
-            bUtuEYAmqgfezcrqFgKsQQKBgFzzomWQ6II3RYAL3KBdgtus2ymxFtHI3Kepb6Yl
-            jdeABmhGqMHJTF/+sSIKmkXcrGHEAjN7pHPVMSdjGYmtGuY6vkXPa20ry3qhJk7J
-            QPTS/v9vsS6/BB7spz5UR1KGKYUdlsoSCrXyrtWXb92im9QtfDHYLL9GxM+qPZwZ
-            Rp79AoGBAN/fzmBdnyY0vp0BL+OqNqpq8xpbZ76cyA0hKQuC692lkW5W7Vxxa3Is
-            mYVNdMhO1o/zZ3m3S2Td/+GfY0C/4GVOh/OKfv0U2kzjXChdVPfubVp5yU37uwTw
-            M9yg+vmfE3I9j3Mkv1GyoM2DV2cNWyVXC52qk8GO6bLxtNbnWwaL
-            -----END RSA PRIVATE KEY-----
+          key: 
         prefix_options: {}
 
       ciName: kloopz-cms-build-source
