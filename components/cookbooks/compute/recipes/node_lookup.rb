@@ -50,6 +50,10 @@ else
   image_id = imagemap[ostype]
 end
 
+if rfcCi["rfcAction"] != "delete" && (image_id.nil? || image_id.empty?)
+  exit_with_error "Compute image id provided is null or empty. Please specify different OS type."
+end
+
 kp_name = ""
 if node.workorder.payLoad.has_key?("SecuredBy")
   env_ci_id = node.workorder.payLoad.Environment[0][:ciId].to_s

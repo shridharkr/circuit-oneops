@@ -20,6 +20,11 @@ resource "cassandra",
       "data_file_directories":"[\"/var/lib/cassandra/data\"]",    
       "saved_caches_directory":"/var/lib/cassandra/saved_caches",
       "commitlog_directory":"/var/lib/cassandra/commitlog"
+    }',
+    "log4j_directives" => '{
+      "log4j.appender.R.File":"/var/log/cassandra/system.log",    
+      "log4j.appender.R.maxFileSize":"10MB",
+      "log4j.rootLogger":"INFO,stdout,R"
     }'
   },
   :monitors => {
@@ -162,19 +167,22 @@ resource "artifact",
          }
 
 resource "keyspace",
-  :cookbook => "oneops.1.keyspace",
-  :design => true,
-  :requires => { "constraint" => "0..*"},
-  :attributes => {
-  }
+         :cookbook => "oneops.1.keyspace",
+         :design => true,
+         :requires => {"constraint" => "0..*"},
+         :attributes => {
+         }
 
-resource "java",
-  :cookbook => "oneops.1.java",
-  :design => true,
-  :requires => { "constraint" => "0..1"},
-  :attributes => {
-  }
-  
+resource 'java',
+         :cookbook => 'oneops.1.java',
+         :design => true,
+         :requires => {
+             :constraint => '0..1',
+             :services => '*mirror',
+             :help => 'Java Programming Language Environment'
+         },
+         :attributes => {}
+
 resource "secgroup",
          :cookbook => "oneops.1.secgroup",
          :design => true,

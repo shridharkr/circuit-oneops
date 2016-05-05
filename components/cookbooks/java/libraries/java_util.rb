@@ -19,8 +19,9 @@
 module Java
 
   module Util
-    require 'json'
 
+    require 'json'
+    require 'uri'
     include Chef::Mixin::ShellOut
 
     # Returns the current java version installed on the system
@@ -173,7 +174,7 @@ module Java
     # @return : expanded directory name.
     #
     def get_extract_dir(pkg, version, update)
-      dir = "#{pkg == 'jre' ? 'jre' :'jdk'}1.#{version}.0#{update.empty? ? '' :'_'+update}"
+      dir = "#{pkg == 'jre' ? 'jre' : 'jdk'}1.#{version}.0#{update.empty? ? '' : '_'+update}"
       Chef::Log.info("Java package expanded dir: #{dir}")
       dir
     end
@@ -181,9 +182,8 @@ module Java
 
     # Returns java pkg download location by following the JDK naming convention.
     # Refer http://goo.gl/W4jChU for more details. The base url is formed based
-    # on the JDK mirror service (with nexus fallback for backward compatibility)
-    # configured in the cloud. Java version, update & pkg details are read from
-    # chef node (user input).
+    # on the JDK mirror service (or any http mirror location) configured in the
+    # cloud. Java version, update & pkg details are read from chef node object.
     #
     # @returns : 3-Tuple (baseurl, filename, extract dir)
     #            Base URL - Package base url
@@ -196,29 +196,53 @@ module Java
       Chef::Log.info("Getting mirror service for #{cookbook}, cloud: #{cloud}")
 
       mirror_svc = node[:workorder][:services][:mirror]
-      mirror = JSON.parse(mirror_svc[cloud][:ciAttributes][:mirrors]) if !mirror_svc.nil?
-      base_url = ''
+      mirror = JSON.parse(mirror_svc[cloud][:ciAttributes][:mirrors]) unless mirror_svc.nil?
+
       # Search for JDK mirror
-      base_url = mirror[:jdk] if !mirror.nil? && mirror.has_key?(:jdk)
+      base_url = ''
+      base_url = mirror['jdk'] if !mirror.nil? && mirror.has_key?('jdk')
 
       version = node.java.version
       update = get_update_ver
       pkg = node.java.jrejdk
+      extn = get_pkg_extn
       artifact = "#{version}u#{update}-linux"
 
       if base_url.empty?
-        # Search for cookbook default nexus mirror.
-        Chef::Log.info('JDK mirror is empty. Using the default nexus mirror.')
-        base_url = node[cookbook][:nexus_mirror] if base_url.empty?
-        # Nexus url format
-        base_url = "#{base_url}/#{pkg}/#{artifact}"
+        # Search for cookbook mirror.
+        Chef::Log.info('JDK mirror service is empty. Checking for any http(s) mirror.')
+        base_url = node[cookbook][:mirror]
       end
 
-      # JDK file name convention.
-      file_name = "#{pkg}-#{artifact}-#{node.java.arch}.#{get_pkg_extn}"
-      Chef::Log.info("Mirror base url: #{base_url}, filename: #{file_name}")
+      # Replace any $version/$flavor/$jrejdk placeholder variables present in the URL
+      # e.x: http://<mirror>/some/path/$flavor/$jrejdk/$version/$jrejdk-$version-$arch.$extn
+      base_url = base_url.gsub('$version', artifact)
+                     .gsub('$jrejdk', pkg)
+                     .gsub('$flavor', node[cookbook][:flavor])
+                     .gsub('$arch', node.java.arch)
+                     .gsub('$extn', extn)
+      exit_with_err("Invalid package base URL: #{base_url}") unless url_valid?(base_url)
+
+      if base_url.end_with? (extn)
+        # Got full mirror url.
+        file_name = File.basename(URI.parse(base_url).path)
+        base_url = File.dirname(base_url)
+      else
+        # Use JDK file name convention.
+        file_name = "#{pkg}-#{artifact}-#{node.java.arch}.#{extn}"
+      end
+
+      Chef::Log.info("Package url: #{base_url}/#{file_name}")
       extract_dir = get_extract_dir(pkg, version, update)
       return base_url, file_name, extract_dir
+    end
+
+    # Checks if the given string is a valid http/https URL
+    #
+    # @param - URL string to check
+    def url_valid?(url)
+      url = URI.parse(url) rescue false
+      url.kind_of?(URI::HTTP) || url.kind_of?(URI::HTTPS)
     end
 
     # Exit the chef application process with the given error message

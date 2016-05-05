@@ -106,12 +106,12 @@ ruby_block 'set flavor/image/availability_zone' do
     if ! rfcCi["ciAttributes"]["instance_id"].nil? && ! rfcCi["ciAttributes"]["instance_id"].empty?
       server = conn.servers.get(rfcCi["ciAttributes"]["instance_id"])      
     else
-      #conn.servers.all.each do |i| 
-      #  if i.name == node.server_name && i.os_ext_sts_task_state != "deleting" && i.state != "DELETED" 
-      #    server = i
-      #    break
-      #  end
-      #end
+      conn.servers.all.each do |i| 
+        if i.name == node.server_name && i.os_ext_sts_task_state != "deleting" && i.state != "DELETED" 
+          server = i
+          break
+        end
+      end
       puts "***RESULT:instance_id=#{server.id}" unless server.nil?
     end
 
@@ -119,7 +119,7 @@ ruby_block 'set flavor/image/availability_zone' do
       # size / flavor
       flavor = conn.flavors.get node.size_id
       Chef::Log.info("flavor: "+flavor.inspect.gsub("\n"," ").gsub("<","").gsub(">",""))
-      if image.nil?
+      if flavor.nil?
         Chef::Log.error("cannot find flavor: #{node.size_id}")
         exit 1
       end
@@ -529,4 +529,11 @@ ruby_block 'handle ssh port closed' do
     end
     
   end
+end
+
+if !compute_service[:initial_user].empty?
+  node.set["use_initial_user"] = true
+  initial_user = compute_service[:initial_user]
+  # put initial_user on the node for the following recipes
+  node.set[:initial_user] = initial_user
 end

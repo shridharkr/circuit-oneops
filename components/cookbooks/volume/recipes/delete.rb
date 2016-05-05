@@ -45,8 +45,13 @@ if rfcAttrs.has_key?("mount_point") &&
     only_if { has_mounted }
   end
 
-# clear the tmpfs ramdisk entries from /etc/fstab
- if(rfcAttrs["fstype"] == "tmpfs")
+  cloud_name = node[:workorder][:cloud][:ciName]
+  provider_class = node[:workorder][:services][:compute][cloud_name][:ciClassName].split(".").last.downcase
+
+  Chef::Log.info("provider: #{provider_class}")
+
+# clear the tmpfs ramdisk entries and/or volume entries from /etc/fstab
+ if(rfcAttrs["fstype"] == "tmpfs") || provider_class =~ /azure/ || provider_class =~ /cinder/
     Chef::Log.info("clearing /etc/fstab entry for fstype tmpfs")
     result = `grep -v #{mount_point} /etc/fstab > /tmp/fstab`
     `mv /tmp/fstab /etc/fstab`
@@ -95,7 +100,6 @@ end
 
 include_recipe "shared::set_provider"
 
-
 ruby_block 'lvremove storage' do
   block do
     
@@ -110,7 +114,7 @@ ruby_block 'lvremove storage' do
       raid_device = "/dev/md/"+ node.workorder.rfcCi.ciName
       retry_count = 0
       max_retry_count = 3
-    
+
       if provider_class =~ /rackspace/
         Chef::Log.info "no raid for rackspace"
       else
@@ -135,20 +139,24 @@ ruby_block 'lvremove storage' do
     
       instance_id = node.workorder.payLoad.ManagedVia[0]["ciAttributes"]["instance_id"]
       Chef::Log.info("instance_id: "+instance_id)
-    
+
       device_maps = storage['ciAttributes']['device_map'].split(" ")
-    
+
       change_count = 1
       retry_count = 0
       while change_count > 0 && retry_count < max_retry_count
         change_count = 0
     
         device_maps.each do |dev_vol|
+
           vol_id = dev_vol.split(":")[0]
           dev_id = dev_vol.split(":")[1]
           Chef::Log.info("vol: "+vol_id)
            if provider_class =~ /rackspace|ibm/
             volume = storage_provider.volumes.get vol_id
+           elsif provider_class =~ /azure/
+               `rm -rf #{mount_point}`
+             Chef::Log.info( "azure data disk will be detached in the storage step")
           else
             volume = provider.volumes.get  vol_id
           end
@@ -201,7 +209,6 @@ ruby_block 'lvremove storage' do
                 when /ibm/
                   compute = provider.servers.get instance_id
                   compute.detach(volume.id)
-    
                 else
                   # aws uses server_id
                   if volume.server_id == instance_id

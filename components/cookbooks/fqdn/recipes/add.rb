@@ -34,6 +34,21 @@ end
 Chef::Log.info("Cloud name is: #{cloud_name}")
 Chef::Log.info("Provider is: #{provider}")
 
+# Check for lb service
+cloud_service = nil
+application_gateway_enabled = false
+if !node.workorder.services["lb"].nil? &&
+  !node.workorder.services["lb"][cloud_name].nil?
+
+  cloud_service = node.workorder.services["lb"][cloud_name]
+  Chef::Log.info("FQDN:: Cloud service name: #{cloud_service[:ciClassName]}")
+
+  # Checks if Application Gateway service is enabled
+  if cloud_service[:ciClassName].split(".").last.downcase =~ /azure_gateway/
+    application_gateway_enabled = true
+    Chef::Log.info("FQDN::add Application Gateway Enabled: #{application_gateway_enabled}")
+  end
+end
 
 # check for gdns service
 gdns_service = nil
@@ -64,6 +79,15 @@ node.workorder.payLoad["DependsOn"].each do |dep|
 end
 
 Chef::Log.info("Depends on LB is: #{depends_on_lb}")
+if env.has_key?("global_dns") && env["global_dns"] == "true" && depends_on_lb &&
+   !gdns_service.nil? && gdns_service["ciAttributes"]["gslb_authoritative_servers"] != '[]'
+   if provider !~ /azuredns/
+      include_recipe "netscaler::get_dc_lbvserver"
+      include_recipe "netscaler::add_gslb_vserver"
+      include_recipe "netscaler::add_gslb_service"
+      include_recipe "netscaler::logout"
+  end
+end
 
 #Remove the old aliases
 if provider =~ /azuredns/
@@ -81,32 +105,21 @@ include_recipe 'fqdn::build_entries_list'
 if provider =~ /azuredns/
   include_recipe 'azuredns::set_dns_records'
 
-  compute_service = node['workorder']['services']['compute'][cloud_name]['ciAttributes']
-  express_route_enabled = compute_service['express_route_enabled']
+  dns_service = node['workorder']['services']['dns'][cloud_name]['ciAttributes']
+  express_route_enabled = dns_service['express_route_enabled']
 
   Chef::Log.info("express_route_enable is: #{express_route_enabled}")
 
   # IF it is public, update the DNS settings on the public ip.
   # it's only public because these settings aren't available to private ips within azure.
-  if express_route_enabled == 'false'
+  if express_route_enabled == 'false'  && !application_gateway_enabled
     Chef::Log.info("calling azuredns::update_dns_on_pip recipe")
     include_recipe 'azuredns::update_dns_on_pip'
+  end
+
+  if env.has_key?("global_dns") && env["global_dns"] == "true" && depends_on_lb
+    include_recipe "azuretrafficmanager::add"
   end
 else
   include_recipe 'fqdn::set_dns_entries_'+provider
 end
-
-if env.has_key?("global_dns") && env["global_dns"] == "true" && depends_on_lb &&
-   !gdns_service.nil? && gdns_service["ciAttributes"]["gslb_authoritative_servers"] != '[]'
-
-  if provider =~ /azuredns/
-    include_recipe "azuretrafficmanager::add"
-  else
-    include_recipe "netscaler::get_dc_lbvserver"
-    include_recipe "netscaler::add_gslb_vserver"
-    include_recipe "netscaler::add_gslb_service"
-    include_recipe "netscaler::logout"
-  end
-end
-
-

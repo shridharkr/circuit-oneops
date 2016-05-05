@@ -160,13 +160,23 @@ attribute 'jvm_opts',
               :order => 2
           }
 
+attribute 'log4j_directives',
+          :description => 'Log4j Options',
+          :default => '{}',
+          :data_type => 'hash',
+          :format => {
+              :help => 'Overrides config/log4j-server.properties or logback.xml entries. Eg: log4j.appender.R.maxFileSize = 20MB',
+              :category => '3.Configuration Directives',
+              :order => 3
+          }
+          
 attribute 'install_dir',
           :description => "Installation Directory",
           :default => "/opt",
           :format => {
               :help => 'Binary will be installed here (ex. /opt)',
               :category => '3.Configuration Directives',
-              :order => 3
+              :order => 4
           }
 
 attribute 'heap_newsize',
@@ -230,7 +240,6 @@ recipe "stopdrain", "Stop Cassandra (with drain)"
 recipe "restartdrain", "Restart Cassandra (with drain)"
 recipe "repair", "Repair Cassandra"
 recipe "nodetoolrepairpr", "Repair PrimaryRange data"
-recipe "nodetoolrepair", "Repair all data"
 recipe "compactionstats", "Compaction Stats"
 recipe "netstats", "Net Stats"
 recipe "ringstatus", "Ring Status"

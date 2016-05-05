@@ -20,3 +20,14 @@ service 'azure-lb',
   :source => [Chef::Config[:register], Chef::Config[:version].split(".").first].join('.'),
   :provides => {:service => 'lb'}
 
+service 'azure-datadisk',
+        :description => 'Storage-as-a-Service',
+        :cookbook => 'azuredatadisk',
+        :source => [Chef::Config[:register], Chef::Config[:version].split(".").first].join('.'),
+        :provides => {:service => 'storage'}
+
+service 'azure-gateway',
+        :description => 'Gateway-as-a-Service',
+        :cookbook => 'azure_gateway',
+        :source => [Chef::Config[:register], Chef::Config[:version].split(".").first].join('.'),
+        :provides => {:service => 'lb'}
