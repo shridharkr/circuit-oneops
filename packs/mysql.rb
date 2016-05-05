@@ -115,13 +115,13 @@ procedure "snapshot",
             "execStrategy": "one-by-one",
             "relationName": "manifest.Requires",
             "direction": "from",
-            "targetClassName": "manifest.Mysql",
+            "targetClassName": "manifest.oneops.1.Mysql",
             "flow": [
                 {
                     "relationName": "base.RealizedAs",
                     "execStrategy": "one-by-one",
                     "direction": "from",
-                    "targetClassName": "bom.Mysql",
+                    "targetClassName": "bom.oneops.1.Mysql",
                     "actions": [
                         {
                             "actionName": "snapshot",
@@ -155,13 +155,13 @@ procedure "restore",
             "execStrategy": "one-by-one",
             "relationName": "manifest.Requires",
             "direction": "from",
-            "targetClassName": "manifest.Mysql",
+            "targetClassName": "manifest.oneops.1.Mysql",
             "flow": [
                 {
                     "relationName": "base.RealizedAs",
                     "execStrategy": "one-by-one",
                     "direction": "from",
-                    "targetClassName": "bom.Mysql",
+                    "targetClassName": "bom.oneops.1.Mysql",
                     "actions": [
                         {
                             "actionName": "restore",
