@@ -113,6 +113,13 @@ bash "handle destination auth" do
   EOH
 end
 
+ruby_block "Handle Destination Policy" do
+  block do
+     Chef::Resource::RubyBlock.send(:include, Topic::Activemq_dest_config_util)
+     Topic::Activemq_dest_config_util::processDestPolicy("#{activemq_home}/conf/activemq.xml", 'T', "#{fullname}", "#{node['topic']['destinationpolicy']}")
+  end
+end
+
 execute "ActiveMQ Topic" do
   cwd "#{amq[:ciAttributes][:installpath]}/activemq"
   command "java -cp 'amq-messaging-resource.jar:*' io.strati.amq.MessagingResources  -s '#{node[:fqdn]}' -r topic  -dn #{fullname}	 -mm  #{node[:topic][:maxmemorysize]}"
@@ -132,4 +139,3 @@ template '/opt/nagios/libexec/check_amq_topic.rb' do
   owner 'oneops'
   group 'oneops'
 end
-

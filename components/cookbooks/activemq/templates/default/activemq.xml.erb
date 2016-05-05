@@ -33,54 +33,50 @@
        <property name="algorithm" value="PBEWithMD5AndDES" />
        <property name="passwordEnvName" value="ACTIVEMQ_ENCRYPTION_PASSWORD" />
      </bean>
-                                                                      
+
      <bean id="configurationEncryptor" class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
        <property name="config" ref="environmentVariablesConfiguration" />
-     </bean> 
-     
+     </bean>
+
      <bean id="propertyConfigurer" class="org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer">
        <constructor-arg ref="configurationEncryptor" />
        <property name="location" value="file:${activemq.conf}/credentials-enc.properties"/>
-     </bean> 
+     </bean>
     <% end %>
-    
+
     <% if node[:activemq].has_key?(:custombeans) %>
-      <%= node[:apache][:custombeans].gsub(/\r\n?/,"\n") %>
+      <%= node[:activemq][:custombeans].gsub(/\r\n?/,"\n") %>
     <% end %>
-    
+
     <!--
         The <broker> element is used to configure the ActiveMQ broker.
     -->
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="activemq"  dataDirectory="<%= @datadirectory %>" <% JSON.parse(node[:activemq][:brokerattributes]).map{ |k,v| %>  <%= "'#{k}'" %>=<%= "'#{v}'" %>  <%}%>>
-
-     <plugins>
-      <% if node[:activemq].has_key?(:customplugins) %>
-        <%= node[:activemq][:customplugins].gsub(/\r\n?/,"\n") %>
-      <% end %>
-     </plugins>
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="activemq"  dataDirectory="<%= @datadirectory %>" <% if node[:activemq].has_key?(:brokerattributes) then JSON.parse(node[:activemq][:brokerattributes]).map{ |k,v| %>  <%= "#{k}" %>=<%= "'#{v}'" %>  <%} end %>>
      
         <destinationPolicy>
-            <policyMap>
-              <policyEntries>
-                <policyEntry topic=">" >
-                    <!-- The constantPendingMessageLimitStrategy is used to prevent
-                         slow topic consumers to block producers and affect other consumers
-                         by limiting the number of messages that are retained
-                         For more information, see:
-
-                         http://activemq.apache.org/slow-consumer-handling.html
-
-                    -->
-                  <pendingMessageLimitStrategy>
+           <policyMap>
+             <policyEntries>
+               <policyEntry queue=">" >
+                  <deadLetterStrategy>
+                     <sharedDeadLetterStrategy processExpired="false"/>
+                  </deadLetterStrategy>
+               </policyEntry>
+               <policyEntry topic=">" >
+                 <pendingMessageLimitStrategy>
                     <constantPendingMessageLimitStrategy limit="1000"/>
-                  </pendingMessageLimitStrategy>
-                </policyEntry>
-              </policyEntries>
-            </policyMap>
-        </destinationPolicy>
-       <% if node['activemq']['authtype'] != 'None' %>
+                 </pendingMessageLimitStrategy>
+               </policyEntry>
+             </policyEntries>
+           </policyMap>
+       </destinationPolicy>
+       
         <plugins>
-        <!--Simple-->
+        <% if node[:activemq].has_key?(:customplugins) %>
+         <%= node[:activemq][:customplugins].gsub(/\r\n?/,"\n") %>
+        <% end %>
+      
+       <% if node['activemq']['authtype'] != 'None' %>
+         <!--Simple-->
          <% if node['activemq']['authtype'] == 'Simple' %>
           <simpleAuthenticationPlugin>
            <users>
@@ -109,8 +105,9 @@
         </authorizationPlugin>
         <runtimeConfigurationPlugin checkPeriod="1000" />
        <!--auth-->
-        </plugins>
        <%end%>
+     </plugins>
+
         <!--
             The managementContext is used to configure how ActiveMQ is exposed in
             JMX. By default, ActiveMQ uses the MBean server that is started by
@@ -131,7 +128,7 @@
             http://activemq.apache.org/persistence.html
         -->
         <persistenceAdapter>
-            <kahaDB directory="<%= @datadirectory %>/kahadb" <% JSON.parse(node[:activemq][:kahadbattributes]).map{ |k,v| %><%= "#{k}" %>=<%= "'#{v}'" %>  <%}%>/>
+            <kahaDB directory="<%= @datadirectory %>/kahadb" <%  if node[:activemq].has_key?(:kahadbattributes) then JSON.parse(node[:activemq][:kahadbattributes]).map{ |k,v| %><%= "#{k}" %>=<%= "'#{v}'" %>  <%} end%> />
         </persistenceAdapter>
 
 
@@ -188,4 +185,3 @@
     <import resource="jetty.xml"/>
 
 </beans>
-

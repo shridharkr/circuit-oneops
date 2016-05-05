@@ -254,17 +254,13 @@ begin
   http_settings_name = 'gateway_settings'
   data = ''
   password = ''
-  ssl_certificate_exist = true
+  ssl_certificate_exist = false
   certs = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Certificate/ }
   certs.each do |cert|
-    if cert[:ciAttributes][:pfx_enable].nil?
-      # We cannot assume ssl is enabled if it is not set
-      ssl_certificate_exist = false
-    elsif cert[:ciAttributes][:pfx_enable] == 'false'
-      ssl_certificate_exist = false
-    else
+    if !cert[:ciAttributes][:pfx_enable].nil? && cert[:ciAttributes][:pfx_enable] == 'true'
       data = cert[:ciAttributes][:ssl_data]
       password = cert[:ciAttributes][:ssl_password]
+      ssl_certificate_exist = true
     end
   end
 

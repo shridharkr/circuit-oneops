@@ -29,6 +29,13 @@ execute "delete ActiveMQ Queue" do
     end
 end
 
+ruby_block "Delete Destination Policy" do
+  block do
+     Chef::Resource::RubyBlock.send(:include, Q2::Activemq_dest_config_util)
+     Q2::Activemq_dest_config_util::deleteDestPolicy("#{activemq_home}/conf/activemq.xml", 'Q', "#{appresourcename}")
+  end
+end
+
 execute "delete destination" do
    command "sed -i /#{node['queue']['destinationtype']}-#{appresourcename}-#{node['queue']['destinationtype']}/d #{activemq_home}/conf/activemq.xml"
 end
