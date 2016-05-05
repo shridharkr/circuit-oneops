@@ -33,4 +33,3 @@ begin
 rescue Exception => e
   node.set['reboot_result'] = 'Error'
 end
-

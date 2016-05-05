@@ -1,6 +1,6 @@
 module AzureCompute
-
   class VirtualMachine
+    
     attr_reader :client, :subscription_id
 
     def initialize(credentials, subscription_id)

@@ -32,4 +32,3 @@ begin
 rescue Exception => e
   node.set['hard_reboot_result']= 'Error'
 end
-

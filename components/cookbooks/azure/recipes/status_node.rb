@@ -35,3 +35,4 @@ begin
 rescue Exception => e
   node.set['status_result'] = 'Error'
 end
+
