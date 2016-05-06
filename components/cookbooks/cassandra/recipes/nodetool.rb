@@ -6,13 +6,12 @@ nodetool_command = args["nodetool_args"].to_s.strip
 if nodetool_command.empty?
 	nodetool_command = "info"
 end
+Chef::Log.info("log_file : #{log_file}")
+Chef::Log.info("nodetool_command : #{nodetool_command}")
 	
 Nodetool::Util.validate(node.workorder.createdBy.to_s, nodetool_command)
    
-command = "nohup #{nodetool} #{nodetool_command} > #{log_file} &"
-Chef::Log.info("command : #{command}")
-result = `#{command}`
-Chef::Log.info("command result : #{result}")
+result = `nohup #{nodetool} #{nodetool_command} > #{log_file} &`
 if $? != 0
    puts "***FAULT:FATAL=Failed to execute the command"
    e = Exception.new("no backtrace")
@@ -22,7 +21,6 @@ end
 sleep 10
 begin
 	status = `ps -eaf | grep '#{log_file}' | grep -v grep`
-	Chef::Log.info("status : #{status}")
    cmd = `tail -n 100 #{log_file}`
 	Chef::Log.info("#{cmd}")
 end while not status.empty?
