@@ -192,6 +192,15 @@ attribute 'ostype',
       ['Fedora 19','fedora-19']] }
   }
 
+attribute 'initial_user',
+  :description => "Initial UserName",
+  :default => '',
+  :format => {
+  :help => 'Initial UserName to use for computes',
+  :category => '4.Operating System',
+  :order => 5
+  }
+
 # limits
 attribute 'max_instances',
   :description => "Max Total Instances",
