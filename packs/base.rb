@@ -733,7 +733,7 @@ end
 
 
 # managed_via
-[ "os", 'user', 'job', 'file', 'volume', 'share', 'download', 'library', 'daemon', 'certificate' ].each do |from|
+[ "os", 'user', 'job', 'file', 'volume', 'share', 'download', 'library', 'daemon', 'certificate', 'logstash' ].each do |from|
   relation "#{from}::managed_via::compute",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',
