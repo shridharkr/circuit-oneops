@@ -103,14 +103,9 @@ procedure "snapshot",
                 "defaultValue" => "mydb",
                 "dataType" => "string"
         },
-        "snapshot_directory" => {
-                "name" => "snapshot_directory",
-                "defaultValue" => "/db/snapshot",
-                "dataType" => "string"
-        },
-        "snapshot_name" => {
-                "name" => "snapshot_name",
-                "defaultValue" => "mydb.sql",
+        "snapshot_path" => {
+                "name" => "snapshot_path",
+                "defaultValue" => "/db/snapshot/mydb.sql",
                 "dataType" => "string"
         }
    },
@@ -148,14 +143,9 @@ procedure "restore",
                 "defaultValue" => "mydb",
                 "dataType" => "string"
         },
-        "snapshot_directory" => {
-                "name" => "snapshot_directory",
-                "defaultValue" => "/db/snapshot",
-                "dataType" => "string"
-        },
-        "snapshot_name" => {
-                "name" => "snapshot_name",
-                "defaultValue" => "mydb.sql",
+        "snapshot_path" => {
+                "name" => "snapshot_path",
+                "defaultValue" => "/db/snapshot/mydb.sql",
                 "dataType" => "string"
         }
    },
