@@ -200,11 +200,12 @@ module Java
 
       # Search for JDK mirror
       base_url = ''
-      base_url = mirror[:jdk] if !mirror.nil? && mirror.has_key?(:jdk)
+      base_url = mirror['jdk'] if !mirror.nil? && mirror.has_key?('jdk')
 
       version = node.java.version
       update = get_update_ver
       pkg = node.java.jrejdk
+      extn = get_pkg_extn
       artifact = "#{version}u#{update}-linux"
 
       if base_url.empty?
@@ -214,14 +215,23 @@ module Java
       end
 
       # Replace any $version/$flavor/$jrejdk placeholder variables present in the URL
-      # e.x: http://<mirror>/some/path/$flavor/$jrejdk/$version/$jrejdk-$version-x64.tar.gz
+      # e.x: http://<mirror>/some/path/$flavor/$jrejdk/$version/$jrejdk-$version-$arch.$extn
       base_url = base_url.gsub('$version', artifact)
-                         .gsub('$jrejdk', pkg)
-                         .gsub('$flavor', node[cookbook][:flavor])
+                     .gsub('$jrejdk', pkg)
+                     .gsub('$flavor', node[cookbook][:flavor])
+                     .gsub('$arch', node.java.arch)
+                     .gsub('$extn', extn)
       exit_with_err("Invalid package base URL: #{base_url}") unless url_valid?(base_url)
 
-      # JDK file name convention.
-      file_name = "#{pkg}-#{artifact}-#{node.java.arch}.#{get_pkg_extn}"
+      if base_url.end_with? (extn)
+        # Got full mirror url.
+        file_name = File.basename(URI.parse(base_url).path)
+        base_url = File.dirname(base_url)
+      else
+        # Use JDK file name convention.
+        file_name = "#{pkg}-#{artifact}-#{node.java.arch}.#{extn}"
+      end
+
       Chef::Log.info("Package url: #{base_url}/#{file_name}")
       extract_dir = get_extract_dir(pkg, version, update)
       return base_url, file_name, extract_dir

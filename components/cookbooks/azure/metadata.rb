@@ -7,6 +7,7 @@ license          "Apache License, Version 2.0"
 depends		      "azure"
 depends		       "compute"
 depends          "azure_base"
+depends          "azuredatadisk"
 
 grouping 'default',
 :access => "global",

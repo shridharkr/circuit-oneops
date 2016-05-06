@@ -127,6 +127,34 @@ def get_loadbalancer_rules(env_name, platform_name, probes, frontend_ipconfig, b
   return lb_rules
 end
 
+def get_dc_lb_name()
+  platform_name = node.workorder.box.ciName
+  environment_name = node.workorder.payLoad.Environment[0]["ciName"]
+  assembly_name = node.workorder.payLoad.Assembly[0]["ciName"]
+  org_name = node.workorder.payLoad.Organization[0]["ciName"]
+
+  cloud_name = node.workorder.cloud.ciName
+  dc = node.workorder.services["lb"][cloud_name][:ciAttributes][:location]+"."
+  dns_zone = node.workorder.services["dns"][cloud_name][:ciAttributes][:zone]
+  dc_dns_zone = dc + dns_zone
+  platform_ciId = node.workorder.box.ciId.to_s
+
+  dc_lb_name = ''
+  listeners = get_listeners_from_wo()
+  listeners.each do |listener|
+    frontend_port = listener.vport
+
+    service_type = listener.vprotocol
+    if service_type == "HTTPS"
+      service_type = "SSL"
+    end
+    dc_lb_name = [platform_name, environment_name, assembly_name, org_name, dc_dns_zone].join(".") +
+                 '-'+service_type+"_"+frontend_port+"tcp-" + platform_ciId + "-lb"
+  end
+
+  return dc_lb_name
+end
+
 def get_compute_nodes_from_wo
   compute_nodes = Array.new
   computes = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Compute/ }
@@ -273,18 +301,19 @@ if xpress_route_enabled
   master_rg = lb_service[:ciAttributes][:resource_group]
 
   vnet_svc = AzureNetwork::VirtualNetwork.new(credentials, subscription_id)
-  vnet = vnet_svc.get_vnet(master_rg, vnet_name)
+  vnet_svc.name = vnet_name
+  vnet = vnet_svc.get(master_rg)
 
   if vnet.nil?
     OOLog.fatal("Could not retrieve vnet '#{vnet_name}' from express route")
   end
 
-  if vnet.properties.subnets.count < 1
+  if vnet.body.properties.subnets.count < 1
     OOLog.fatal("VNET '#{vnet_name}' does not have subnets")
   end
 
   #NOTE: for simplicity, we are going to grab the first subnet. This might change
-  subnet = vnet.properties.subnets[0]
+  subnet = vnet.body.properties.subnets[0]
 
 else
   # Public IP Config
@@ -343,6 +372,7 @@ else
     vm_svc = AzureCompute::VirtualMachine.new(credentials, subscription_id)
     nic_svc = AzureNetwork::NetworkInterfaceCard.new(credentials, subscription_id)
     nic_svc.rg_name = resource_group_name
+    nic_svc.location = location
 
     # Traverse the compute-natrules
     compute_natrules.each do |compute|
@@ -365,7 +395,7 @@ else
           #Update the NIC with LB info - Associate VM with LB
           nic.properties.ip_configurations[0].properties.load_balancer_backend_address_pools = backend_address_pools
           nic.properties.ip_configurations[0].properties.load_balancer_inbound_nat_rules = [compute[:nat_rule]]
-          nic = nic_svc.create_update(location, resource_group_name, nic_name, nic.properties)
+          nic = nic_svc.create_update(nic)
         end
       end
     end #end of compute_natrules loop
@@ -380,7 +410,7 @@ else
   pip_svc = AzureNetwork::PublicIp.new(credentials, subscription_id)
   public_ip = pip_svc.get(resource_group_name, public_ip_name)
   if public_ip != nil
-    lbip = public_ip.properties.ip_address
+    lbip = public_ip.body.properties.ip_address
   end
 end
 
@@ -389,5 +419,7 @@ if lbip.nil? || lbip == ''
 else
   OOLog.info("AzureLB IP: #{lbip}")
   node.set[:azurelb_ip] = lbip
+  dc_lb_name = get_dc_lb_name()
+  vname = { dc_lb_name => lbip}
+  puts "***RESULT:vnames=" + vname.to_json
 end
-

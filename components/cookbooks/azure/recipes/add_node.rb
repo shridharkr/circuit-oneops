@@ -22,7 +22,7 @@ OOLog.info('Express Route is enabled: ' + express_route_enabled )
 subscription = compute_service[:subscription]
 OOLog.info("Subscription ID: #{subscription}")
 ci_id = node[:workorder][:rfcCi][:ciId]
-OOLog.info('ci_id:'+ci_id.to_s)
+OOLog.info("ci_id: #{ci_id.to_s}")
 
 # this is the resource group the preconfigured vnet will be in
 master_resource_group_name = compute_service[:resource_group]
@@ -34,6 +34,14 @@ preconfigured_network_name = compute_service[:network]
 network_address = compute_service[:network_address].strip
 subnet_address_list = (compute_service[:subnet_address]).split(',')
 dns_list = (compute_service[:dns_ip]).split(',')
+
+initial_user = compute_service[:initial_user]
+# put initial_user on the node for the following recipes
+node.set[:initial_user] = initial_user
+keypair = node[:workorder][:payLoad][:SecuredBy].first
+pub_key = keypair[:ciAttributes][:public]
+server_name = node[:server_name]
+#######################################
 
 # get platform resource group and availability set
 include_recipe 'azure::get_platform_rg_and_as'
@@ -66,7 +74,7 @@ client.subscription_id = subscription
 node.set['VM_exists'] = false
 #check whether the VM with given name exists already
 begin
-  promise = client.virtual_machines.get(resource_group_name, node['server_name'])
+  promise = client.virtual_machines.get(resource_group_name, server_name)
   result = promise.value!
   node.set['VM_exists'] = true
 rescue MsRestAzure::AzureOperationError => e
@@ -75,30 +83,43 @@ rescue MsRestAzure::AzureOperationError => e
 end
 
 # invoke recipe to build the OS profile
-include_recipe "azure::build_os_profile_for_add_node"
+begin
+  osprofilecls = AzureCompute::OsProfile.new
+  osprofile = osprofilecls.build_profile(initial_user, pub_key, server_name)
+rescue => ex
+  OOLog.fatal("Error getting os profile: #{ex.message}")
+end
 
 # get the hard ware profile class
-hwprofile = AzureCompute::HardwareProfile.new()
+begin
+  hwprofilecls = AzureCompute::HardwareProfile.new
+  hwprofile = hwprofilecls.build_profile(node['size_id'])
+rescue => ex
+  OOLog.fatal("Error getting hardware profile: #{ex.message}")
+end
 
 # invoke recipe to build the storage profile
 include_recipe "azure::build_storage_profile_for_add_node"
 
 # invoke class to build the network profile
-# include_recipe "azure::build_network_profile_for_add_node"
-network_interface_cls =
-  AzureNetwork::NetworkInterfaceCard.new(creds, subscription)
-network_interface_cls.location = location
-network_interface_cls.rg_name = resource_group_name
-network_interface_cls.ci_id = ci_id
+begin
+  network_interface_cls =
+    AzureNetwork::NetworkInterfaceCard.new(creds, subscription)
+  network_interface_cls.location = location
+  network_interface_cls.rg_name = resource_group_name
+  network_interface_cls.ci_id = ci_id
 
-network_profile =
-  network_interface_cls.build_network_profile(express_route_enabled,
-                                              master_resource_group_name,
-                                              preconfigured_network_name,
-                                              network_address,
-                                              subnet_address_list,
-                                              dns_list,
-                                              ip_type)
+  network_profile =
+    network_interface_cls.build_network_profile(express_route_enabled,
+                                                master_resource_group_name,
+                                                preconfigured_network_name,
+                                                network_address,
+                                                subnet_address_list,
+                                                dns_list,
+                                                ip_type)
+rescue => ex
+  OOLog.fatal("Error getting network profile: #{ex.message}")
+end
 
 # set the ip on the node as the private ip
 node.set['ip'] = network_interface_cls.private_ip
@@ -116,14 +137,8 @@ availability_set = AzureCompute::AvailabilitySet.new(compute_service)
 
 # Create a model for new virtual machine
 props = VirtualMachineProperties.new
-props.os_profile = node['osProfile']
-
-begin
-  props.hardware_profile = hwprofile.build_profile(node['size_id'])
-rescue => ex
-  OOLog.fatal("Error getting hardware profile: #{ex.message}")
-end
-
+props.os_profile = osprofile
+props.hardware_profile = hwprofile
 props.storage_profile = node['storageProfile']
 props.network_profile = network_profile
 props.availability_set = availability_set.get(resource_group_name, node['platform-availability-set'])
@@ -134,9 +149,9 @@ params.properties = props
 params.location = location
 begin
   start_time = Time.now.to_i
-  OOLog.info("Creating New Azure VM :" + node['server_name'])
+  OOLog.info("Creating New Azure VM :" + server_name)
   # create the VM in the platform resource group
-  vm_promise = client.virtual_machines.create_or_update(resource_group_name, node['server_name'], params)
+  vm_promise = client.virtual_machines.create_or_update(resource_group_name, server_name, params)
   my_new_vm = vm_promise.value!
   end_time = Time.now.to_i
   duration = end_time - start_time
@@ -151,7 +166,6 @@ end
 
 # for public deployments we need to get the public ip address after the vm
 # is created
-# if express_route_enabled == 'false'
 if ip_type == 'public'
   # need to get the public ip that was assigned to the VM
   begin

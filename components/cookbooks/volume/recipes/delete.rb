@@ -49,14 +49,9 @@ if rfcAttrs.has_key?("mount_point") &&
   provider_class = node[:workorder][:services][:compute][cloud_name][:ciClassName].split(".").last.downcase
 
   Chef::Log.info("provider: #{provider_class}")
-  if provider_class =~ /azure/
-    Chef::Log.info("clearing /etc/fstab entry for volume #{mount_point}")
-    result = `grep -v #{mount_point} /etc/fstab > /tmp/fstab`
-    `mv /tmp/fstab /etc/fstab`
-  end
 
-# clear the tmpfs ramdisk entries from /etc/fstab
- if(rfcAttrs["fstype"] == "tmpfs")
+# clear the tmpfs ramdisk entries and/or volume entries from /etc/fstab
+ if(rfcAttrs["fstype"] == "tmpfs") || provider_class =~ /azure/ || provider_class =~ /cinder/
     Chef::Log.info("clearing /etc/fstab entry for fstype tmpfs")
     result = `grep -v #{mount_point} /etc/fstab > /tmp/fstab`
     `mv /tmp/fstab /etc/fstab`

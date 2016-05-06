@@ -167,19 +167,22 @@ resource "artifact",
          }
 
 resource "keyspace",
-  :cookbook => "oneops.1.keyspace",
-  :design => true,
-  :requires => { "constraint" => "0..*"},
-  :attributes => {
-  }
+         :cookbook => "oneops.1.keyspace",
+         :design => true,
+         :requires => {"constraint" => "0..*"},
+         :attributes => {
+         }
 
-resource "java",
-  :cookbook => "oneops.1.java",
-  :design => true,
-  :requires => { "constraint" => "0..1"},
-  :attributes => {
-  }
-  
+resource 'java',
+         :cookbook => 'oneops.1.java',
+         :design => true,
+         :requires => {
+             :constraint => '0..1',
+             :services => '*mirror',
+             :help => 'Java Programming Language Environment'
+         },
+         :attributes => {}
+
 resource "secgroup",
          :cookbook => "oneops.1.secgroup",
          :design => true,

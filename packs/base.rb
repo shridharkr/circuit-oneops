@@ -186,7 +186,7 @@ resource 'logstash',
 resource "fqdn",
   :cookbook => "oneops.1.fqdn",
   :design => true,
-  :requires => { "constraint" => "1..1", "services" => "compute,dns,*gdns" },
+  :requires => { "constraint" => "1..1", "services" => "compute,dns,*gdns,lb" },
   :attributes => { "aliases" => '[]' },
   :payloads => {
 'environment' => {
@@ -733,7 +733,7 @@ end
 
 
 # managed_via
-[ "os", 'user', 'job', 'file', 'volume', 'share', 'download', 'library', 'daemon', 'certificate' ].each do |from|
+[ "os", 'user', 'job', 'file', 'volume', 'share', 'download', 'library', 'daemon', 'certificate', 'logstash' ].each do |from|
   relation "#{from}::managed_via::compute",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',

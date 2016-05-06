@@ -69,7 +69,7 @@ resource 'java',
          :design => true,
          :requires => {
              :constraint => '0..1',
-             :services => 'mirror',
+             :services => '*mirror',
              :help => 'Java Programming Language Environment'
          },
          :attributes => {}
