@@ -1,28 +1,28 @@
-#check if nodetool command is already running
-command = "ps -eaf | grep NodeTool | grep -v grep | wc -l"
-cmd = `#{command}`
-if cmd.to_i > 0
-  puts "***FAULT:FATAL=notetool command is already in progress"
-  e = Exception.new("no backtrace")
-  e.set_backtrace("")
-  raise e
-end
 sdate = Time.now.strftime("%y%m%d%H%M%S")
-log_file = "/tmp/nodetool_#{sdate}.txt"
+log_file = "/tmp/#{node.workorder.actionName}_#{sdate}.txt"
+nodetool = "/opt/cassandra/bin/nodetool"
 args = ::JSON.parse(node.workorder.arglist)
-nodetool_arguments = args["nodetool_args"]
-
-#submit nodetool command in background
-`nohup /opt/cassandra/bin/nodetool #{nodetool_arguments} > #{log_file} &`
-
-#monitor the nodetool log
-running = true
-while running
-  sleep 10
-  cmd = `tail -n 100 #{log_file}`
-  puts cmd
-  cmd = `#{command}`
-  if cmd.to_i == 0
-    running = false
-  end
+nodetool_command = args["nodetool_args"].to_s.strip
+if nodetool_command.empty?
+	nodetool_command = "info"
 end
+	
+Nodetool::Util.validate(node.workorder.createdBy.to_s, nodetool_command)
+   
+command = "nohup #{nodetool} #{nodetool_command} > #{log_file} &"
+Chef::Log.info("command : #{command}")
+result = `#{command}`
+Chef::Log.info("command result : #{result}")
+if $? != 0
+   puts "***FAULT:FATAL=Failed to execute the command"
+   e = Exception.new("no backtrace")
+   e.set_backtrace("")
+   raise e         
+end
+sleep 10
+begin
+	status = `ps -eaf | grep '#{log_file}' | grep -v grep`
+	Chef::Log.info("status : #{status}")
+   cmd = `tail -n 100 #{log_file}`
+	Chef::Log.info("#{cmd}")
+end while not status.empty?
