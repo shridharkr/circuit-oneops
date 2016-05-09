@@ -379,20 +379,20 @@ ruby_block 'set node network params' do
         
         addrs = server.addresses[network_name]
         addrs_map = {}
-        # some case openstack returns 2 of same addr
+        # some time openstack returns 2 of same addr
         addrs.each do |addr|
+          next if ( addr.has_key? "OS-EXT-IPS:type" && addr["OS-EXT-IPS:type"] != "fixed" )
           ip = addr['addr']
+          if addrs_map.has_key? ip
+            puts "***FAULT:FATAL=The same ip #{ip} returned multiple times"
+            e = Exception.new("no backtrace")
+            e.set_backtrace("")
+            raise e
+          end
           addrs_map[ip] = 1
         end
-        if addrs_map.keys.size > 1
-          puts "***FAULT:FATAL=multiple ips returned"
-          e = Exception.new("no backtrace")
-          e.set_backtrace("")
-          raise e
-        end
-        public_ip = addrs.first["addr"] 
-        private_ip = public_ip
-        node.set[:ip] = public_ip
+        private_ip = addrs.first["addr"]
+        node.set[:ip] = private_ip
       end
     end
     
