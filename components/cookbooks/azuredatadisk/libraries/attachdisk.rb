@@ -56,6 +56,8 @@ module AzureStorage
         return true
       rescue  MsRestAzure::AzureOperationError =>e
           OOLog.fatal(e.body)
+      rescue MsRestAzure::CloudErrorData =>e
+          OOLog.fatal(e.body.message)
       rescue Exception => ex
           OOLog.fatal(ex.message)
       end

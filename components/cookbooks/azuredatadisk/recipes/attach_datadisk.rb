@@ -23,15 +23,8 @@ node.workorder.payLoad[:DependsOn].each do |dep|
   end
 end
 
-if node.workorder.services.has_key?("storage")
-  cloud_name = node[:workorder][:cloud][:ciName]
-  storage_service = node[:workorder][:services][:storage][cloud_name]
-  storage = storage_service["ciAttributes"]
-  device_maps = storage['ciAttributes']['device_map'].split(" ")
-  OOLog.info("device_maps"+device_maps)
-  node.set[:device_maps] = device_maps
 
-elsif storage != nil
+if storage != nil
   attr = storage[:ciAttributes]
   OOLog.info("attr"+attr.inspect())
   device_maps = attr['device_map'].split(" ")

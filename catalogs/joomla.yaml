@@ -59,45 +59,8 @@ cis: !map:Mash
       ciClassName: account.Keypair
       ciAttributes: !ruby/object:Cms::AttrMap 
         attributes: !map:ActiveSupport::HashWithIndifferentAccess 
-          public: |
-            -----BEGIN RSA PUBLIC KEY-----
-            MIIBCgKCAQEAxVms5NwmEC4Mr8g5AtXX/e2SPkJvfa8liCWeVjm6iJEoOb+UMmG5
-            CXLgdjwc57ibx/UJxqyC4oRw2S8FpcHXnBg9VLoryc17eSc38jxSyiyMhPyXqixI
-            V8kT5IGZEfTN2i+LSIDKBBCu4rKRVGi3W02UE4ug65M0xZhVd6jt77msZLD5s+XR
-            nDJILvXvdWWUurfS3/bV66peYGz3/iNigDNTrS0uaw+0dtqQvYAEv4lqom0U82vq
-            vz4l3J6sPswZZDdGACVRpXRVM0M3jmhAm3M6TIapKVYNKiEAfChd0n2p0JteWbwC
-            Yw4y3SThQBXYQ/7wAhTsVXPzNsH4YLBaeQIDAQAB
-            -----END RSA PUBLIC KEY-----
-
-          private: |
-            -----BEGIN RSA PRIVATE KEY-----
-            MIIEpAIBAAKCAQEAxVms5NwmEC4Mr8g5AtXX/e2SPkJvfa8liCWeVjm6iJEoOb+U
-            MmG5CXLgdjwc57ibx/UJxqyC4oRw2S8FpcHXnBg9VLoryc17eSc38jxSyiyMhPyX
-            qixIV8kT5IGZEfTN2i+LSIDKBBCu4rKRVGi3W02UE4ug65M0xZhVd6jt77msZLD5
-            s+XRnDJILvXvdWWUurfS3/bV66peYGz3/iNigDNTrS0uaw+0dtqQvYAEv4lqom0U
-            82vqvz4l3J6sPswZZDdGACVRpXRVM0M3jmhAm3M6TIapKVYNKiEAfChd0n2p0Jte
-            WbwCYw4y3SThQBXYQ/7wAhTsVXPzNsH4YLBaeQIDAQABAoIBAQCr5Jb2ZFZ3A1Uj
-            itc1hAN09ofJ2N35cCPVuUZ3viKeLykFW7v+QiYEd93Qvj1DDAYMHX+dX8dE+6y7
-            TvyxSuy81lQdR2c6h9MDTMirIiXOWQ0wDD8iBx4f8FF2V/d2r27Zm03LIfpTniBl
-            7rks92S1jxXqDFVmuzpc3XmcFzTf9qbtTfHmU5Z3k2VgG1ieesP9gNNgrCOg0Aws
-            6lwqZ04MKqLFnKJBM8AdXx3XjD+zKF03TT1J5H1A29j1vobZHjn42ZRipxXOnqz5
-            ZbOGRGCH/e9C7csc8BGPow/ytLxokS7OLUAPEjpL/TwRR1xqZ3QW5fmcMp9q6fuW
-            8VeifgkxAoGBAOXO5bjj4KpROl+d/AwXMUo3i2MohhRum5pnYSStInLpCOnNVZ2P
-            iKCxDrJCGfvzmhfBv+cCP7ZYgPzpXABVFS7OI7Cj79zqtSbLpVljn+lO0s3lFxgO
-            ctTkv1I6jPxQDoI27/NIlct8IAWEGW1SBoNFd36+2kZcJxUCPFo90xiVAoGBANvX
-            wWY9myQBPHB5CuQQW25wJ6Eb2bt2FwR1XltjP/GiJm5ymhqJ2jDS73xPG3dXtGSk
-            nYjAi8zDTFJAbAWz4mUkymIV6d5qzOgA7pe+ekJDsg5fvorKsiVg2PiVC9Ia/xku
-            K9Bm2uRulxDtDkeSpPdaKP4PFZ/YZzjolBCYay1VAoGAfi+3cGigaqUjmnFTfwgV
-            Jp2NSitsRDff9U6ixtLSwao4HLmFM3knGqVeXn9xaSmACV94Ek7n0SaT3Uv+Gqid
-            cw/6BPpfsTynr9/OsWDE5AVGN4x9u9XjNAdPDsXbuIf1D4c/BqVqq0tDAgRhOef6
-            b4ZrcQs3K79aLm0F2r9r9GkCgYEAkLnQ0AXuhB1sNH769HjwOBwNerpi9E4hiQXb
-            QD5uchxVQJChcqcdxNaYYjWR11cdosPcEZLwdbR8IgnXE0oA2KUHttrGQ237xyAV
-            8j+rLMR0C5JsVeJqtMC1FbDJP2AWX/VNUrzjjU5glPv6UpPvlgb8xYQYsEo+afBy
-            yRoONKECgYA5Xt/rhp5onUN+ZNIcAgtK8nKhl0d09402DFb+gbh0suFqUpwNWy8M
-            BqNlyaHw8cAqJJsVinarTTwYSVRdARYvUcHmpN/gvW/8gjSQqoQBbqkZ9v2AqY/t
-            bL9NUJrd7Q/XhMgl5KrR0haKe3UbDwvRTl/DoYy8yHfWQFZmhN/+BA==
-            -----END RSA PRIVATE KEY-----
-
+          public: 
+          private: 
           description: 2048-bit keys
         prefix_options: {}
 

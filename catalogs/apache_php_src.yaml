@@ -223,13 +223,8 @@ cis: !map:Mash
       ciClassName: account.Keypair
       ciAttributes: !ruby/object:Cms::AttrMap 
         attributes: !map:ActiveSupport::HashWithIndifferentAccess 
-          public: |
-            ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEApM++KYxLTMV4N5KmdwaJXvV6oL5+o4dKA8yqT4oCpuZd0m0xmYv11nIlRJol4L4kZSINT/8gUTl+SR7IAx5vVCd+LljcnHQHzD6+rCPMNN3+iKFEZs9oSg6QGN3u9fHtSiZxG4KIdjNAmk6m5MMtA5q0UskfnaHOzJT3irUpT5FTPie5jToAzgtsCPy5v+zDl3LGA8I0JzD3zdf45Y7H9wwFVdoaRBd2XmWVsvFitqnei7/lQCM34LQZhkHk5Bca7yIzm0QC47aCG+JiDWNV24RUV1+0G1BtlwdMQlFFWg2sy0GAK52KQEG9SRWdsZzBR8XLFeCH90kChXiQ/ZuYSQ== kfilipovski@macbook-eth.home
-
-          private: |
-            -----BEGIN RSA PRIVATE KEY-----
-            -----END RSA PRIVATE KEY-----
-
+          public: 
+          private: 
           description: kfilipovski
         prefix_options: {}
 
