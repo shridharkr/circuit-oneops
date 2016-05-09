@@ -41,7 +41,6 @@ ruby_block 'update_config_directives' do
       cfg["endpoint_snitch"] = node.workorder.rfcCi[:ciAttributes][:endpoint_snitch]
     end
 
-
     yaml_file = '/opt/cassandra/conf/cassandra.yaml'
     Chef::Application.fatal!("Can't find the YAML config file - #{yaml_file} ") if !File.exists? yaml_file
     merge_conf_directives(yaml_file, cfg)
