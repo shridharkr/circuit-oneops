@@ -160,6 +160,8 @@ begin
   puts "***RESULT:instance_id="+my_new_vm.body.id
 rescue MsRestAzure::AzureOperationError => e
   OOLog.fatal("Error Creating VM: #{e.body}")
+rescue MsRestAzure::CloudErrorData => ce
+  OOLog.fatal("Error Creating VM: #{ce.body.message}")
 rescue => ex
   OOLog.fatal("Error Creating VM: #{ex.message}")
 end
