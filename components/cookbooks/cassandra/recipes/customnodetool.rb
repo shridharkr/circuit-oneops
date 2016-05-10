@@ -1,1 +1,0 @@
-include_recipe "cassandra::nodetool"
