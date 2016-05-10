@@ -98,14 +98,14 @@ end
 procedure "snapshot",
   :description => "Snapshot",
   :arguments => {
-        "snapshot" => {
-                "name" => "snapshot",
-                "defaultValue" => "",
+        "database_name" => {
+                "name" => "database_name",
+                "defaultValue" => "mydb",
                 "dataType" => "string"
         },
-        "bucket" => {
-                "name" => "bucket",
-                "defaultValue" => "",
+        "snapshot_path" => {
+                "name" => "snapshot_path",
+                "defaultValue" => "/db/snapshot/mydb.sql",
                 "dataType" => "string"
         }
    },
@@ -138,14 +138,14 @@ procedure "snapshot",
 procedure "restore",
   :description => "Restore",
   :arguments => {
-        "snapshot" => {
-                "name" => "snapshot",
-                "defaultValue" => "",
+        "database_name" => {
+                "name" => "database_name",
+                "defaultValue" => "mydb",
                 "dataType" => "string"
         },
-        "bucket" => {
-                "name" => "bucket",
-                "defaultValue" => "",
+        "snapshot_path" => {
+                "name" => "snapshot_path",
+                "defaultValue" => "/db/snapshot/mydb.sql",
                 "dataType" => "string"
         }
    },
