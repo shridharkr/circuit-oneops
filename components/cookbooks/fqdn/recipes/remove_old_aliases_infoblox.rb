@@ -26,13 +26,6 @@ if node.customer_domain !~ /^\./
   customer_domain = '.'+node.customer_domain
 end
 
-# skip in active (A/B update)
-box = node[:workorder][:box][:ciAttributes]
-if box.has_key?(:is_active) && box[:is_active] == "false"
-  Chef::Log.info("skipping due to platform is_active false")
-  exit 0
-end
-
 # entries Array of {name:String, values:Array}
 entries = Array.new
 aliases = Array.new
