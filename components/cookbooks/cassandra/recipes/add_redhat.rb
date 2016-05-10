@@ -2,38 +2,25 @@
 package "jna"
 
 
-dist = node.workorder.rfcCi.ciAttributes.version
+version = node.workorder.rfcCi.ciAttributes.version
 
-version_parts = dist.split(".")
-
-if version_parts.size < 3
-
-  case dist
-  when "2.2"
-     v = "2.2.4"
-  when "2.1"
-   v = "2.1.12"
-  when "2.0"
-    v = "2.0.17"
-  when "1.2"
-    v = "1.2.18"
+if (Gem::Version.correct?(version))
+  if (Gem::Version.new(version).prerelease?)
+    Chef::Log.warn("Warning, You are using prerelease versions #{version}. It is non recommended to use prerelease versions for production use")
   else
-    Chef::Log.error("unsupported #{dist}")
-    exit 1
-  end
+    Chef::Log.info("Version Selected #{version} ")
 
+  end
 else
-  
-  # full version with patch level x.x.x
-  v = dist
-  
-  # to share config templates by minor version
-  version_parts.pop  
-  dist = version_parts.join(".")  
+  Chef::Log.error("unsupported version: #{version}")
+  puts "***FAULT:FATAL=Unsupported version: #{version}"
+  exception = Exception.new("no backtrace")
+  exception.set_backtrace("")
+  raise exception
 end
 
-sub_dir = "/cassandra/#{v}/"
-tgz_file = "apache-cassandra-#{v}-bin.tar.gz"
+sub_dir = "/cassandra/#{version}/"
+tgz_file = "apache-cassandra-#{version}-bin.tar.gz"
 
 tmp = Chef::Config[:file_cache_path]
 
@@ -50,7 +37,7 @@ end
 source_list = [ node['cassandra']['src_mirror'] ] if source_list.empty?
 source_list = [ "http://archive.apache.org/dist" ] if source_list.empty?
 dest_file = "#{tmp}/#{tgz_file}"
-  
+
 shared_download_http source_list.join(",") do
   path dest_file
   action :create
@@ -69,7 +56,7 @@ directory "#{install_dir}" do
   action :create
 end
 
-untar_dir = "#{install_dir}/apache-cassandra-#{v}"
+untar_dir = "#{install_dir}/apache-cassandra-#{version}"
 
 
 execute "untar_cassandra" do
@@ -77,19 +64,12 @@ execute "untar_cassandra" do
   cwd "#{install_dir}"
 end
 
-execute "ln -fs /usr/share/java/jna.jar /opt/cassandra/lib" do 
+execute "ln -fs /usr/share/java/jna.jar /opt/cassandra/lib" do
   only_if { ::File.exist?("/usr/share/java/jna.jar") }
 end
 
 include_recipe "cassandra::add_user_dirs"
 
-
-template "/opt/cassandra/conf/cassandra.yaml" do
-  source "cassandra-#{dist}.yaml.erb"
-  owner "root"
-  group "root"
-  mode 0644
-end
 
 template "/opt/cassandra/conf/cassandra-env.sh" do
   source "cassandra-env.sh.erb"

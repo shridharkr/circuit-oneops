@@ -92,8 +92,9 @@ end
 
 # get the hard ware profile class
 begin
+  OOLog.info("VM Size: #{node[:size_id]}")
   hwprofilecls = AzureCompute::HardwareProfile.new
-  hwprofile = hwprofilecls.build_profile(node['size_id'])
+  hwprofile = hwprofilecls.build_profile(node[:size_id])
 rescue => ex
   OOLog.fatal("Error getting hardware profile: #{ex.message}")
 end
@@ -160,6 +161,8 @@ begin
   puts "***RESULT:instance_id="+my_new_vm.body.id
 rescue MsRestAzure::AzureOperationError => e
   OOLog.fatal("Error Creating VM: #{e.body}")
+rescue MsRestAzure::CloudErrorData => ce
+  OOLog.fatal("Error Creating VM: #{ce.body.message}")
 rescue => ex
   OOLog.fatal("Error Creating VM: #{ex.message}")
 end

@@ -21,7 +21,7 @@ image_map = '{"ubuntu-14.04":"",
               "fedora-19":""}'
 
 repo_map = '{
-      "centos-7.0":"yum -d0 -e0 -y install rsync; rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/epel-release-6-8.noarch.rpm",
+      "centos-7.0":"sudo yum -d0 -e0 -y install rsync epel-release",
       "centos-6.5":"yum -d0 -e0 -y install rsync; rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm",
       "centos-6.4":"yum -d0 -e0 -y install rsync; rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm",
       "centos-6.2":"yum -d0 -e0 -y install rsync; rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm"
