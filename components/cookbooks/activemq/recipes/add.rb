@@ -252,6 +252,15 @@ ruby_block 'Encryption-Required' do
     only_if {node.activemq.pwdencyenabled == 'true' && ::File.exists?("#{node['activemq']['enckeypath']}#{node['activemq']['enckey']}")}
 end
 
+ruby_block 'Encryption-Not-Required' do
+  block do
+    node[:activemq][:adminencpwd]=node[:activemq][:adminpassword]
+    JSON.parse(node[:activemq][:users]).each do |key,val|
+        encypwdusers["#{key}"] ="#{val}"
+    end
+  only_if {node.activemq.pwdencyenabled == 'false'}
+end
+
 template "#{activemq_home}/conf/credentials.properties" do
     source 'credentials.properties.erb'
     variables({
