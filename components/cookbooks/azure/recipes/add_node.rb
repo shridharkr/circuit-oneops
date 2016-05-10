@@ -92,8 +92,9 @@ end
 
 # get the hard ware profile class
 begin
+  OOLog.info("VM Size: #{node[:size_id]}")
   hwprofilecls = AzureCompute::HardwareProfile.new
-  hwprofile = hwprofilecls.build_profile(node['size_id'])
+  hwprofile = hwprofilecls.build_profile(node[:size_id])
 rescue => ex
   OOLog.fatal("Error getting hardware profile: #{ex.message}")
 end
