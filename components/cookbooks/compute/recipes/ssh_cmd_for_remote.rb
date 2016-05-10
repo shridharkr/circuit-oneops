@@ -40,7 +40,7 @@ end
 
 ssh_options = "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
-if node.ip.nil?
+if node.ip.nil? || node.ip.empty?
   ip = "IP"
 else
   ip = node.ip

@@ -18,6 +18,13 @@
 # builds a list of entries based on entrypoint, aliases, and then sets them in the set_dns_entries recipe
 # no ManagedVia - recipes will run on the gw
 
+# cleanup old platform version entries
+if node.workorder.box.ciAttributes.is_active == "false"
+  Chef::Log.info("platform is_active false - only performing deletes")
+  include_recipe "fqdn::delete"
+  return
+end
+
 # get the cloud and provider
 cloud_name = node[:workorder][:cloud][:ciName]
 provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
