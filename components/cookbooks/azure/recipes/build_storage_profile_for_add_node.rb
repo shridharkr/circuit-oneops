@@ -133,17 +133,17 @@ def storage_name_avail?(storage_client, storage_account_name)
    end
 end
 
-def create_storage_account(storage_client, location, resource_group_name, storage_account_name)
+def create_storage_account(storage_client, location, resource_group_name, storage_account_name, account_type)
   # Create a model for new storage account.
   properties = Azure::ARM::Storage::Models::StorageAccountPropertiesCreateParameters.new
-  properties.account_type = 'Standard_LRS'  # This might change in the near future!
+  properties.account_type = account_type
 
   params = Azure::ARM::Storage::Models::StorageAccountCreateParameters.new
   params.properties = properties
   params.location = location
 
   begin
-    Chef::Log.info("Creating Storage Account: #{storage_account_name} in Resource Group: #{resource_group_name} ...")
+    Chef::Log.info("Creating Storage Account: [ #{storage_account_name} ] in Resource Group: #{resource_group_name} ...")
     start_time = Time.now.to_i
     promise = storage_client.storage_accounts.create(resource_group_name, storage_account_name, params)
     response = promise.value!
@@ -197,14 +197,28 @@ if storage_index < 0
   OOLog.fatal("***FAULT:FATAL=No storage account can be selected!")
 end
 
+
+
+
 storage_account_name = storage_accounts[storage_index]
 
 #Check for Storage account availability(if storage account is created or not)
 #Available means the storage account has not been created (need to create it)
 #Otherwise, it is created and we can use it
 if storage_name_avail?(storage_client, storage_account_name)
-  #It is available; Need to create storage account
-  storage_account = create_storage_account(storage_client, location, resource_group_name, storage_account_name)
+  #Storage account name is available; Need to create storage account
+
+  #Select the storage according to VM size
+  if node[:size_id] =~ /(.*)GS(.*)|(.*)DS(.*)/
+    account_type = Azure::ARM::Storage::Models::AccountType::PremiumLRS
+  else
+    account_type = Azure::ARM::Storage::Models::AccountType::StandardLRS
+  end
+
+  OOLog.info("VM size: #{node[:size_id]}")
+  OOLog.info("Storage Type: #{account_type}")
+
+  storage_account = create_storage_account(storage_client, location, resource_group_name, storage_account_name, account_type)
   if storage_account.nil?
     OOLog.fatal("***FAULT:FATAL=Could not create storage account #{storage_account_name}")
   end
@@ -228,33 +242,31 @@ storage_profile.image_reference.publisher = imageID[0]
 storage_profile.image_reference.offer = imageID[1]
 storage_profile.image_reference.sku = imageID[2]
 storage_profile.image_reference.version = imageID[3]
-Chef::Log.info('Image Publisher is: ' + storage_profile.image_reference.publisher)
-Chef::Log.info('Image Sku is: ' + storage_profile.image_reference.sku)
-Chef::Log.info('Image Offer is: ' + storage_profile.image_reference.offer)
-Chef::Log.info('Image Version is: ' + storage_profile.image_reference.version)
+Chef::Log.info("Image Publisher is: #{storage_profile.image_reference.publisher}")
+Chef::Log.info("Image Sku is: #{storage_profile.image_reference.sku}")
+Chef::Log.info("Image Offer is: #{storage_profile.image_reference.offer}")
+Chef::Log.info("Image Version is: #{storage_profile.image_reference.version}")
 
 image_version_ref = storage_profile.image_reference.offer+"-"+(storage_profile.image_reference.version).to_s
 msg = "***RESULT:Server_Image_Name=#{image_version_ref}"
 Chef::Log.info(msg)
-# puts(msg)
 
 server_name = node['server_name']
 Chef::Log.info("Server Name: #{server_name}")
 
-storage_profile.os_disk = OSDisk.new
+storage_profile.os_disk = Azure::ARM::Compute::Models::OSDisk.new
 storage_profile.os_disk.name = "#{server_name}-disk"
 Chef::Log.info("Disk Name is: '#{storage_profile.os_disk.name}' ")
 
-storage_profile.os_disk.vhd = VirtualHardDisk.new
+storage_profile.os_disk.vhd = Azure::ARM::Compute::Models::VirtualHardDisk.new
 storage_profile.os_disk.vhd.uri = "https://#{storage_account_name}.blob.core.windows.net/vhds/#{storage_account_name}-#{server_name}.vhd"
 Chef::Log.info("VHD URI is: #{storage_profile.os_disk.vhd.uri}")
-storage_profile.os_disk.caching = CachingTypes::ReadWrite
-storage_profile.os_disk.create_option = DiskCreateOptionTypes::FromImage
+storage_profile.os_disk.caching = Azure::ARM::Compute::Models::CachingTypes::ReadWrite
+storage_profile.os_disk.create_option = Azure::ARM::Compute::Models::DiskCreateOptionTypes::FromImage
 
 disk_size_map = JSON.parse(compute_service['ephemeral_disk_sizemap'] )
 vm_size = node['workorder']['rfcCi']['ciAttributes']['size']
 Chef::Log.info("data disk size from size map: #{disk_size_map[vm_size]} ")
-
 #if the VM exists already data disk property need not be updated. Updating the datadisk size will result in an error.
 
 if node.VM_exists == false
