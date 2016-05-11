@@ -26,4 +26,13 @@ provider = node[:workorder][:services][:compute][cloud_name][:ciClassName].downc
 Chef::Log.info("provider :" + provider)
 Chef::Log.info("node :" + node.inspect)
 
-node.set[:ip] = ci[:ciAttributes][node.ip_attribute]
+ip = nil
+if provider =~ /openstack|azure/
+  ip = ci[:ciAttributes][:private_ip] || ci[:ciAttributes][:public_ip]
+else
+  ip = ci[:ciAttributes][:public_ip]
+end
+# once inductor ActionOrderExecutor is released with change to populate node.ip_attribute we can move to:
+# node.set[:ip] = ci[:ciAttributes][node.ip_attribute]
+
+node.set[:ip] = ip
