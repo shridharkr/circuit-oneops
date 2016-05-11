@@ -3,7 +3,6 @@ include_pack "base"
 name "lbdb"
 description "LB fronted Database"
 type "Platform"
-ignore true
 category "Generic"
 
 
@@ -198,7 +197,7 @@ end
     :relation_name => 'DependsOn',
     :from_resource => from,
     :to_resource   => 'lb',
-    :attributes    => { "propagate_to" => 'to', "flex" => false, "min" => 1, "max" => 1 } 
+    :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 } 
 end
 
 
