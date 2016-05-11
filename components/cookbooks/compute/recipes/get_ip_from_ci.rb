@@ -26,11 +26,4 @@ provider = node[:workorder][:services][:compute][cloud_name][:ciClassName].downc
 Chef::Log.info("provider :" + provider)
 Chef::Log.info("node :" + node.inspect)
 
-ip = nil
-if provider =~ /openstack|azure/
-  ip = ci[:ciAttributes][:private_ip] || ci[:ciAttributes][:public_ip]
-else
-  ip = ci[:ciAttributes][:public_ip]
-end
-
-node.set[:ip] = ip
+node.set[:ip] = ci[:ciAttributes][node.ip_attribute]
