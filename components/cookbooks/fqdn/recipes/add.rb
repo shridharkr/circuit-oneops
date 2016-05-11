@@ -18,6 +18,13 @@
 # builds a list of entries based on entrypoint, aliases, and then sets them in the set_dns_entries recipe
 # no ManagedVia - recipes will run on the gw
 
+# cleanup old platform version entries
+if node.workorder.box.ciAttributes.is_active == "false"
+  Chef::Log.info("platform is_active false - only performing deletes")
+  include_recipe "fqdn::delete"
+  return
+end
+
 # get the cloud and provider
 cloud_name = node[:workorder][:cloud][:ciName]
 provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
@@ -33,22 +40,6 @@ end
 
 Chef::Log.info("Cloud name is: #{cloud_name}")
 Chef::Log.info("Provider is: #{provider}")
-
-# Check for lb service
-cloud_service = nil
-application_gateway_enabled = false
-if !node.workorder.services["lb"].nil? &&
-  !node.workorder.services["lb"][cloud_name].nil?
-
-  cloud_service = node.workorder.services["lb"][cloud_name]
-  Chef::Log.info("FQDN:: Cloud service name: #{cloud_service[:ciClassName]}")
-
-  # Checks if Application Gateway service is enabled
-  if cloud_service[:ciClassName].split(".").last.downcase =~ /azure_gateway/
-    application_gateway_enabled = true
-    Chef::Log.info("FQDN::add Application Gateway Enabled: #{application_gateway_enabled}")
-  end
-end
 
 # check for gdns service
 gdns_service = nil
@@ -104,18 +95,7 @@ include_recipe 'fqdn::build_entries_list'
 # set the records
 if provider =~ /azuredns/
   include_recipe 'azuredns::set_dns_records'
-
-  dns_service = node['workorder']['services']['dns'][cloud_name]['ciAttributes']
-  express_route_enabled = dns_service['express_route_enabled']
-
-  Chef::Log.info("express_route_enable is: #{express_route_enabled}")
-
-  # IF it is public, update the DNS settings on the public ip.
-  # it's only public because these settings aren't available to private ips within azure.
-  if express_route_enabled == 'false'  && !application_gateway_enabled
-    Chef::Log.info("calling azuredns::update_dns_on_pip recipe")
-    include_recipe 'azuredns::update_dns_on_pip'
-  end
+  include_recipe 'azuredns::update_dns_on_pip'
 
   if env.has_key?("global_dns") && env["global_dns"] == "true" && depends_on_lb
     include_recipe "azuretrafficmanager::add"

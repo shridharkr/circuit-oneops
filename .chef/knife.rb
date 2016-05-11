@@ -20,6 +20,4 @@ service_path [ 'services' ]
 cloud_path [ 'clouds' ]
 catalog_path [ 'catalogs' ]
 default_impl 'oo::chef-11.18.12'
-object_store_provider 'Local'
-environment_name 'cms'
-object_store_local_root '/opt/oneops/public'
+

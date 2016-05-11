@@ -129,8 +129,8 @@ JVM_OPTS="$JVM_OPTS -Xms${MAX_HEAP_SIZE}"
 JVM_OPTS="$JVM_OPTS -Xmx${MAX_HEAP_SIZE}"
 JVM_OPTS="$JVM_OPTS -Xmn${HEAP_NEWSIZE}"
 
-<% if node.workorder.rfcCi.ciAttributes.has_key?("jvm_opts") && 
-      JSON.parse(node.workorder.rfcCi.ciAttributes.jvm_opts).size > 0 %>	
+<% if node.workorder.rfcCi.ciAttributes.has_key?("jvm_opts") &&
+      JSON.parse(node.workorder.rfcCi.ciAttributes.jvm_opts).size > 0 %>
 <%   JSON.parse(node.workorder.rfcCi.ciAttributes.jvm_opts).each do |opt| %>
 JVM_OPTS="$JVM_OPTS <%= opt %>"
 <%   end %>

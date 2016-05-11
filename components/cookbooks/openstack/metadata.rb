@@ -199,7 +199,7 @@ attribute 'initial_user',
   :help => 'Initial UserName to use for computes',
   :category => '4.Operating System',
   :order => 5
-}
+  }
 
 # limits
 attribute 'max_instances',
