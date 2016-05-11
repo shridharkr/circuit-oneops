@@ -19,19 +19,11 @@ if node.has_key?("ip")
   return
 end
 
+ci = node[:workorder][:ci] || node[:workorder][:rfcCi]
+
 cloud_name = node[:workorder][:cloud][:ciName]
-provider = node[:workorder][:services][:compute][cloud_name][:ciClassName]
-    Chef::Log.info("provider :" + provider)
-    Chef::Log.info("node :" + node.inspect)
-ip = nil
-if (provider =~ /openstack/) || (provider =~ /azure/)
-  ip = ci[:ciAttributes][:private_ip] || ci[:ciAttributes][:public_ip]
-else
-  ip = ci[:ciAttributes][:public_ip]
-end
+provider = node[:workorder][:services][:compute][cloud_name][:ciClassName].downcase
+Chef::Log.info("provider :" + provider)
+Chef::Log.info("node :" + node.inspect)
 
-if node.workorder.has_key?("rfcCi") && node.workorder.rfcCi.rfcAction == "replace"
-  ip = nil
-end
-
-node.set[:ip] = ip
+node.set[:ip] = ci[:ciAttributes][node.ip_attribute]
