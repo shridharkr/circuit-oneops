@@ -5,6 +5,8 @@ description "Zookeeper"
 type "Platform"
 category "Other"
 
+platform :attributes => {'autoreplace' => 'false'}
+
 environment "single", {}
 environment "redundant", {}
 
