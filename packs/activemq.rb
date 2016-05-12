@@ -5,6 +5,8 @@ description "ActiveMQ"
 type "Platform"
 category "Messaging"
 
+platform :attributes => {'autoreplace' => 'false'}
+
 resource 'activemq',
     :cookbook => "oneops.1.activemq",
     :design => true,

@@ -5,6 +5,8 @@ description "Cassandra"
 type "Platform"
 category "Database NoSQL"
 
+platform :attributes => {'autoreplace' => 'false'}
+
 resource "cassandra",
   :cookbook => "oneops.1.cassandra",
   :design => true,

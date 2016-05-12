@@ -4,6 +4,8 @@ name "mysql"
 description "MySQL"
 type "Platform"
 category "Database Relational SQL"
+
+platform :attributes => {'autoreplace' => 'false'}
   
 resource "mysql",
   :cookbook => "oneops.1.mysql",
