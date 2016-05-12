@@ -5,6 +5,8 @@ description "Nginx"
 type "Platform"
 category "Web Server"
 ignore true
+
+platform :attributes => {'autoreplace' => 'false'}
   
 resource "nginx",
   :cookbook => "oneops.1.nginx",
