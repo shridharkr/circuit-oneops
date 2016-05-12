@@ -32,22 +32,29 @@ file ssh_key_file do
   mode 0600
 end
 
-user = "root"
-if node.has_key?("use_initial_user") && node.use_initial_user == true && 
-   !node.initial_user.nil? && node.initial_user != "unset"
-  user = node.initial_user
+# block needed for compile vs converge chef dsl issue
+ruby_block 'ssh cmds' do
+  block do
+
+    user = "root"
+    if node.has_key?("use_initial_user") && node.use_initial_user == true && 
+       !node.initial_user.nil? && node.initial_user != "unset"
+      user = node.initial_user
+    end
+    
+    ssh_options = "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+    
+    if node.ip.nil? || node.ip.empty?
+      ip = "IP"
+    else
+      ip = node.ip
+    end
+
+    node.set[:ssh_key_file] = ssh_key_file
+    node.set[:ssh_cmd] = "ssh -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
+    node.set[:ssh_interactive_cmd] = "ssh -t -t -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
+    node.set[:scp_cmd] = "scp -ri #{ssh_key_file} #{ssh_options} SOURCE #{user}@#{ip}:DEST "
+    node.set[:rsync_cmd] = "rsync -az --exclude=*.md --exclude=*.png -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
+  
+  end
 end
-
-ssh_options = "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-
-if node.ip.nil? || node.ip.empty?
-  ip = "IP"
-else
-  ip = node.ip
-end
-
-node.set[:ssh_key_file] = ssh_key_file
-node.set[:ssh_cmd] = "ssh -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
-node.set[:ssh_interactive_cmd] = "ssh -t -t -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
-node.set[:scp_cmd] = "scp -ri #{ssh_key_file} #{ssh_options} SOURCE #{user}@#{ip}:DEST "
-node.set[:rsync_cmd] = "rsync -az --exclude=*.md --exclude=*.png -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
