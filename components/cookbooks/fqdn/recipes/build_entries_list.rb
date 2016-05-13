@@ -110,8 +110,14 @@ else
   end
   is_hostname_entry = true
   ci = os.first
-  dns_name = (ci[:ciAttributes][:hostname] + customer_domain).downcase
 
+  cloud_name = node[:workorder][:cloud][:ciName]
+  provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
+  if provider_service =~ /azuredns/
+    dns_name = (ci[:ciAttributes][:hostname]).downcase
+  else
+    dns_name = (ci[:ciAttributes][:hostname] + customer_domain).downcase
+  end
 end
 
 

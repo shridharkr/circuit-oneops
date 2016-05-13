@@ -43,7 +43,7 @@ module AzureDns
       # the fqdn automatically gets populated with the name label and "<location>.cloudapp.azure.com"
       if node['workorder']['rfcCi']['ciAttributes'].key?('aliases')
         begin
-          shortnames = JSON.parse(node['workorder']['rfcCi']['ciAttributes']['aliases'])
+          shortnames = node['workorder']['rfcCi']['ciAttributes']['aliases'] == "" ? "" : JSON.parse(node['workorder']['rfcCi']['ciAttributes']['aliases'])
         end
       end
       unless shortnames.empty?
