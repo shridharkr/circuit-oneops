@@ -210,6 +210,9 @@ attribute 'customplugins',
 attribute 'kahadbattributes',
       :description => "Kahadb Attributes",
       :data_type => "hash",
+      :default => '{
+             "enableJournalDiskSyncs":"true"
+      }',
       :format => {
         :help => 'Configuration attributes for Kahadb element. ',
         :category => '2.Administration',
