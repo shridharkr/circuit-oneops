@@ -127,23 +127,27 @@ node[:entries].each do |entry|
   Chef::Log.info("#{dns_name_for_lookup} new values: "+dns_values.sort.inspect)
 
   existing_dns = get_existing_dns(dns_name,ns)
-  existing_comparison = existing_dns.sort <=> dns_values.sort
 
-  if existing_dns.length > 0 && (existing_comparison != 0 || node[:dns_action] == "delete")
-
+  Chef::Log.info("previous entries: #{node.previous_entries}")
+  Chef::Log.info("deletable_values: #{deletable_values}")
+  
+  
+  if existing_dns.length > 0 || node[:dns_action] == "delete"
+    
     # cleanup or delete
     existing_dns.each do |existing_entry|
-      if (dns_values.include?(existing_entry) && node[:dns_action] == "delete" &&
-          deletable_values.include?(existing_entry) ) ||
-         (!dns_values.include?(existing_entry) && node[:dns_action] != "delete")
+      if deletable_values.include?(existing_entry) &&
+         (dns_values.include?(existing_entry) && node[:dns_action] == "delete") ||          
+         # value was in previous entry, but not anymore
+         (!dns_values.include?(existing_entry) &&
+          node.previous_entries.has_key?(dns_name) &&
+          node.previous_entries[dns_name].include?(existing_entry) && 
+          node[:dns_action] != "delete")
+
         delete_dns(dns_name, existing_entry)
       end
     end
 
-  else
-    if existing_dns.length > 0
-      dns_match = true
-    end
   end
 
   # delete workorder skips the create call
@@ -151,106 +155,107 @@ node[:entries].each do |entry|
     next
   end
 
-  if dns_match
-    Chef::Log.info("exists #{dns_type}: #{dns_name} to #{dns_values.to_s}")
-  else
+
+  # infoblox has multiple record values for round-robin entries
+  # View attribute extracted from infoblox metadata to make it configurable item
+  dns_values.each do |dns_value|
+    
+    if existing_dns.include?(dns_value)
+      Chef::Log.info("exists #{dns_type}: #{dns_name} to #{dns_values.to_s}")
+      next        
+    end
+    
     Chef::Log.info("create #{dns_type}: #{dns_name} to #{dns_values.to_s}")
+    
+    ttl = 60
+    if node.workorder.rfcCi.ciAttributes.has_key?("ttl")
+      ttl = node.workorder.rfcCi.ciAttributes.ttl.to_i
+    end
+    
+    record = {
+       :name => dns_name,
+       :view => view_attribute,
+       :ttl => ttl
+    }
 
+    case dns_type
+    when "cname"
+      record[:canonical] = dns_value.gsub(/\.+$/,"")
+    when "a"
+      record[:ipv4addr] = dns_value
+    when "ptr"
+      record[:ipv4addr] = dns_name
+      record[:ptrdname] = dns_value
+      record.delete(:name)
+    end
 
-    # infoblox has multiple record values for round-robin entries
-    # View attribute extracted from infoblox metadata to make it configurable item
-    dns_values.each do |dns_value|
+    puts "record: #{record.inspect}"
 
-      ttl = 60
-      if node.workorder.rfcCi.ciAttributes.has_key?("ttl")
-        ttl = node.workorder.rfcCi.ciAttributes.ttl.to_i
+    resp_obj = node.infoblox_conn.request(
+      :method => :post,
+      :path => "/wapi/v1.0/record:#{dns_type}",
+      :body => JSON.dump(record))
+
+    Chef::Log.info("response: #{resp_obj.inspect}")
+
+    if resp_obj["message"] =~ /IBDataConflictError/
+
+      Chef::Log.info("IBDataConflictError - sleeping 60s for dns to propagate")
+      sleep 60
+      existing_dns = get_existing_dns(dns_name,ns)
+      existing_dns.each do |del_value|
+        delete_dns(dns_name, del_value)
       end
-      
-      record = {
-         :name => dns_name,
-         :view => view_attribute,
-         :ttl => ttl
-      }
-
-      case dns_type
-      when "cname"
-        record[:canonical] = dns_value.gsub(/\.+$/,"")
-      when "a"
-        record[:ipv4addr] = dns_value
-      when "ptr"
-        record[:ipv4addr] = dns_name
-        record[:ptrdname] = dns_value
-        record.delete(:name)
-      end
-
-      puts "record: #{record.inspect}"
 
       resp_obj = node.infoblox_conn.request(
         :method => :post,
         :path => "/wapi/v1.0/record:#{dns_type}",
         :body => JSON.dump(record))
 
-      Chef::Log.info("response: #{resp_obj.inspect}")
+      Chef::Log.info("retry response: #{resp_obj.inspect}")
 
-      if resp_obj["message"] =~ /IBDataConflictError/
+    end
+    # lets verify using authoratative dns sever
+    sleep 5
+    verified = false
+    max_retry_count = 30
+    retry_count = 0
 
-        Chef::Log.info("IBDataConflictError - sleeping 60s for dns to propagate")
-        sleep 60
-        existing_dns = get_existing_dns(dns_name,ns)
-        existing_dns.each do |del_value|
-          delete_dns(dns_name, del_value)
-        end
-
-        resp_obj = node.infoblox_conn.request(
-          :method => :post,
-          :path => "/wapi/v1.0/record:#{dns_type}",
-          :body => JSON.dump(record))
-
-        Chef::Log.info("retry response: #{resp_obj.inspect}")
-
+    while !verified && retry_count<max_retry_count do
+      dns_lookup_name = dns_name
+      if dns_name =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
+        dns_lookup_name = $4 +'.' + $3 + '.' + $2 + '.' + $1 + '.in-addr.arpa'
       end
-      # lets verify using authoratative dns sever
-      sleep 5
+      if ns
+        existing_dns = `dig +short #{dns_type} #{dns_lookup_name} @#{ns}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
+      else
+        existing_dns = `dig +short #{dns_type} #{dns_lookup_name}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
+      end
+
+      Chef::Log.info("verify ns has: "+dns_value)
+      Chef::Log.info("ns #{ns} has: "+existing_dns.sort.to_s)
       verified = false
-      max_retry_count = 30
-      retry_count = 0
-
-      while !verified && retry_count<max_retry_count do
-        dns_lookup_name = dns_name
-        if dns_name =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
-          dns_lookup_name = $4 +'.' + $3 + '.' + $2 + '.' + $1 + '.in-addr.arpa'
+      existing_dns.each do |val|
+        if val.downcase.include? dns_value
+          verified = true
+          Chef::Log.info("verified.")
         end
-        if ns
-          existing_dns = `dig +short #{dns_type} #{dns_lookup_name} @#{ns}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-        else
-          existing_dns = `dig +short #{dns_type} #{dns_lookup_name}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-        end
-
-        Chef::Log.info("verify ns has: "+dns_value)
-        Chef::Log.info("ns #{ns} has: "+existing_dns.sort.to_s)
-        verified = false
-        existing_dns.each do |val|
-          if val.downcase.include? dns_value
-            verified = true
-            Chef::Log.info("verified.")
-          end
-        end
-        if !verified
-          Chef::Log.info("waiting 10sec for #{ns} to get updated...")
-          sleep 10
-        end
-        retry_count +=1
       end
-
-      if verified == false
-        msg = "dns could not be verified after 5min!"
-        Chef::Log.error(msg)
-        puts "***FAULT:FATAL=#{msg}"
-        e = Exception.new("no backtrace")
-        e.set_backtrace("")
-        raise e
+      if !verified
+        Chef::Log.info("waiting 10sec for #{ns} to get updated...")
+        sleep 10
       end
+      retry_count +=1
     end
 
+    if verified == false
+      msg = "dns could not be verified after 5min!"
+      Chef::Log.error(msg)
+      puts "***FAULT:FATAL=#{msg}"
+      e = Exception.new("no backtrace")
+      e.set_backtrace("")
+      raise e
+    end
   end
+
 end
