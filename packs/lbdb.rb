@@ -3,6 +3,7 @@ include_pack "base"
 name "lbdb"
 description "LB fronted Database"
 type "Platform"
+ignore true
 category "Generic"
 
 
