@@ -215,17 +215,6 @@ end
 
 # Add brokerusename and brokerpassword backward compatibilty
 
-template "#{activemq_home}/conf/credentials.properties" do
-    source 'credentials.properties.erb'
-    variables({
-        :adminusername => node[:activemq][:adminusername],
-        :adminpassword => node[:activemq][:adminpassword],
-        :brokerusername => node[:activemq][:brokerusername],
-        :brokerpassword => node[:activemq][:brokerpassword]
-    })
-    mode 0644
-end
-
 file "#{node['activemq']['enckeypath']}#{node['activemq']['enckey']}" do
     encpassword =Activemq::Helper::getencpasswordkey(node)
     content encpassword
@@ -263,16 +252,25 @@ ruby_block 'Encryption-Required' do
     only_if {node.activemq.pwdencyenabled == 'true' && ::File.exists?("#{node['activemq']['enckeypath']}#{node['activemq']['enckey']}")}
 end
 
-#get encrypted pwds and users[]
 ruby_block 'Encryption-Not-Required' do
   block do
-        node[:activemq][:adminencpwd]=node[:activemq][:adminpassword]
-        node[:activemq][:brokerencpwd]=node[:activemq][:brokerpassword]
-        JSON.parse(node[:activemq][:users]).each do |key,val|
-            encypwdusers["#{key}"] ="#{val}"
-        end
-  end
+    node[:activemq][:adminencpwd]=node[:activemq][:adminpassword]
+    JSON.parse(node[:activemq][:users]).each do |key,val|
+        encypwdusers["#{key}"] ="#{val}"
+    end
+  only_if {node.activemq.pwdencyenabled == 'false'}
+end
+
+template "#{activemq_home}/conf/credentials.properties" do
+    source 'credentials.properties.erb'
+    variables({
+        :adminusername => node[:activemq][:adminusername],
+        :adminpassword => node[:activemq][:adminpassword],
+        :brokerusername => node[:activemq][:brokerusername],
+        :brokerpassword => node[:activemq][:brokerpassword],
+    })
     only_if {node.activemq.pwdencyenabled == 'false'}
+    mode 0644
 end
 
 template "#{activemq_home}/conf/credentials-enc.properties" do
