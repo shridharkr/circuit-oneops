@@ -333,7 +333,7 @@ begin
   puts("Application Gateway created in #{duration} seconds.")
   if gateway_result.nil?
     # Application Gateway was not created. Exit with error
-    msg = "Application Gateway '#{gateway_result.name}' could not be created"
+    msg = "Application Gateway '#{ag_name}' could not be created"
     puts("***FAULT:FATAL=#{msg}")
     raise msg
   else
