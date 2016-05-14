@@ -1,24 +1,24 @@
+
+environment = check_environment_availability(node.workorder.payLoad.Environment[0][:ciAttributes][:availability])
+
+if environment=="single"
+  Chef::Log.error("******** exiting because glusterfs setup works in redundant environment only ********")
+  return
+end
+
 ci = node.workorder.rfcCi
 parent = node.workorder.payLoad.RealizedAs[0]
 replicas = ci.ciAttributes[:replicas].to_i
 local_compute_index = ci[:ciName].split('-').last.to_i
 local_cloud_index = ci[:ciName].split('-').reverse[1].to_i
-# get all computes in all clouds
 computes = node.workorder.payLoad.RequiresComputes
-
-Chef::Log.info("Local Compute Index ID is: #{local_compute_index}")
-Chef::Log.info("Local Cloud Index ID is: #{local_cloud_index}")
-#puts "computes=#{computes.inspect}"
-Chef::Log.info("Total Number of Computes Are: #{computes.length}")
-
 compute_cinames=Array.new
-  computes.each do |c|
-    compute_cinames.push("#{c.ciName}")
-  end
 
-Chef::Log.info("Compute CI Names Are: #{compute_cinames.inspect}")
+computes.each do |c|
+  compute_cinames.push("#{c.ciName}")
+end
+
 last_compute=compute_cinames.max
-Chef::Log.info("Last Compute Is: #{last_compute}")
 
 volstore_prefix = "#{ci.ciAttributes[:store]}/#{parent[:ciName]}"
 Chef::Log.info("Distributed filesystem on #{computes.size.to_s} computes with #{replicas.to_s} data replicas")

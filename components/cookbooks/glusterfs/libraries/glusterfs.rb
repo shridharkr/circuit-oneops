@@ -16,3 +16,12 @@ def check_for_error_message(message)
     return "success"
   end
 end
+
+def check_environment_availability(environment)
+  case environment
+  when "single"
+    return "single"
+  when "redundant"
+    return "redundant"
+  end
+end
