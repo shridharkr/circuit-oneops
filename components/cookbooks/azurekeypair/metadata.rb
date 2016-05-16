@@ -4,6 +4,7 @@ version          "0.1"
 maintainer       "OneOps, Inc."
 maintainer_email "support@oneops.com"
 license          "Apache License, Version 2.0"
+depends          "azure"
 depends          "azure_base"
 
 grouping 'default',
