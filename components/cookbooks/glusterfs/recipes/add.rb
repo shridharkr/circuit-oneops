@@ -1,5 +1,5 @@
 
-environment = check_environment_availability(node.workorder.payLoad.Environment[0][:ciAttributes][:availability])
+environment = node.workorder.payLoad.Environment[0][:ciAttributes][:availability]
 
 if environment=="single"
   Chef::Log.error("******** exiting because glusterfs setup works in redundant environment only ********")

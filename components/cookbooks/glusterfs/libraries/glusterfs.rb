@@ -7,12 +7,3 @@ def find_bricks(index,replicas,length)
   end
   return bricks
 end
-
-def check_environment_availability(environment)
-  case environment
-  when "single"
-    return "single"
-  when "redundant"
-    return "redundant"
-  end
-end
