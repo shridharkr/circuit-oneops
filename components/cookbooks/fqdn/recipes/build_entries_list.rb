@@ -223,9 +223,17 @@ else
     end
 
   end
+  
+  is_a_record = false
+  value_array.each do |val|
+    if val =~ /^\d+\.\d+\.\d+\.\d+$/
+      is_a_record = true
+    end
+  end
 
   if node.dns_action != "delete" ||
-    (node.dns_action == "delete" && node.is_last_active_cloud_in_dc)
+    (node.dns_action == "delete" && node.is_last_active_cloud) ||
+    (node.dns_action == "delete" && is_a_record)
 
     entries.push({:name => primary_platform_dns_name, :values => value_array })
     deletable_entries.push({:name => primary_platform_dns_name, :values => value_array })
