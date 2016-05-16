@@ -92,7 +92,7 @@ aliases.each do |a|
   end
 
   if node.workorder.cloud.ciAttributes.priority == "1"
-
+     cloud_name = node.workorder.cloud.ciName
      service = node[:workorder][:services][:dns][cloud_name][:ciAttributes]
      if service[:cloud_dns_id].nil? || service[:cloud_dns_id].empty?
        Chef::Log.info(" no cloud_dns_id - service: #{service.inspect} ")

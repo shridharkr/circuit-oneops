@@ -218,7 +218,7 @@ if node.workorder.cloud.ciAttributes.priority != "1"
 else
 
   if node.has_key?("gslb_domain") && !node.gslb_domain.nil?
-    value_array = node.gslb_domain
+    value_array = [ node.gslb_domain ]
   else
     # infoblox doesnt support round-robin cnames so need to get other primary cloud-level ip's
     value_array = []
@@ -229,9 +229,17 @@ else
     end
 
   end
+  
+  is_a_record = false
+  value_array.each do |val|
+    if val =~ /^\d+\.\d+\.\d+\.\d+$/
+      is_a_record = true
+    end
+  end
 
   if node.dns_action != "delete" ||
-    (node.dns_action == "delete" && node.is_last_active_cloud_in_dc)
+    (node.dns_action == "delete" && node.is_last_active_cloud) ||
+    (node.dns_action == "delete" && is_a_record)
 
     entries.push({:name => primary_platform_dns_name, :values => value_array })
     deletable_entries.push({:name => primary_platform_dns_name, :values => value_array })
