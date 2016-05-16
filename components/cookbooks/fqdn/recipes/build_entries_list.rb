@@ -212,7 +212,7 @@ if node.workorder.cloud.ciAttributes.priority != "1"
 else
 
   if node.has_key?("gslb_domain") && !node.gslb_domain.nil?
-    value_array = node.gslb_domain
+    value_array = [ node.gslb_domain ]
   else
     # infoblox doesnt support round-robin cnames so need to get other primary cloud-level ip's
     value_array = []
