@@ -35,7 +35,19 @@ attribute 'slice_count',
     :patter => "[0-9]+",
     :editable => true
   }
-   
+
+attribute 'volume_type',
+  :description => "Storage Type",
+  :required => "optional",
+  :default => "GENERAL",
+  :format => {
+    :help => 'Provide volume type',
+    :category => '1.Configuration',
+    :order => 3,
+    :form => { 'field' => 'select', 'options_for_select' => [
+      ["General", "GENERAL"],
+      ["IOPS", "IOPS"]] }
+  }   
 # maps provider vol-id for md
 attribute 'device_map',
   :description => "Device Map",

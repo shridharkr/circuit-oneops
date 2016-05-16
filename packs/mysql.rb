@@ -1,9 +1,11 @@
-include_pack "genericdb"
+include_pack "lbdb"
 
 name "mysql"
 description "MySQL"
 type "Platform"
 category "Database Relational SQL"
+
+platform :attributes => {'autoreplace' => 'false'}
   
 resource "mysql",
   :cookbook => "oneops.1.mysql",
@@ -71,15 +73,6 @@ end
     :from_resource => from,
     :to_resource   => 'mysql',
     :attributes    => { "flex" => false, "min" => 1, "max" => 1 } 
-end
-
-[ 'crm' ].each do |from|
-  relation "#{from}::depends_on::mysql",
-    :except => [ '_default', 'single' ],
-    :relation_name => 'DependsOn',
-    :from_resource => from,
-    :to_resource   => 'mysql',
-    :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
 end
 
 # managed_via

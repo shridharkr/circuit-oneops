@@ -51,8 +51,9 @@
     <!--
         The <broker> element is used to configure the ActiveMQ broker.
     -->
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="activemq"  dataDirectory="<%= @datadirectory %>" <% if node[:activemq].has_key?(:brokerattributes) then JSON.parse(node[:activemq][:brokerattributes]).map{ |k,v| %>  <%= "#{k}" %>=<%= "'#{v}'" %>  <%} end %>>
-     
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="activemq"  dataDirectory="<%= @datadirectory %>" 
+    <% brokerattributes = node[:activemq].has_key?(:brokerattributes) ? Mash.new(JSON.parse(node[:activemq][:brokerattributes])) : Hash.new %>
+     <% brokerattributes.each do |k,v| %><%= "#{k}" %>=<%= "'#{v}'" %>  <%end%> >
         <destinationPolicy>
            <policyMap>
              <policyEntries>
@@ -128,7 +129,10 @@
             http://activemq.apache.org/persistence.html
         -->
         <persistenceAdapter>
-            <kahaDB directory="<%= @datadirectory %>/kahadb" <%  if node[:activemq].has_key?(:kahadbattributes) then JSON.parse(node[:activemq][:kahadbattributes]).map{ |k,v| %><%= "#{k}" %>=<%= "'#{v}'" %>  <%} end%> />
+        	
+        <kahaDB directory="<%= @datadirectory %>/kahadb" 
+            <% kahadbattributes = node[:activemq].has_key?(:kahadbattributes) ? Mash.new(JSON.parse(node[:activemq][:kahadbattributes])) : Hash.new %>
+            <% kahadbattributes.each do |k,v| %><%= "#{k}" %>=<%= "'#{v}'" %>  <%end%> />
         </persistenceAdapter>
 
 

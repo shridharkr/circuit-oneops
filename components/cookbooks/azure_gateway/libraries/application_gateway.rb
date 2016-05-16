@@ -169,6 +169,7 @@ module AzureNetwork
 
         response = promise.value!
         gateway_result = response.body
+        gateway_result
       rescue MsRestAzure::AzureOperationError => e
         msg = 'FATAL ERROR creating Gateway....'
         Chef::Log.error("FATAL ERROR creating Gateway....: #{e.body}")
@@ -178,7 +179,6 @@ module AzureNetwork
         Chef::Log.error("Gateway creation error....: #{e.message}")
         raise msg
       end
-      gateway_result
     end
 
     def delete(resource_group_name, ag_name)

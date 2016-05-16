@@ -51,6 +51,14 @@ relation "fqdn::depends_on_flex::compute",
   :to_resource   => 'compute',
   :attributes    => { "flex" => true, "min" => 2, "max" => 10 }
 
+[ 'fqdn' ].each do |from|
+  relation "#{from}::depends_on::compute",
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'compute',
+    :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
+end
+
 # managed_via
 [ 'glusterfs' ].each do |from|
   relation "#{from}::managed_via::compute",
