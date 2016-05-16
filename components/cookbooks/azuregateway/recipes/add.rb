@@ -2,6 +2,7 @@
 # rubocop:disable LineLength
 require File.expand_path('../../../azure/libraries/utils.rb', __FILE__)
 require File.expand_path('../../libraries/application_gateway.rb', __FILE__)
+require File.expand_path('../../exceptions/gateway_exception.rb', __FILE__)
 require File.expand_path('../../../azure/libraries/public_ip.rb', __FILE__)
 require File.expand_path('../../../azure/libraries/virtual_network.rb', __FILE__)
 
@@ -31,28 +32,24 @@ def get_private_ip_address(resource_group_name, ag_name, subscription_id, token)
       content_type: 'application/json',
       authorization: token
   )
-  Chef::Log.info("Azure_gateway::Application Gateway - API response is #{dns_response}")
+  Chef::Log.info("Azuregateway::Application Gateway - API response is #{dns_response}")
   dns_hash = JSON.parse(dns_response)
-  Chef::Log.info("Azure_gateway::Application Gateway - #{dns_hash}")
-  return dns_hash['properties']['frontendIPConfigurations'][0]['properties']['privateIPAddress']
+  Chef::Log.info("Azuregateway::Application Gateway - #{dns_hash}")
+  dns_hash['properties']['frontendIPConfigurations'][0]['properties']['privateIPAddress']
 
 rescue RestClient::Exception => e
   if e.http_code == 404
-    Chef::Log.info('Azure_gateway::Application Gateway doesn not exist')
+    Chef::Log.info('Azuregateway::Application Gateway doesn not exist')
   else
     puts "***FAULT:Message=#{e.message}"
     puts "***FAULT:Body=#{e.http_body}"
-    e = Exception.new('no backtrace')
-    e.set_backtrace('')
-    raise e
+    raise GatewayException.new(e.message)
   end
 rescue => e
   msg = "Exception trying to parse response: #{dns_response}"
   puts "***FAULT:FATAL=#{msg}"
-  Chef::Log.error("Azure_gateway::Add - Exception is: #{e.message}")
-  e = Exception.new('no backtrace')
-  e.set_backtrace('')
-  raise e
+  Chef::Log.error("Azuregateway::Add - Exception is: #{e.message}")
+  raise GatewayException.new(msg)
 end
 
 def get_compute_nodes
@@ -71,23 +68,22 @@ def get_credentials(tenant_id, client_id, client_secret)
   # Create authentication objects
   token_provider = MsRestAzure::ApplicationTokenProvider.new(tenant_id, client_id, client_secret)
   if !token_provider.nil?
-    credentials = MsRest::TokenCredentials.new(token_provider)
-    return credentials
+    MsRest::TokenCredentials.new(token_provider)
   else
     msg = 'Could not retrieve azure credentials'
     Chef::Log.error(msg)
     puts "***FAULT:FATAL=#{msg}"
-    raise(msg)
+    raise GatewayException.new(msg)
   end
 rescue MsRestAzure::AzureOperationError
   msg = 'Error acquiring authentication token from azure'
   Chef::Log.error(msg)
-  raise(msg)
+  raise GatewayException.new(msg)
 end
 
-def configure_public_ip(location)
+def get_public_ip(location, timeout = 5)
   pip_address_props = PublicIpAddressPropertiesFormat.new
-  pip_address_props.idle_timeout_in_minutes = 5
+  pip_address_props.idle_timeout_in_minutes = timeout
   pip_address_props.public_ipallocation_method = IpAllocationMethod::Dynamic
   public_ip = PublicIpAddress.new
   public_ip.location = location
@@ -102,7 +98,7 @@ def add_gateway_subnet_to_vnet(virtual_network, gateway_subnet_address, gateway_
       if subnet.name == gateway_subnet_name
         msg = 'No need to add Gateway subnet. Gateway subnet already exist...'
         puts msg
-        return virtual_network
+        virtual_network
       end
     end
   end
@@ -125,7 +121,7 @@ if !node.workorder.services['lb'].nil? && !node.workorder.services['lb'][cloud_n
 end
 
 if ag_service.nil?
-  Chef::Log.error('missing ag service')
+  Chef::Log.error('missing application gateway service')
   exit 1
 end
 
@@ -148,7 +144,7 @@ client_id = ag_service[:ciAttributes][:client_id]
 client_secret = ag_service[:ciAttributes][:client_secret]
 
 credentials = get_credentials(tenant_id, client_id, client_secret)
-application_gateway = AzureNetwork::Gateway.new(credentials, subscription_id)
+application_gateway = AzureNetwork::Gateway.new(resource_group_name, ag_name, credentials, subscription_id)
 
 Chef::Log.info("Cloud Name: #{cloud_name}")
 Chef::Log.info("Org: #{org_name}")
@@ -168,9 +164,10 @@ Chef::Log.info("Application Gateway: #{ag_name}")
 #   # 3 - Create backend address pool
 #   # 4 - Create http settings
 #   # 5 - Create FrontendIPConfig
-#   # 6 - Listener
-#   # 7 - Routing rule, SKU
-#   # 8 - Create Application Gateway
+#   # 6 - Create SSL Certificate
+#   # 7 - Listener
+#   # 8 - Routing rule, SKU
+#   # 9 - Create Application Gateway
 
 begin
 
@@ -199,20 +196,20 @@ begin
       msg = "Could not retrieve vnet '#{vnet_name}' from express route"
       Chef::Log.error(msg)
       puts "***FAULT:FATAL=#{msg}"
-      raise msg
+      raise GatewayException.new(msg)
     end
     vnet = vnet.body
     if vnet.properties.subnets.count < 1
       msg = "VNET '#{vnet_name}' does not have subnets"
       Chef::Log.error(msg)
       puts "***FAULT:FATAL=#{msg}"
-      raise msg
+      raise GatewayException.new(msg)
     end
 
   else
     nameutil = Utils::NameUtils.new
     public_ip_name = nameutil.get_component_name('ag_publicip', node['workorder']['rfcCi']['ciId'])
-    public_ip_address = configure_public_ip(location)
+    public_ip_address = get_public_ip(location)
     public_ip_obj = AzureNetwork::PublicIp.new(credentials, subscription_id)
     public_ip = public_ip_obj.create_update(resource_group_name, public_ip_name, public_ip_address)
     vnet_name = 'vnet_' + resource_group_name
@@ -238,20 +235,13 @@ begin
   end
 
   # Application Gateway configuration
-  gateway_config_name = 'ag-GatewayIP'
-  appg_ipconfig = AzureNetwork::Gateway.configure_gateway_configuration(gateway_config_name, gateway_subnet)
-  appg_ipconfigs = []
-  appg_ipconfigs.push(appg_ipconfig)
+  application_gateway.set_gateway_configuration(gateway_subnet)
 
   # Backend Address Pool
-  backend_address_pool_name = 'AG-BackEndAddressPool'
   backend_ip_address_list = get_compute_nodes
-  backend_address_pool = AzureNetwork::Gateway.configure_backend_address_pool(resource_group_name, subscription_id, ag_name, backend_address_pool_name, backend_ip_address_list)
-  backend_address_pools = []
-  backend_address_pools.push(backend_address_pool)
+  application_gateway.set_backend_address_pool(backend_ip_address_list)
 
   # Gateway Settings
-  http_settings_name = 'gateway_settings'
   data = ''
   password = ''
   ssl_certificate_exist = false
@@ -273,61 +263,40 @@ begin
 
   # Cookies must be enabled in case of SSL offload.
   enable_cookie = ssl_certificate_exist == true ? true : enable_cookie
-  gateway_setting = AzureNetwork::Gateway.configure_https_settings(resource_group_name, subscription_id, ag_name, http_settings_name, enable_cookie)
-  gateway_settings = []
-  gateway_settings.push(gateway_setting)
+  application_gateway.set_https_settings(enable_cookie)
 
   # Gateway Front Port
-  gateway_front_port_name = 'gateway_front_port'
-  gateway_front_port = AzureNetwork::Gateway.configure_gateway_port(resource_group_name, subscription_id, ag_name, gateway_front_port_name, ssl_certificate_exist)
-  gateway_front_ports = []
-  gateway_front_ports.push(gateway_front_port)
+  application_gateway.set_gateway_port(ssl_certificate_exist)
 
   # Gateway Frontend IP Configuration
-  frontend_ip_config_name = 'frontend_ip_config'
-  frontend_ip_config = AzureNetwork::Gateway.configure_frontend_ip_config(resource_group_name, subscription_id, ag_name, frontend_ip_config_name, public_ip, gateway_subnet)
-  frontend_ip_configs = []
-  frontend_ip_configs.push(frontend_ip_config)
+  application_gateway.set_frontend_ip_config(public_ip, gateway_subnet)
 
   # Gateway SSL Certificate
-  ssl_certificate = nil
-  ssl_certificates = []
   if ssl_certificate_exist
-
-    ssl_certificate_name = 'ssl_certificate'
-
     if data == '' || password == ''
-      puts "PFX Data or Password is nil or empty. Data = #{data} - Password = #{password}"
-      exit 1
+      msg = "PFX Data or Password is nil or empty. Data = #{data} - Password = #{password}"
+      puts msg
+      raise GatewayException.new(msg)
     end
-
-    ssl_certificate = AzureNetwork::Gateway.configure_ssl_certificate(resource_group_name, subscription_id, ag_name, ssl_certificate_name, data, password)
-    ssl_certificates.push(ssl_certificate)
+    application_gateway.set_ssl_certificate(data, password)
   end
 
   # Gateway Listener
-  gateway_listener_name = 'gateway_listener'
-  gateway_listener = AzureNetwork::Gateway.configure_listener(resource_group_name, subscription_id, ag_name, gateway_listener_name, frontend_ip_config, gateway_front_port, ssl_certificate, ssl_certificate_exist)
-  gateway_listeners = []
-  gateway_listeners.push(gateway_listener)
+  application_gateway.set_listener(ssl_certificate_exist)
 
   # Gateway Request Route Rule
-  gateway_request_route_rule_name = 'gateway_request_route_rule'
-  gateway_request_route_rule = AzureNetwork::Gateway.configure_gateway_request_routing_rule(gateway_request_route_rule_name, gateway_listener, backend_address_pool, gateway_setting)
-  gateway_request_route_rules = []
-  gateway_request_route_rules.push(gateway_request_route_rule)
+  application_gateway.set_gateway_request_routing_rule
 
   # Gateway SKU
-
   sku_name = ag_service[:ciAttributes][:gateway_size]
-  gateway_sku = AzureNetwork::Gateway.configure_gateway_sku(sku_name)
+  application_gateway.set_gateway_sku(sku_name)
 
   # Create Gateway Object
-  gateway = AzureNetwork::Gateway.configure_gateway(ag_name, location, backend_address_pools, appg_ipconfigs, gateway_front_ports, gateway_listeners, frontend_ip_configs, gateway_settings, gateway_sku, gateway_request_route_rules, ssl_certificate_exist, ssl_certificates)
+  gateway = application_gateway.get_gateway(location, ssl_certificate_exist)
 
   start_time = Time.now.to_i
 
-  gateway_result = application_gateway.create_update(resource_group_name, ag_name, gateway)
+  gateway_result = application_gateway.create_or_update(gateway)
   end_time = Time.now.to_i
   duration = end_time - start_time
   puts("Application Gateway created in #{duration} seconds.")
@@ -335,28 +304,28 @@ begin
     # Application Gateway was not created. Exit with error
     msg = "Application Gateway '#{ag_name}' could not be created"
     puts("***FAULT:FATAL=#{msg}")
-    raise msg
+    raise GatewayException.new(msg)
   else
-    agip = nil
+    ag_ip = nil
     if express_route_enabled
-      agip = get_private_ip_address(resource_group_name, ag_name, subscription_id, token)
+      ag_ip = get_private_ip_address(resource_group_name, ag_name, subscription_id, token)
     else
-      agip = public_ip.properties.ip_address
+      ag_ip = public_ip.properties.ip_address
     end
 
-    if agip.nil? || agip == ''
+    if ag_ip.nil? || ag_ip == ''
       msg = "Application Gateway '#{gateway_result.name}' NOT configured with IP"
       puts("***FAULT:FATAL=#{msg}")
-      raise(msg)
+      raise GatewayException.new(msg)
     else
-      msg = "AzureAG IP: #{agip}"
+      msg = "AzureAG IP: #{ag_ip}"
       Chef::Log.info(msg)
-      node.set[:azure_ag_ip] = agip
+      node.set[:azure_ag_ip] = ag_ip
     end
   end
 rescue => e
-  puts 'Error in Application Gateway.'
+  puts 'Error creating Application Gateway.'
   puts e.message
   puts e.backtrace
-  exit 1
+  raise GatewayException.new(e.message)
 end

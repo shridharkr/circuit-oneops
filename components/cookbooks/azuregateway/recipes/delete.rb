@@ -18,19 +18,18 @@ def get_credentials(tenant_id, client_id, client_secret)
   # Create authentication objects
   token_provider = MsRestAzure::ApplicationTokenProvider.new(tenant_id, client_id, client_secret)
   if !token_provider.nil?
-    credentials = MsRest::TokenCredentials.new(token_provider)
-    return credentials
+    MsRest::TokenCredentials.new(token_provider)
   else
     msg = 'Could not retrieve azure credentials'
     Chef::Log.error(msg)
     puts "***FAULT:FATAL=#{msg}"
-    raise(msg)
+    raise GatewayException.new(msg)
   end
 rescue MsRestAzure::AzureOperationError
   msg = 'Error acquiring authentication token from azure'
   # puts "***FAULT:FATAL=#{msg}"
   Chef::Log.error(msg)
-  raise(msg)
+  raise GatewayException.new(msg)
 end
 
 cloud_name = node.workorder.cloud.ciName
@@ -40,7 +39,7 @@ if !node.workorder.services['lb'].nil? && !node.workorder.services['lb'][cloud_n
 end
 
 if ag_service.nil?
-  Chef::Log.error('missing ag service')
+  Chef::Log.error('missing application gateway service')
   exit 1
 end
 
@@ -63,7 +62,7 @@ client_id = ag_service[:ciAttributes][:client_id]
 client_secret = ag_service[:ciAttributes][:client_secret]
 
 credentials = get_credentials(tenant_id, client_id, client_secret)
-application_gateway = AzureNetwork::Gateway.new(credentials, subscription_id)
+application_gateway = AzureNetwork::Gateway.new(resource_group_name, ag_name, credentials, subscription_id)
 
 nameutil = Utils::NameUtils.new
 public_ip_name = nameutil.get_component_name('lb_publicip', node.workorder.rfcCi.ciId)
@@ -78,6 +77,6 @@ Chef::Log.info("Security Group: #{security_group}")
 Chef::Log.info("Resource Group: #{resource_group_name}")
 Chef::Log.info("Application Gateway: #{ag_name}")
 
-application_gateway.delete(resource_group_name, ag_name)
+application_gateway.delete
 public_ip_obj = AzureNetwork::PublicIp.new(credentials, subscription_id)
 public_ip_obj.delete(resource_group_name, public_ip_name)
