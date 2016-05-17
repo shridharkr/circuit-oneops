@@ -7,16 +7,16 @@
 #
 
 zk_basename = "zookeeper-#{node[:zookeeper][:version]}"
-zk_download_location="#{node[:zookeeper][:mirror]}/zookeeper-#{node[:zookeeper][:version]}/#{zk_basename}.tar.gz"
-
- Chef::Log.info("download locaction #{zk_download_location} ")
+ci = node.workorder.rfcCi.ciAttributes;
+zk_base_url = ci['mirror']
+zk_download_url = "#{zk_base_url}"+"#{zk_basename}/"+"#{zk_basename}.tar.gz"
+Chef::Log.info("download url from #{zk_download_url} ")
 
 remote_file ::File.join(Chef::Config[:file_cache_path], "#{zk_basename}.tar.gz") do
   owner "root"
   mode "0644"
   
-  source zk_download_location
-  checksum node[:zookeeper][:checksum]
+  source zk_download_url
   action :create
 end
 
