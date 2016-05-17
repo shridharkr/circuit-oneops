@@ -1,7 +1,6 @@
 # **Rubocop Suppression**
 # rubocop:disable LineLength
 
-require File.expand_path('../../../azure/libraries/utils.rb', __FILE__)
 require File.expand_path('../../libraries/application_gateway.rb', __FILE__)
 require File.expand_path('../../../azure/libraries/public_ip.rb', __FILE__)
 require 'azure_mgmt_network'
@@ -65,8 +64,7 @@ client_secret = ag_service[:ciAttributes][:client_secret]
 credentials = get_credentials(tenant_id, client_id, client_secret)
 application_gateway = AzureNetwork::Gateway.new(credentials, subscription_id)
 
-nameutil = Utils::NameUtils.new
-public_ip_name = nameutil.get_component_name('lb_publicip', node.workorder.rfcCi.ciId)
+public_ip_name = Utils.get_component_name('lb_publicip', node.workorder.rfcCi.ciId)
 
 Chef::Log.info("Cloud Name: #{cloud_name}")
 Chef::Log.info("Org: #{org_name}")

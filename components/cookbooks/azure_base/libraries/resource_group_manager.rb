@@ -98,7 +98,7 @@ module AzureBase
         @assembly[0..15] + '-' +
         @platform_ci_id.to_s + '-' +
         @environment[0..15] + '-' +
-        AzureRegions::RegionName.abbreviate(@location)
+        Utils.abbreviate_location(@location)
       return resource_group_name
     end
   end
