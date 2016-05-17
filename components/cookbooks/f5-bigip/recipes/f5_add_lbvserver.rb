@@ -96,7 +96,16 @@ node.loadbalancers.each do |lb|
 		cloud_level_ip = nil
 	end
 	c_lb.run_action(action)
-	cloud_level_ip = node["ns_lbvserver_ip"]	
+	cloud_level_ip = node["ns_lbvserver_ip"]
+    if action == ":create"
+    	existing_vservers = {}
+        if node.has_key?("vnames")
+        	existing_vservers = node.vnames
+        end
+        vservers = {}.merge existing_vservers
+        vservers[lb['name']] = node["ns_lbvserver_ip"]
+        node.set["vnames"] = vservers
+    end
 end
 
 # reset so cloud and dc vips have different ip
@@ -181,6 +190,13 @@ node.dcloadbalancers.each do |lb|
 			end
 		end					
 	end
+    existing_vservers = {}
+    if node.has_key?("vnames")
+    	existing_vservers = node.vnames
+    end
+    vservers = {}.merge existing_vservers
+    vservers[lb['name']] = node["ns_lbvserver_ip"]
+    node.set["vnames"] = vservers
 	dc_level_ip = node["ns_lbvserver_ip"]
 end
 
@@ -193,3 +209,4 @@ else
   lbs = [] + node.dcloadbalancers
 end
 node.set["loadbalancers"] = lbs
+puts "***RESULT:vnames="+JSON.dump(node.vnames)
