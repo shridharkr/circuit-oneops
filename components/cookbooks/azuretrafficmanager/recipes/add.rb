@@ -3,8 +3,6 @@ require File.expand_path('../../libraries/model/traffic_manager.rb', __FILE__)
 require File.expand_path('../../libraries/model/dns_config.rb', __FILE__)
 require File.expand_path('../../libraries/model/monitor_config.rb', __FILE__)
 require File.expand_path('../../libraries/model/endpoint.rb', __FILE__)
-require File.expand_path('../../../azure/libraries/regions.rb', __FILE__)
-require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
 require 'azure_mgmt_network'
 
 ::Chef::Recipe.send(:include, Azure::ARM::Network)
@@ -153,7 +151,7 @@ def get_resource_group_names()
   remotegdns_list = node['workorder']['payLoad']['remotegdns']
   remotegdns_list.each do |remotegdns|
     location = remotegdns['ciAttributes']['location']
-    resource_group_name = org[0..15] + '-' + assembly[0..15] + '-' + node.workorder.box.ciId.to_s + '-' + environment[0..15] + '-' + AzureRegions::RegionName.abbreviate(location)
+    resource_group_name = org[0..15] + '-' + assembly[0..15] + '-' + node.workorder.box.ciId.to_s + '-' + environment[0..15] + '-' + Utils.abbreviate_location(location)
     resource_group_names.push(resource_group_name)
   end
   Chef::Log.info("remotegdns resource groups: " + resource_group_names.to_s )
@@ -176,7 +174,7 @@ end
 #################################################
 
 #set the proxy if it exists as a cloud var
-AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 nsPathParts = node['workorder']['rfcCi']['nsPath'].split('/')
 cloud_name = node['workorder']['cloud']['ciName']
