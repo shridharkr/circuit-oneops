@@ -62,6 +62,15 @@ class Chef
       #
       def action_create # rubocop:disable CyclomaticComplexity
         #create_virtual_server unless current_resource.exists
+        if new_resource.do_not_overwrite == true
+          @new_resource.default_pool(@current_resource.default_pool)
+          @new_resource.destination_address(@current_resource.destination_address)
+          @new_resource.connection_limit(@current_resource.connection_limit)
+          @new_resource.destination_port(@current_resource.destination_port)
+          @new_resource.profiles(@current_resource.profiles)
+          @new_resource.default_persistence_profile(@current_resource.default_persistence_profile)
+          @new_resource.fallback_persistence_profile(@current_resource.fallback_persistence_profile)
+        end
         load_balancer.ltm.virtual_servers.refresh_all 
         create_virtual_server if load_balancer.ltm.virtual_servers.find { |v| v.name =~ /(^|\/)#{@new_resource.vs_name}$/ }.nil?
 

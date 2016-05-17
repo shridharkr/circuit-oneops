@@ -40,28 +40,36 @@ end
 #include_recipe "lb::get_lb_name"
 
 lbs = []
-JSON.parse(node.workorder.ci.ciAttributes.vnames).keys.each do |lb_name|
-  vproto = lb_name.rpartition('_')[0].rpartition('-')[2].downcase
-  vport = lb_name.rpartition('_')[2].partition('tcp')[0]
-  sg_name = []
-  JSON.parse(node.workorder.ci.ciAttributes.listeners).each do |l|
-    larr = l.split(" ")
-    if larr[0] == "https"
-      larr[0] = "ssl"
-    end
-    
-    if larr[0] == vproto && larr[1] == vport
-      sg_name = sg_name | JSON.parse(node.workorder.ci.ciAttributes.inames).select{|v| v.include? "-" + larr[3] + "-" }
-    end 
-  end
-  lbs.push({:name => lb_name, :sg => sg_name})
-end
-
-node.set["loadbalancers"] = lbs
-
 case cloud_service[:ciClassName]
 when /netscaler/i
-  include_recipe "netscaler::unbind_sg"
+  JSON.parse(node.workorder.ci.ciAttributes.vnames).keys.each do |lb_name|
+    vproto = lb_name.rpartition('_')[0].rpartition('-')[2].downcase
+    vport = lb_name.rpartition('_')[2].partition('tcp')[0]
+    sg_name = []
+    JSON.parse(node.workorder.ci.ciAttributes.listeners).each do |l|
+      larr = l.split(" ")
+      if larr[0] == "https"
+        larr[0] = "ssl"
+      end
+    
+      if larr[0] == vproto && larr[1] == vport
+        sg_name = sg_name | JSON.parse(node.workorder.ci.ciAttributes.inames).select{|v| v.include? "-" + larr[3] + "-" }
+      end 
+    end
+    lbs.push({:name => lb_name, :sg => sg_name})
+  end
+
+node.set["loadbalancers"] = lbs
+include_recipe "netscaler::unbind_sg"
+when /f5/i
+  JSON.parse(node.workorder.ci.ciAttributes.vnames).keys.each do |lb_name|
+    vport = lb_name.rpartition('_')[2].partition('tcp')[0]
+    vproto = lb_name.rpartition('_')[0].rpartition('-')[2].downcase
+    lbs.push({:name => lb_name, :vport => vport, :vprotocol => vproto})
+  end
+  node.set["loadbalancers"] = lbs
+  node.set["lb_details"] = JSON.parse(node.workorder.ci.ciAttributes.vnames)
+  include_recipe "f5-bigip::unbind_pool"
 when /rackspace/i
 
 when /haproxy/i
