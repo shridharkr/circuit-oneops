@@ -25,6 +25,33 @@ module AzureNetwork
       configurations['gateway']['subscription_id']  %{subscription_id: @subscription_id, resource_group_name: @resource_group_name, ag_name:@ag_name, gateway_attribute: gateway_attribute, attribute_name: attribute_name}
     end
 
+    def get_private_ip_address(token)
+      resource_url = "https://management.azure.com/subscriptions/#{@subscription_id}/resourceGroups/#{@resource_group_name}/providers/Microsoft.Network/applicationGateways/#{@ag_name}?api-version=2016-03-30"
+      dns_response = RestClient.get(
+          resource_url,
+          accept: 'application/json',
+          content_type: 'application/json',
+          authorization: token
+      )
+      Chef::Log.info("Azuregateway::Application Gateway - API response is #{dns_response}")
+      dns_hash = JSON.parse(dns_response)
+      Chef::Log.info("Azuregateway::Application Gateway - #{dns_hash}")
+      dns_hash['properties']['frontendIPConfigurations'][0]['properties']['privateIPAddress']
+
+    rescue RestClient::Exception => e
+      if e.http_code == 404
+        Chef::Log.info('Azuregateway::Application Gateway doesn not exist')
+      else
+        puts "***FAULT:Message=#{e.message}"
+        puts "***FAULT:Body=#{e.http_body}"
+        raise GatewayException.new(e.message)
+      end
+    rescue => e
+      msg = "Exception trying to parse response: #{dns_response}"
+      puts "***FAULT:FATAL=#{msg}"
+      Chef::Log.error("Azuregateway::Add - Exception is: #{e.message}")
+      raise GatewayException.new(msg)
+    end
 
     def set_gateway_configuration(subnet)
       gateway_ipconfig = Azure::ARM::Network::Models::ApplicationGatewayIpConfiguration.new
