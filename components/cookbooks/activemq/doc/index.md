@@ -142,37 +142,161 @@ This component is for GlusterFS network-attached storage file system. It may be 
 
 This component is used for creating messaging queues on ActiveMQ server, and also assigning user permissions on queues if "simple" or "JAAS" authorization policy is specified for ActiveMQ server.
 
-Queue name is free entry, but by convention, destination names should be all uppercase; name tokens should be separated by a dot (.). The number of name tokens in a queue name is recommended to be at least 5 but less than 10.
+<a name="queuefields"></a>Following is a list of the **Queue GUI fields:**
 
-There should be some hierarchy structure in the queue or topic naming so that subject (name) based messaging is supported. For example, if a publishing application has the following name for two or more destinations, the structure of the names could be used by a consumer application to receive messages from all queues:
+  1. Queue Name
 
-AMZ.Q.OMS.ORDER.CREATED.TXT
-AMZ.Q.OMS.ORDER.FILLED.TXT
-AMZ.Q.OMS.ORDER.RETURNED.TXT
+  Queue name is free entry, but by convention, destination names should be all uppercase; name tokens should be separated by a dot (.). The number of name tokens in a queue name is recommended to be at least 5 but less than 10.
 
-A consumer could use a name 'AMZ.Q.OMS.ORDER.>' to receive messages from all order queues.
+  There should be some hierarchy structure in the queue or topic naming so that subject (name) based messaging is supported. For example, if a publishing application has the following name for two or more destinations, the structure of the names could be used by a consumer application to receive messages from all queues:
 
-What characters can be used in a queue name and the length limit of a queue name is restricted by the underlining Apache ActiveMQ
+    * AMZ.Q.OMS.ORDER.CREATED.TXT
+    * AMZ.Q.OMS.ORDER.FILLED.TXT
+    * AMZ.Q.OMS.ORDER.RETURNED.TXT
 
-Queue permissions "Read" and/or "Write" can be granted to users. Click the "+add" button in the "User Permission" section in a queue design will add a user for permission grant. A user has to be defined in ActiveMQ "Broker Users" section. It is an error to grant permissions to a non-exist user (a user not defined in the "Broker Users" on ActiveMQ.
+  A consumer could use a name 'AMZ.Q.OMS.ORDER.>' to receive messages from all order queues.
 
-Valid options for the permission field (second column after the "=" sign) are the following
+  What characters can be used in a queue name and the length limit of a queue name is restricted by the underlining Apache ActiveMQ
 
-* R - readonly; Read permission grant user 'receive' permission on the queue
-* W - write only; Write permission grant user 'send' permission on the queue.
-* RW - read and write; 'send' and 'receive' permissions on the queue.
+  2. Destination Type
 
-A user with 'W' (write) permission is also granted 'admin' permission, meaning a user with 'W' permission can create the queue if the queue does not exist on the ActiveMQ.  A non-exist queue is created upon first access on ActiveMQ, this feature is inherited by ActiveMQ.
+  Destination type for a queue can be either "Queue" for a regular queue or "CompositeQueue" for a virtual queue that forward messages to one or more physical queues or topics depending on the definition of the composite queue.
+
+  When "CompositeQueue" is selected as the destination type, there will be a Composite Queue Definition text area added to the OneOps design GUI to define the composite queue.
+
+  3. User permissions
+
+  Queue permissions "Read" and/or "Write" can be granted to users. Click the "+add" button in the "User Permission" section in a queue design will add a user for permission grant. A user has to be defined in ActiveMQ "Broker Users" section. It is an error to grant permissions to a non-exist user (a user not defined in the "Broker Users" on ActiveMQ.
+
+  Valid options for the permission field (second column after the "=" sign) are the following
+
+    * R - readonly; Read permission grant user 'receive' permission on the queue
+    * W - write only; Write permission grant user 'send' permission on the queue.
+    * RW - read and write; 'send' and 'receive' permissions on the queue.
+
+  A user with 'W' (write) permission is also granted 'admin' permission, meaning a user with 'W' permission can create the queue if the queue does not exist on the ActiveMQ.  A non-exist queue is created upon first access on ActiveMQ, this feature is inherited by ActiveMQ.
+
+  4. Destination Policy
+
+  Destination Policy can be defined for the given queue in the free entry text area. Following is an example of a destination policy for a queue named "my.test.queue.1":
+
+  ```
+  <policyEntry queue="MY.TEST.QUEUE.1"
+    prioritizedMessages="true"
+    useCache="false" expireMessagesPeriod="0" queuePrefetch="1" >
+    <deadLetterStrategy>
+        <individualDeadLetterStrategy
+            queuePrefix="DLQ." useQueueForQueueMessages="true" />
+    </deadLetterStrategy>
+  </policyEntry>
+  ```
+
+  The above configuration demonstrates Activemq server with strict priority messaging on queue MY.TEST.QUEUE.1. It also shows an individual dead letter queue for MY.TEST.QUEUE.1 as DLQ.MY.TEST.QUEUE.1.
+
+  If the policyEntry queue name does not match the name in the Queue Name field, the policyEntry in the destination policy text area will be ignored. It is a user error if the destination policy does not comply to the Activemq xml schema. If such user error occurs, the behavior of Activemq server may be nondeterministic, or it may not even be started.
+
+  Please refer to Activemq documentation for more information on destination policies:
+  http://activemq.apache.org/per-destination-policies.html
+
+  5. Composite Queue Definition
+
+  An optional field "Composite Queue Defination" may appear in OneOps GUI if the destination type is selected as CompositeQueue. This is a free entry text area for use to define the composite queue.
+
+  Below is an example of a composite queue definition:
+
+  ```
+  <compositeQueue name="ORDER.QUEUE" forwardOnly="false">
+      <forwardTo>
+          <queue physicalName="ORDER.QUEUE-1" />
+          <queue physicalName="ORDER.QUEUE-2" />
+       </forwardTo>
+  </compositeQueue>
+  ```
+
+  The above CompositeQueue definition will be inserted the destinationInterceptors -> virtualDestinationInterceptor -> virtualDestinations stanza of the broker element in Activemq.xml.  Please refer to Activemq documentation on virtual destinations at http://activemq.apache.org/virtual-destinations.html.
+
+  If the compositeQueue name does not match the name in the Queue Name field, the composite queue definition will be ignored. It is a user error if the composite queue definition does not comply to the Activemq.xml schema. If such user error occurs, the behavior of Activemq server may be nondeterministic, or it may not even be started.
 
 **topic**
 
 This component is used for creating messaging topics on ActiveMQ server, and also assigning user permissions on topics if "simple" or "JAAS" authorization policy is specified for ActiveMQ server.
 
-Naming conventions for topics are similar to queues. The following is a sample topic:
+<a name="topicfields"></a>Following is a list of the **Topic GUI fields:**
 
-AMZ.T.IMS.ITEM.INVENTORY.XML
+  1. Topic Name
 
-Permissions on topics are similar to those described for queues.
+  Naming conventions for topics are similar to queues. The following is a sample topic:
+
+  AMZ.T.IMS.ITEM.INVENTORY.XML
+
+  There should be some hierarchy structure in the topic naming so that subject (name) based messaging is supported. For example, if a publishing application has the following name for two or more destinations, the structure of the names could be used by a consumer application to subscribe to all topics:
+
+    * AMZ.T.OMS.ORDER.CREATED.TXT
+    * AMZ.T.OMS.ORDER.FILLED.TXT
+    * AMZ.T.OMS.ORDER.RETURNED.TXT
+
+  A consumer could use a name 'AMZ.T.OMS.ORDER.>' to receive messages from all order topics.
+
+  2. Destination Type
+
+  Destination type for a topic can be either "Topic" for a regular topic, "CompositeTopic" for a virtual topic that forward messages to one or more physical queues or topics depending on the definition of the composite topic, or a "VirtualTopic" that define the topic to queues bridging for subscribers. A virtual topic can be considered as a special case of composite topic in that a virtual topic does not need to define the "forward to" destinations statically, in stead the activemq server will create a queue for each distinct subscriber based on subscriber name at runtime.
+
+  When the destination type is CompositeTopic or VirtualTopic, an extra free entry text area will be rendered on the OneOps design GUI for use to define the CompositeTopic or VirtualTopic.
+
+  3. User Permissions
+
+  Permissions on topics are similar to those described for queues.
+
+  4. Destination Policy
+
+  Destination policy is a free entry text area for user to define the destination policy on the topic. Below is an example of a destination policy entry for a topic:
+
+  ```
+  <policyEntry topic="INVENTORY.XML">
+        <dispatchPolicy>
+            <strictOrderDispatchPolicy />
+        </dispatchPolicy>
+        <!--  1 minutes worth -->
+        <subscriptionRecoveryPolicy>
+            <timedSubscriptionRecoveryPolicy recoverDuration="60000" />
+        </subscriptionRecoveryPolicy>
+  </policyEntry>
+  ```
+
+  If the policyEntry topic name does not match the name in the Topic Name field, the policyEntry in the destination policy text area will be ignored. It is a user error if the destination policy does not comply to the Activemq xml schema. If such user error occurs, the behavior of Activemq server may be nondeterministic, or it may not even be started.
+
+  5. CompositeTopic/VirtualTopic Definition
+
+  When destination type is selected as CompositeTopic or VirtualTopic, an extra free entry text area will be rendered on OneOps design GUI to user to enter the CompositeTopic or VirtualTopic Definition.
+
+  Here is an example of a virtual topic definition:
+
+  ```
+  <virtualTopic name="MY.SAMPLE.VT.1" prefix="VirtualTopicConsumers.*." selectorAware="false"/>
+  ```
+  Subscribers will get messages from dynamically created queues "VirtualTopicConsumers.{subscriberName}.My.SAMPLE.VT.1"
+
+  There is a default class of virtual topic defined on Activemq server. The definition of the default virtual topic is that any topic whose name starts with 'VirtualTopic.' will be a virtual topic. Precisely, the definition of default virtual topics is below:
+  ```
+  <virtualTopic name="VirtualTopic.>" prefix="Consumers.*." selectorAware="false"/>
+  ```
+  Subscribers to any topic that starts with 'VirtualTopic.' will get messages from physical queues Consumers.{subscriber name}.VirtualTopic.{rest of topic name}.
+
+  CompositeTopic is much the same as CompositeQueue.  Below is an example of a CompositeTopic:
+  ```
+  <compositeTopic name="MY.TOPIC">
+    <forwardTo>
+         <queue physicalName="FOO" />
+         <topic physicalName="BAR" />
+    </forwardTo>
+  </compositeTopic>
+  ```
+
+  When the 'forwardOnly' attribute on a CompositeQueue is set to true, its behavior of the composite queue is the same as a CompositeTopic.
+
+  CompositeTopic or virtualTopic definition will be inserted the destinationInterceptors -> virtualDestinationInterceptor -> virtualDestinations stanza of the broker element in Activemq.xml.  Please refer to Activemq documentation on virtual destinations at http://activemq.apache.org/virtual-destinations.html.
+
+  If the compositeTopic name or the virtual topic name does not match the name in the Topic Name field, the definition of composite topic or virtual topic will be ignored. It is a user error if the composite topic or virtual topic definition does not comply to the Activemq.xml schema. If such user error occurs, the behavior of Activemq server may be nondeterministic, or it may not even be started.
 
 **activeMQ**
 
@@ -180,16 +304,16 @@ Permissions on topics are similar to those described for queues.
 
 Note: Fields with a star symbal is required, e.g. version*.
 
-  1. **Installation Directory**
+  1. Installation Directory
 
     ActimveMQ installation directory. Default to /opt
 
-  2. **version**
+  2. version
 
     Version of Apache ActiveMQ to download. Default to 5.13.0.
     <a name="transportConnectors"></a>
 
-  3. **Transport Connectors**
+  3. Transport Connectors
 
     Transport connector protocol and listen address and port.
 
@@ -205,83 +329,135 @@ Note: Fields with a star symbal is required, e.g. version*.
 
     When a new port is used by ActiveMQ server, an entry should be added in the secgroup to enable connectivity on the port if the port is not already enabled.
 
-  4. **Log file Size (MB)**
+  4. Log file Size (MB)
 
     Default to 5 MB. ActiveMQ maximum number of log files for rotation is hard coded at 5. So if the default log file size is used, there is a maximum of 25 MB log data for an ActiveMQ server instance.
 
-  5. **Log file path**
+  5. Log file path
 
     Default to /var/log/activemq
 
-  6. **Maximum Connections**
+  6. Maximum Connections
 
     The number of maximum connections for each transport connector in a ActiveMQ server instance.
 
     Default to 1000.
 
-  7. **Environment Variables**
+  7. Environment Variables
 
     Environment variables for a ActiveMQ server instance. Multiple variables can be added.
 
-  8. **Enabled console authentication**
+  8. Enabled console authentication
 
     Flag to indicate authentication to access admin console is enabled or disabled.
 
     Default to enabled.
 
-  9. **Admin Username**
+  9. Admin Username
 
     web console admin user name. Default to "admin".
 
-  10. **Admin Password**
+  10. Admin Password
 
     web console admin user password. Default to "admin". Please change this password.
 
-  11. **web console port**
+  11. Web Console Port
 
     web console port number. Default to 8161.
 
-  12. **JMX Username**
+  12. JMX Username
 
     JMX user name. Default to "admin".
 
-  13. **JMX Password**
+  13. JMX Password
 
     JMX user password. Default to "activemq". Please change this password.
 
-  14. **Advisory Support**
-
-    Flag indicating if Advisory event messages are supported or not. Advisory messages are event messages regarding what is happening on JMS provider as well as what's happening with producers, consumers and destinations.
-
-  15. **Adhoc Operations Support**
+  14. Adhoc Operations Support
 
     Flag for enabling or disabling admin console operations such as creating, deleting, or purging messages from destination. It is recommended to keep this feature disabled as those operations should be through OneOps; Enabling it will result in OneOps deployment out of synch with ActiveMQ.
 
-  16. **Admin REST API Support**
+  15. Admin REST API Support
 
     Flag for enabling or disabling Admin REST API. Enabling Admin REST API allows operations such as destination creation or deletion via Jolokia REST call. It is recommended to keep this feature disabled as actions via REST API will bypass OneOps, resulting in OneOps deployment out of synch with ActiveMQ.
 
-  17. **Init Memory (MB)**
+  16. Enable password Encryption
+
+    Flag for enabling or disabling password encryption for message users in users.properties.
+
+  17. Beans Support
+
+    A free entry text area for defining beans. Below is an example of a bean definition, paste the following to the free entry text area for Beans Support:
+
+    ```
+    <bean id="logQuery" class="io.fabric8.insight.log.log4j.Log4jLogQuery"
+          lazy-init="false" scope="singleton"
+          init-method="start" destroy-method="stop">
+      </bean>
+    ```
+
+  18. Plugins Support
+
+    A free entry text area for defining activemq plugins. Please refer to Activemq documentation on defining pluings.
+    http://activemq.apache.org/xml-reference.html
+
+    Following is an example of adding a plugin:
+    Paste the following text in the free entry text area for Plugin Support field in OneOps GUI:
+
+    ```
+    <loggingBrokerPlugin logAll="true" logConnectionEvents="false"/>
+    <timeStampingBrokerPlugin zeroExpirationOverride="1000" ttlCeiling="60000" futureOnly="true"/>
+    <traceBrokerPathPlugin/>
+    ```
+
+    If redelivery plugin shall be used to define the redelivery policy on a given destination or for all destinations, a redelivery plugin configuration as below can be added in free entry text area of the plugin support:
+
+    ```
+    <redeliveryPlugin fallbackToDeadLetter="true" sendToDlqIfMaxRetriesExceeded="true">
+        <redeliveryPolicyMap>
+            <redeliveryPolicyMap>
+                <redeliveryPolicyEntries>
+                    <!-- a destination specific policy -->
+                    <redeliveryPolicy queue="MY.TEST.QUEUE.1" maximumRedeliveries="4" redeliveryDelay="10000" />
+                </redeliveryPolicyEntries>
+                <!-- the fallback policy for all other destinations -->
+                <defaultEntry>
+                       <redeliveryPolicy maximumRedeliveries="5" initialRedeliveryDelay="5000" redeliveryDelay="10000"/>
+                </defaultEntry>
+            </redeliveryPolicyMap>
+        </redeliveryPolicyMap>
+    </redeliveryPlugin>
+    ```
+
+  19. KahaDB Attributes
+
+    A key value hash for kahaDB configuration. Please refer to http://activemq.apache.org/kahadb.html
+
+  20. Broker Attributes
+
+     A key value hash for broker attributes configuration. Please refer to Activemq documentation on the set of broker attributes for a given version of Activemq, http://activemq.apache.org/xml-reference.html
+
+  21. Init Memory (MB)
 
     Minimum heap size in MB of ActiveMQ server process. Default is 512 MB.
 
-  18. **Max Memory (MB)**
+  22. Max Memory (MB)
 
     Maximum heap size in MB of ActiveMQ server process. Default is 2048 MB. It should be changed based on the VM instance size (M, L, 2XL, etc).
 
-  19. **Store Usage (MB)**
+  23. Store Usage (MB)
 
     The storage size limit at which producers of persistent messages will be blocked. Default to 8192 MB.
 
-  20. **Temp Usage (MB)**
+  24. Temp Usage (MB)
 
     The temp storage size limit for non-persistent messages overflow to avoid out of memory issue. Default to 2048 MMB.
 
-  21. **Percent of JVM Heap %**
+  25. Percent of JVM Heap %
 
     Percent of JVM Heap used for messages (message memory). Default to 60%.
 
-  22. **Enable SSL**
+  26. Enable SSL
 
     Enable or disable SSL transport for encrypted communication.
 
@@ -289,7 +465,7 @@ Note: Fields with a star symbal is required, e.g. version*.
 
     Certificate and Key store components have to be created.
 
-  23. **Enable SSL Client Auth**
+  27. Enable SSL Client Auth
 
     If "Enable SSL" option is checked, then "Enable SSL Client Auth" option will become visible. This flag changes the SSL handshake requirement between ActiveMQ server and its client hosts.
 
@@ -299,7 +475,7 @@ Note: Fields with a star symbal is required, e.g. version*.
 
     The two way handshake set up involves manual copying certificates about. It is difficult to automate the key store and trust store set up on both the client side and the server side. It is recommended to keep this flag disabled / unchecked unless two way handshake is necessary for safer SSL communication.
 
-  24. **Auth Type**
+  28. Auth Type
 
     Authentication and authorization type. Default to JAAS.  Other options are "None" and "Simple".
 
@@ -307,7 +483,7 @@ Note: Fields with a star symbal is required, e.g. version*.
 
     For more information about ActiveMQ, please refer to [ActiveMQ Security](http://activemq.apache.org/security).
 
-  25. **Broker Users**
+  29. Broker Users
 
     User name and password for authentication to ActiveMQ server instance for messaging. Mutliple users can be added.
 
@@ -317,7 +493,7 @@ Note: Fields with a star symbal is required, e.g. version*.
 
     For authorization to queues and topics, please refer to Queue and Topic components of the ActiveMQ platform.
 
-  26. **Binary distribution mirror urls**
+  30. Binary distribution mirror urls
 
     Follow the link to get a list of [available mirror urls](http://www.apache.org/dyn/closer.cgi?path=).
 
@@ -336,7 +512,7 @@ Note: Fields with a star symbal is required, e.g. version*.
 
     The mirror url is used as the first part of the ActiveMQ binary distribution download url. ActiveMQ pack constructs the whole download url with a fixed path to a version of ActiveMQ. e.g. For 5.13.0 ActiveMQ from ```http://apache.arvixe.com```, the complete url will be ```http://apache.arvixe.com/activemq/5.13.0/apache-activemq-5.13.0-bin.tar.gz```
 
-  27. **Binary distribution checksum**
+  31. Binary distribution checksum
 
     MD5 checksum for downloaded ActiveMQ distribution file. It is used for verification of downloaded binary file.
 
@@ -460,7 +636,7 @@ To use SSL transport connector in ActiveMQ, extra steps in design are needed. Th
 
 * specify key store password
 
-  "Keystore password", default to $OO_LOCAL{keystorepassword}
+  password for the key store.
 
 ####secgroup component
 
@@ -477,7 +653,6 @@ To use SSL transport connector in ActiveMQ, extra steps in design are needed. Th
 
 edit the following variables, provide appropriate values:
 
-* keystorepassword
 * keystorepath
 
 ####key store
@@ -591,25 +766,3 @@ edit the following variables, provide appropriate values:
 OneOps GUI provide built in action panels that ActiveMQ pack implement for server start, stop, restart, repair operations.
 
 Users are encouraged to manage ActiveMQ server life cycle via OneOps operations page.
-
-
-##FAQs
-### How to add plugins?
-* On the oneops GUI go to design and select the "activemq" component.
-* Edit the activemq component.
-* Update the custom beans in the Custom plugins attribute.
-  <loggingBrokerPlugin logAll="true" logConnectionEvents="false"/>
-  <timeStampingBrokerPlugin zeroExpirationOverride="1000" ttlCeiling="60000" futureOnly="true"/>
-  <traceBrokerPathPlugin/>
-* Above mentioned values will be updated in the activemq.xml
-
-### How to add beans?
-* On the oneops GUI go to design and select the "activemq" component.
-* Edit the activemq component.
-* Update the custom beans in the Custom Bean attribute
-  eg:
-  <bean id="logQuery" class="io.fabric8.insight.log.log4j.Log4jLogQuery"
-          lazy-init="false" scope="singleton"
-          init-method="start" destroy-method="stop">
-    </bean>
-* Above mentioned values will be updated in the activemq.xml
