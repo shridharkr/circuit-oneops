@@ -29,6 +29,47 @@ def check_for_lbvserver(conn,lbvserver_name)
   return true    
 end  
 
+def check_lb_az_ip_availability(cloud_service, manifest_ci, az_map, az_ip_range_map)
+  Chef::Log.info("Checking IP Availability")
+  index = 0
+  zone = ''
+  az_map.keys.each do |az| #{ "2b":"10.65.202.7", "2d":"10.65.202.31" }
+    lbs = []
+    range_ips = []
+    index =  manifest_ci % az_map.keys.size # 0/1
+    ns_host = az_map.values[index]
+    conn = gen_conn(cloud_service,ns_host)
+    Chef::Log.info("Checking IP Availability for Index #{index}, Manifest_ID #{manifest_ci} Netscaler #{ns_host}")
+    resp_obj = JSON.parse(conn.request(
+      :method=>:get,
+      :read_timeout => 300,
+      :path=>"/nitro/v1/config/lbvserver").body)
+    lbs_ips = resp_obj["lbvserver"].map {|l| l['ipv46'].to_s } if resp_obj.has_key?("lbvserver")
+
+    az_ip_range_map[az_map.keys[index]].split(",").each do |range|  # { "2b":"10.65.208.0/22,10.65.213.0/24,10.65.214.0/24,10.65.215.0/24,10.65.222.0/24,10.65.195.0/24,10.65.198.0/24", "2d":"10.247.150.16/28,10.247.150.32/27,10.247.150.64/26,10.247.150.128/25" }
+      range_ips = range_ips + IPAddress::IPv4.new(range).map { |r| r.to_s }
+    end
+    
+    if !(range_ips-lbs_ips).empty?
+	zone = az_map.keys[index]
+	break
+    end
+
+    if az_map.empty?
+      msg = "no ip available in #{node.ns_ip_range}"
+      Chef::Log.error(msg)
+      puts "***FAULT:FATAL=#{msg}"
+      e = Exception.new("no backtrace")
+      e.set_backtrace("")
+      raise e
+    else
+      Chef::Log.info("NS Host #{ns_host} of AZ #{az_map.keys[index]} does not have IPs available, trying other AZ LBs")
+      az_map.delete(az_map.keys[index])
+    end
+  end
+  
+  return zone
+end
 
 def get_connection  
   # return if re-invoked
@@ -75,10 +116,7 @@ def get_connection
   
   # if az is empty then gen index using manifest id mod az map keys size
   if manifest_az.empty? && (action == "add" || action == "replace")
-    index =  manifest_ci[:ciId] % az_map.keys.size
-    Chef::Log.info("manifest.Lb ciId: #{manifest_ci[:ciId]} index: #{index}" )  
-    az = az_map.keys[index]
-    
+
     # check to see if dc vip is on another netscaler
     existing_az = ""
     found = false
@@ -94,6 +132,11 @@ def get_connection
         end
       end
       break if found
+    end
+
+    if az.empty?
+      az = check_lb_az_ip_availability(cloud_service, manifest_ci[:ciId], az_map, az_ip_range_map)
+      Chef::Log.info("manifest.Lb ciId: #{manifest_ci[:ciId]}  with AZ #{az}" )
     end
     
     if az_map.has_key?(az)
@@ -148,3 +191,4 @@ end
 def load_current_resource
   @current_resource = Chef::Resource::NetscalerConnection.new(@new_resource.name)
 end
+
