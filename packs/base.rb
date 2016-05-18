@@ -568,7 +568,10 @@ resource "volume",
 resource "share",
   :cookbook => "oneops.1.glusterfs",
   :design => true,
-  :requires => { "constraint" => "0..1" },
+  :requires => {
+    :constraint => "0..1",
+    :services => "mirror"
+    },
   :attributes => {
                     "store"   => '/data',
                     "volopts" => '{}',

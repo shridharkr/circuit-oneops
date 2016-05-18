@@ -32,7 +32,8 @@ end
 ruby_block "Delete Destination Policy" do
   block do
      Chef::Resource::RubyBlock.send(:include, Q2::Activemq_dest_config_util)
-     Q2::Activemq_dest_config_util::deleteDestPolicy("#{activemq_home}/conf/activemq.xml", 'Q', "#{appresourcename}")
+     Q2::Activemq_dest_config_util::deleteDestPolicy("#{activemq_home}/conf/activemq.xml", "#{node['queue']['destinationtype']}", "#{appresourcename}")
+     Q2::Activemq_dest_config_util::deleteVirtualDest("#{activemq_home}/conf/activemq.xml", "#{node['queue']['destinationtype']}", "#{appresourcename}")
   end
 end
 

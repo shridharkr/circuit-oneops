@@ -66,24 +66,27 @@ module Etcd
       # Search for cookbook mirror
       base_url = ''
       base_url = mirror[cookbook] if !mirror.nil? && mirror.has_key?(cookbook)
-      version = node[cookbook][:version]
+      version = node.etcd.version
 
       if base_url.empty?
         Chef::Log.info("#{cookbook} mirror service is empty. Checking for any http(s) mirror/official release URL.")
-        base_url = node[cookbook][:mirror]
-        base_url = node[cookbook][:release_url] if base_url.empty?
+        if !node[cookbook][:mirror].nil? && !node[cookbook][:mirror].empty?
+	  base_url = node[cookbook][:mirror]
+	end
+	base_url = node.etcd.release_url if base_url.empty?
       end
+      Chef::Log.info("base_url: #{base_url}")
 
       # Replace any $version/$arch/$extn placeholder variables present in the URL
       # e.x: https://github.com/coreos/etcd/releases/download/v$version/etcd-v$version-$arch.$extn
       base_url = base_url.gsub('$version', version)
-                         .gsub('$arch', node[cookbook][:arch])
-                         .gsub('$extn', node[cookbook][:extn])
+                         .gsub('$arch', node.etcd.arch)
+                         .gsub('$extn', node.etcd.extn)
       exit_with_err("Invalid package base URL: #{base_url}") unless url_valid?(base_url)
 
       file_name = File.basename(URI.parse(base_url).path)
       Chef::Log.info("Package url: #{base_url}, filename: #{file_name}")
-      return base_url, file_name
+      return File.dirname(base_url), file_name
     end
 
     # Checks if the given string is a valid http/https URL

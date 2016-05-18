@@ -1,7 +1,6 @@
 # a little recipe that sets the platform, platform-resource-group and platform-availability-set for azure deployments.
 # several other recipes use this
 
-require File.expand_path('../../libraries/regions.rb', __FILE__)
 require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
 
 def generate_rg_name(org,assembly,platform,environment,location)
@@ -10,7 +9,7 @@ def generate_rg_name(org,assembly,platform,environment,location)
   OOLog.info("Resource Group Platform: #{platform}")
   OOLog.info("Resource Group Environment: #{environment}")
   OOLog.info("Resource Group location: #{location}")
-  resource_group_name = org[0..15] + '-' + assembly[0..15] + '-' + node.workorder.box.ciId.to_s + '-' + environment[0..15] + '-' + AzureRegions::RegionName.abbreviate(location)
+  resource_group_name = org[0..15] + '-' + assembly[0..15] + '-' + node.workorder.box.ciId.to_s + '-' + environment[0..15] + '-' + Utils.abbreviate_location(location)
   OOLog.info("platform-resource-group is: #{resource_group_name}")
   OOLog.info("Resource Group Name Length = #{resource_group_name.length}")
   return resource_group_name

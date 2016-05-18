@@ -1,24 +1,24 @@
+
+environment = node.workorder.payLoad.Environment[0][:ciAttributes][:availability]
+
+if environment=="single"
+  Chef::Log.error("******** exiting because glusterfs setup works in redundant environment only ********")
+  return
+end
+
 ci = node.workorder.rfcCi
 parent = node.workorder.payLoad.RealizedAs[0]
 replicas = ci.ciAttributes[:replicas].to_i
 local_compute_index = ci[:ciName].split('-').last.to_i
 local_cloud_index = ci[:ciName].split('-').reverse[1].to_i
-# get all computes in all clouds
 computes = node.workorder.payLoad.RequiresComputes
-
-Chef::Log.info("Local Compute Index ID is: #{local_compute_index}")
-Chef::Log.info("Local Cloud Index ID is: #{local_cloud_index}")
-#puts "computes=#{computes.inspect}"
-Chef::Log.info("Total Number of Computes Are: #{computes.length}")
-
 compute_cinames=Array.new
-  computes.each do |c|
-    compute_cinames.push("#{c.ciName}")
-  end
 
-Chef::Log.info("Compute CI Names Are: #{compute_cinames.inspect}")
+computes.each do |c|
+  compute_cinames.push("#{c.ciName}")
+end
+
 last_compute=compute_cinames.max
-Chef::Log.info("Last Compute Is: #{last_compute}")
 
 volstore_prefix = "#{ci.ciAttributes[:store]}/#{parent[:ciName]}"
 Chef::Log.info("Distributed filesystem on #{computes.size.to_s} computes with #{replicas.to_s} data replicas")
@@ -93,21 +93,20 @@ if last_compute == "compute-#{local_cloud_index}-#{local_compute_index}"
   Chef::Log.info("Initializing gluster volume on last compute")
 
   computes.each do |c|
-    ruby_block "add peer #{c.ciAttributes[:private_ip]}" do
+    ruby_block "adding gluster peer" do
       block do
         retry_count = 1
         while retry_count < 4
           result = `gluster peer probe #{c.ciAttributes[:private_ip]} 2>&1`
-          message = check_for_error_message(result)
-            if message == "success"
-              Chef::Log.info("gluster peer probe #{c.ciAttributes[:private_ip]} is successful. The result is: #{result}")
-              break
-            else
-              Chef::Log.info("gluster peer probe #{c.ciAttributes[:private_ip]} is failed. The result is: #{result}.. Will sleep and re-try again. Maximum try count is set as 3.")
-              Chef::Log.info("sleeping 60 seconds. Re-try number is #{retry_count}")
-              sleep 60
-            end
-          Chef::Application.fatal!("gluster peer probe #{c.ciAttributes[:private_ip]} is failed. The result is: #{result}..") if retry_count == 3
+          if $?.success?
+            Chef::Log.info("gluster peer probe #{c.ciAttributes[:private_ip]} is successful. #{result}")
+            break
+          else
+            Chef::Log.info("gluster peer probe #{c.ciAttributes[:private_ip]} is failed. #{result}. Will sleep and re-try again. Maximum try count is set as 3.")
+            Chef::Log.info("sleeping 60 seconds. Re-try number is #{retry_count}")
+            sleep 60
+          end
+          Chef::Application.fatal!("gluster peer probe #{c.ciAttributes[:private_ip]} is failed. #{result}") if retry_count == 3
           retry_count += 1
         end
       end
@@ -128,21 +127,20 @@ if last_compute == "compute-#{local_cloud_index}-#{local_compute_index}"
     compute_bricks = find_bricks(c[:ciName].split('-').last.to_i,replicas,computes.length)
     Chef::Log.info("Bricks for #{c[:ciName]} (#{c.ciAttributes[:private_ip]}) #{compute_bricks.inspect}")
     compute_bricks.each do |b|
-      bricks[b] = "#{c.ciAttributes[:private_ip]}:#{volstore_prefix}/#{b}"
+      bricks["#{c.ciName}"] = "#{c.ciAttributes[:private_ip]}:#{volstore_prefix}/#{b}"
     end
   end
 
   replicas_arg = replicas > 1 ? "replica #{replicas}" : ""
   bricks_arg = bricks.sort.map{|b| b[1]}.join(' ')
-  ruby_block "volume create #{parent[:ciName]} #{replicas_arg} #{bricks_arg} force" do
+  ruby_block "creating gluster volume" do
     block do
       result = `yes y | gluster volume create #{parent[:ciName]} #{replicas_arg} #{bricks_arg} force 2>&1`
-      message = check_for_error_message(result)
-      if message == "success"
-        Chef::Log.info("gluster volume create #{parent[:ciName]} #{replicas_arg} #{bricks_arg} force is successful. The result is: #{result}")
+      if $?.success?
+        Chef::Log.info("gluster volume create #{parent[:ciName]} #{replicas_arg} #{bricks_arg} force is successful. #{result}")
         break
       else
-        Chef::Application.fatal!("gluster volume create #{parent[:ciName]} #{replicas_arg} #{bricks_arg} force is failed. The result is: #{result}..")
+        Chef::Application.fatal!("gluster volume create #{parent[:ciName]} #{replicas_arg} #{bricks_arg} force is failed. #{result}")
       end
     end
     not_if "gluster volume info #{parent[:ciName]}"

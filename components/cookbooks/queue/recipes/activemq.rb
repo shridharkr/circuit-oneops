@@ -112,10 +112,13 @@ bash "handle destination auth" do
   EOH
 end
 
-ruby_block "Handle Destination Policy" do
+ruby_block "Handle Destination Policy and virtual destination" do
   block do
      Chef::Resource::RubyBlock.send(:include, Q2::Activemq_dest_config_util)
-     Q2::Activemq_dest_config_util::processDestPolicy("#{activemq_home}/conf/activemq.xml", 'Q', "#{fullname}", "#{node['queue']['destinationpolicy']}")
+     Chef::Log.info("Process virtual destination definition: #{node['queue']['virtualdestination']}")
+     Q2::Activemq_dest_config_util::processVirtualDest("#{activemq_home}/conf/activemq.xml", "#{node['queue']['destinationtype']}", "#{fullname}", "#{node['queue']['virtualdestination']}")
+     Chef::Log.info("Process destination policy: #{node['queue']['destinationpolicy']} ")
+     Q2::Activemq_dest_config_util::processDestPolicy("#{activemq_home}/conf/activemq.xml", "#{node['queue']['destinationtype']}", "#{fullname}", "#{node['queue']['destinationpolicy']}")
   end
 end
 
