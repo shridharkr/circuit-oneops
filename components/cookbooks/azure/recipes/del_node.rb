@@ -1,5 +1,3 @@
-require File.expand_path('../../libraries/utils.rb', __FILE__)
-require File.expand_path('../../libraries/azure_utils.rb', __FILE__)
 require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
 require 'azure_mgmt_compute'
 require 'azure_mgmt_network'
@@ -14,7 +12,7 @@ require 'azure_mgmt_storage'
 ::Chef::Recipe.send(:include, Azure::ARM::Storage::Models)
 
 #set the proxy if it exists as a cloud var
-AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 #Get the vm object from azure given a resource group and compute name
 def get_vm(client, resource_group_name, vm_name)
@@ -133,18 +131,17 @@ begin
     node.set["vhd_uri"]=vhd_uri
     Chef::Log.info(vm.properties.inspect)
     node.set["datadisk_uri"] = vm.properties.storage_profile.data_disks[0].vhd.uri
-    nameutil = Utils::NameUtils.new()
     ci_name = node['workorder']['rfcCi']['ciId']
     Chef::Log.info("Deleting Azure VM: '#{server_name}'")
     #delete the VM from the platform resource group
     result = client.virtual_machines.delete(node['platform-resource-group'], server_name).value!
     Chef::Log.info("Delete VM response is: #{result.inspect}")
     if ip_type == 'public'
-      public_ip_name = nameutil.get_component_name("publicip",ci_name)
+      public_ip_name = Utils.get_component_name("publicip",ci_name)
       delete_publicip(credentials, subscription_id, node['platform-resource-group'],public_ip_name)
     end
     # delete the NIC. A NIC is created with each VM, so we will delete the NIC when we delete the VM
-    nic_name = nameutil.get_component_name("nic",ci_name)
+    nic_name = Utils.get_component_name("nic",ci_name)
     if ip_type == 'public'
       delete_nic(credentials, subscription_id, node['platform-resource-group'], nic_name)
     elsif ip_type == 'private'

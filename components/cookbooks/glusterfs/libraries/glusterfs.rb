@@ -7,12 +7,3 @@ def find_bricks(index,replicas,length)
   end
   return bricks
 end
-
-def check_for_error_message(message)
-  bad_messages=["fail", "error", "wrong"]
-  if bad_messages.any? { |m| message.downcase.include?(m) }
-    return "fail"
-  else
-    return "success"
-  end
-end

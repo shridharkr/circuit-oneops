@@ -42,8 +42,7 @@ module AzureNetwork
       end
       nic_ip_config =
         Azure::ARM::Network::Models::NetworkInterfaceIpConfiguration.new
-      nameutil = Utils::NameUtils.new
-      nic_ip_config.name = nameutil.get_component_name("privateip",@ci_id)
+      nic_ip_config.name = Utils.get_component_name("privateip",@ci_id)
       nic_ip_config.properties = nic_ip_config_props
       OOLog.info("NIC IP name is: #{nic_ip_config.name}")
       nic_ip_config
@@ -57,8 +56,7 @@ module AzureNetwork
 
       network_interface = Azure::ARM::Network::Models::NetworkInterface.new
       network_interface.location = @location
-      nameutil = Utils::NameUtils.new
-      network_interface.name = nameutil.get_component_name("nic",@ci_id)
+      network_interface.name = Utils.get_component_name("nic",@ci_id)
       network_interface.properties = network_interface_props
 
       OOLog.info("Network Interface name is: #{network_interface.name}")
