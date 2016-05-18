@@ -54,6 +54,15 @@
     <broker xmlns="http://activemq.apache.org/schema/core" brokerName="activemq"  dataDirectory="<%= @datadirectory %>" 
     <% brokerattributes = node[:activemq].has_key?(:brokerattributes) ? Mash.new(JSON.parse(node[:activemq][:brokerattributes])) : Hash.new %>
      <% brokerattributes.each do |k,v| %><%= "#{k}" %>=<%= "'#{v}'" %>  <%end%> >
+
+       <destinationInterceptors>
+        <virtualDestinationInterceptor>
+          <virtualDestinations>
+             <virtualTopic name="VirtualTopic.>" prefix="Consumers.*." selectorAware="false"/>
+          </virtualDestinations>
+        </virtualDestinationInterceptor>
+      </destinationInterceptors>
+
         <destinationPolicy>
            <policyMap>
              <policyEntries>

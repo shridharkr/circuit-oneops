@@ -26,8 +26,7 @@ attribute 'destinationtype',
               :help => 'Destination type - Queue',
               :category => '1.Destination',
               :order => 2,
-              :filter => {'all' => {'visible' => 'false'}},
-              :editable => false
+              :form => {'field' => 'select', 'options_for_select' => [['Queue', 'Q'], ['Composite Queue', 'compositeQueue']]}
           }
 
 attribute 'maxmemorysize',
@@ -47,6 +46,7 @@ attribute 'permission',
           :format => {
             :help => 'User permissions. eg (username:permission). Valid values for permissions are R for READ, W for WRITE and RW ReadWrite',
             :category => '2.Permissions',
+            :pattern  => ['R', 'W', 'RW'],
             :order => 1
           }
 
@@ -58,6 +58,17 @@ attribute 'destinationpolicy',
            :help => 'Define destination policy specifically for this queue',
            :category => '3.DestinationPolicy',
            :order => 1
+         }
+
+attribute 'virtualdestination',
+         :description => "Composite Queue Definition",
+         :data_type => "text",
+         :default => "",
+         :format => {
+            :help => 'Composite Queue definition',
+            :category => '4.CompositeQueue',
+            :filter => {'all' => {'visible' => 'destinationtype:eq:compositeQueue'}},
+            :order => 1
          }
 
 recipe 'purge',  'Purge ActiveMQ queue'

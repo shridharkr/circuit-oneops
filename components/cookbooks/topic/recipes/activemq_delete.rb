@@ -29,10 +29,11 @@ execute "delete ActiveMQ Topic" do
   only_if { node.topic.destinationtype.strip.to_s != 'T' }
 end
 
-ruby_block "Delete Destination Policy" do
+ruby_block "Delete Destination Policy and virtual destination" do
   block do
      Chef::Resource::RubyBlock.send(:include, Topic::Activemq_dest_config_util)
-     Topic::Activemq_dest_config_util::deleteDestPolicy("#{activemq_home}/conf/activemq.xml", 'T', "#{appresourcename}")
+     Topic::Activemq_dest_config_util::deleteDestPolicy("#{activemq_home}/conf/activemq.xml", "#{node['topic']['destinationtype']}", "#{appresourcename}")
+     Topic::Activemq_dest_config_util::deleteVirtualDest("#{activemq_home}/conf/activemq.xml", "#{node['topic']['destinationtype']}", "#{appresourcename}")
   end
 end
 
