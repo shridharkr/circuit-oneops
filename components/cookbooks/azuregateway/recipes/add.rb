@@ -51,7 +51,7 @@ def add_gateway_subnet_to_vnet(virtual_network, gateway_subnet_address, gateway_
     virtual_network.properties.subnets.each do |subnet|
       if subnet.name == gateway_subnet_name
         OOLog.info('No need to add Gateway subnet. Gateway subnet already exist...')
-        virtual_network
+        return virtual_network
       end
     end
   end
@@ -67,7 +67,7 @@ def add_gateway_subnet_to_vnet(virtual_network, gateway_subnet_address, gateway_
   virtual_network
 end
 
-def create_public_ip(credentials, subscription_id)
+def create_public_ip(credentials, subscription_id, location, resource_group_name)
   nameutil = Utils::NameUtils.new
   public_ip_name = nameutil.get_component_name('ag_publicip', node['workorder']['rfcCi']['ciId'])
   public_ip_address = get_public_ip(location)
@@ -85,7 +85,43 @@ def get_vnet(resource_group_name, vnet_name, vnet_obj)
   vnet.body
 end
 
-include_recipe 'initialize_attributes_from_node'
+cloud_name = node.workorder.cloud.ciName
+ag_service = nil
+if !node.workorder.services['lb'].nil? && !node.workorder.services['lb'][cloud_name].nil?
+  ag_service = node.workorder.services['lb'][cloud_name]
+end
+
+if ag_service.nil?
+  OOLog.fatal('missing application gateway service')
+end
+
+platform_name = node.workorder.box.ciName
+environment_name = node.workorder.payLoad.Environment[0]['ciName']
+assembly_name = node.workorder.payLoad.Assembly[0]['ciName']
+org_name = node.workorder.payLoad.Organization[0]['ciName']
+security_group = "#{environment_name}.#{assembly_name}.#{org_name}"
+resource_group_name = node['platform-resource-group']
+subscription_id = ag_service[:ciAttributes]['subscription']
+location = ag_service[:ciAttributes][:location]
+
+asmb_name = assembly_name.gsub(/-/, '').downcase
+plat_name = platform_name.gsub(/-/, '').downcase
+env_name = environment_name.gsub(/-/, '').downcase
+ag_name = "ag-#{plat_name}"
+
+tenant_id = ag_service[:ciAttributes][:tenant_id]
+client_id = ag_service[:ciAttributes][:client_id]
+client_secret = ag_service[:ciAttributes][:client_secret]
+
+OOLog.info("Cloud Name: #{cloud_name}")
+OOLog.info("Org: #{org_name}")
+OOLog.info("Assembly: #{asmb_name}")
+OOLog.info("Platform: #{platform_name}")
+OOLog.info("Environment: #{env_name}")
+OOLog.info("Location: #{location}")
+OOLog.info("Security Group: #{security_group}")
+OOLog.info("Resource Group: #{resource_group_name}")
+OOLog.info("Application Gateway: #{ag_name}")
 
 # ===== Create a Application Gateway =====
 #   # AG Creation Steps
@@ -122,7 +158,7 @@ begin
     end
   else
     # Create public IP
-    public_ip = create_public_ip(credentials, subscription_id)
+    public_ip = create_public_ip(credentials, subscription_id, location, resource_group_name)
     vnet_name = 'vnet_' + resource_group_name
     vnet = get_vnet(resource_group_name, vnet_name, vnet_obj)
   end

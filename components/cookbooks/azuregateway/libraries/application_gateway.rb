@@ -2,7 +2,8 @@
 # rubocop:disable LineLength
 require 'azure_mgmt_network'
 require 'chef'
-require File.expand_path('../../config/load_config.rb', __FILE__)
+require 'yaml'
+require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
 
 module AzureNetwork
   # Cookbook Name:: Azuregateway
@@ -11,7 +12,7 @@ module AzureNetwork
     include Azure::ARM::Network::Models
 
     attr_accessor :client
-
+    attr_accessor :gateway_attributes
     def initialize(resource_group_name, ag_name, credentials, subscription_id)
       @subscription_id = subscription_id
       @resource_group_name = resource_group_name
@@ -19,10 +20,11 @@ module AzureNetwork
       @client = Azure::ARM::Network::NetworkResourceProviderClient.new(credentials)
       @client.subscription_id = @subscription_id
       @gateway_attributes = Hash.new
+      @configurations = YAML.load_file(File.expand_path('../config/config.yml', __dir__))
     end
 
     def get_attribute_id(gateway_attribute, attribute_name)
-      configurations['gateway']['subscription_id']  %{subscription_id: @subscription_id, resource_group_name: @resource_group_name, ag_name:@ag_name, gateway_attribute: gateway_attribute, attribute_name: attribute_name}
+      @configurations['gateway']['subscription_id']  %{subscription_id: @subscription_id, resource_group_name: @resource_group_name, ag_name:@ag_name, gateway_attribute: gateway_attribute, attribute_name: attribute_name}
     end
 
     def get_private_ip_address(token)
@@ -33,29 +35,26 @@ module AzureNetwork
           content_type: 'application/json',
           authorization: token
       )
-      Chef::Log.info("Azuregateway::Application Gateway - API response is #{dns_response}")
+      OOLog.info("Azuregateway::Application Gateway - API response is #{dns_response}")
       dns_hash = JSON.parse(dns_response)
-      Chef::Log.info("Azuregateway::Application Gateway - #{dns_hash}")
+      OOLog.info("Azuregateway::Application Gateway - #{dns_hash}")
       dns_hash['properties']['frontendIPConfigurations'][0]['properties']['privateIPAddress']
 
     rescue RestClient::Exception => e
       if e.http_code == 404
-        Chef::Log.info('Azuregateway::Application Gateway doesn not exist')
+        OOLog.info('Azuregateway::Application Gateway doesn not exist')
       else
-        puts "***FAULT:Message=#{e.message}"
-        puts "***FAULT:Body=#{e.http_body}"
-        raise GatewayException.new(e.message)
+        OOLog.info("***FAULT:Body=#{e.http_body}")
+        OOLog.fatal("***FAULT:Message=#{e.message}")
       end
     rescue => e
-      msg = "Exception trying to parse response: #{dns_response}"
-      puts "***FAULT:FATAL=#{msg}"
-      Chef::Log.error("Azuregateway::Add - Exception is: #{e.message}")
-      raise GatewayException.new(msg)
+      OOLog.debug("Azuregateway::Add - Exception is: #{e.message}")
+      OOLog.fatal("Exception trying to parse response: #{dns_response}")
     end
 
     def set_gateway_configuration(subnet)
       gateway_ipconfig = Azure::ARM::Network::Models::ApplicationGatewayIpConfiguration.new
-      gateway_ipconfig.name = configurations['gateway']['gateway_config_name']
+      gateway_ipconfig.name = @configurations['gateway']['gateway_config_name']
       properties = Azure::ARM::Network::Models::ApplicationGatewayIpConfigurationPropertiesFormat.new
       properties.subnet = subnet
       gateway_ipconfig.properties = properties
@@ -75,7 +74,7 @@ module AzureNetwork
 
       backpool_prop.backend_addresses = backend_addresses
 
-      gateway_backend_pool.name = configurations['gateway']['backend_address_pool_name']
+      gateway_backend_pool.name = @configurations['gateway']['backend_address_pool_name']
       gateway_backend_pool.id = get_attribute_id('backendAddressPools', gateway_backend_pool.name)
       gateway_backend_pool.properties = backpool_prop
 
@@ -93,7 +92,7 @@ module AzureNetwork
       end
 
       gateway_backend_http_settings = ApplicationGatewayBackendHttpSettings.new
-      gateway_backend_http_settings.name = configurations['gateway']['http_settings_name']
+      gateway_backend_http_settings.name = @configurations['gateway']['http_settings_name']
       gateway_backend_http_settings.id = get_attribute_id('backendHttpSettingsCollection', gateway_backend_http_settings.name)
       gateway_backend_http_settings.properties = gateway_backend_http_settings_prop
 
@@ -104,7 +103,7 @@ module AzureNetwork
       gateway_front_port_prop = ApplicationGatewayFrontendPortPropertiesFormat.new
       gateway_front_port_prop.port = ssl_certificate_exist ? 443 : 80
       gateway_front_port = ApplicationGatewayFrontendPort.new
-      gateway_front_port.name = configurations['gateway']['gateway_front_port_name']
+      gateway_front_port.name = @configurations['gateway']['gateway_front_port_name']
       gateway_front_port.id = get_attribute_id('frontendPorts', gateway_front_port.name)
       gateway_front_port.properties = gateway_front_port_prop
 
@@ -120,7 +119,7 @@ module AzureNetwork
         frontend_ip_config_prop.public_ipaddress = public_ip
       end
       frontend_ip_config = ApplicationGatewayFrontendIpConfiguration.new
-      frontend_ip_config.name = configurations['gateway']['frontend_ip_config_name']
+      frontend_ip_config.name = @configurations['gateway']['frontend_ip_config_name']
       frontend_ip_config.id = get_attribute_id('frontendIPConfigurations',frontend_ip_config.name)
       frontend_ip_config.properties = frontend_ip_config_prop
 
@@ -132,7 +131,7 @@ module AzureNetwork
       ssl_certificate_prop.data = data
       ssl_certificate_prop.password = password
       ssl_certificate = ApplicationGatewaySslCertificate.new
-      ssl_certificate.name = configurations['gateway']['ssl_certificate_name']
+      ssl_certificate.name = @configurations['gateway']['ssl_certificate_name']
       ssl_certificate.id = get_attribute_id('sslCertificates',ssl_certificate.name)
       ssl_certificate.properties = ssl_certificate_prop
 
@@ -147,7 +146,7 @@ module AzureNetwork
       gateway_listener_prop.ssl_certificate = @gateway_attributes[:ssl_certificate]
 
       gateway_listener = ApplicationGatewayHttpListener.new
-      gateway_listener.name = configurations['gateway']['gateway_listener_name']
+      gateway_listener.name = @configurations['gateway']['gateway_listener_name']
       gateway_listener.id = get_attribute_id('httpListeners',gateway_listener.name)
       gateway_listener.properties = gateway_listener_prop
 
@@ -162,7 +161,7 @@ module AzureNetwork
       gateway_request_route_rule_prop.backend_address_pool = @gateway_attributes[:backend_address_pool]
 
       gateway_request_route_rule = ApplicationGatewayRequestRoutingRule.new
-      gateway_request_route_rule.name = configurations['gateway']['gateway_request_route_rule_name']
+      gateway_request_route_rule.name = @configurations['gateway']['gateway_request_route_rule_name']
       gateway_request_route_rule.properties = gateway_request_route_rule_prop
 
       @gateway_attributes[:gateway_request_routing_rule] = gateway_request_route_rule
@@ -215,13 +214,9 @@ module AzureNetwork
         response = promise.value!
         response.body
       rescue MsRestAzure::AzureOperationError => e
-        msg = 'FATAL ERROR creating Gateway....'
-        Chef::Log.error("FATAL ERROR creating Gateway....: #{e.body}")
-        raise GatewayException.new(msg)
+        OOLog.fatal("FATAL ERROR creating Gateway....: #{e.body}")
       rescue => e
-        msg = 'Gateway creation error....'
-        Chef::Log.error("Gateway creation error....: #{e.message}")
-        raise GatewayException.new(msg)
+        OOLog.fatal("Gateway creation error....: #{e.message}")
       end
     end
 
@@ -231,13 +226,9 @@ module AzureNetwork
         response = promise.value!
         response.body
       rescue MsRestAzure::AzureOperationError => e
-        msg = 'FATAL ERROR deleting Gateway....'
-        Chef::Log.error("FATAL ERROR deleting Gateway....: #{e.body}")
-        raise GatewayException.new(msg)
+        OOLog.fatal("FATAL ERROR deleting Gateway....: #{e.body}")
       rescue => e
-        msg = 'Gateway deleting error....'
-        Chef::Log.error("Gateway deleting error....: #{e.body}")
-        raise GatewayException.new(msg)
+        OOLog.fatal("Gateway deleting error....: #{e.body}")
       end
     end
   end
