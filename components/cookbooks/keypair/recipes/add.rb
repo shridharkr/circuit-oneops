@@ -22,7 +22,6 @@ case node[:provider_class]
 when /vagrant/
   Chef::Log.info("keypair add not implemented for provider")
 when /azure/
-  # include_recipe "azure::add_keypair"
     include_recipe "azurekeypair::add"
 else
   include_recipe "keypair::add_keypair_"+node[:provider_class]
