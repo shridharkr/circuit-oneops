@@ -1,8 +1,7 @@
 # **Rubocop Suppression**
 # rubocop:disable LineLength
-require File.expand_path('../../../azure/libraries/utils.rb', __FILE__)
+
 require File.expand_path('../../libraries/application_gateway.rb', __FILE__)
-require File.expand_path('../../exceptions/gateway_exception.rb', __FILE__)
 require File.expand_path('../../../azure/libraries/public_ip.rb', __FILE__)
 require File.expand_path('../../../azure/libraries/virtual_network.rb', __FILE__)
 
@@ -68,8 +67,7 @@ def add_gateway_subnet_to_vnet(virtual_network, gateway_subnet_address, gateway_
 end
 
 def create_public_ip(credentials, subscription_id, location, resource_group_name)
-  nameutil = Utils::NameUtils.new
-  public_ip_name = nameutil.get_component_name('ag_publicip', node['workorder']['rfcCi']['ciId'])
+  public_ip_name = Utils.get_component_name('ag_publicip', node['workorder']['rfcCi']['ciId'])
   public_ip_address = get_public_ip(location)
   public_ip_obj = AzureNetwork::PublicIp.new(credentials, subscription_id)
   public_ip_obj.create_update(resource_group_name, public_ip_name, public_ip_address)
@@ -137,7 +135,7 @@ OOLog.info("Application Gateway: #{ag_name}")
 #   # 9 - Create Application Gateway
 
 begin
-  credentials = AzureCommon::AzureUtils.get_credentials(tenant_id, client_id, client_secret)
+  credentials = Utils.get_credentials(tenant_id, client_id, client_secret)
   application_gateway = AzureNetwork::Gateway.new(resource_group_name, ag_name, credentials, subscription_id)
 
   # Determine if express route is enabled

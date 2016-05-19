@@ -52,11 +52,10 @@ OOLog.info("Resource Group: #{resource_group_name}")
 OOLog.info("Application Gateway: #{ag_name}")
 
 begin
-  credentials = AzureCommon::AzureUtils.get_credentials(tenant_id, client_id, client_secret)
+  credentials = Utils.get_credentials(tenant_id, client_id, client_secret)
   application_gateway = AzureNetwork::Gateway.new(resource_group_name, ag_name, credentials, subscription_id)
 
-  nameutil = Utils::NameUtils.new
-  public_ip_name = nameutil.get_component_name('lb_publicip', node.workorder.rfcCi.ciId)
+  public_ip_name = Utils.get_component_name('lb_publicip', node.workorder.rfcCi.ciId)
 
   application_gateway.delete
   public_ip_obj = AzureNetwork::PublicIp.new(credentials, subscription_id)

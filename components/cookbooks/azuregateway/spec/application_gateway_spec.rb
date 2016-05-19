@@ -86,18 +86,18 @@ describe AzureNetwork::Gateway do
   describe '#set_gateway_port' do
     it 'verify application gateway front port is 443 if ssl certificate exists' do
       @gateway.set_gateway_port(true)
-      gatewat_fronend_port = @gateway.gateway_attributes[:gateway_port]
+      gateway_fronend_port = @gateway.gateway_attributes[:gateway_port]
 
-      expect(gatewat_fronend_port).to_not eq(nil)
-      expect(gatewat_fronend_port.name).to eq('gateway_front_port')
-      expect(gatewat_fronend_port.properties.port).to eq(443)
+      expect(gateway_fronend_port).to_not eq(nil)
+      expect(gateway_fronend_port.name).to eq('gateway_front_port')
+      expect(gateway_fronend_port.properties.port).to eq(443)
     end
     it 'verify if application gateway front port is 80 if ssl certificate does not exist' do
       @gateway.set_gateway_port(false)
-      gatewat_fronend_port = @gateway.gateway_attributes[:gateway_port]
+      gateway_fronend_port = @gateway.gateway_attributes[:gateway_port]
 
-      expect(gatewat_fronend_port).to_not eq(nil)
-      expect(gatewat_fronend_port.properties.port).to eq(80)
+      expect(gateway_fronend_port).to_not eq(nil)
+      expect(gateway_fronend_port.properties.port).to eq(80)
     end
   end
 
