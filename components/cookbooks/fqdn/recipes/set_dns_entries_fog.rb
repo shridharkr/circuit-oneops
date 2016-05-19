@@ -32,6 +32,8 @@ end
 zone = node.fog_zone
 ns = node.ns
 
+clean_set = []
+
 #
 # delete / create dns entries
 #
@@ -102,7 +104,7 @@ node[:entries].each do |entry|
     end  
   end
 
-  existing_comparison = cleaned_set.sort <=> dns_values.sort  
+  existing_comparison = clean_set.sort <=> dns_values.sort  
   if existing_comparison == 0
     dns_match = true
   end
