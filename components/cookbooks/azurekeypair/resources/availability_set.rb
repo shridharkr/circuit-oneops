@@ -1,4 +1,5 @@
+
 actions :create
 default_action :create
 
-attribute :node
+attribute :node_obj
