@@ -26,8 +26,7 @@ module AzureNetwork
 
       public_ip_address = Azure::ARM::Network::Models::PublicIpAddress.new
       public_ip_address.location = @location
-      nameutil = Utils::NameUtils.new
-      public_ip_address.name = nameutil.get_component_name('publicip',ci_id)
+      public_ip_address.name = Utils.get_component_name('publicip',ci_id)
       public_ip_address.properties = public_ip_configs
       OOLog.info("Public IP name is: #{public_ip_address.name}")
       public_ip_address
@@ -109,9 +108,7 @@ module AzureNetwork
         return true
       rescue MsRestAzure::AzureOperationError => e
         OOLog.info("Azure::PublicIp - Exception is: #{e.body}")
-        error_response = e.body[:error]
-        OOLog.info("Error Response code:" +error_response[:code])
-        if(error_response[:code] == 'ResourceNotFound')
+        if(e.body.values[0]['code'] == 'ResourceNotFound')
           return false
         else
           return true

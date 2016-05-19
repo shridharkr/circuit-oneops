@@ -5,6 +5,7 @@ description  'CouchBase'
 type         'Platform'
 category     'Database NoSQL'
 
+platform :attributes => {'autoreplace' => 'false'}
 
 # Overriding the default compute
 resource 'compute',

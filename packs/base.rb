@@ -9,6 +9,11 @@ environment "redundant", {}
 
 entrypoint "fqdn"
 
+platform :attributes => {
+                "replace_after_minutes" => 60,
+                "replace_after_repairs" => 3
+        }
+
 # dns service needed for ptr record cleanup on replace
 resource "compute",
   :cookbook => "oneops.1.compute",
@@ -563,7 +568,10 @@ resource "volume",
 resource "share",
   :cookbook => "oneops.1.glusterfs",
   :design => true,
-  :requires => { "constraint" => "0..1" },
+  :requires => {
+    :constraint => "0..1",
+    :services => "mirror"
+    },
   :attributes => {
                     "store"   => '/data',
                     "volopts" => '{}',

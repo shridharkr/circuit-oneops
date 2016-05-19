@@ -2,7 +2,7 @@ ci = node.workorder.has_key?('rfcCi') ? node.workorder.rfcCi : node.workorder.ci
 parent = node.workorder.payLoad.RealizedAs[0]
 
 # mount distributed filesystem
-filesys = "glusterfs"
+filesys = "localhost:/glusterfs"
 mounttest = `mount |grep #{filesys} |wc -l`
 
 if mounttest.to_i > 0
