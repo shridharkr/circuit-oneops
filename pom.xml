@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.oneops</groupId>
   <artifactId>circuit-oneops-1</artifactId>
-  <version>5.0.281-SNAPSHOT</version>
+  <version>5.0.281</version>
   <name>circuit-oneops-1</name>
   <properties>
     <plugin.release.version>2.2.1</plugin.release.version>
@@ -25,7 +25,7 @@
             <configuration>
               <rules>
                 <bannedDependencies>
-                  <excludesUrl>http://gec-maven-nexus.walmart.com/nexus/service/local/artifact/maven/content?r=devtools&amp;g=com.walmart.platform.devtools.blacklist&amp;a=BlacklistedArtifacts&amp;v=LATEST&amp;e=txt</excludesUrl>
+                  <excludesUrl>http://gec-maven-nexus.walmart.com/nexus/content/sites/tools-repo/com/walmart/platform/devtools/BlacklistedArtifacts.txt</excludesUrl>
                 </bannedDependencies>
               </rules>
               <fail>true</fail>
@@ -79,7 +79,7 @@
     <connection>${scm.field}</connection>
     <developerConnection>${scm.field} </developerConnection>
     <url>${scm.field}</url>
-    <tag>circuit-oneops-1-5.0.135</tag>
+    <tag>circuit-oneops-1-5.0.281</tag>
   </scm>
   <pluginRepositories />
 </project>
