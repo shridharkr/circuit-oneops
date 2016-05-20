@@ -16,7 +16,7 @@ resource "cassandra",
       :help => 'Cassandra Server'
     },
   :attributes => {
-    "version"       => "2.1",
+    "version"       => "2.1.9",
     "cluster"       => "TestCluster",
     "config_directives" => '{
       "data_file_directories":"[\"/var/lib/cassandra/data\"]",
