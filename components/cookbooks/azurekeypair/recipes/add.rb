@@ -1,7 +1,5 @@
 
 #set the proxy if it exists as a cloud var
-# AzureCommon::AzureUtils.set_proxy(node[:workorder][:payLoad][:OO_CLOUD_VARS])
-
 Utils.set_proxy(node[:workorder][:payLoad][:OO_CLOUD_VARS])
 
 # create the resource group
