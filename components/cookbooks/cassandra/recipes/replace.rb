@@ -1,8 +1,5 @@
 # cassandra replace
 
-include_recipe 'cassandra::install_software'
-
-
 ruby_block "replace_address option" do
   block do
     
