@@ -33,6 +33,10 @@ zone = node.fog_zone
 ns = node.ns
 
 clean_set = []
+deletable_values = []
+node.deletable_entries.each do |v|
+  deletable_values += v['values']
+end
 
 #
 # delete / create dns entries
