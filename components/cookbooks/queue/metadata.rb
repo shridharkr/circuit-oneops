@@ -47,7 +47,7 @@ attribute 'permission',
           :format => {
             :help => 'User permissions. eg (username:permission). Valid values for permissions are R for READ, W for WRITE and RW ReadWrite',
             :category => '2.Permissions',
-            :pattern  => [["Readonly", "R"], ["Write", "W"], ["Read and Write", "RW"]] ,
+            :pattern  => [["Read", "R"], ["Write", "W"], ["Read and Write", "RW"]] ,
             :order => 1
           }
 
