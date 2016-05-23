@@ -95,17 +95,17 @@ attribute 'go_owner',
   }
 
  attribute 'go_group',
-  :description => "Go Owner",
+  :description => "Go Group",
   :required => "required",
   :default => "root",
   :format => {
     :category => '1.GO_Specifics',
-    :help => 'Go Owner',
+    :help => 'Go Group',
     :order => 9
   }
 
 attribute 'go_download_url',
-  :description => "Go Owner",
+  :description => "Go Download URL",
   :required => "required",
   :default => "http://golang.org/dl/",
   :format => {

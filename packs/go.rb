@@ -44,7 +44,6 @@ resource "golang",
 	:design	=> true,
 	:requires => {"constraint" => "1..1"},
 	:attributes => {
-		"go_from_source" => "false",
 		"go_version" => "1.5",
 		"go_platform" => "amd64",
 		"go_from_source" => false,
@@ -60,7 +59,8 @@ resource "golang",
 		"artifact_id" => "$OO_LOCAL{artifactId}",
 		"app_version" => "0.1",
 		"artifact_link" => "https://github.com/oneops/samples/raw/master/golang_app/server.tar",
-		"source_name" => "server"
+		"source_name" => "server",
+		"app_cmdline_options" => ""
 	}
 
 
