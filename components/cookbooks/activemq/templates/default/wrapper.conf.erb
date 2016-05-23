@@ -47,6 +47,15 @@ wrapper.java.library.path.1=%ACTIVEMQ_HOME%/bin/linux-x86-64/
 # Java Additional Parameters
 # note that n is the parameter number starting from 1.
 
+<% if !node["activemq"]["wrapperjavaprop"].nil?%>
+<% opts = node[:activemq].has_key?(:wrapperjavaprop) ? JSON.parse(node[:activemq][:wrapperjavaprop]) : {} %>
+
+<% opts.each_with_index do |k, index|%>
+<%= "wrapper.java.parameter.#{index+1}="%><%= "#{k}" %>
+<% end %>
+<% end %>
+
+
 
 wrapper.java.additional.1=-Dactivemq.home=%ACTIVEMQ_HOME%
 wrapper.java.additional.2=-Dactivemq.base=%ACTIVEMQ_BASE%

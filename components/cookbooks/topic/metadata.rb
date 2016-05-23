@@ -16,6 +16,7 @@ attribute 'topicname',
           :format => {
               :help => 'Topic Name',
               :category => '1.Destination',
+              :editable => false,
              :order => 1,
           }
 
@@ -46,7 +47,7 @@ attribute 'permission',
           :format => {
             :help => 'User permissions. eg (username:permission). Valid values for permissions are R for READ, W for WRITE and RW ReadWrite',
             :category => '2.Permissions',
-            :pattern  => ['R', 'W', 'RW'],
+            :pattern  => [["Readonly", "R"], ["Write", "W"], ["Read and Write", "RW"]] ,
             :order => 1
           }
 
