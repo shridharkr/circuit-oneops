@@ -30,7 +30,7 @@ CATALINA_OPTS="<%= node["tomcat"]["java_options"] %>"
 %>
 <% opts = JSON.parse(node["tomcat"]["system_properties"]).map{ |k,v| "-D#{k}=#{v} " } %>
 
-CATALINA_OPTS="${CATALINA_OPTS} <%= opts %>"
+CATALINA_OPTS="${CATALINA_OPTS} <%= opts.join(" ") %>"
 
 <% end %>
 
