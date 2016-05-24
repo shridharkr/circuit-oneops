@@ -2,6 +2,7 @@
 # several other recipes use this
 
 require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
+require File.expand_path('../../../azure_base/libraries/utils.rb', __FILE__)
 
 def generate_rg_name(org,assembly,platform,environment,location)
   OOLog.info("Resource Group org: #{org}")

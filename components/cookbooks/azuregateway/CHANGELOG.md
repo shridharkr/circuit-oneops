@@ -1,10 +1,10 @@
-# CHANGELOG for azure_gateway
+# CHANGELOG for azuregateway
 
-This file is used to list changes made in each version of azure_gateway.
+This file is used to list changes made in each version of azuregateway.
 
 ## 0.1.0:
 
-* Initial release of azure_gateway
+* Initial release of azuregateway
 
 - - -
 Check the [Markdown Syntax Guide](http://daringfireball.net/projects/markdown/syntax) for help with Markdown.

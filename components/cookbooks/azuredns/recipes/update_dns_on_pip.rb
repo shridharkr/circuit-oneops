@@ -21,7 +21,7 @@ if !node.workorder.services["lb"].nil? &&
   Chef::Log.info("FQDN:: Cloud service name: #{cloud_service[:ciClassName]}")
 
   # Checks if Application Gateway service is enabled
-  if cloud_service[:ciClassName].split(".").last.downcase =~ /azure_gateway/
+  if cloud_service[:ciClassName].split(".").last.downcase =~ /azuregateway/
     application_gateway_enabled = true
     Chef::Log.info("FQDN::add Application Gateway Enabled: #{application_gateway_enabled}")
   end
