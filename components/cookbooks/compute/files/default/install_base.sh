@@ -54,7 +54,7 @@ if [ -e /etc/SuSE-release ] ; then
 # redhat / centos
 elif [ -e /etc/redhat-release ] ; then
   echo "installing ruby, libs, headers and gcc"
-  yum -d0 -e0 -y install sudo file make gcc gcc-c++ glibc-devel libgcc ruby ruby-libs ruby-devel libxml2-devel libxslt-devel ruby-rdoc rubygems perl nagios nagios-devel nagios-plugins
+  yum -d0 -e0 -y install sudo file make gcc gcc-c++ glibc-devel libgcc ruby ruby-libs ruby-devel libxml2-devel libxslt-devel ruby-rdoc rubygems perl perl-Digest-MD5 nagios nagios-devel nagios-plugins
 
   # disable selinux
   if [ -e /selinux/enforce ]; then
