@@ -239,7 +239,7 @@ attribute 'wrapperjavaprop',
       :format => {
         :help => 'Additional Java parameters to pass to Java when it is launched. These are not parameters for your application, but rather parameters for the JVM. ',
         :category => '2.Administration',
-        :order => 14
+        :order => 15
       }
 
 attribute 'initmemory',
