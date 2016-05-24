@@ -53,10 +53,10 @@ JAVA_OPTS="<%= node["tomcat"]["java_options"] %>"
 
 JAVA_OPTS="<%= node["tomcat"]["java_options"] %>"
 
-JAVA_OPTS="${JAVA_OPTS} <%= node["tomcat"]["system_properties"].map{ |k,v| "-D#{k}=#{v} " } %>"
+JAVA_OPTS="${JAVA_OPTS} <%= node["tomcat"]["system_properties"].map{ |k,v| "-D#{k}=#{v} " }.join(" ") %>"
 JAVA_OPTS="${JAVA_OPTS} -Xmx<%= node["tomcat"]["mem_max"] %>"
 JAVA_OPTS="${JAVA_OPTS} -Xms<%= node["tomcat"]["mem_start"] %>"
-JAVA_OPTS="${JAVA_OPTS} <%= node["tomcat"]["startup_params"].map{ |v| "-XX:#{v} " } %>"
+JAVA_OPTS="${JAVA_OPTS} <%= node["tomcat"]["startup_params"].map{ |v| "-XX:#{v} " }.join(" ") %>"
 
 # Java compiler to use for translating JavaServer Pages (JSPs). You can use all
 # compilers that are accepted by Ant's build.compiler property.
