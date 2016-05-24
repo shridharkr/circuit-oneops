@@ -54,7 +54,7 @@ JAVA_OPTS="<%= node["tomcat"]["java_options"] %>"
 <% if node["tomcat"]["system_properties"] != nil &&
    JSON.parse(node["tomcat"]["system_properties"]).keys.size > 0
 %>
-<% system_props = JSON.parse(node["tomcat"]["system_properties"]).map{ |k,v| "-D#{k}=#{v} " } %>
+<% system_props = JSON.parse(node["tomcat"]["system_properties"]).map{ |k,v| "-D#{k}=#{v} " }.join(" ") %>
 JAVA_OPTS="${JAVA_OPTS} <%= system_props %>" 
 <% end %>  
 
@@ -62,7 +62,7 @@ JAVA_OPTS="${JAVA_OPTS} <%= system_props %>"
 JAVA_OPTS="${JAVA_OPTS} -Xmx<%= node["tomcat"]["mem_max"] %>"
 JAVA_OPTS="${JAVA_OPTS} -Xms<%= node["tomcat"]["mem_start"] %>"
 <% opts = JSON.parse(node["tomcat"]["startup_params"]).map{ |v| "-XX:#{v} " } %>
-JAVA_OPTS="${JAVA_OPTS} <%= opts %>"
+JAVA_OPTS="${JAVA_OPTS} <%= opts.join(" ") %>"
 
 
 # Java compiler to use for translating JavaServer Pages (JSPs). You can use all
