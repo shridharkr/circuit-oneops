@@ -2,6 +2,8 @@
 # Cookbook Name:: nginx
 # Recipe:: status
 
-service "nginx" do
-  action :status
+execute 'systemctl status nginx' do
+  user 'root'
+  group 'root'
+  ignore_failure true
 end
