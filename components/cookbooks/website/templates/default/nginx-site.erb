@@ -1,12 +1,11 @@
 <%
-	_port = node.workorder.rfcCi.ciAttributes.port
-	_root = node.workorder.rfcCi.ciAttributes.root	
-	_extra = node.workorder.rfcCi.ciAttributes.extra	
-	_location = ''
-	if node.workorder.rfcCi.ciAttributes.has_key?("location")
-		_location = node.workorder.rfcCi.ciAttributes.location
-	end	
-
+  _port = node[:website][:port]
+  _root = node[:website][:root]
+  _extra = node[:website][:extra]
+  _location = ''
+  if node[:website].has_key?("location")
+    _location = node[:website][:location]
+  end
 %>
 
 server {
