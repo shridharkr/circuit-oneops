@@ -47,6 +47,7 @@ wrapper.java.library.path.1=%ACTIVEMQ_HOME%/bin/linux-x86-64/
 # Java Additional Parameters
 # note that n is the parameter number starting from 1.
 
+
 <% if !node["activemq"]["wrapperjavaprop"].nil?%>
 <% opts = node[:activemq].has_key?(:wrapperjavaprop) ? JSON.parse(node[:activemq][:wrapperjavaprop]) : {} %>
 
@@ -54,6 +55,20 @@ wrapper.java.library.path.1=%ACTIVEMQ_HOME%/bin/linux-x86-64/
 <%= "wrapper.java.additional.#{index+1}="%><%= "#{k}" %>
 <% end %>
 <% end %>
+
+<% idx = opts.length+1
+   if node['activemq']['adminconsolesecure'] == 'true'
+%>
+ wrapper.java.additional.<%="#{idx}"%>=-Djavax.net.ssl.keyStorePassword=<%= @node[:activemq][:adminconsolekeystorepassword]%>
+ wrapper.java.additional.<%="#{idx+1}"%>=-Djavax.net.ssl.keyStore=<%= @node[:activemq][:adminconsolekeystore]%>
+<% end %>
+
+# Uncomment to enable YourKit profiling
+#wrapper.java.additional.n=-Xrunyjpagent
+
+# Uncomment to enable remote debugging
+#wrapper.java.additional.n=-Xdebug -Xnoagent -Djava.compiler=NONE
+#wrapper.java.additional.n=-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005
 
 # Initial Java Heap Size (in MB)
 wrapper.java.initmemory=<%= @node[:activemq][:initmemory] %>
