@@ -2,6 +2,8 @@
 # Cookbook Name:: nginx
 # Recipe:: status
 
-cmd = Mixlib::ShellOut.new("service nginx status")
-cmd.run_command
-Chef::Log.info("Execution completed\n#{cmd.format_for_exception}")
+execute 'systemctl status nginx' do
+  user 'root'
+  group 'root'
+  ignore_failure true
+end
