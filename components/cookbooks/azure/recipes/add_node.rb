@@ -1,4 +1,5 @@
 require 'azure_mgmt_compute'
+require 'azure_mgmt_storage'
 
 ::Chef::Recipe.send(:include, Azure::ARM::Compute)
 ::Chef::Recipe.send(:include, Azure::ARM::Compute::Models)
@@ -6,7 +7,7 @@ require 'azure_mgmt_compute'
 total_start_time = Time.now.to_i
 
 #set the proxy if it exists as a cloud var
-AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 ######################################
 # get everything needed from the node
@@ -59,10 +60,10 @@ OOLog.info('ip_type: ' + ip_type)
 
 # get the credentials needed to call Azure SDK
 creds =
-  AzureCommon::AzureUtils.get_credentials(compute_service[:tenant_id],
-                                          compute_service[:client_id],
-                                          compute_service[:client_secret]
-                                         )
+  Utils.get_credentials(compute_service[:tenant_id],
+                        compute_service[:client_id],
+                        compute_service[:client_secret]
+                       )
 
 # must do this until all is refactored to use the util above.
 node.set['azureCredentials'] = creds
@@ -99,8 +100,17 @@ rescue => ex
   OOLog.fatal("Error getting hardware profile: #{ex.message}")
 end
 
-# invoke recipe to build the storage profile
-include_recipe "azure::build_storage_profile_for_add_node"
+# get the storage profile
+begin
+  storageprofilecls = AzureCompute::StorageProfile.new(creds,subscription)
+  storageprofilecls.location = location
+  storageprofilecls.resource_group_name = resource_group_name
+  storageprofile =
+    storageprofilecls.build_profile(node,
+                                    compute_service['ephemeral_disk_sizemap'])
+rescue => ex
+  OOLog.fatal("Error getting storage profile: #{ex.message}")
+end
 
 # invoke class to build the network profile
 begin
@@ -140,7 +150,7 @@ availability_set = AzureCompute::AvailabilitySet.new(compute_service)
 props = VirtualMachineProperties.new
 props.os_profile = osprofile
 props.hardware_profile = hwprofile
-props.storage_profile = node['storageProfile']
+props.storage_profile = storageprofile
 props.network_profile = network_profile
 props.availability_set = availability_set.get(resource_group_name, node['platform-availability-set'])
 
@@ -173,8 +183,7 @@ if ip_type == 'public'
   # need to get the public ip that was assigned to the VM
   begin
     # get the pip name
-    nameutil = Utils::NameUtils.new()
-    public_ip_name = nameutil.get_component_name("publicip",ci_id)
+    public_ip_name = Utils.get_component_name("publicip",ci_id)
     OOLog.info("public ip name: #{public_ip_name }")
 
     pip = AzureNetwork::PublicIp.new(creds,subscription)

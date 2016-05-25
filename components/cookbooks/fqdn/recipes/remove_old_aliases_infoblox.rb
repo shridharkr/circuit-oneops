@@ -26,13 +26,6 @@ if node.customer_domain !~ /^\./
   customer_domain = '.'+node.customer_domain
 end
 
-# skip in active (A/B update)
-box = node[:workorder][:box][:ciAttributes]
-if box.has_key?(:is_active) && box[:is_active] == "false"
-  Chef::Log.info("skipping due to platform is_active false")
-  exit 0
-end
-
 # entries Array of {name:String, values:Array}
 entries = Array.new
 aliases = Array.new
@@ -99,7 +92,7 @@ aliases.each do |a|
   end
 
   if node.workorder.cloud.ciAttributes.priority == "1"
-
+     cloud_name = node.workorder.cloud.ciName
      service = node[:workorder][:services][:dns][cloud_name][:ciAttributes]
      if service[:cloud_dns_id].nil? || service[:cloud_dns_id].empty?
        Chef::Log.info(" no cloud_dns_id - service: #{service.inspect} ")

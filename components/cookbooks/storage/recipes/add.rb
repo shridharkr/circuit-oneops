@@ -25,7 +25,7 @@
 
 # PGPDBAAS 2613 & 3322 
 include_recipe 'shared::set_provider'
-
+require 'json'
 provider = node['provider_class']
 
 size_config = node.workorder.rfcCi.ciAttributes["size"]
@@ -98,13 +98,22 @@ Array(1..slice_count).each do |i|
   Chef::Log.info("node.storage_provider_class"+node.storage_provider_class)
 
   volume = nil
+  volType = "GENERAL"
   case node.storage_provider_class
   when /cinder/
     
     begin
       vol_name = node["workorder"]["rfcCi"]["ciName"]+"-"+node["workorder"]["rfcCi"]["ciId"].to_s
+      if node.workorder.payLoad.has_key?("offerings")
+        spec = node.workorder.payLoad.offerings.first.ciAttributes.specification
+        spec = JSON.parse spec.gsub('=>', ':')
+        volType = spec["volume_type"]
+      end
+      if volType == "GENERAL"
+        volType = ""
+      end
       volume = node.storage_provider.volumes.new :device => dev, :size => slice_size, :name => vol_name, 
-        :description => dev, :display_name => vol_name
+        :description => dev, :display_name => vol_name, :volume_type => volType
       volume.save
     rescue Excon::Errors::RequestEntityTooLarge => e
       puts "***FAULT:FATAL="+JSON.parse(e.response[:body])["overLimit"]["message"]

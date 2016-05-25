@@ -1,9 +1,8 @@
 require 'azure_mgmt_compute'
 require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
 
-
 ## NOTE: This recipe is tobe deleted. It is replaced by
-## AzureCommon::AzureUtils.get_credentials() in azure/libraries/azure_utils.rb
+## Utils.get_credentials() in azure/libraries/azure_utils.rb
 
 cloud_name = node['workorder']['cloud']['ciName']
 cloud_service =

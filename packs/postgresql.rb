@@ -5,6 +5,8 @@ description "PostgreSQL"
 type "Platform"
 category "Database Relational SQL"
 
+platform :attributes => {'autoreplace' => 'false'}
+
 resource "secgroup",
          :cookbook => "oneops.1.secgroup",
          :design => true,

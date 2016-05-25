@@ -32,6 +32,12 @@ end
 zone = node.fog_zone
 ns = node.ns
 
+clean_set = []
+deletable_values = []
+node.deletable_entries.each do |v|
+  deletable_values += v['values']
+end
+
 #
 # delete / create dns entries
 #
@@ -50,39 +56,63 @@ node[:entries].each do |entry|
     end
   end
   
-  existing_comparison = existing_dns.sort <=> dns_values.sort
   Chef::Log.info("new values:"+dns_values.sort.to_s)  
   Chef::Log.info("existing:"+existing_dns.sort.to_s)
-    
-  if existing_dns.length > 0 && (existing_comparison != 0 || node[:dns_action] == "delete")
-    delete_type = get_record_type(existing_dns)
-    Chef::Log.info("delete #{delete_type}: #{dns_name} to #{existing_dns.to_s}") 
-
-    # rackspace get is by record_id, not name and type like route53    
-    if node.dns_service_class =~ /rackspace/
-      record = zone.records.all.select{ |r| r.name == dns_name.downcase}.first
-    else
-      record = zone.records.get(dns_name, delete_type)            
-    end    
-    if record == nil
-      # downcase is needed because it will create a dns entry w/ CamelCase, but doesn't match on the get
-      if node.dns_service_class =~ /rackspace/
-        record = zone.records.all.select{ |r| r.name == dns_name.downcase}.first
-      else
-        record = zone.records.get(dns_name, delete_type)            
-      end    
-      if record == nil
-        Chef::Log.error("could not get record")
-        exit 1
-      end
-    end
-    record.destroy
-  else
-    if existing_dns.length > 0
-      dns_match = true
-    end
+  existing_comparison = existing_dns.sort <=> dns_values.sort
+  
+  dns_match = false
+  if existing_comparison == 0
+    dns_match = true
   end
   
+  if (!dns_match || node[:dns_action] == "delete") && existing_dns.size > 0
+  
+    # cleanup or delete
+    clean_set = existing_dns.clone
+    existing_dns.each do |existing_entry|
+      
+      if deletable_values.include?(existing_entry) &&
+         (dns_values.include?(existing_entry) && node[:dns_action] == "delete") ||          
+         # value was in previous entry, but not anymore
+         (!dns_values.include?(existing_entry) &&
+          node.previous_entries.has_key?(dns_name) &&
+          node.previous_entries[dns_name].include?(existing_entry) && 
+          node[:dns_action] != "delete")
+          
+        delete_type = get_record_type(existing_dns)
+        Chef::Log.info("delete #{delete_type}: #{dns_name} to #{existing_dns.to_s}") 
+    
+        # rackspace get is by record_id, not name and type like route53    
+        record = nil
+        if node.dns_service_class =~ /rackspace/
+          record = zone.records.all.select{ |r| r.name == dns_name.downcase}.first
+        else
+          record = zone.records.get(dns_name, delete_type)            
+        end
+            
+        if record.nil?
+          Chef::Log.error("could not get record: #{dns_name} #{delete_type}")
+          exit 1
+        end
+        if node.dns_service_class =~ /route53/
+          new_values = record.value.clone
+          new_values.delete(existing_entry)
+          clean_set = new_values
+          record.modify({value: new_values})
+        else 
+          record.destroy        
+        end
+        
+      end
+
+    end  
+  end
+
+  existing_comparison = clean_set.sort <=> dns_values.sort  
+  if existing_comparison == 0
+    dns_match = true
+  end
+    
   # delete workorder skips the create call
   if node[:dns_action] == "delete"
     next
@@ -101,8 +131,8 @@ node[:entries].each do |entry|
     end
         
     Chef::Log.info("create #{dns_type}: #{dns_name} to #{dns_values.to_s}")
-    if node.dns_service_class =~ /rackspace/
-
+    case node.dns_service_class
+    when /rackspace/
       # rackspace cannot handle array dns_value      
       dns_values.each do |dns_value|
         begin
@@ -119,7 +149,24 @@ node[:entries].each do |entry|
          end
       end
 
+    when /route53/
+      record = zone.records.get(dns_name, dns_type)
+      if record.nil?
+        record = zone.records.create(
+          :value => dns_values,
+          :name  => dns_name,
+          :type  => dns_type,
+          :ttl => ttl
+        )
+      else
+        new_vals = record.value.clone
+        new_vals += dns_values
+        new_vals.uniq!
+        record.modify(value: new_vals)        
+      end      
+      
     else
+      
       record = zone.records.create(
         :value => dns_values,
         :name  => dns_name,

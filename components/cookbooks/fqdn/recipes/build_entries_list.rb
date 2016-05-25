@@ -77,54 +77,6 @@ def get_dns_values (components)
 end
 
 
-def get_primary_ips(ci,values,customer_domain)
-
-  other_active_clouds = []
-  if node.workorder.payLoad.has_key?("activeclouds")
-     node.workorder.payLoad.activeclouds.each do |cloud|
-       if cloud["nsPath"] != node.workorder.cloud.nsPath
-         other_active_clouds.push(cloud["nsPath"])
-       end
-     end
-
-    # map by ns_path
-    dns_cloud_map = {}
-    if node.workorder.payLoad.has_key?("remotedns")
-      node.workorder.payLoad.remotedns.each do |dns_service|
-        ns_path = dns_service["nsPath"]
-        dns_cloud_map[ns_path] = dns_service["ciAttributes"]
-      end
-
-    end
-
-    cloud_level_name = ci[:ciName] + customer_domain
-    cloud_name = node.workorder.cloud.ciName
-    cloud_dns_service = node[:workorder][:services][:dns][cloud_name][:ciAttributes]
-    cloud_dns_zone = cloud_dns_service[:zone]
-    cloud_dns_id = cloud_dns_service[:cloud_dns_id]
-
-    # foreach other active cloud get the cloud-level entry and ip for the RR dns entry
-    other_active_clouds.each do |cloud|
-      ci_name = cloud.split("/").last
-      next if ci_name == cloud_name
-      other_cloud_service = dns_cloud_map[cloud]
-      other_cloud_dns_id =  other_cloud_service["cloud_dns_id"]
-      other_cloud_dns_zone =  other_cloud_service["zone"]
-      other_cloud_dns_name =   cloud_level_name.gsub(
-           "\."+cloud_dns_id+"\."+cloud_dns_zone,
-           "."+other_cloud_dns_id+"."+other_cloud_dns_zone).downcase
-      Chef::Log.info("other_cloud_dns_name: dig +short #{other_cloud_dns_name} @#{node.ns}")
-      other_ips = `dig +short #{other_cloud_dns_name} @#{node.ns} | grep -v ";;"`.split("\n")
-      other_ips.each do |rr_entry|
-        Chef::Log.info("#{other_cloud_dns_name} #{rr_entry}")
-        values.push(rr_entry) if !values.include?(rr_entry)
-      end
-    end
-
-  end
-
-  return values
-end
 
 # ex) customer_domain: env.asm.org.oneops.com
 customer_domain = node.customer_domain
@@ -132,12 +84,6 @@ if node.customer_domain !~ /^\./
   customer_domain = '.'+node.customer_domain
 end
 
-# skip in active (A/B update)
-box = node[:workorder][:box][:ciAttributes]
-if box.has_key?(:is_active) && box[:is_active] == "false"
-  Chef::Log.info("skipping due to platform is_active false")
-  return
-end
 
 # entries Array of {name:String, values:Array}
 entries = Array.new
@@ -164,8 +110,14 @@ else
   end
   is_hostname_entry = true
   ci = os.first
-  dns_name = (ci[:ciAttributes][:hostname] + customer_domain).downcase
 
+  cloud_name = node[:workorder][:cloud][:ciName]
+  provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
+  if provider_service =~ /azuredns/
+    dns_name = (ci[:ciAttributes][:hostname]).downcase
+  else
+    dns_name = (ci[:ciAttributes][:hostname] + customer_domain).downcase
+  end
 end
 
 
@@ -258,10 +210,15 @@ end
 
 
  # platform level
-if node.workorder.cloud.ciAttributes.priority == "1"
+if node.workorder.cloud.ciAttributes.priority != "1"
+
+  # clear platform if not primary
+  entries.push({:name => primary_platform_dns_name, :values => [] })
+
+else
 
   if node.has_key?("gslb_domain") && !node.gslb_domain.nil?
-    value_array = node.gslb_domain
+    value_array = [ node.gslb_domain ]
   else
     # infoblox doesnt support round-robin cnames so need to get other primary cloud-level ip's
     value_array = []
@@ -271,17 +228,18 @@ if node.workorder.cloud.ciAttributes.priority == "1"
       value_array += values
     end
 
-    if node.dns_action != "delete" ||
-      (node.dns_action == "delete" && node.is_last_active_cloud)
-
-      get_primary_ips(ci,value_array,customer_domain)
-
+  end
+  
+  is_a_record = false
+  value_array.each do |val|
+    if val =~ /^\d+\.\d+\.\d+\.\d+$/
+      is_a_record = true
     end
-
   end
 
   if node.dns_action != "delete" ||
-    (node.dns_action == "delete" && node.is_last_active_cloud_in_dc)
+    (node.dns_action == "delete" && node.is_last_active_cloud) ||
+    (node.dns_action == "delete" && is_a_record)
 
     entries.push({:name => primary_platform_dns_name, :values => value_array })
     deletable_entries.push({:name => primary_platform_dns_name, :values => value_array })
@@ -344,5 +302,28 @@ puts "***RESULT:entries=#{JSON.dump(entries_hash)}"
 
 # pass to set_dns_entries
 node.set[:entries] = entries
+
+
+previous_entries = {}
+if node.workorder.rfcCi.ciBaseAttributes.has_key?("entries")
+  previous_entries = JSON.parse(node.workorder.rfcCi.ciBaseAttributes.entries)
+end  
+if node.workorder.rfcCi.ciAttributes.has_key?("entries")
+  previous_entries.merge!(JSON.parse(node.workorder.rfcCi.ciAttributes['entries']))
+end  
+node.set[:previous_entries] = previous_entries
+
+  
 # needed due to cleanup/delete logic using dns call to get list
+deletable_entries.each do |k,v|
+  if previous_entries.has_key?(k)
+    if v.is_a?(String)
+      vals = [v]
+    else
+      vals = v
+    end 
+    vals += previous_entries[k]
+    deletable_entries[k] = vals
+  end
+end
 node.set[:deletable_entries] = deletable_entries
