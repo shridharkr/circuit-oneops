@@ -29,9 +29,9 @@ def get_load_balancer(network_client, resource_group_name, load_balancer_name)
     load_balancer = promise.value!
     Chef::Log.info('Found load balancer ' + load_balancer_name)
   rescue MsRestAzure::AzureOperationError => e
-    Chef::Log.error('Load balancer not found')
-    Chef::Log.error('Error: ' + e.body.to_s)
-    exit 1
+    Chef::Log.warn('Load balancer not found')
+    Chef::Log.warn('Error: ' + e.body.to_s)
+    return nil
   end
   return load_balancer.body
 end
@@ -46,13 +46,15 @@ def get_public_ip_fqdns(network_client, resource_group_names, nsPathParts)
 
   resource_group_names.each do |resource_group_name|
     load_balancer = get_load_balancer(network_client, resource_group_name, load_balancer_name)
-    public_ip_id = load_balancer.properties.frontend_ipconfigurations[0].properties.public_ipaddress.id
-    public_ip_id_array = public_ip_id.split('/')
-    public_ip_name = public_ip_id_array[8]
-    public_ip = get_public_ip(network_client, resource_group_name, public_ip_name)
-    public_ip_fqdn = public_ip.properties.dns_settings.fqdn
-    Chef::Log.info('Obtained public ip fqdn ' + public_ip_fqdn + ' to be used as endpoint for traffic manager')
-    public_ip_fqdns.push(public_ip_fqdn)
+    if !load_balancer.nil?
+      public_ip_id = load_balancer.properties.frontend_ipconfigurations[0].properties.public_ipaddress.id
+      public_ip_id_array = public_ip_id.split('/')
+      public_ip_name = public_ip_id_array[8]
+      public_ip = get_public_ip(network_client, resource_group_name, public_ip_name)
+      public_ip_fqdn = public_ip.properties.dns_settings.fqdn
+      Chef::Log.info('Obtained public ip fqdn ' + public_ip_fqdn + ' to be used as endpoint for traffic manager')
+      public_ip_fqdns.push(public_ip_fqdn)
+    end
   end
   return public_ip_fqdns
 end
@@ -158,16 +160,16 @@ def get_resource_group_names()
   return resource_group_names
 end
 
-def is_traffic_manager_set(resource_group_names, profile_name, subscription, traffic_manager, azure_token)
+def get_traffic_manager_resource_group(resource_group_names, profile_name, subscription, traffic_manager, azure_token)
   resource_group_names.each do |resource_group_name|
     traffic_manager_processor = TrafficManagers.new(resource_group_name, profile_name, subscription, traffic_manager, azure_token)
     Chef::Log.info("Checking traffic manager FQDN set in resource group: " + resource_group_name)
     status_code = traffic_manager_processor.get_profile
     if status_code == 200
-      return true
+      return resource_group_name
     end
   end
-  return false
+  return nil
 end
 #################################################
 #                                               #
@@ -195,20 +197,27 @@ azure_token = node['azure_rest_token']
 platform_name = nsPathParts[5]
 profile_name = 'trafficmanager-' + platform_name
 
-include_recipe 'azure::get_platform_rg_and_as'
-resource_group_name = node['platform-resource-group']
-
-traffic_manager_processor = TrafficManagers.new(resource_group_name, profile_name, subscription, traffic_manager, azure_token)
-status_code = traffic_manager_processor.create_update_profile
-
-if ![200, 201].include? status_code
-  if status_code == 409
-    if !is_traffic_manager_set(resource_group_names, profile_name, subscription, traffic_manager, azure_token)
-      Chef::Log.info("Failed to create traffic manager on any resource group.")
+resource_group_name = get_traffic_manager_resource_group(resource_group_names, profile_name, subscription, traffic_manager, azure_token)
+if resource_group_name.nil? then
+  include_recipe 'azure::get_platform_rg_and_as'
+  resource_group_name = node['platform-resource-group']
+  traffic_manager_processor = TrafficManagers.new(resource_group_name, profile_name, subscription, traffic_manager, azure_token)
+  status_code = traffic_manager_processor.create_update_profile
+  if ![200, 201].include? status_code
+    Chef::Log.error("Failed to create traffic manager.")
+    exit 1
+  end
+else
+  traffic_manager_processor = TrafficManagers.new(resource_group_name, profile_name, subscription, traffic_manager, azure_token)
+  status_code = traffic_manager_processor.delete_profile
+  if [200, 204].include? status_code
+    status_code = traffic_manager_processor.create_update_profile
+    if ![200, 201].include? status_code
+      Chef::Log.error("Failed to recreate traffic manager.")
       exit 1
     end
   else
-    Chef::Log.info("Failed to create traffic manager.")
+    Chef::Log.error("Failed to delete traffic manager.")
     exit 1
   end
 end
