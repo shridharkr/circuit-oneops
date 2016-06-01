@@ -57,8 +57,11 @@ module AzureDns
             existing_records.push(record['ipv4Address'])
           end
         when 'CNAME'
-          Chef::Log.info("AzureDns:RecordSet - CNAME record is: #{dns_hash['properties']['CNAMERecord']['cname']}")
-          existing_records.push(dns_hash['properties']['CNAMERecord']['cname'])
+          cname_record = dns_hash['properties']['CNAMERecord']
+          if !cname_record.nil?
+            Chef::Log.info("AzureDns:RecordSet - CNAME record is: #{dns_hash['properties']['CNAMERecord']['cname']}")
+            existing_records.push(dns_hash['properties']['CNAMERecord']['cname'])
+          end
         end
         existing_records
       rescue => e
