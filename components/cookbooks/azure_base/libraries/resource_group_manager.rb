@@ -51,7 +51,7 @@ module AzureBase
                                                      resource_group).value!
           return response
         else
-          return rg
+          OOLog.info("Resource Group, #{@rg_name} already exists.  Moving on...")
         end
       rescue MsRestAzure::AzureOperationError => e
         OOLog.fatal("Error creating resource group: #{e.body}")
