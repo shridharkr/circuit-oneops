@@ -126,7 +126,7 @@ module AzureNetwork
         # fail if we can't find a vnet
         OOLog.fatal('Expressroute requires preconfigured networks') if network.nil?
       else
-        network_name = 'vnet_'+ @rg_name
+        network_name = 'vnet_'+ network_address.gsub('.','_').gsub('/', '_')
         OOLog.info("Using RG: '#{@rg_name}' to find vnet: '#{network_name}'")
         virtual_network.name = network_name
         # network = virtual_network.get(@rg_name)
