@@ -47,7 +47,6 @@ attribute 'mount_point',
     :important => true,
     :help => 'Directory path where the volume should be mounted',
     :category => '2.Filesystem',
-    :pattern => '[^/mnt]',
     :order => 2
   }
 
