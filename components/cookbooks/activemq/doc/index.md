@@ -781,13 +781,13 @@ There are two types of subscribers:
             Connection connection = connectionFactory.createConnection();
             // Set client Id
             connection.setClientID(clientId);
-            connection.start();
             // Create a Session
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             //create topic
             Topic topic = session.createTopic("TOPICTEST");
             // create durable subscriber
             MessageConsumer  consumer = session.createDurableSubscriber(topic, "sub3");
+            connection.start();
             //consumer read messages
 ````
 
