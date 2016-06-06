@@ -16,7 +16,8 @@ attribute 'queuename',
           :format => {
               :help => 'Queue Name',
               :category => '1.Destination',
-             :order => 1,
+              :editable => false,
+              :order => 1,
           }
 
 attribute 'destinationtype',
@@ -46,7 +47,7 @@ attribute 'permission',
           :format => {
             :help => 'User permissions. eg (username:permission). Valid values for permissions are R for READ, W for WRITE and RW ReadWrite',
             :category => '2.Permissions',
-            :pattern  => ['R', 'W', 'RW'],
+            :pattern  => [["Read", "R"], ["Write", "W"], ["Read and Write", "RW"]] ,
             :order => 1
           }
 
