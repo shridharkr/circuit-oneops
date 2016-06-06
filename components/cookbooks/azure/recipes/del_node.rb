@@ -41,7 +41,7 @@ end
 def delete_nic(credentials, subscription_id, resource_group_name, nic_name)
   begin
     start_time = Time.now.to_i
-    networkclient = NetworkResourceProviderClient.new(node['azureCredentials'])
+    networkclient = NetworkResourceProviderClient.new(credentials)
     networkclient.subscription_id = subscription_id
     promise = networkclient.network_interfaces.delete(resource_group_name, nic_name)
     result = promise.value!
@@ -59,8 +59,8 @@ end
 def delete_publicip(credentials,subscription_id,resource_group_name, public_ip_name)
   begin
     start_time = Time.now.to_i
-    networkclient = NetworkResourceProviderClient.new(node['azureCredentials'])
-    networkclient.subscription_id = compute_service['subscription']
+    networkclient = NetworkResourceProviderClient.new(credentials)
+    networkclient.subscription_id = subscription_id
     promise = networkclient.public_ip_addresses.delete(resource_group_name, public_ip_name)
     details = promise.value!
     end_time = Time.now.to_i
