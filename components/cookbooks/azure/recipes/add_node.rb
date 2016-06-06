@@ -1,4 +1,5 @@
 require 'azure_mgmt_compute'
+require 'azure_mgmt_storage'
 
 ::Chef::Recipe.send(:include, Azure::ARM::Compute)
 ::Chef::Recipe.send(:include, Azure::ARM::Compute::Models)
@@ -99,8 +100,17 @@ rescue => ex
   OOLog.fatal("Error getting hardware profile: #{ex.message}")
 end
 
-# invoke recipe to build the storage profile
-include_recipe "azure::build_storage_profile_for_add_node"
+# get the storage profile
+begin
+  storageprofilecls = AzureCompute::StorageProfile.new(creds,subscription)
+  storageprofilecls.location = location
+  storageprofilecls.resource_group_name = resource_group_name
+  storageprofile =
+    storageprofilecls.build_profile(node,
+                                    compute_service['ephemeral_disk_sizemap'])
+rescue => ex
+  OOLog.fatal("Error getting storage profile: #{ex.message}")
+end
 
 # invoke recipe to build the network security group
  include_recipe "azure::add_net_sec_group"
@@ -143,7 +153,7 @@ availability_set = AzureCompute::AvailabilitySet.new(compute_service)
 props = VirtualMachineProperties.new
 props.os_profile = osprofile
 props.hardware_profile = hwprofile
-props.storage_profile = node['storageProfile']
+props.storage_profile = storageprofile
 props.network_profile = network_profile
 props.availability_set = availability_set.get(resource_group_name, node['platform-availability-set'])
 

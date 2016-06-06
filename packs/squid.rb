@@ -5,6 +5,8 @@ description "Squid"
 type "Platform"
 category "Content Caching"
 
+platform :attributes => {'autoreplace' => 'false'}
+
 resource "squid",
   :cookbook => "oneops.1.squid",
   :design => true,

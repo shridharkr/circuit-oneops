@@ -5,6 +5,8 @@ description "Cassandra"
 type "Platform"
 category "Database NoSQL"
 
+platform :attributes => {'autoreplace' => 'false'}
+
 resource "cassandra",
   :cookbook => "oneops.1.cassandra",
   :design => true,
@@ -14,7 +16,7 @@ resource "cassandra",
       :help => 'Cassandra Server'
     },
   :attributes => {
-    "version"       => "2.1",
+    "version"       => "2.1.9",
     "cluster"       => "TestCluster",
     "config_directives" => '{
       "data_file_directories":"[\"/var/lib/cassandra/data\"]",

@@ -4,7 +4,7 @@ require 'azure_mgmt_network'
 
 
 #set the proxy if it exists as a cloud var
-AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 # get platform resource group and availability set
 include_recipe 'azure::get_platform_rg_and_as'
@@ -290,7 +290,7 @@ lb_name = "lb-#{plat_name}"
 #   # 6 - Inbound NAT rules
 #   # 7 - Create LB
 
-credentials = AzureCommon::AzureUtils.get_credentials(tenant_id, client_id, client_secret)
+credentials = Utils.get_credentials(tenant_id, client_id, client_secret)
 public_ip_name = ''
 public_ip = nil
 subnet = nil
@@ -317,8 +317,7 @@ if xpress_route_enabled
 
 else
   # Public IP Config
-  nameutil = Utils::NameUtils.new()
-  public_ip_name = nameutil.get_component_name("lb_publicip",node['workorder']['rfcCi']['ciId'])
+  public_ip_name = Utils.get_component_name("lb_publicip",node['workorder']['rfcCi']['ciId'])
   public_ip = create_publicip(credentials, subscription_id, location, resource_group_name, public_ip_name)
 
   OOLog.info("PublicIP created. PIP: #{public_ip.name}")

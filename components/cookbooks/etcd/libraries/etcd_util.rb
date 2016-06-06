@@ -47,6 +47,29 @@ module Etcd
       cmd.exitstatus == 0
     end
 
+    # Returns mirror url for the given service. Will first look into
+    # the component attributes for mirror url and then in the cloud
+    # mirror service if it's empty.
+    #
+    # @param name mirror service name
+    # @return service url
+    #
+    def get_mirror_svc(name)
+      cloud = node.workorder.cloud.ciName
+      cookbook = node.app_name.downcase
+
+      svc_url = node[cookbook][:mirror]
+      Chef::Log.info("Component mirror url for #{cookbook} is #{svc_url.nil? ? 'not configured.' : svc_url}")
+      return svc_url if (!svc_url.nil? && !svc_url.empty?)
+
+      Chef::Log.info("Getting #{cloud} cloud mirror service for #{cookbook}")
+      mirror_svc = node[:workorder][:services][:mirror]
+      mirror = JSON.parse(mirror_svc[cloud][:ciAttributes][:mirrors]) unless mirror_svc.nil?
+
+      # Search for service. If it can't find, use the default release url.
+      (!mirror.nil? && mirror.has_key?(name)) ? mirror[name] : node.etcd.release_url
+    end
+
     # Returns pkg download location for the given cookbook artifact.
     # The base url is formed based on the cookbook mirror service.
     #
@@ -57,33 +80,22 @@ module Etcd
     #            File name - Package file name to download
     #
     def get_pkg_location(cookbook)
-      cloud = node.workorder.cloud.ciName
-      Chef::Log.info("Getting #{cloud} cloud mirror service for #{cookbook}")
 
-      mirror_svc = node[:workorder][:services][:mirror]
-      mirror = JSON.parse(mirror_svc[cloud][:ciAttributes][:mirrors]) unless mirror_svc.nil?
-
-      # Search for cookbook mirror
-      base_url = ''
-      base_url = mirror[cookbook] if !mirror.nil? && mirror.has_key?(cookbook)
-      version = node[cookbook][:version]
-
-      if base_url.empty?
-        Chef::Log.info("#{cookbook} mirror service is empty. Checking for any http(s) mirror/official release URL.")
-        base_url = node[cookbook][:mirror]
-        base_url = node[cookbook][:release_url] if base_url.empty?
-      end
+      version = node.etcd.version
+      base_url = get_mirror_svc('etcd')
+      Chef::Log.info("Etcd base_url: #{base_url}")
 
       # Replace any $version/$arch/$extn placeholder variables present in the URL
       # e.x: https://github.com/coreos/etcd/releases/download/v$version/etcd-v$version-$arch.$extn
       base_url = base_url.gsub('$version', version)
-                         .gsub('$arch', node[cookbook][:arch])
-                         .gsub('$extn', node[cookbook][:extn])
+                     .gsub('$arch', node.etcd.arch)
+                     .gsub('$extn', node.etcd.extn)
       exit_with_err("Invalid package base URL: #{base_url}") unless url_valid?(base_url)
 
       file_name = File.basename(URI.parse(base_url).path)
       Chef::Log.info("Package url: #{base_url}, filename: #{file_name}")
-      return base_url, file_name
+      return File.dirname(base_url), file_name
+
     end
 
     # Checks if the given string is a valid http/https URL

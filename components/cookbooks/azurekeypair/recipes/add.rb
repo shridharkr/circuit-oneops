@@ -1,18 +1,18 @@
 
 #set the proxy if it exists as a cloud var
-AzureCommon::AzureUtils.set_proxy(node[:workorder][:payLoad][:OO_CLOUD_VARS])
+Utils.set_proxy(node[:workorder][:payLoad][:OO_CLOUD_VARS])
 
 # create the resource group
-azure_resource_group 'resource group' do
-  node node
+azurekeypair_resource_group 'Resource Group' do
   action :create
 end
+
 
 # create the availability set
-azure_availability_set 'availability set' do
-  node node
+azurekeypair_availability_set 'Availability Set' do
   action :create
 end
 
+
 OOLog.info('Exiting add keypair')
-# raise "Stop Exception"
+

@@ -1,6 +1,5 @@
 # **Rubocop Suppression**
 # rubocop:disable LineLength
-require File.expand_path('../../../azure/libraries/utils.rb', __FILE__)
 require File.expand_path('../../libraries/application_gateway.rb', __FILE__)
 require File.expand_path('../../../azure/libraries/public_ip.rb', __FILE__)
 require File.expand_path('../../../azure/libraries/virtual_network.rb', __FILE__)
@@ -210,8 +209,7 @@ begin
     end
 
   else
-    nameutil = Utils::NameUtils.new
-    public_ip_name = nameutil.get_component_name('ag_publicip', node['workorder']['rfcCi']['ciId'])
+    public_ip_name = Utils.get_component_name('ag_publicip', node['workorder']['rfcCi']['ciId'])
     public_ip_address = configure_public_ip(location)
     public_ip_obj = AzureNetwork::PublicIp.new(credentials, subscription_id)
     public_ip = public_ip_obj.create_update(resource_group_name, public_ip_name, public_ip_address)
@@ -333,7 +331,7 @@ begin
   puts("Application Gateway created in #{duration} seconds.")
   if gateway_result.nil?
     # Application Gateway was not created. Exit with error
-    msg = "Application Gateway '#{gateway_result.name}' could not be created"
+    msg = "Application Gateway '#{ag_name}' could not be created"
     puts("***FAULT:FATAL=#{msg}")
     raise msg
   else
