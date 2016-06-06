@@ -6,7 +6,7 @@ require 'azure_mgmt_compute'
 total_start_time = Time.now.to_i
 
 #set the proxy if it exists as a cloud var
-AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 ######################################
 # get everything needed from the node
@@ -59,10 +59,10 @@ OOLog.info('ip_type: ' + ip_type)
 
 # get the credentials needed to call Azure SDK
 creds =
-  AzureCommon::AzureUtils.get_credentials(compute_service[:tenant_id],
-                                          compute_service[:client_id],
-                                          compute_service[:client_secret]
-                                         )
+  Utils.get_credentials(compute_service[:tenant_id],
+                        compute_service[:client_id],
+                        compute_service[:client_secret]
+                       )
 
 # must do this until all is refactored to use the util above.
 node.set['azureCredentials'] = creds
@@ -101,6 +101,9 @@ end
 
 # invoke recipe to build the storage profile
 include_recipe "azure::build_storage_profile_for_add_node"
+
+# invoke recipe to build the network security group
+ include_recipe "azure::add_net_sec_group"
 
 # invoke class to build the network profile
 begin
@@ -173,8 +176,7 @@ if ip_type == 'public'
   # need to get the public ip that was assigned to the VM
   begin
     # get the pip name
-    nameutil = Utils::NameUtils.new()
-    public_ip_name = nameutil.get_component_name("publicip",ci_id)
+    public_ip_name = Utils.get_component_name("publicip",ci_id)
     OOLog.info("public ip name: #{public_ip_name }")
 
     pip = AzureNetwork::PublicIp.new(creds,subscription)

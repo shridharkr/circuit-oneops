@@ -15,4 +15,4 @@ azure_availability_set 'availability set' do
 end
 
 OOLog.info('Exiting add keypair')
-raise "Stop Exception"
+# raise "Stop Exception"
