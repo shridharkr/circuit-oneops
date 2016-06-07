@@ -6,7 +6,9 @@
 
 # Wire util library to chef resources.
 extend Docker::Util
+
 Chef::Resource::RubyBlock.send(:include, Docker::Util)
+Chef::Mixin::Template::TemplateContext.send(:include, Docker::Util)
 
 docker_ver = node.docker_engine.version
 docker_rel = node.docker_engine.release
