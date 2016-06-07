@@ -8,11 +8,10 @@
 
 
 # Install docker remote API client
-docker_api_gem = 'docker-api-1.26.2.gem'
-gem_file = "/tmp/#{docker_api_gem}"
+gem_file = "/tmp/#{node.docker_engine.api_gem}"
 
 cookbook_file gem_file do
-  source docker_api_gem
+  source node.docker_engine.api_gem
   owner 'root'
   group 'root'
   mode 0755

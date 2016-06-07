@@ -22,6 +22,13 @@ resource 'compute',
          :design => true,
          :attributes => {:size => 'M'}
 
+# Docker 1.10.x or later requires RHEL/CentOS 7.2
+# See - https://git.io/vokR1 , https://git.io/vokRD
+resource 'os',
+         :cookbook => 'oneops.1.os',
+         :design => true,
+         :attributes => {:ostype => 'centos-7.2', :dhclient => 'true'}
+
 resource 'secgroup',
          :cookbook => 'oneops.1.secgroup',
          :design => true,
@@ -37,9 +44,9 @@ resource 'docker_engine',
          :cookbook => 'oneops.1.docker_engine',
          :design => true,
          :requires => {:constraint => '1..1',
-                       :services => 'compute,mirror'},
+                       :services => 'compute,*mirror'},
          :attributes => {
-             :version => '1.9.1',
+             :version => '1.11.2',
              :root => '$OO_LOCAL{docker-root}',
              :repo => '$OO_LOCAL{docker-repo}'
          },

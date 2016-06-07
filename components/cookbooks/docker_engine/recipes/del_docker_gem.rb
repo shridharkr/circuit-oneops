@@ -7,8 +7,7 @@
 # Apache License, Version 2.0
 
 # Uninstall docker remote API client
-docker_api_gem = 'docker-api-1.26.2.gem'
-gem_file = "/tmp/#{docker_api_gem}"
+gem_file = "/tmp/#{node.docker_engine.api_gem}"
 
 gem_package 'docker-api' do
   action :purge

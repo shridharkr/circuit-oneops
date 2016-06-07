@@ -9,6 +9,7 @@ default[:docker_engine][:service] = 'docker'
 default[:docker_engine][:package] = 'docker-engine'
 default[:docker_engine][:release] = '1.el7.centos'
 default[:docker_engine][:arch] = 'x86_64'
+default[:docker_engine][:api_gem] = 'docker-api-1.28.0.gem'
 
 # RHEL Platform config
 default[:docker_engine][:tlscacert_file] = '/etc/docker/ca.pem'
