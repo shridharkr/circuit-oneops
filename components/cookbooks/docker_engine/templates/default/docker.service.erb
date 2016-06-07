@@ -21,7 +21,7 @@ TimeoutStartSec=0
 # set delegate yes so that systemd does not reset the cgroups of docker containers
 Delegate=yes
 <% JSON.parse(node.docker_engine.limit_directives).each { |k, v| %>
-    <%= k %>=<%= v %>
+<%= k %>=<%= v %>
 <% } %>
 
 [Install]
