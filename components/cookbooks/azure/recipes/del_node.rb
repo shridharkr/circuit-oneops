@@ -41,7 +41,7 @@ end
 def delete_nic(credentials, subscription_id, resource_group_name, nic_name)
   begin
     start_time = Time.now.to_i
-    networkclient = NetworkResourceProviderClient.new(node['azureCredentials'])
+    networkclient = NetworkResourceProviderClient.new(credentials)
     networkclient.subscription_id = subscription_id
     promise = networkclient.network_interfaces.delete(resource_group_name, nic_name)
     result = promise.value!
@@ -59,8 +59,8 @@ end
 def delete_publicip(credentials,subscription_id,resource_group_name, public_ip_name)
   begin
     start_time = Time.now.to_i
-    networkclient = NetworkResourceProviderClient.new(node['azureCredentials'])
-    networkclient.subscription_id = compute_service['subscription']
+    networkclient = NetworkResourceProviderClient.new(credentials)
+    networkclient.subscription_id = subscription_id
     promise = networkclient.public_ip_addresses.delete(resource_group_name, public_ip_name)
     details = promise.value!
     end_time = Time.now.to_i
@@ -136,16 +136,17 @@ begin
     #delete the VM from the platform resource group
     result = client.virtual_machines.delete(node['platform-resource-group'], server_name).value!
     Chef::Log.info("Delete VM response is: #{result.inspect}")
-    if ip_type == 'public'
-      public_ip_name = Utils.get_component_name("publicip",ci_name)
-      delete_publicip(credentials, subscription_id, node['platform-resource-group'],public_ip_name)
-    end
     # delete the NIC. A NIC is created with each VM, so we will delete the NIC when we delete the VM
     nic_name = Utils.get_component_name("nic",ci_name)
     if ip_type == 'public'
       delete_nic(credentials, subscription_id, node['platform-resource-group'], nic_name)
     elsif ip_type == 'private'
       delete_nic(credentials, subscription_id, compute_service['resource_group'], nic_name)
+    end
+    # public IP must be deleted after the NIC.
+    if ip_type == 'public'
+      public_ip_name = Utils.get_component_name("publicip",ci_name)
+      delete_publicip(credentials, subscription_id, node['platform-resource-group'],public_ip_name)
     end
     #delete the blobs
     #Delete both Page blob(vhd) and Block Blob from the storage account
