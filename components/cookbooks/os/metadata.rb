@@ -53,7 +53,8 @@ attribute 'ostype',
     :order => 1,
     :form => { 'field' => 'select', 'options_for_select' => [
       ['Ubuntu 14.04','ubuntu-14.04'],
-      ['CentOS 7.0','centos-7.0']] }
+      ['CentOS 7.0','centos-7.0'],
+      ['CentOS 7.2','centos-7.2']] }
   }
 
 attribute 'image_id',

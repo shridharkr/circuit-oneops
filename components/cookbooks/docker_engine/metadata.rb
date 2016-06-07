@@ -13,13 +13,13 @@ grouping 'default',
 attribute 'version',
           :description => 'Version',
           :required => 'required',
-          :default => '1.9.1',
+          :default => '1.11.2',
           :format => {
               :important => true,
               :help => 'Docker engine version',
               :category => '1.Binary',
               :order => 1,
-              :form => {:field => 'select', :options_for_select => [['1.9.1', '1.9.1'], ['1.10.2', '1.10.2']]}
+              :form => {:field => 'select', :options_for_select => [['1.9.1', '1.9.1'], ['1.10.2', '1.10.2'], ['1.11.2', '1.11.2']]}
           }
 
 attribute 'repo',
