@@ -21,7 +21,7 @@ attribute 'aliases',
   :format => {
     :help => 'List of additional short-name aliases to be configured in the DNS service (Note: the FQDN record of these CNAME aliases will include the environment subdomain)',
     :category => '1.Global',
-    :pattern => '[^-][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]',
+    :pattern => '[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])',
     :order => 1
   }
 
