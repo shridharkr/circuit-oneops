@@ -1,8 +1,9 @@
 #
 # Cookbook Name:: postgresql
 # Recipe:: stop
+#
 
-service "postgresql-9.1" do
+service "postgresql-#{node["postgresql"]["version"]}" do
     pattern "postgres: writer"
     action :stop
 end
