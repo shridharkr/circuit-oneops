@@ -63,7 +63,6 @@ frontend <%= platform_name %>-<%= external_port %>
        default_backend <%= platform_name %>-<%= internal_port %>
 
 backend <%= platform_name %>-<%= internal_port %>
-       mode tcp
        balance <%= node.haproxy.lbmethod %>
   <% node.workorder.payLoad.RequiresComputes.each do |member| -%>
        server <%= member[:ciName] %> <%= member[:ciAttributes][:private_ip] %>:<%= internal_port %> check port <%= internal_port %> maxconn <%= node.haproxy.maxconn_server %> weight 1
