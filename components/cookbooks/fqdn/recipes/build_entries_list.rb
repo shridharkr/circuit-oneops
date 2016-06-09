@@ -212,9 +212,11 @@ end
  # platform level
 if node.workorder.cloud.ciAttributes.priority != "1"
 
-  # clear platform if not primary
-  entries.push({:name => primary_platform_dns_name, :values => [] })
-
+  # clear platform if not primary and not gslb
+  if !node.has_key?("gslb_domain")
+    entries.push({:name => primary_platform_dns_name, :values => [] })
+  end
+  
 else
 
   if node.has_key?("gslb_domain") && !node.gslb_domain.nil?
