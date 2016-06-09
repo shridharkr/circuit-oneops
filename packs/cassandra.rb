@@ -19,7 +19,7 @@ resource "cassandra",
     "version"       => "2.1.9",
     "cluster"       => "TestCluster",
     "config_directives" => '{
-      "data_file_directories":"[\"/var/lib/cassandra/data\"]",
+      "data_file_directories":"/var/lib/cassandra/data",
       "saved_caches_directory":"/var/lib/cassandra/saved_caches",
       "commitlog_directory":"/var/lib/cassandra/commitlog"
     }',
