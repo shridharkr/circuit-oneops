@@ -27,7 +27,8 @@ attribute 'destinationtype',
               :help => 'Destination type - Queue',
               :category => '1.Destination',
               :order => 2,
-              :form => {'field' => 'select', 'options_for_select' => [['Queue', 'Q'], ['Composite Queue', 'compositeQueue']]}
+              :filter => {'all' => {'visible' => 'false'}},
+              :editable => false
           }
 
 attribute 'maxmemorysize',
@@ -57,7 +58,7 @@ attribute 'destinationpolicy',
          :default => "",
          :format => {
            :help => 'Define destination policy specifically for this queue',
-           :category => '3.DestinationPolicy',
+           :category => '3.Advanced',
            :order => 1
          }
 
@@ -67,9 +68,8 @@ attribute 'virtualdestination',
          :default => "",
          :format => {
             :help => 'Composite Queue definition',
-            :category => '4.CompositeQueue',
-            :filter => {'all' => {'visible' => 'destinationtype:eq:compositeQueue'}},
-            :order => 1
+            :category => '3.Advanced',
+            :order => 2
          }
 
 recipe 'purge',  'Purge ActiveMQ queue'

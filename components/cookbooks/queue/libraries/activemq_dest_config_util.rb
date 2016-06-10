@@ -35,16 +35,29 @@ module Q2
           return
         end
 
+        locker = File.open('/tmp/activemq.config.lock', File::RDWR|File::CREAT, 0644)
+        while true do
+            b = locker.flock(File::LOCK_NB|File::LOCK_EX)
+            if b == 0
+              break
+            elsif b == false 
+              ##puts "have not got exclusive lock yet.  sleeping..."
+              sleep 1
+            end
+        end
+
         origxml0 = IO.read(config_xml)
         origxml = origxml0.sub('<broker xmlns="http://activemq.apache.org/schema/core" ', "<broker ")
         origdoc = Nokogiri::XML(origxml)
         interceptors = origdoc.at('destinationInterceptors')
         if ( interceptors == nil ) then
           Chef::Log.info("no interceptors found; no action taken for deleting composite #{dest_type} #{dest_name}")
+          locker.close
           return
         end
 
         if ('compositeTopic' != dest_type && 'virtualTopic' != dest_type && 'compositeQueue' != dest_type) then
+          locker.close
           raise "destination type has to be either compositeQueue, compositeTopic, or virtualTopic"
         end
 
@@ -53,6 +66,7 @@ module Q2
         virtualdest = origdoc.at(destpath)
         if (virtualdest == nil) then
           Chef::Log.info("no composite destination found; no action taken for deleting composite #{dest_type} #{dest_name}")
+          locker.close
           return nil
         end
 
@@ -62,11 +76,23 @@ module Q2
         resultdoc = origdoc.to_html.sub("<broker ", '<broker xmlns="http://activemq.apache.org/schema/core" ')
         File.open(config_xml,"w") { |f| f << resultdoc.gsub(/\&gt;/, '>') }
         #Chef::Log.info( origdoc.to_xhtml(indent:3).gsub(/\&gt;/, '>'))
+        locker.close
     end
 
     def self.processVirtualDest(config_xml, dest_type, dest_name, compositedestdefinition)
         if ( 'Q' == dest_type || 'T' == dest_type ) 
           return 
+        end
+        
+        locker = File.open('/tmp/activemq.config.lock', File::RDWR|File::CREAT, 0644)
+        while true do
+            b = locker.flock(File::LOCK_NB|File::LOCK_EX)
+            if b == 0
+              break
+            elsif b == false 
+              ##puts "have not got exclusive lock yet.  sleeping..."
+              sleep 1
+            end
         end
 
         origxml0 = IO.read(config_xml)
@@ -84,6 +110,7 @@ module Q2
         if ( interceptors == nil ) 
            if (compositedestdefinition == nil) 
               Chef::Log.info("activemq.xml has no destination compositedestdefinition, and there is no valid composite #{dest_type} #{dest_name} definition, nothing to do")
+              locker.close
               return
            end
 
@@ -95,6 +122,7 @@ module Q2
 
         if ('compositeTopic' != dest_type && 'virtualTopic' != dest_type && 'compositeQueue' != dest_type) 
           #it should never happen; but just in case it happens, we exist here
+          locker.close
           raise "destination type has to be either 'compositeQueue', 'compositeTopic', or 'virtualTopic'"
         end
 
@@ -112,11 +140,13 @@ module Q2
                insert_point.first_element_child.before(compositedoc2)
             else
                Chef::Log.info("no definition for #{dest_type} #{dest_name} from OneOps GUI, nothing to do")
+               locker.close
                return
             end
         elsif (compositedoc2 == nil) 
            #GUI has input, but it is an invalid destination policy for the queue/topic
            if (compositedestdefinition != nil) 
+             locker.close
              raise "#{dest_type} #{dest_name} defination: #{compositedestdefinition}. It may have wrong destination name or other problems"
            end
            # delete composite destination because it is empty or nil from GUI
@@ -132,16 +162,30 @@ module Q2
         # overwrite original xml config file
         File.open(config_xml,"w")  { |f| f << resultdoc.gsub(/\&gt;/, '>') }
         #Chef::Log.info( origdoc.to_xhtml(indent:3).gsub(/\&gt;/, '>'))
+        locker.close
     end
 
 
     def self.deleteDestPolicy(config_xml, dest_type, dest_name)
+
+        locker = File.open('/tmp/activemq.config.lock', File::RDWR|File::CREAT, 0644)
+        while true do
+            b = locker.flock(File::LOCK_NB|File::LOCK_EX)
+            if b == 0
+              break
+            elsif b == false 
+              ##puts "have not got exclusive lock yet.  sleeping..."
+              sleep 1
+            end
+        end
+
        origxml0 = IO.read(config_xml)
        origxml = origxml0.sub('<broker xmlns="http://activemq.apache.org/schema/core" ', "<broker ")
        origdoc = Nokogiri::XML(origxml)
        dest_policies = origdoc.at('destinationPolicy')
        if ( dest_policies == nil )
           Chef::Log.info("no policy found; no action taken for deleting #{dest_type} #{dest_name} destination policy")
+          locker.close
           return
        end
 
@@ -150,11 +194,13 @@ module Q2
        elsif ('Q' == dest_type || 'compositeQueue' == dest_type)
            policypath = 'destinationPolicy/policyMap/policyEntries/policyEntry[@queue="'+"#{dest_name}" +'"]'
        else
+           locker.close
            raise "destination type has to be either 'topic' or 'queue'"
        end
        dest_policy = origdoc.at(policypath)
        if (dest_policy == nil)
           Chef::Log.info("no policy found; no action taken for deleting #{dest_type} #{dest_name} destination policy")
+          locker.close
           return
        end
 
@@ -164,9 +210,21 @@ module Q2
        resultdoc = origdoc.to_html.sub("<broker ", '<broker xmlns="http://activemq.apache.org/schema/core" ')
        File.open(config_xml,"w") { |f| f << resultdoc.gsub(/\&gt;/, '>') }
        #Chef::Log.info( origdoc.to_xhtml(indent:3).gsub(/\&gt;/, '>'))
+       locker.close
     end
 
     def self.processDestPolicy(config_xml, dest_type, dest_name, policies)
+        locker = File.open('/tmp/activemq.config.lock', File::RDWR|File::CREAT, 0644)
+        while true do
+            b = locker.flock(File::LOCK_NB|File::LOCK_EX)
+            if b == 0
+              break
+            elsif b == false 
+              ##puts "have not got exclusive lock yet.  sleeping..."
+              sleep 1
+            end
+        end
+
         origxml0 = IO.read(config_xml)
         origxml = origxml0.sub('<broker xmlns="http://activemq.apache.org/schema/core" ', "<broker ")
         origdoc = Nokogiri::XML(origxml)
@@ -181,6 +239,7 @@ module Q2
         if ( dest_policies == nil )
            if (policies.nil?)
               Chef::Log.info("activemq.xml has no destination policies, and #{dest_type} #{dest_name} has no policy, nothing to do")
+              locker.close
               return
            end
 
@@ -198,6 +257,7 @@ module Q2
             policypath = 'destinationPolicy/policyMap/policyEntries/policyEntry[@queue="'+"#{dest_name}" +'"]'
             policypath2 = 'policyEntry[@queue="'+"#{dest_name}" +'"]'
         else
+            locker.close
             raise "destination type has to be either 'topic' or 'queue'"
         end
 
@@ -214,11 +274,13 @@ module Q2
                insert_point.first_element_child.before(policydoc2)
             else
                Chef::Log.info("#{dest_type} #{dest_name} has no policy from OneOps GUI, nothing to do")
+               locker.close
                return
             end
         elsif (policydoc2.nil?)
             #GUI has input, but it is an invalid destination policy for the queue/topic
             if (!policies.nil?)
+              locker.close
               raise "#{dest_type} #{dest_name} destinationPolicy: #{policies}. It may have wrong destination name or other problems"
             end
             # delete destination policy entry because it is empty or nil from GUI
@@ -235,6 +297,7 @@ module Q2
         resultdoc = origdoc.to_html.sub("<broker ", '<broker xmlns="http://activemq.apache.org/schema/core" ')
         File.open(config_xml,"w") { |f| f << resultdoc.gsub(/\&gt;/, '>') }
         #Chef::Log.info( origdoc.to_xhtml(indent:3).gsub(/\&gt;/, '>'))
+        locker.close
     end
   end
 end

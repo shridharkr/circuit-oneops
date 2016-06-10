@@ -17,6 +17,22 @@
 amq = node.workorder.payLoad[:activemq][0]
 activemq_home = "#{amq[:ciAttributes][:installpath]}/activemq"
 authtype = "#{amq[:ciAttributes][:authtype]}"
+destsubtype = 'T'
+compositetopicdef = " #{node['topic']['compositetopic']} "
+if !compositetopicdef.strip!.empty? 
+   destsubtype = 'compositeTopic'
+   compositevirtualtopic = "#{compositetopicdef}"
+end
+virtualtopicdef = " #{node['topic']['virtualdestination']} "
+if !virtualtopicdef.strip!.empty? 
+   destsubtype = 'virtualTopic'
+   compositevirtualtopic = "#{virtualtopicdef}"
+end
+if !(compositetopicdef.empty? || virtualtopicdef.empty?)
+   puts "#{node['topic']['topicname']} can only has one non-empty entry for virtual topic or composite topic, not both"
+   exit 1
+end
+
 
 action ='false'
 if node.workorder.rfcCi.rfcAction == 'add' || node.workorder.rfcCi.rfcAction == 'replace'
@@ -41,8 +57,8 @@ node.set[:topic][:appdir] = "#{node.workorder.payLoad[:activemq][0][:ciAttribute
        writeuserval <<  "#{k}" << ","
     end
   }
-    readuserval.nil? ? nil : readuserval.chomp!(",")
-    writeuserval.nil? ? nil : writeuserval.chomp!(",")
+    readuserval == nil ? nil : readuserval.chomp!(",")
+    writeuserval == nil ? nil : writeuserval.chomp!(",")
 
 template "/tmp/#{fullname}-groups.properties" do
   source 'groups.properties.erb'
@@ -117,9 +133,9 @@ ruby_block "Handle Destination Policy and virtual destination" do
   block do
      Chef::Resource::RubyBlock.send(:include, Topic::Activemq_dest_config_util)
      Chef::Log.info("Process virtual destination definition: #{node['topic']['virtualdestination']}")
-     Topic::Activemq_dest_config_util::processVirtualDest("#{activemq_home}/conf/activemq.xml", "#{node['topic']['destinationtype']}", "#{fullname}", "#{node['topic']['virtualdestination']}")
+     Topic::Activemq_dest_config_util::processVirtualDest("#{activemq_home}/conf/activemq.xml", "#{destsubtype}", "#{fullname}", "#{compositevirtualtopic}")
      Chef::Log.info("Process destination policy: #{node['topic']['destinationpolicy']} ")
-     Topic::Activemq_dest_config_util::processDestPolicy("#{activemq_home}/conf/activemq.xml", "#{node['topic']['destinationtype']}", "#{fullname}", "#{node['topic']['destinationpolicy']}")
+     Topic::Activemq_dest_config_util::processDestPolicy("#{activemq_home}/conf/activemq.xml", "#{destsubtype}", "#{fullname}", "#{node['topic']['destinationpolicy']}")
   end
 end
 
@@ -133,7 +149,7 @@ execute "ActiveMQ Topic" do
     else
       Chef::Log.info("Execution completed: #{cmd.stdout}")
     end
-    only_if { node.topic.destinationtype.strip.to_s == 'T' }
+    only_if { destsubtype == 'T' }
 end
 
 template '/opt/nagios/libexec/check_amq_topic.rb' do

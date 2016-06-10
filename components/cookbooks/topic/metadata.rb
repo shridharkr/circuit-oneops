@@ -27,7 +27,8 @@ attribute 'destinationtype',
               :help => 'Destination type - Topic',
               :category => '1.Destination',
               :order => 2,
-              :form => {'field' => 'select', 'options_for_select' => [['Topic', 'T'], ['Composite Topic', 'compositeTopic'], ['Virtual Topic', 'virtualTopic']]}
+              :filter => {'all' => {'visible' => 'false'}},
+              :editable => false
           }
 
 attribute 'maxmemorysize',
@@ -57,19 +58,28 @@ attribute 'destinationpolicy',
           :default => "",
           :format => {
             :help => 'Define destination policy specifically for this topic',
-            :category => '3.DestinationPolicy',
+            :category => '3.Advanced',
             :order => 1
           }
 
-attribute 'virtualdestination',
-          :description => "Composite/Virtual Topic Definition",
+attribute 'compositetopic',
+          :description => "Composite Topic Definition",
           :data_type => "text",
           :default => "",
           :format => {
-            :help => 'Composite/Virtual Topic Definition',
-            :category => '4.CompositeTopic',
-            :filter => {'all' => {'visible' => 'destinationtype:neq:T'}},
-            :order => 1
+            :help => 'Composite Topic Definition',
+            :category => '3.Advanced',
+            :order => 2
+          }
+
+attribute 'virtualdestination',
+          :description => "Virtual Topic Definition",
+          :data_type => "text",
+          :default => "",
+          :format => {
+            :help => 'Virtual Topic Definition',
+            :category => '3.Advanced',
+            :order => 3
           }
 
 recipe 'repair', 'Repairs ActiveMQ resource'
