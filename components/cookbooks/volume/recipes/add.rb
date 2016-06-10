@@ -373,10 +373,24 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
   not_if { _fstype == "tmpfs" || !storage.nil? }
   block do
     #get rid of /mnt if provider added it
-    inital_mountpoint = "/mnt"
-      `umount #{inital_mountpoint}`
+    initial_mountpoint = "/mnt"
+    has_provider_mount = false
+    if token_class =~ /azure/
+      initial_mountpoint = "/mnt/resource"
+      has_provider_mount = true
+    end
+    
+    `grep /mnt /etc/fstab | grep cloudconfig`
+    if $?.to_i == 0
+      has_provider_mount = true
+    end
+    
+    if has_provider_mount
+      Chef::Log.info("unmounting and clearing fstab for #{initial_mountpoint}")
+      `umount #{initial_mountpoint}`
       `egrep -v "\/mnt" /etc/fstab > /tmp/fstab`
       `mv -f /tmp/fstab /etc/fstab`
+    end
 
 
     devices = Array.new

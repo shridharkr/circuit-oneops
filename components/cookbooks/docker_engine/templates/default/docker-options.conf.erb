@@ -19,15 +19,12 @@ Environment=<%= env.strip %>
   options = JSON.parse(node.docker_engine.daemon_options).join(' ')
   Chef::Log.info("Daemon options: #{options}")
 
-  legacy_registry = "--disable-legacy-registry=#{node.docker_engine.disable_legacy_registry}"
+  legacy_registry = (node.docker_engine.disable_legacy_registry == 'true') ? '--disable-legacy-registry' : ''
   insecure_registry = JSON.parse(node.docker_engine.insecure_registry).reject { |r| r.empty? }.map { |r| "--insecure-registry=#{r}" }.join(' ')
   registry_mirrors = JSON.parse(node.docker_engine.registry_mirror).reject { |r| r.empty? }.map { |r| "--registry-mirror=#{r}" }.join(' ')
   Chef::Log.info("Registry: Legacy Registry=#{legacy_registry}, Insecure registry=#{insecure_registry}, Mirror: #{registry_mirrors}")
 
-  certs = ''
-  if node.docker_engine.tlsverify == 'true'
-    certs = "--tlsverify=true --tlscacert=#{node.docker_engine.tlscacert_file} --tlscert=#{node.docker_engine.tlscert_file} --tlskey=#{node.docker_engine.tlskey_file}"
-  end
+  certs = (node.docker_engine.tlsverify == 'true') ? "--tlsverify=true --tlscacert=#{node.docker_engine.tlscacert_file} --tlscert=#{node.docker_engine.tlscert_file} --tlskey=#{node.docker_engine.tlskey_file}" : ''
   Chef::Log.info("TLS: Certs=#{certs}")
 
   # Add default non-networked Unix domain socket (-H fd://) for docker remote API.
