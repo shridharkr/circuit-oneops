@@ -1,6 +1,12 @@
-postgresql_service_name = "postgresql-#{node["postgresql"]["version"]}"
-cmd = Mixlib::ShellOut.new("/etc/init.d/#{postgresql_service_name} status")
-cmd.run_command
-#cmd.error!
-#Chef::Log.info(cmd.inspect)
-Chef::Log.info("Execution completed\n#{cmd.format_for_exception}")
+#
+# Cookbook Name:: postgresql
+# Recipe:: start
+#
+
+_exec_cmd = "service postgresql-#{node["postgresql"]["version"]} status"
+ruby_block "#{_exec_cmd}" do
+	block do
+		Chef::Resource::RubyBlock.send(:include, Chef::Mixin::ShellOut)
+		shell_out!("#{_exec_cmd}", :live_stream => Chef::Log::logger)
+    end
+end

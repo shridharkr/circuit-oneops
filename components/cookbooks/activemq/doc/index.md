@@ -761,8 +761,33 @@ edit the following variables, provide appropriate values:
    Similarly, you can run a command line consumer as well to verify messaging over ssl.
 
 
-##ActiveMQ Operations
+## ActiveMQ Operations
 
 OneOps GUI provide built in action panels that ActiveMQ pack implement for server start, stop, restart, repair operations.
 
 Users are encouraged to manage ActiveMQ server life cycle via OneOps operations page.
+
+## FAQ's
+
+1. What is Durable Subscription and how to use Durable Subscription?
+````
+A subscriber (also known as a consumer) is an application that creates a subscription to receive publications (or messages) from desired topic(s).
+There are two types of subscribers:
+    * Non-Durable subscriber: This type of subscriber application will get publications from a messaging provider as long as the application is running. Once the application ends, the messaging provider removes the subscription.
+    * Durable Subscriber: This is the second type of application which receive publications as long as they are running. When the application ends, the messaging provider will cache publications for the subscriber and deliver them when the application comes back.
+
+             ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory( "username", "password", "hostname:port");
+            // Create a Connection
+            Connection connection = connectionFactory.createConnection();
+            // Set client Id
+            connection.setClientID(clientId);
+            // Create a Session
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            //create topic
+            Topic topic = session.createTopic("TOPICTEST");
+            // create durable subscriber
+            MessageConsumer  consumer = session.createDurableSubscriber(topic, "sub3");
+            connection.start();
+            //consumer read messages
+````
+

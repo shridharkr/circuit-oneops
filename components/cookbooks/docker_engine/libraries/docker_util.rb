@@ -46,40 +46,39 @@ module Docker
     end
 
 
-    # Returns pkg download location for the given cookbook artifact.
-    # The base url is formed based on the cookbook mirror service
-    # (with docker mirror fallback) configured in the cloud.
-
-    # @param cookbook - cookbook name (node.app_name.downcase)
+    # Returns mirror url for the given service. Will first look into
+    # the component attributes for mirror url and then in the cloud
+    # mirror service if it's empty.
     #
-    # @returns : 2-Tuple (baseurl, filename)
-    #            Base URL - Package url
-    #            File name - Package file name
+    # @param name mirror service name
+    # @return service url
     #
-    def get_pkg_location(cookbook)
+    def get_mirror_svc(name)
       cloud = node.workorder.cloud.ciName
-      Chef::Log.info("Getting #{cloud} cloud mirror service for #{cookbook}")
+      cookbook = node.app_name.downcase
 
+      svc_url = node[cookbook][:mirror]
+      Chef::Log.info("Component mirror url for #{cookbook} is #{svc_url.nil? ? 'not configured.' : svc_url}")
+      return svc_url if (!svc_url.nil? && !svc_url.empty?)
+
+      Chef::Log.info("Getting #{cloud} cloud mirror service for #{cookbook}")
       mirror_svc = node[:workorder][:services][:mirror]
       mirror = JSON.parse(mirror_svc[cloud][:ciAttributes][:mirrors]) unless mirror_svc.nil?
 
-      # Search for cookbook mirror
-      base_url = ''
-      base_url = mirror[cookbook] if !mirror.nil? && mirror.has_key?(cookbook)
+      # Search for service.
+      (!mirror.nil? && mirror.has_key?(name)) ? mirror[name] : ''
+    end
 
-      if base_url.empty?
-        # Search for cookbook mirror.
-        Chef::Log.info("#{cookbook} mirror service is empty. Checking for any http(s) mirror.")
-        base_url = node[cookbook][:mirror]
-      end
 
-      # Replace any '$version' or '$package' placeholder variables present in the URL
-      base_url = base_url.gsub('$version', node[cookbook][:version]).gsub('$package', node[cookbook][:package])
-      exit_with_err("Invalid package URL: #{base_url}") unless url_valid?(base_url)
-      file_name = File.basename(URI.parse(base_url).path)
-
-      Chef::Log.info("Package url: #{base_url}, filename: #{file_name}")
-      return base_url, file_name
+    #  Returns the docker engine repository url configured by the user
+    #  with fallback to docker cloud mirror service or docker project
+    #  default repo.
+    #
+    def get_docker_repo
+      repo = node.docker_engine.repo
+      repo = get_mirror_svc('docker') if repo.to_s.strip.empty?
+      repo = node.docker_engine.default_repo if repo.to_s.strip.empty?
+      repo
     end
 
 
@@ -104,7 +103,6 @@ module Docker
 
     # Initialize docker remote client. Make sure to install docker
     # remote API gem (::add_docker_gem) before invoking this method.
-    #
     #
     def init_docker_client()
       begin
