@@ -108,8 +108,7 @@ module AzureNetwork
 
     # this manages building the network profile in preperation of creating
     # the vm.
-    def build_network_profile(express_route_enabled, master_rg, pre_vnet, network_address, subnet_address_list, dns_list, ip_type, security_group_name)
-    # def build_network_profile(express_route_enabled, master_rg, pre_vnet, network_address, subnet_address_list, dns_list, ip_type)
+    def build_network_profile(express_route_enabled, master_rg, pre_vnet, network_address, subnet_address_list, dns_list, ip_type)
       # get the objects needed to build the profile
       virtual_network = AzureNetwork::VirtualNetwork.new(creds, subscription)
       virtual_network.location = @location
