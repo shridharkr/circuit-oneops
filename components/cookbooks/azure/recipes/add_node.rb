@@ -112,8 +112,8 @@ rescue => ex
   OOLog.fatal("Error getting storage profile: #{ex.message}")
 end
 
-# invoke recipe to build the network security group
- include_recipe "azure::add_net_sec_group"
+# get the network securtiy group name
+secgroup_name = node.workorder.payLoad.DependsOn[0]['ciName']
 
 # invoke class to build the network profile
 begin
@@ -130,7 +130,9 @@ begin
                                                 network_address,
                                                 subnet_address_list,
                                                 dns_list,
-                                                ip_type)
+                                                # ip_type)
+                                                ip_type,
+                                                secgroup_name)
 rescue => ex
   OOLog.fatal("Error getting network profile: #{ex.message}")
 end
