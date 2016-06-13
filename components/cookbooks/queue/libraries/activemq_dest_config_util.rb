@@ -58,7 +58,9 @@ module Q2
 
         if ('compositeTopic' != dest_type && 'virtualTopic' != dest_type && 'compositeQueue' != dest_type) then
           locker.close
-          raise "destination type has to be either compositeQueue, compositeTopic, or virtualTopic"
+          errorMsg =  "destination type has to be either compositeQueue, compositeTopic, or virtualTopic"
+          puts "***FAULT:FATAL=#{errorMsg}"
+          raise "#{errorMsg}" 
         end
 
         destpath = 'destinationInterceptors/virtualDestinationInterceptor/virtualDestinations/' + "#{dest_type}" + '[@name="'+"#{dest_name}" +'"]'
@@ -123,7 +125,9 @@ module Q2
         if ('compositeTopic' != dest_type && 'virtualTopic' != dest_type && 'compositeQueue' != dest_type) 
           #it should never happen; but just in case it happens, we exist here
           locker.close
-          raise "destination type has to be either 'compositeQueue', 'compositeTopic', or 'virtualTopic'"
+          errorMsg = "destination type has to be either 'compositeQueue', 'compositeTopic', or 'virtualTopic'"
+          puts "***FAULT:FATAL=#{errorMsg}"
+          raise "#{errorMsg}"
         end
 
         compositepath = 'destinationInterceptors/virtualDestinationInterceptor/virtualDestinations/' + "#{dest_type}" + '[@name="'+"#{dest_name}" +'"]'
@@ -138,16 +142,19 @@ module Q2
                # add composite destination
                insert_point = interceptors.at('virtualDestinationInterceptor/virtualDestinations')
                insert_point.first_element_child.before(compositedoc2)
-            else
-               Chef::Log.info("no definition for #{dest_type} #{dest_name} from OneOps GUI, nothing to do")
+            elsif (compositedestdefinition != nil) 
                locker.close
-               return
+               errorMsg = "#{dest_type} #{dest_name} defination may have wrong destination name or other problems: #{compositedestdefinition}"
+               puts "***FAULT:FATAL=#{errorMsg}"
+               raise "#{errorMsg}"
             end
         elsif (compositedoc2 == nil) 
            #GUI has input, but it is an invalid destination policy for the queue/topic
            if (compositedestdefinition != nil) 
              locker.close
-             raise "#{dest_type} #{dest_name} defination: #{compositedestdefinition}. It may have wrong destination name or other problems"
+             errorMsg = "#{dest_type} #{dest_name} defination may have wrong destination name or other problems: #{compositedestdefinition}"
+             puts "***FAULT:FATAL=#{errorMsg}"
+             raise "#{errorMsg}"
            end
            # delete composite destination because it is empty or nil from GUI
            Chef::Log.info("new #{dest_type} #{dest_name} is empty; deleting existing entry")
@@ -195,7 +202,9 @@ module Q2
            policypath = 'destinationPolicy/policyMap/policyEntries/policyEntry[@queue="'+"#{dest_name}" +'"]'
        else
            locker.close
-           raise "destination type has to be either 'topic' or 'queue'"
+           errorMsg = "destination type has to be either 'topic' or 'queue'"
+           puts "***FAULT:FATAL=#{errorMsg}"
+           raise "#{errorMsg}"
        end
        dest_policy = origdoc.at(policypath)
        if (dest_policy == nil)
@@ -258,7 +267,9 @@ module Q2
             policypath2 = 'policyEntry[@queue="'+"#{dest_name}" +'"]'
         else
             locker.close
-            raise "destination type has to be either 'topic' or 'queue'"
+            errorMsg =  "destination type has to be either 'topic' or 'queue'"
+            puts "***FAULT:FATAL=#{errorMsg}"
+            raise "#{errorMsg}"
         end
 
         dest_policy = origdoc.at(policypath)
@@ -272,16 +283,19 @@ module Q2
                # add policyEntry for destination
                insert_point = dest_policies.at('policyMap/policyEntries')
                insert_point.first_element_child.before(policydoc2)
-            else
-               Chef::Log.info("#{dest_type} #{dest_name} has no policy from OneOps GUI, nothing to do")
+            elsif (policydoc2.nil?)
                locker.close
-               return
+               errorMsg = "#{dest_type} #{dest_name} destinationPolicy may have wrong destination name or other problems: #{policies}"
+               puts "***FAULT:FATAL=#{errorMsg}"
+               raise "#{errorMsg}"
             end
         elsif (policydoc2.nil?)
             #GUI has input, but it is an invalid destination policy for the queue/topic
             if (!policies.nil?)
               locker.close
-              raise "#{dest_type} #{dest_name} destinationPolicy: #{policies}. It may have wrong destination name or other problems"
+              errorMsg = "#{dest_type} #{dest_name} destinationPolicy may have wrong destination name or other problems: #{policies}"
+              puts "***FAULT:FATAL=#{errorMsg}"
+              raise "#{errorMsg}"
             end
             # delete destination policy entry because it is empty or nil from GUI
             Chef::Log.info("new policyEntry for #{dest_type} #{dest_name} is empty; deleting existing entry")

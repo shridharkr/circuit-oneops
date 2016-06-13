@@ -29,8 +29,9 @@ if !virtualtopicdef.strip!.empty?
    compositevirtualtopic = "#{virtualtopicdef}"
 end
 if !(compositetopicdef.empty? || virtualtopicdef.empty?)
-   puts "#{node['topic']['topicname']} can only has one non-empty entry for virtual topic or composite topic, not both"
-   exit 1
+   errorMsg =  "#{node['topic']['topicname']} can only has one non-empty entry for virtual topic or composite topic, not both"
+   puts "***FAULT:FATAL=#{errorMsg}"
+   raise "#{errorMsg}"
 end
 
 
