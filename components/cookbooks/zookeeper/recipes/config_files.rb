@@ -52,6 +52,14 @@ template_variables = {
   :myid              => id_determined,
 }
 
+%w[ zoo.cfg log4j.properties].each do |conf_file|
+  template "#{node[:zookeeper][:conf_dir]}/#{conf_file}" do
+  variables   template_variables
+  owner       "root"
+  mode        "0644"
+  source      "#{conf_file}.erb"
+  end
+end
 
 template "/var/zookeeper/data/myid" do
   owner         "zookeeper"
@@ -65,6 +73,13 @@ template "#{node[:zookeeper][:home_dir]}/zookeeper-#{node[:zookeeper][:version]}
   mode          "0644"
   variables     template_variables
   source        "zkEnv.sh.erb"
+end
+
+template "#{node[:zookeeper][:home_dir]}/zookeeper-#{node[:zookeeper][:version]}/bin/zkServer.sh" do
+  owner         "zookeeper"
+  mode          "0755"
+  variables     template_variables
+  source        "zkServer.sh.erb"
 end
 
 template "/etc/init.d/zookeeper-server" do

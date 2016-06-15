@@ -31,6 +31,9 @@ ZOOPIDFILE=<%= @zookeeper[:pid_dir]%>/zookeeper.pid
 JVMFLAGS=<%=@zookeeper[:jvm_args]%>
 ZOO_LOG4J_PROP=<%=@zookeeper[:log4j_logger]%>
 
+JMX_PORT=<%=@zookeeper[:jmx_port]%>
+JMX_RMI_PORT=$(($JMX_PORT+1))
+
 ZOOBINDIR=${ZOOBINDIR:-/usr/bin}
 ZOOKEEPER_PREFIX=${ZOOBINDIR}/..
 
