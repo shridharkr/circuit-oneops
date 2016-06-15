@@ -21,6 +21,9 @@ Chef::Log.info("performing tomcat cleanup by removing directories #{tomcat_insta
 		action :delete
 	end
 end
+file "/etc/init.d/"+ major_version do
+	action :delete
+end
 
 when "repository"
 Chef::Log.info("performing tomcat cleanup by removing package tomcat#{major_version}")
