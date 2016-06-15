@@ -112,6 +112,9 @@ rescue => ex
   OOLog.fatal("Error getting storage profile: #{ex.message}")
 end
 
+# get the network securtiy group name
+secgroup_name = node.workorder.payLoad.DependsOn[0]['ciName']
+
 # invoke class to build the network profile
 begin
   network_interface_cls =
