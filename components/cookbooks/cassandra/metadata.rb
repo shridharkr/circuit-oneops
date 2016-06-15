@@ -243,3 +243,14 @@ recipe "nodetoolrepairpr", "Repair PrimaryRange data"
 recipe "compactionstats", "Compaction Stats"
 recipe "netstats", "Net Stats"
 recipe "ringstatus", "Ring Status"
+recipe "nodetool",
+      :description => "Submit custom nodetool parameter",
+      :args => {
+        "nodetool_args" => {
+        "name" => "nodetool_args",
+        "description" => "nodetool command",
+        "defaultValue" => "status",
+        "required" => true,
+        "dataType" => "string"
+        }
+      }
