@@ -14,6 +14,7 @@ access_log_dir = node.workorder.rfcCi.ciBaseAttributes.has_key?("access_log_dir"
 case install_type
 
 when "binary"
+Chef::Log.info("performing tomcat cleanup by removing directories #{tomcat_install_dir}, #{webapp_install_dir}, #{logfiles_path}, #{access_log_dir}")
 ["#{tomcat_install_dir}", "#{webapp_install_dir}", "#{logfiles_path}", "#{access_log_dir}"].each do |dir|
 	directory dir do
 		recursive true
@@ -22,7 +23,9 @@ when "binary"
 end
 
 when "repository"
+Chef::Log.info("performing tomcat cleanup by removing package tomcat#{major_version}")
 package "tomcat#{major_version}" do
 	action :remove
 end
+
 end
