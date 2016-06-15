@@ -32,8 +32,8 @@ if cloud_service.nil?
   exit 1
 end
 
-if cloud_service[:ciClassName] !~ /netscaler/i
-  Chef::Log.info("lb cloud service is #{cloud_service} but this action is only supported for netscaler cloud service hence exiting...")
+if cloud_service[:ciClassName] !~ /netscaler|f5/i
+  Chef::Log.info("lb cloud service is #{cloud_service} but this action is only supported for netscaler Or f5 cloud service hence exiting...")
   exit 0
 end
 
