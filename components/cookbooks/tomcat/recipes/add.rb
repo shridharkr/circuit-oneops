@@ -84,9 +84,9 @@ end
 include_recipe "tomcat::stop"
 
 if ( node.workorder.rfcCi.ciBaseAttributes.has_key?("version") &&
-   node.workorder.rfcCi.ciBaseAttributes("version") != node.workorder.tomcat.version ) ||
+   node.workorder.rfcCi.ciBaseAttributes["version"] != node.tomcat.version ) ||
    ( node.workorder.rfcCi.ciBaseAttributes.has_key?("install_type") &&
-   node.workorder.rfcCi.ciBaseAttributes("install_type") != node.workorder.tomcat.install_type )
+   node.workorder.rfcCi.ciBaseAttributes["install_type"] != node.tomcat.install_type )
   include_recipe "tomcat::cleanup"
 end
 
