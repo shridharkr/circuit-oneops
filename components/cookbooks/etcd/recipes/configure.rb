@@ -14,7 +14,9 @@ local_server_name = node.workorder.payLoad.ManagedVia[0]['ciName']
 # Get etcd members
 etcd_cluster = Array.new
 computes.each do |c, index|
-  etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")
+ if c.ciAttributes.has_key?("private_ip") && c.ciAttributes.private_ip != nil
+    etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")
+  end
 end
 
 
