@@ -54,5 +54,7 @@ end
 
 Chef::Log.info("removing "+Dir["#{webapp_install_dir}/*"].join(", "))
 Dir["#{webapp_install_dir}/*"].each do |data|
-	execute "rm -rf #{data}"
+	execute "rm -rf #{data}" do
+		not_if { Dir["#{webapp_install_dir}/*"].empty? }
+	end
 end
