@@ -5,7 +5,11 @@
 # Apache License, Version 2.0
 
 # Get all the required computes
-computes = node.workorder.payLoad.RequiresComputes
+if node.workorder.payLoad.has_key?(:computes)
+        computes = node.workorder.payLoad.computes
+else
+        computes = node.workorder.payLoad.RequiresComputes
+end
 
 # Get the local compute
 local_server_ip = node.workorder.payLoad.ManagedVia[0]['ciAttributes']['private_ip']
