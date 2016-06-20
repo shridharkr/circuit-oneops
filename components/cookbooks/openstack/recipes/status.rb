@@ -31,7 +31,9 @@ flavors = conn.list_flavors_detail.body["flavors"]
 Chef::Log.info("flavors: "+flavors.inspect)
 flavor_vcpu_map = {}
 flavors.each do |f|
-  flavor_vcpu_map[size_map.key(f["id"])] = f["vcpus"].to_s+" cores / "+f["ram"].to_s+" MB"
+  if !size_map.key(f["id"]).nil?
+    flavor_vcpu_map[size_map.key(f["id"])] = f["vcpus"].to_s+" cores / "+f["ram"].to_s+" MB"
+  end
 end
 
 puts "***RESULT:flavormap="+JSON.dump(flavor_vcpu_map)
