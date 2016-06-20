@@ -32,7 +32,7 @@ Chef::Log.info("flavors: "+flavors.inspect)
 flavor_vcpu_map = {}
 flavors.each do |f|
   if !size_map.key(f["id"]).nil?
-    flavor_vcpu_map[size_map.key(f["id"])] = f["vcpus"].to_s+" cores / "+f["ram"].to_s+" MB"
+    flavor_vcpu_map[size_map.key(f["id"])] = f["vcpus"].to_s+" cores / "+f["ram"].to_s+" MB /" + f["OS-FLV-EXT-DATA:ephemeral"].to_s+" GB"
   end
 end
 

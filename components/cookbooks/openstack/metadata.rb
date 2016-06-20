@@ -118,7 +118,7 @@ attribute 'flavormap',
   :data_type => "hash",
   :default => '{}',
   :format => {
-     :help => 'Map of generic flavors to number of vcpus and ram size',
+     :help => 'Map of generic flavors to number of vcpus/ram/ephermal disk size',
      :category => '3.Mappings',
      :order => 2
   }  
