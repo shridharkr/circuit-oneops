@@ -16,6 +16,11 @@
 amq = node.workorder.payLoad[:activemq][0]
 appresourcename = "#{node['queue']['queuename']}"
 activemq_home = "#{amq[:ciAttributes][:installpath]}/activemq"
+destsubtype = 'Q'
+compositequeuedef = " #{node['queue']['virtualdestination']} "
+if !compositequeuedef.strip!.empty? 
+   destsubtype = 'compositeQueue'
+end
 
 execute "delete ActiveMQ Queue" do
   cwd "#{amq[:ciAttributes][:installpath]}/activemq"
@@ -29,11 +34,11 @@ execute "delete ActiveMQ Queue" do
     end
 end
 
-ruby_block "Delete Destination Policy" do
+ruby_block "Delete Destination Policy and composite queue" do
   block do
      Chef::Resource::RubyBlock.send(:include, Q2::Activemq_dest_config_util)
-     Q2::Activemq_dest_config_util::deleteDestPolicy("#{activemq_home}/conf/activemq.xml", "#{node['queue']['destinationtype']}", "#{appresourcename}")
-     Q2::Activemq_dest_config_util::deleteVirtualDest("#{activemq_home}/conf/activemq.xml", "#{node['queue']['destinationtype']}", "#{appresourcename}")
+     Q2::Activemq_dest_config_util::deleteDestPolicy("#{activemq_home}/conf/activemq.xml", "#{destsubtype}", "#{appresourcename}")
+     Q2::Activemq_dest_config_util::deleteVirtualDest("#{activemq_home}/conf/activemq.xml", "#{destsubtype}", "#{appresourcename}")
   end
 end
 
