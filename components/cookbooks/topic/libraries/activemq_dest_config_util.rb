@@ -242,6 +242,9 @@ module Topic
         if (!policies.nil?)
             policies.strip!
         end
+        if (policies.empty?)
+           policies = nil
+        end
         policydoc = (policies.nil? || policies.empty?) ? nil : Nokogiri::XML(policies)
 
         #make sure dest_policies is not nil or quit
@@ -283,7 +286,7 @@ module Topic
                # add policyEntry for destination
                insert_point = dest_policies.at('policyMap/policyEntries')
                insert_point.first_element_child.before(policydoc2)
-            elsif (policydoc2.nil?)
+            elsif (policies != nil)
                locker.close
                errorMsg = "#{dest_type} #{dest_name} destinationPolicy may have wrong destination name or other problems: #{policies}"
                puts "***FAULT:FATAL=#{errorMsg}"
