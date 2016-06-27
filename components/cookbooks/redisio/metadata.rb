@@ -5,7 +5,7 @@ maintainer       'Brian Bianco'
 maintainer_email 'brian.bianco@gmail.com'
 license          'Apache 2.0'
 description      'Installs/Configures redis'
-version          '1.7.0'
+version          '2.4.2'
 
 #-cookie cutter grouping values
 grouping 'default',
