@@ -1,8 +1,8 @@
 
 
 # PCRE build
-pcre_base_url = "http://cdc-chef01.bfd.walmart.com:8080/chef_artifacts/"
-pcre_version = "8.36"
+pcre_base_url = "ftp://ftp.csx.cam.ac.uk/pub/software/programming/"
+pcre_version = "8.37"
 pcre_tarball = "pcre-#{pcre_version}.tar.bz2"
 pcre_tarball_download = pcre_base_url + "pcre/" + "#{pcre_tarball}"
 
