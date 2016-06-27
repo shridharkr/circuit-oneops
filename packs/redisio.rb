@@ -82,7 +82,7 @@ resource "secgroup",
          :cookbook => "oneops.1.secgroup",
          :design => true,
          :attributes => {
-             "inbound" => '[ "22 22 tcp 0.0.0.0/0", "6379 6379 tcp 0.0.0.0/0", "16379 16379 tcp 0.0.0.0/0" ]'
+             "inbound" => '[ "22 22 tcp 0.0.0.0/0", "6379 6379 tcp 0.0.0.0/0", "16379 16379 tcp 0.0.0.0/0", "26379 26379 tcp 0.0.0.0/0" ]'
          },
          :requires => {
              :constraint => "1..1",

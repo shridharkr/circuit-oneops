@@ -2,11 +2,11 @@ ci = node.workorder.has_key?('rfcCi') ? node.workorder.rfcCi : node.workorder.ci
 parent = node.workorder.payLoad.RealizedAs[0]
 
 # mount distributed filesystem
-filesys = "localhost:/glusterfs"
-mounttest = `mount |grep #{filesys} |wc -l`
+filesys = "localhost:/#{parent[:ciName]} on #{ci.ciAttributes[:mount_point]}"
+mounttest = `mount |grep "#{filesys}" |wc -l`
 
 if mounttest.to_i > 0
- Chef::Log.info(" Mount already exists")
+ Chef::Log.info("Mount already exists")
  return
 end
 

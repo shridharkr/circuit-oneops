@@ -17,6 +17,11 @@ amq = node.workorder.payLoad[:activemq][0]
 activemq_home = "#{amq[:ciAttributes][:installpath]}/activemq"
 authtype = "#{amq[:ciAttributes][:authtype]}"
 runasuser ="#{amq[:ciAttributes][:runasuser]}"
+destsubtype = 'Q'
+compositequeuedef = " #{node['queue']['virtualdestination']} "
+if !compositequeuedef.strip!.empty? 
+   destsubtype = 'compositeQueue'
+end
 action ='false'
 if node.workorder.rfcCi.rfcAction == 'add' || node.workorder.rfcCi.rfcAction == 'replace'
     action='true'
@@ -40,8 +45,8 @@ node.set[:queue][:appdir] = "#{node.workorder.payLoad[:activemq][0][:ciAttribute
        writeuserval <<  "#{k}" << ","
     end
   }
-    readuserval.nil? ? nil : readuserval.chomp!(",")
-    writeuserval.nil? ? nil : writeuserval.chomp!(",")
+    readuserval == nil ? nil : readuserval.chomp!(",")
+    writeuserval == nil ? nil : writeuserval.chomp!(",")
 
 template "/tmp/#{fullname}-groups.properties" do
   source 'groups.properties.erb'
@@ -115,10 +120,11 @@ end
 ruby_block "Handle Destination Policy and virtual destination" do
   block do
      Chef::Resource::RubyBlock.send(:include, Q2::Activemq_dest_config_util)
-     Chef::Log.info("Process virtual destination definition: #{node['queue']['virtualdestination']}")
-     Q2::Activemq_dest_config_util::processVirtualDest("#{activemq_home}/conf/activemq.xml", "#{node['queue']['destinationtype']}", "#{fullname}", "#{node['queue']['virtualdestination']}")
+     Chef::Log.info("Process virtual destination definition: #{compositequeuedef}")
+     Q2::Activemq_dest_config_util::processVirtualDest("#{activemq_home}/conf/activemq.xml", "#{destsubtype}", "#{fullname}", "#{compositequeuedef}")
+
      Chef::Log.info("Process destination policy: #{node['queue']['destinationpolicy']} ")
-     Q2::Activemq_dest_config_util::processDestPolicy("#{activemq_home}/conf/activemq.xml", "#{node['queue']['destinationtype']}", "#{fullname}", "#{node['queue']['destinationpolicy']}")
+     Q2::Activemq_dest_config_util::processDestPolicy("#{activemq_home}/conf/activemq.xml", "#{destsubtype}", "#{fullname}", "#{node['queue']['destinationpolicy']}")
   end
 end
 
@@ -132,6 +138,7 @@ execute "ActiveMQ Queue" do
     else
       Chef::Log.info("Execution completed: #{cmd.stdout}")
     end
+  only_if { destsubtype == 'Q' }
 end
 
 template '/opt/nagios/libexec/check_amq_queue.rb' do

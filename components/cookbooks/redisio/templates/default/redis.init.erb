@@ -9,6 +9,8 @@
 # Provides: redis<%= @port %>
 # Default-Start: 2 3 4 5
 # Default-Stop: 0 1 6
+# Required-Start: <%= @required_start %>
+# Required-Stop: <%= @required_stop %>
 # Description: redis<%= @port %> init script
 ### END INIT INFO
 
@@ -16,22 +18,20 @@ REDISNAME=<%= @name %>
 REDISPORT=<%= @port %>
 <% case @platform %>
 <% when 'ubuntu','debian','fedora' %>
-EXEC="sudo -u <%= @user %> <%= File.join(@bin_path, 'redis-server') %> <%= @configdir %>/${REDISNAME}.conf"
-#EXEC="sudo -u <%= @user %> <%= File.join(@bin_path, 'redis-server') %> "
-<% else %> 
+EXEC="su -s /bin/sh -c '<%= File.join(@bin_path, 'redis-server') %> <%= @configdir %>/${REDISNAME}.conf' <%= @user %>"
+<% else %>
 EXEC="runuser <%= @user %> -c \"<%= File.join(@bin_path, 'redis-server') %> <%= @configdir %>/${REDISNAME}.conf\""
-#EXEC="runuser <%= @user %> -c \"<%= File.join(@bin_path, 'redis-server') %>\""
 <% end %>
 CLIEXEC=<%= File.join(@bin_path, 'redis-cli') %>
 
 <% connection_string = String.new %>
-<% if @unixsocket.nil? %> 
+<% if @unixsocket.nil? %>
   <% connection_string << " -p #{@port}" %>
   <% connection_string << " -h #{@address.respond_to?(:first) ? @address.first : @address }" if @address %>
 <% else %>
   <% connection_string << " -s #{@unixsocket}" %>
 <% end %>
-<% connection_string  << " -a '#{@requirepass}'" unless @requirepass.nil? %>  
+<% connection_string  << " -a '#{@requirepass}'" unless @requirepass.nil? %>
 
 PIDFILE=<%= @piddir %>/redis_${REDISNAME}.pid
 
@@ -44,12 +44,16 @@ ulimit -n <%= @ulimit %>
 
 case "$1" in
     status)
-        p_count=`netstat -an|grep 6379 | grep TEN | wc -l`
-        if [ $p_count -lt 1 ] ; then
-                echo "not connected to redis server. netstat -an | grep 6379 | grep TEN returns nothing"
-                exit 1
+        if [ -f $PIDFILE ]
+        then
+          echo "redis$REDISNAME $PIDFILE exists, pid is $(cat $PIDFILE), should be running"
+          ps -p $(cat $PIDFILE) >/dev/null 2>&1
+          exit $?
+        else
+          echo "redis$REDISNAME $PIDFILE doesn't exist"
+          exit 3
         fi
-    ;;
+        ;;
     start)
         if [ -f $PIDFILE ]
         then
@@ -67,7 +71,7 @@ case "$1" in
                 PID=$(cat $PIDFILE)
                 echo "Stopping ..."
 
-                <%= "$CLIEXEC #{connection_string} save" if @shutdown_save %>                 
+                <%= "$CLIEXEC #{connection_string} save" if @shutdown_save %>
                 $CLIEXEC <%= connection_string %> shutdown
 
                 while [ -x /proc/${PID} ]

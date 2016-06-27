@@ -4,5 +4,5 @@
 
 ci = node.workorder.rfcCi.ciAttributes
 
-node.set[:redisio][:source_url] = ci['src_url']
+node.set[:redisio][:mirror] = ci['src_url']
 node.set[:version] = ci['version']

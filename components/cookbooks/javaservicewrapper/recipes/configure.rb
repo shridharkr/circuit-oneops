@@ -8,14 +8,13 @@ bash 'uninstall_daemon' do
 end
 end
 
-if (!File.directory?(node['javaservicewrapper']['working_dir']))
-  directory "#{node['javaservicewrapper']['working_dir']}" do
-    mode 00755
-    owner node['javaservicewrapper']['as_user']
-    group node['javaservicewrapper']['as_group']
-    recursive true
-    action :create
-  end
+directory "#{node['javaservicewrapper']['working_dir']}" do
+  mode 00755
+  owner node['javaservicewrapper']['as_user']
+  group node['javaservicewrapper']['as_group']
+  recursive true
+  action :create
+  only_if { File.directory?(node['javaservicewrapper']['working_dir']) }
 end
 
 # generate the wrapper.conf

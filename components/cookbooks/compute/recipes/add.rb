@@ -52,8 +52,6 @@ if node.workorder.rfcCi.has_key?(:ciState) && node.workorder.rfcCi.ciState == "r
   case provider_service
   when /infoblox/
     provider = "infoblox"
-  when /azuredns/
-    provider = "azuredns"
   when /designate/
     provider = "designate"
   end

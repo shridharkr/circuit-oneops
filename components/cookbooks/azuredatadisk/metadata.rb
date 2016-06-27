@@ -51,8 +51,7 @@ attribute 'client_secret',
               :order => 4
           }
 attribute 'master_rg',
-          :description => "Master RG for Storage Account",
-          :encrypted => true,
+          :description => "Master RG for Storage Account",         
           :required => "required",
           :default => "",
           :format => {
@@ -61,8 +60,7 @@ attribute 'master_rg',
               :order => 1
           }
 attribute 'storage_account',
-          :description => "Azure Storage Account Name",
-          :encrypted => true,
+          :description => "Azure Storage Account Name",       
           :required => "required",
           :default => "",
           :format => {
