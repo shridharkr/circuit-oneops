@@ -73,7 +73,7 @@ storage-aggregation}.each do |item|
     
     override_attribute = "override_" + item
     
-    if node.graphite.has_key?("#{override_attribute}") && !node['graphite']['#{item}'].empty?
+    if node.graphite.has_key?("#{override_attribute}") && !node['graphite']['#{item}'].nil?
         file "/opt/graphite/conf/#{item}.conf" do
             content node['graphite']['#{override_attribute}']
         end
