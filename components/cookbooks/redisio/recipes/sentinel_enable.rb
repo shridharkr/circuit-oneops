@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: redisio
-# Recipe:: enable
+# Recipe:: sentinel_enable
 #
 # Copyright 2013, Brian Bianco <brian.bianco@gmail.com>
 #
@@ -18,7 +18,11 @@
 # limitations under the License.
 #
 
-redis = node['redisio']
+sentinel_instances = node['redisio']['sentinels']
+
+if sentinel_instances.nil?
+  sentinel_instances = [{'sentinel_port' => '26379', 'name' => 'mycluster', 'master_ip' => '127.0.0.1', 'master_port' => '6379'}]
+end
 
 execute 'reload-systemd' do
   command '/usr/bin/systemctl daemon-reload'
@@ -26,12 +30,12 @@ execute 'reload-systemd' do
   action :nothing
 end
 
-redis['servers'].each do |current_server|
-  server_name = current_server["name"] || current_server["port"]
+sentinel_instances.each do |current_sentinel|
+  sentinel_name = current_sentinel['name']
   resource_name = if node['redisio']['job_control'] == 'systemd'
-                    "service[redis@#{server_name}]"
+                    "service[redis-sentinel@#{sentinel_name}]"
                   else
-                    "service[redis#{server_name}]"
+                    "service[redis_sentinel_#{sentinel_name}]"
                   end
   resource = resources(resource_name)
   resource.action Array(resource.action)
@@ -39,8 +43,8 @@ redis['servers'].each do |current_server|
   if node['redisio']['job_control'] != 'systemd'
     resource.action << :enable
   else
-    link "/etc/systemd/system/multi-user.target.wants/redis@#{server_name}.service" do
-      to '/usr/lib/systemd/system/redis@.service'
+    link "/etc/systemd/system/multi-user.target.wants/redis-sentinel@#{sentinel_name}.service" do
+      to '/usr/lib/systemd/system/redis-sentinel@.service'
       notifies :run, 'execute[reload-systemd]', :immediately
     end
   end
