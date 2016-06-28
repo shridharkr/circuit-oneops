@@ -79,9 +79,9 @@ end
 
 
 # ex) customer_domain: env.asm.org.oneops.com
-customer_domain = node.customer_domain
-if node.customer_domain !~ /^\./
-  customer_domain = '.'+node.customer_domain
+customer_domain = node.customer_domain.downcase
+if node.customer_domain.downcase !~ /^\./
+  customer_domain = '.'+node.customer_domain.downcase
 end
 
 
