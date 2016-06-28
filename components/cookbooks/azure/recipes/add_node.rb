@@ -106,8 +106,7 @@ begin
   storageprofilecls.location = location
   storageprofilecls.resource_group_name = resource_group_name
   storageprofile =
-    storageprofilecls.build_profile(node,
-                                    compute_service['ephemeral_disk_sizemap'])
+    storageprofilecls.build_profile(node)
 rescue => ex
   OOLog.fatal("Error getting storage profile: #{ex.message}")
 end
