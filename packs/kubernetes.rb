@@ -64,7 +64,7 @@ resource 'os-master',
   :cookbook => 'oneops.1.os',
   :design => true,
   :requires => { "constraint" => "1..1", "services" => "compute,dns,*ntp" },
-  :attributes => { "ostype"  => "centos-7.0",
+  :attributes => { "ostype"  => "centos-7.2",
                  "dhclient"  => 'true'
                },
 :monitors => {
