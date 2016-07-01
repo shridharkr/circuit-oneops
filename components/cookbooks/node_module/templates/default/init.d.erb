@@ -20,7 +20,8 @@ SCRIPT_LOCATION="<%=node[:node_module][:script_location]%>"
 LOG_FILE="<%=node[:node_module][:log_file]%>"
 SERVER="$SCRIPT_LOCATION $SCRIPT_OPTIONS"
 
-SERVER_ROOT="<%=node[:node_module][:server_root]%>"
+# /<%=node[:node_module][:name]%> for relative urls within itself
+SERVER_ROOT="<%=node[:node_module][:server_root]%>/<%=node[:node_module][:name]%>"
 
 LOCK_FILE="/var/lock/subsys/node-server"
 

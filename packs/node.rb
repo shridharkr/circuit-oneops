@@ -39,12 +39,12 @@ resource "nodejs",
          },
          :attributes => {
            :install_method => 'binary',
-           :version => '0.10.33',
+           :version => '4.4.7',
            :src_url => 'https://nodejs.org/dist/',
            :checksum_linux_x64 => '',
            :dir => '/usr/local',
            :npm_src_url => 'https://registry.npmjs.org/',
-           :npm => '2.12.0'
+           :npm => '3.10.3'
          },
          :monitors => {
            'URL' => {
@@ -165,7 +165,7 @@ resource "volume-app",
          },
          :attributes => {
            "mount_point"   => '/app',
-           "size"          => '10G',
+           "size"          => '50%FREE',
            "device"        => '',
            "fstype"        => 'ext4',
            "options"       => ''
