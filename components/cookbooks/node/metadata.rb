@@ -78,7 +78,7 @@ attribute 'npm',
   :format => {
     :category => '1.Global',
     :order => 7,
-    :default => "3.10.3"",
+    :default => "3.10.3",
     :help => 'NPM version'
   }
 
