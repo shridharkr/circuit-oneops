@@ -3,6 +3,11 @@ cloud_type = node[:workorder][:services][:filestore][cloud_name][:ciClassName].s
 
 
 case cloud_type
-  when /swift/
-    include_recipe "swift::add_objectstore"
-  end
+when /swift/
+  include_recipe "swift::add_objectstore"
+end
+
+cookbook_file "objectstore" do
+  mode "755"
+  path "/usr/local/bin/objectstore"
+end
