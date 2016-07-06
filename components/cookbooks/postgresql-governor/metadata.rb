@@ -36,7 +36,7 @@ attribute 'port',
 attribute 'postgresql_conf',
   :description => "Customimze PostgreSQL config",
   :data_type => "hash",
-  :default => '{"max_connections":"100","shared_buffers":"24MB","work_mem":"8MB","ssl":"off","data_directory":"/data"}',
+  :default => '{"max_connections":"100","shared_buffers":"24MB","work_mem":"8MB","ssl":"off","data_directory":"/db"}',
   :format => {
     :important => true,
     :help => 'Customize config. Note: (1) make sure use single quotes for paramter values when needed. (2) parameter values defined here have the highest priority to overwrite',
