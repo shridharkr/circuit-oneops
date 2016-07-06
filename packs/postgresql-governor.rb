@@ -247,7 +247,7 @@ resource "etcd",
   :design => true,
   :requires => { "constraint" => "1..1" },
   :attributes => {
-    
+    :version => "3.0.1"
 }
 
 resource "haproxy",
