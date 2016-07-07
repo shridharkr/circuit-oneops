@@ -161,7 +161,9 @@ module AzureNetwork
       #include the network securtiry group to the network interface
       nsg = AzureNetwork::NetworkSecurityGroup.new(creds, subscription)
       network_security_group = nsg.get(@rg_name, security_group_name)
-      network_interface.properties.network_security_group = network_security_group
+      if !security_group.nil?
+        network_interface.properties.network_security_group = network_security_group
+      end
 
       # create the nic
       nic = create_update(network_interface)
