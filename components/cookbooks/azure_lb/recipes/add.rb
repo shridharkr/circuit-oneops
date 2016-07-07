@@ -183,7 +183,7 @@ def get_compute_nat_rules(subscription_id, resource_group_name, lb_name, fronten
 
   compute_nodes = get_compute_nodes_from_wo()
   if compute_nodes.count > 0
-    port_increment = 1000
+    port_increment = 10
     port_counter = 1
     front_port = 0
     OOLog.info("Configuring NAT Rules ...")
