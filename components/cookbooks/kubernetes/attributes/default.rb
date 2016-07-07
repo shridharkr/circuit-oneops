@@ -38,8 +38,8 @@ if node.workorder.services.has_key?("mirror") &&
   
   mirrors = JSON.parse(node.workorder.services.mirror[cloud_name]['ciAttributes']['mirrors'])
   if mirrors.has_key?("kubernetes")
+    mirror = mirrors['kubernetes']    
     Chef::Log.info("using mirrors payload: #{mirror}")
-    mirror = mirrors['kubernetes']
   end
   
 end

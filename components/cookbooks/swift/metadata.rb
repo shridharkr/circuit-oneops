@@ -53,3 +53,20 @@ attribute 'authstrategy',
               :order => 4
           }
 
+attribute 'username',
+          :description => "Username",
+          :format => {
+              :help => 'Username',
+              :category => '1.Authentication',
+              :order => 5
+          }
+
+attribute 'password',
+          :description => "Password",
+          :encrypted => true,
+          :format => {
+              :help => 'Password',
+              :category => '1.Authentication',
+              :order => 6
+          }          
+          

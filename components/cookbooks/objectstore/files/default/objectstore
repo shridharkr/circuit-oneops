@@ -14,6 +14,17 @@ OptionParser.new do |opts|
 end.parse!
 
 
+action = ARGV[0]
+if action.nil?
+  puts "Usage: "
+  puts "objectstore list [bucket]"
+  puts "objectstore upload local_dir|file bucket"
+  puts "objectstore download bucket local_dir" 
+  puts "objectstore delete file|bucket"
+  exit 1
+end
+
+
 # get creds from openrc
 # s3, cloudfiles, etc will use 
 creds = {}
@@ -38,12 +49,10 @@ when "openstack"
     :provider            => 'OpenStack',
     :openstack_username  => creds['OS_USERNAME'],
     :openstack_api_key   => creds['OS_PASSWORD'],
-    :openstack_auth_url  => creds['OS_AUTH_URL']+'tokens'
+    :openstack_auth_url  => creds['OS_AUTH_URL']+'/tokens'
   })
 end
 
-
-action = ARGV[0]
 
 case action
 when 'list'

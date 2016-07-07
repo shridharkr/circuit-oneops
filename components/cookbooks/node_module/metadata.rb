@@ -21,7 +21,7 @@ attribute 'name',
   :format => {
     :category => '1.Global',
     :order => 1,
-    :help => 'Name of your application node module without the @walmart'
+    :help => 'Name of your application node module'
   }
 
 attribute 'module_name',
@@ -49,6 +49,15 @@ attribute 'server_root',
     :help => 'Location of the server'
   }
 
+attribute 'install_options',
+  :description => 'Options to pass to ',
+  :default => '-p 8080 -e DEV',
+  :format => {
+    :category => '1.Global',
+    :order => 4,
+    :help => 'Options for node'
+  }  
+  
 attribute 'options',
   :description => 'Options for node',
   :default => '-p 8080 -e DEV',
