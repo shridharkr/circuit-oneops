@@ -1,5 +1,4 @@
-#include_pack "generic_ring"
-include_pack "genericlb"
+include_pack "lbdb"
 
 name "postgresql-governor"
 description "Governor based PostgreSQL"
@@ -12,41 +11,12 @@ resource "secgroup",
          :cookbook => "oneops.1.secgroup",
          :design => true,
          :attributes => {
-             "inbound" => '[ "22 22 tcp 0.0.0.0/0", "5432 5432 tcp 0.0.0.0/0", "5000 5000 tcp 0.0.0.0/0", "2379 2379 tcp 0.0.0.0/0", "2380 2380 tcp 0.0.0.0/0", "5000 5000 tcp 0.0.0.0/0", "15432 15432 tcp 0.0.0.0/0" ]'
+             "inbound" => '[ "22 22 tcp 0.0.0.0/0", "5432 5432 tcp 0.0.0.0/0", "2379 2379 tcp 0.0.0.0/0", "2380 2380 tcp 0.0.0.0/0", "5000 5000 tcp 0.0.0.0/0", "15432 15432 tcp 0.0.0.0/0" ]'
          },
          :requires => {
              :constraint => "1..1",
              :services => "compute"
          }
-
-#resource "database",
-#  :cookbook => "oneops.1.database",
-#  :design => true,
-#  :requires => { "constraint" => "1..*" },
-#  :attributes => {  "dbname"        => 'mydb',
-#                    "username"      => 'myuser',
-#                    "password"      => 'mypassword' }
-
-resource "volume",
-  :requires => { "constraint" => "1..1", "services" => "compute" },
-  :attributes => {  "mount_point"   => '/data',
-    "device"        => '',
-    "fstype"        => 'xfs',
-    "options"       => 'noatime,nodiratime'
-  },
-  :monitors => {
-    'usage' =>  {'description' => 'Usage',
-        'chart' => {'min'=>0,'unit'=> 'Percent used'},
-        'cmd' => 'check_disk_use!:::node.workorder.rfcCi.ciAttributes.mount_point:::',
-        'cmd_line' => '/opt/nagios/libexec/check_disk_use.sh $ARG1$',
-        'metrics' => { 'space_used' => metric( :unit => '%', :description => 'Disk Space Percent Used'),
-            'inode_used' => metric( :unit => '%', :description => 'Disk Inode Percent Used') },
-        :thresholds => {
-            'LowDiskSpace' => threshold('5m','avg','space_used',trigger('>',90,5,1),reset('<',90,5,1)),
-            'LowDiskInode' => threshold('5m','avg','inode_used',trigger('>',90,5,1),reset('<',90,5,1)),
-        },
-    },
-}
 
 resource "postgresql-governor",
   :cookbook => "oneops.1.postgresql-governor",
@@ -277,7 +247,7 @@ resource "etcd",
   :design => true,
   :requires => { "constraint" => "1..1" },
   :attributes => {
-    
+    :version => "3.0.1"
 }
 
 resource "haproxy",
@@ -343,6 +313,14 @@ end
     :from_resource => from,
     :to_resource   => 'compute',
     :attributes    => { "propagate_to" => 'from', "flex" => false, "min" => 1, "max" => 1 }
+end
+
+[ 'database' ].each do |from|
+  relation "#{from}::depends_on::postgresql-governor",
+  :relation_name => 'DependsOn',
+  :from_resource => from,
+  :to_resource   => 'postgresql-governor',
+  :attributes    => { "flex" => false, "min" => 1, "max" => 1 } 
 end
 
 # managed_via
