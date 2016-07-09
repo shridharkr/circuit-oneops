@@ -12,8 +12,9 @@ as_user = node['node_module']['as_user']
 server_root = node['node_module']['server_root']
 node.set['node_module']['npm'] = `which npm`.strip
 node.set['node_module']['node'] = `which node`.strip
+install_options = node['node_module']['install_options'] || ''
 
-execute "#{node['node_module']['npm']} install #{module_name}@#{module_version}" do
+execute "#{node['node_module']['npm']} install #{module_name}@#{module_version} #{install_options}" do
   cwd server_root
 end
 
