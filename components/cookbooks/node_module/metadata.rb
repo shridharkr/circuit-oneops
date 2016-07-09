@@ -50,12 +50,12 @@ attribute 'server_root',
   }
 
 attribute 'install_options',
-  :description => 'Options to pass to ',
-  :default => '-p 8080 -e DEV',
+  :description => 'Options to pass to npe install',
+  :default => '',
   :format => {
     :category => '1.Global',
     :order => 4,
-    :help => 'Options for node'
+    :help => 'Options for npe install. eg --disturl=http://someinternalserver/nodejs'
   }  
   
 attribute 'options',
