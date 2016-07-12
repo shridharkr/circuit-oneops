@@ -116,13 +116,15 @@ when 'upload'
 
   if File.directory? local_dir 
     Dir.chdir local_dir
-    Dir.glob("**/*").each do |file| 
+    files = `find . -type f`.split("\n")
+    files.each do |file| 
+      file.gsub!(/^\.\//,'')
       content = File.open(file)
       puts "upload: #{file} to #{remote_dir}"
       file = dir.files.create :key => file, :body => content 
     end
   else
-    # must be a file
+    # must be a single file
     local_file = local_dir
     if File.exists? local_file
       content = File.open(local_file)
@@ -167,6 +169,17 @@ when 'download'
       end
       
     else
+      if remote_file.key.include?('/')
+        dirs_list = remote_file.key.split('/')
+        dirs_list.pop
+        dirs = dirs_list.join('/')
+        puts "making dir: #{local_dir + dirs}"
+        `mkdir -p #{local_dir + dirs}` 
+        if $?.to_i != 0
+          puts "error creating local dir: #{local_dir + dirs}"
+          exit 1
+        end
+      end
 
       File.open(local_dir + remote_file.key, 'w') do |local_file|
         puts "writing: #{local_dir + remote_file.key}"
