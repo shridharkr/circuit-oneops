@@ -28,9 +28,14 @@ when 'flannel'
   service 'flanneld' do
     action [:enable, :restart]
   end      
-    
-  execute "etcdctl mk /atomic.io/network/config '{\"Network\":\"11.11.0.0/16  \"}'"   
-  #execute "etcdctl mk /atomic.io/network/config '{\"Network\":\"#{network_cidr}\"}'" 
+
+  network_cidr = "11.11.0.0/16"
+  if node.workorder.payLoad.has_key?("manifest-docker")
+    docker = node.workorder.payLoad['manifest-docker'].first
+    network_cidr = docker['ciAttributes']['network_cidr']
+  end
+      
+  execute "etcdctl mk /atomic.io/network/config '{\"Network\":\"#{network_cidr}\"}'" 
   #execute "etcdctl mk /atomic.io/network/config '{\"Network\": \"#{network_cidr}\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\", \"VNI\": 1}}'"
 
   if node.workorder.payLoad.has_key?("manifest-docker")
