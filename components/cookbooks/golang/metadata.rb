@@ -128,7 +128,7 @@ attribute 'go_source_method',
  attribute 'go_mode',
   :description => "Go Mode",
   :required => "required",
-  :default => 0755,
+  :default => "0755",
   :format => {
     :category => '1.GO_Specifics',
     :help => 'Go Mode',
