@@ -5,6 +5,34 @@ description  'Kubernetes'
 type         'Platform'
 category     'Infrastructure Service'
 
+
+resource 'secgroup',
+  :attributes => {
+      :inbound => '[
+        "22 22 tcp 0.0.0.0/0", 
+        "80 80 tcp 0.0.0.0/0",
+        "8472 8472 udp 0.0.0.0/0",
+        "8285 8285 udp 0.0.0.0/0",
+        "53 53 tcp 0.0.0.0/0",
+        "53 53 udp 0.0.0.0/0",
+        "2181 2181 tcp 0.0.0.0/0",
+        "3888 3888 tcp 0.0.0.0/0",
+        "8080 8080 tcp 0.0.0.0/0", 
+        "2888 2888 tcp 0.0.0.0/0",
+        "10053 10053 tcp 0.0.0.0/0"
+      ]'
+  }
+
+resource 'docker_engine',
+         :attributes => {
+             :version => '1.11.2',
+             :root => '$OO_LOCAL{docker-root}',
+             :repo => '$OO_LOCAL{docker-repo}',
+             :network => 'flannel',
+             :network_cidr => '11.11.0.0/16',
+             :network_subnet => '11.11.{INSTANCE_INDEX}.1/24',           
+         } 
+ 
 resource 'secgroup-master',
   :cookbook => 'oneops.1.secgroup',
   :design => true,
@@ -169,6 +197,7 @@ resource 'os-master',
   }
 }    
 
+
 resource 'etcd-master',
   :cookbook => 'oneops.1.etcd',
   :requires => { "constraint" => "1..1", "services" => "*mirror" },
@@ -296,7 +325,33 @@ resource 'kubernetes-master',
            }
          ]
       }'
-    }  
+    },
+    'manifest-docker' => {
+      'description' => 'manifest-docker',
+      'definition' => '{
+         "returnObject": false,
+         "returnRelation": false,
+         "relationName": "base.RealizedAs",
+         "direction": "to",
+         "targetClassName": "manifest.oneops.1.Kubernetes",
+         "relations": [
+           { "returnObject": false,
+             "returnRelation": false,
+             "relationName": "manifest.Requires",
+             "direction": "to",
+             "targetClassName": "manifest.Platform",
+             "relations": [
+               { "returnObject": true,
+                 "returnRelation": false,
+                 "relationName": "manifest.Requires",
+                 "direction": "from",
+                 "targetClassName": "manifest.oneops.1.Docker_engine"    
+               }
+             ]
+           }
+         ]
+      }'
+    }          
   }
 
 

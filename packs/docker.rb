@@ -63,7 +63,56 @@ resource 'docker_engine',
                                     :dockerEngineDown => threshold('1m', 'avg', 'up', trigger('<=', 98, 1, 1), reset('>', 95, 1, 1), 'unhealthy')
                                 }
              }
-         }
+         },
+        :payloads => {
+          # etcd computes for flannel
+          'etcd-computes' => {
+            'description' => 'etcd-computes',
+            'definition' => '{
+               "returnObject": false,
+               "returnRelation": false,
+               "relationName": "base.RealizedAs",
+               "direction": "to",
+               "targetClassName": "manifest.oneops.1.Docker_engine",
+               "relations": [
+                 { "returnObject": false,
+                   "returnRelation": false,
+                   "relationName": "manifest.Requires",
+                   "direction": "to",
+                   "targetClassName": "manifest.Platform",
+                   "relations": [
+                     { "returnObject": false,
+                       "returnRelation": false,
+                       "relationName": "manifest.Requires",
+                       "targetCiName": "kubernetes-master",
+                       "direction": "from",
+                       "targetClassName": "manifest.oneops.1.Etcd",
+                      "relations": [
+                        { "returnObject": false,
+                          "returnRelation": false,
+                          "relationName": "manifest.ManagedVia",
+                          "direction": "from",
+                          "targetClassName": "manifest.oneops.1.Compute",
+                          "relations": [
+                              { "returnObject": true,
+                                "returnRelation": false,
+                                "relationName": "base.RealizedAs",
+                                "direction": "from",
+                                "targetClassName": "bom.oneops.1.Compute"
+                              }
+                            ]
+          
+                         }              
+                       ]
+          
+                     }
+                   ]
+                 }
+               ]
+            }'
+          }
+        }
+           
 
 resource 'artifact',
          :cookbook => 'oneops.1.artifact',

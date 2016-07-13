@@ -19,10 +19,7 @@ KUBE_MASTER="--master=<%= node['kube']['api']['host'] %>:<%= node['kube']['api']
 KUBELET_PORT="--kubelet_port=<%= node['kube']['kubelet']['bind-port'] %>"
 
 # Address range to use for services
-#KUBE_SERVICE_ADDRESSES="--portal_net=<%= node['kube']['service']['addresses'] %>"
 KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range=<%= node['kube']['service']['addresses'] %>"
-
-
 
 # Add you own!
 KUBE_API_ARGS="<%= node['kube']['api']['args'] %>"
