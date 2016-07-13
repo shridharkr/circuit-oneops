@@ -81,7 +81,7 @@ attribute 'version',
 attribute 'network',
   :grouping => 'cluster',
   :description => "Network overlay",
-  :default => "openvswitch",
+  :default => "flannel",
   :required => "required",
   :format => {
     :important => true,

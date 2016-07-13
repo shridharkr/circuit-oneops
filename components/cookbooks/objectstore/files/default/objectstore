@@ -19,7 +19,7 @@ if action.nil?
   puts "Usage: "
   puts "objectstore list [bucket]"
   puts "objectstore upload local_dir|file bucket"
-  puts "objectstore download bucket local_dir" 
+  puts "objectstore download bucket|file local_dir" 
   puts "objectstore delete file|bucket"
   exit 1
 end
@@ -142,7 +142,16 @@ when 'download'
     exit 1
   end
 
-  dir = conn.directories.get(ARGV[1])
+  parts = ARGV[1].split('/')
+  dir_name = parts.shift
+  file = ''
+  subdir = ''
+  if parts.size > 0
+    file = parts.join('/')
+    parts.pop
+    subdir = parts.join('/')
+  end
+  dir = conn.directories.get(dir_name)
   local_dir = ARGV[2]
     
   if local_dir[-1,1] != '/'
@@ -169,7 +178,8 @@ when 'download'
       end
       
     else
-      if remote_file.key.include?('/')
+      if remote_file.key.include?('/') &&
+         subdir.empty? || remote_file.key.include?(subdir)
         dirs_list = remote_file.key.split('/')
         dirs_list.pop
         dirs = dirs_list.join('/')
@@ -181,9 +191,13 @@ when 'download'
         end
       end
 
-      File.open(local_dir + remote_file.key, 'w') do |local_file|
-        puts "writing: #{local_dir + remote_file.key}"
-        local_file.write(remote_file.body)
+      # if bucket is supplied file will be empty
+      puts "match on file: #{file} #{remote_file.key}"
+      if file.empty? || file == remote_file.key
+        File.open(local_dir + remote_file.key, 'w') do |local_file|
+          puts "writing: #{local_dir + remote_file.key}"
+          local_file.write(remote_file.body)
+        end
       end
 
     end

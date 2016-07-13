@@ -46,4 +46,4 @@ end
 default['kube']['package'] = mirror+"/kubernetes/releases/download/v#{node.workorder.rfcCi.ciAttributes.version}/kubernetes.tar.gz"
 
 # related packages
-default['kube']['go']['package'] = 'go'
+default['kube']['go']['package'] = 'golang'

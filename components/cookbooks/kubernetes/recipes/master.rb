@@ -13,67 +13,53 @@
 # limitations under the License.
 #
 
-# get etcd and kubelet servers - subtracting workers from all to get masters until targetCiName filtering in payLoad
-all_ips = []
-worker_ips = []
-api_servers = []
-node.workorder.payLoad['worker-computes'].each do |ci|
-  worker_ips.push ci['ciAttributes']['private_ip']
-end
-node.workorder.payLoad['master-computes'].each do |ci|
-  all_ips.push ci['ciAttributes']['private_ip']
-end
-master_ips = all_ips - worker_ips
-node.set['kube']['kubelet']['machines'] = worker_ips
-
-etcd_servers = []
-master_ips.each do |c|
-  etcd_servers << "http://#{c}:2379"
-end
-node.set['etcd']['servers'] = etcd_servers.join(',')
-
-
 include_recipe 'kubernetes::firewall'
 include_recipe 'kubernetes::go'
 
-pkg_url = node['kube']['package']
-pkg_name = ::File.basename(pkg_url)
-download_dir = '/root'
+case node.kubernetes.network
+when 'flannel'
 
-# download kubernetes package
-remote_file "#{download_dir}/#{pkg_name}" do
-  source pkg_url
+  # install flannel
+  package 'flannel'
+  template '/etc/sysconfig/flanneld' do
+    source 'flanneld.erb'
+  end
+
+  service 'flanneld' do
+    action [:enable, :restart]
+  end      
+    
+  execute "etcdctl mk /atomic.io/network/config '{\"Network\":\"11.11.0.0/16  \"}'"   
+  #execute "etcdctl mk /atomic.io/network/config '{\"Network\":\"#{network_cidr}\"}'" 
+  #execute "etcdctl mk /atomic.io/network/config '{\"Network\": \"#{network_cidr}\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\", \"VNI\": 1}}'"
+
+  if node.workorder.payLoad.has_key?("manifest-docker")
+    docker = node.workorder.payLoad['manifest-docker'].first
+    ci_index = node.workorder.rfcCi.ciName.split('-').last  
+    if ci_index.to_i == 1    
+      network_cidr = docker['ciAttributes']['network_cidr']
+      Chef::Log.info("setting etcd flannel network: #{network_cidr}")
+      
+    end
+  end
+
 end
 
-# extract kubernetes package
-execute "extract package #{pkg_name}" do
-  cwd download_dir
-  command "tar xf #{pkg_name} && tar xf kubernetes/server/kubernetes-server-linux-amd64.tar.gz"
-end
 
-# copy kubernetes bin to /usr/bin dir
-execute 'copy kubernetes to /usr/bin dir' do
-  cwd download_dir
-  command '/bin/cp -rf kubernetes/server/bin/kube* /usr/bin/'
-end
+include_recipe 'kubernetes::install'
 
-# create kube user
-user 'create kube user' do
-  username 'kube'
-  comment 'kubernetes user'
-  home '/var/lib/kubelet'
-  shell '/usr/sbin/nologin'
-  supports manage_home: true
-end
 
-# create /etc/kubernetes directory
-directory '/etc/kubernetes' do
-  owner 'root'
-  group 'root'
-  mode 00755
-  action :create
+kubelet_args_value = ''
+if node.kubernetes.has_key?("kubelet_args")
+  kubelet_args = JSON.parse(node.kubernetes.kubelet_args)
+  kubelet_args.each_pair do |k,v|
+    Chef::Log.info("setting kubelet arg: --#{k}=#{v}")
+    kubelet_args_value += " --#{k}=#{v}"
+  end
 end
-  
+node.set['kube']['kubelet']['args'] = kubelet_args_value
+
+
 # generate kubernetes config file
 %w(apiserver config controller-manager scheduler).each do |file|
   template "/etc/kubernetes/#{file}" do
