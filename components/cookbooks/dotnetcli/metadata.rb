@@ -11,7 +11,7 @@ grouping 'default',
   :packages => [ 'base', 'mgmt.catalog', 'mgmt.manifest', 'catalog', 'manifest', 'bom' ]
 attribute 'folderpath',
   :description => 'Dotnet Installation Folder',
-  :default => '/usr/share/dotnet',
+  :default => '/opt/dotnet',
   :format => {
     :help => 'Default name of the file to create',
     :category => '1.Global',
@@ -36,7 +36,7 @@ attribute 'folderpath',
   attribute 'src_url',
             :description => 'Source URL',
             :required => 'required',
-            :default => 'https://dotnetcli.blob.core.windows.net/dotnet/beta/Binaries/Latest/dotnet-dev-centos-x64.latest.tar.gz',
+            :default => 'https://go.microsoft.com/fwlink/?LinkID=809131',
             :format => {
                 :help => 'location of the dotnet source distribution',
                 :category => '1.Global',
