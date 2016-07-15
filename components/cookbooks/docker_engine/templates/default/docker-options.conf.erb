@@ -30,9 +30,14 @@ Environment=<%= env.strip %>
   # Add default non-networked Unix domain socket (-H fd://) for docker remote API.
 %>
 ExecStart=
+<% if node.docker_engine.network == "flannel" %>  
+EnvironmentFile=-/run/flannel/subnet.env 
+<% end %>
 ExecStart=/usr/bin/docker daemon -H fd://  <%= root %>  \
                                           <%= certs %>  \
                                         <%= options %>  \
                                 <%= legacy_registry %>  \
                               <%= insecure_registry %>  \
+<% if node.docker_engine.network == "flannel" %>  
+   --bip=${FLANNEL_SUBNET} --mtu=${FLANNEL_MTU} \<% end %>
                                <%= registry_mirrors %>

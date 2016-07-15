@@ -157,15 +157,17 @@ module AzureNetwork
 
       # define the nic
       network_interface = define_network_interface(nic_ip_config)
-      
+
       #include the network securtiry group to the network interface
       nsg = AzureNetwork::NetworkSecurityGroup.new(creds, subscription)
       network_security_group = nsg.get(@rg_name, security_group_name)
-      network_interface.properties.network_security_group = network_security_group
+      if !network_security_group.nil?
+        network_interface.properties.network_security_group = network_security_group
+      end
 
       # create the nic
       nic = create_update(network_interface)
-      
+
       # retrieve and set the private ip
       @private_ip =
           nic.properties.ip_configurations[0].properties.private_ipaddress

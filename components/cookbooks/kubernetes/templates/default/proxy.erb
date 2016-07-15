@@ -6,10 +6,10 @@
 # default config should be adequate
 
 # Add your own!
-KUBE_PROXY_ARGS="<%= node['kube']['proxy']['args'] %>"'
+KUBE_PROXY_ARGS="<%= node['kube']['proxy']['args'] %>"
 <% 
 lbs = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Lb/}
 # cannot use a name/fqdn or else will error with: unsupported protocol scheme
 master = lbs.first['ciAttributes']['dns_record']
 %>
-KUBE_MASTER="--master=#{master}:8080"
+KUBE_MASTER="--master=<%= master %>:8080"
