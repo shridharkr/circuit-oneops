@@ -23,11 +23,7 @@ when 'flannel'
   package 'flannel'
   template '/etc/sysconfig/flanneld' do
     source 'flanneld.erb'
-  end
-
-  service 'flanneld' do
-    action [:enable, :restart]
-  end      
+  end    
 
   network_cidr = "11.11.0.0/16"
   if node.workorder.payLoad.has_key?("manifest-docker")
@@ -35,9 +31,17 @@ when 'flannel'
     network_cidr = docker['ciAttributes']['network_cidr']
   end
       
-  execute "etcdctl mk /atomic.io/network/config '{\"Network\":\"#{network_cidr}\"}'" 
   #execute "etcdctl mk /atomic.io/network/config '{\"Network\": \"#{network_cidr}\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\", \"VNI\": 1}}'"
+  execute "etcdctl mk /atomic.io/network/config '{\"Network\":\"#{network_cidr}\"}'" do
+    returns [0,4]
+  end
 
+  
+
+  service 'flanneld' do
+    action [:enable, :restart]
+  end  
+  
   if node.workorder.payLoad.has_key?("manifest-docker")
     docker = node.workorder.payLoad['manifest-docker'].first
     ci_index = node.workorder.rfcCi.ciName.split('-').last  
