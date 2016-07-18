@@ -370,7 +370,7 @@ end
 ruby_block 'create-ephemeral-volume-on-azure-vm' do
   only_if { token_class =~ /azure/ || _fstype != 'tmpfs' }
   block do
-    inital_mountpoint = "/mnt/resource"
+    initial_mountpoint = '/mnt/resource'
 
     `mkdir /myScript`
     `touch /myScript/lvmscript.sh`
@@ -378,7 +378,7 @@ ruby_block 'create-ephemeral-volume-on-azure-vm' do
     Chef::Log.info("unmounting #{initial_mountpoint}")
     `echo "umount #{initial_mountpoint}" >> /myScript/lvmscript.sh`
 
-    ephemeralDevice = "/dev/sdb1"
+    ephemeralDevice = '/dev/sdb1'
     `echo "pvcreate -f #{ephemeralDevice}" >> /myScript/lvmscript.sh`
     `echo "vgcreate #{platform_name}-eph #{ephemeralDevice}" >> /myScript/lvmscript.sh`
 
@@ -395,7 +395,6 @@ ruby_block 'create-ephemeral-volume-on-azure-vm' do
     `echo "fi" >> /myScript/lvmscript.sh`
     `echo "mkdir #{_mount_point}" >> /myScript/lvmscript.sh`
     `echo "mount /dev/#{platform_name}-eph/#{logical_name} #{_mount_point}" >> /myScript/lvmscript.sh`
-    `cd ..`
     `sudo chmod +x /myScript/lvmscript.sh`
     `sudo echo "sh /myScript/lvmscript.sh" >> /etc/rc.local`
     `sudo chmod +x /etc/rc.local`
