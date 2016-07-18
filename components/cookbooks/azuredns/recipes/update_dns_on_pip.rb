@@ -1,7 +1,7 @@
 require 'azure_mgmt_network'
 
 #set the proxy if it exists as a cloud var
-AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 # get platform resource group and availability set
 include_recipe 'azure::get_platform_rg_and_as'
@@ -21,7 +21,7 @@ if !node.workorder.services["lb"].nil? &&
   Chef::Log.info("FQDN:: Cloud service name: #{cloud_service[:ciClassName]}")
 
   # Checks if Application Gateway service is enabled
-  if cloud_service[:ciClassName].split(".").last.downcase =~ /azure_gateway/
+  if cloud_service[:ciClassName].split(".").last.downcase =~ /azuregateway/
     application_gateway_enabled = true
     Chef::Log.info("FQDN::add Application Gateway Enabled: #{application_gateway_enabled}")
   end
@@ -41,7 +41,7 @@ tenant_id = dns_attributes['tenant_id']
 client_id = dns_attributes['client_id']
 client_secret = dns_attributes['client_secret']
 
-credentials = AzureCommon::AzureUtils.get_credentials(tenant_id, client_id, client_secret)
+credentials = Utils.get_credentials(tenant_id, client_id, client_secret)
 
 zone_name = dns_attributes['zone']
 zone_name = zone_name.split('.').reverse.join('.').partition('.').last.split('.').reverse.join('.')

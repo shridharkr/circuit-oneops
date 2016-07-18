@@ -160,7 +160,15 @@ attribute 'options',
     :order => 10
   }         
   
-             
+attribute 'check_port',
+   :description => "Check Port",
+   :default => "",
+   :format => {
+   :help => 'Handshake check',
+   :category => '1.Config',
+   :order => 11
+  }
+
     
 attribute 'override_config',
   :description => "Override Config Content",

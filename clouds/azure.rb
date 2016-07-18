@@ -28,6 +28,6 @@ service 'azure-datadisk',
 
 service 'azure-gateway',
         :description => 'Gateway-as-a-Service',
-        :cookbook => 'azure_gateway',
+        :cookbook => 'azuregateway',
         :source => [Chef::Config[:register], Chef::Config[:version].split(".").first].join('.'),
         :provides => {:service => 'lb'}

@@ -16,10 +16,10 @@ resource "cassandra",
       :help => 'Cassandra Server'
     },
   :attributes => {
-    "version"       => "2.1",
+    "version"       => "2.1.9",
     "cluster"       => "TestCluster",
     "config_directives" => '{
-      "data_file_directories":"[\"/var/lib/cassandra/data\"]",
+      "data_file_directories":"/var/lib/cassandra/data",
       "saved_caches_directory":"/var/lib/cassandra/saved_caches",
       "commitlog_directory":"/var/lib/cassandra/commitlog"
     }',
@@ -350,3 +350,38 @@ end
     :to_resource   => 'ring',
     :attributes    => { }
 end
+
+procedure "nodetool",
+  :description => "Cassandra nodetool",
+  :arguments => {
+        "nodetool arguments" => {
+                "name" => "nodetool_args",
+                "defaultValue" => "status",
+                "dataType" => "string"
+        }
+   },
+   :definition => '{
+    "flow": [
+        {
+            "execStrategy": "one-by-one",
+            "relationName": "manifest.Requires",
+            "direction": "from",
+            "targetClassName": "manifest.oneops.1.Cassandra",
+            "flow": [
+                {
+                    "relationName": "base.RealizedAs",
+                    "execStrategy": "one-by-one",
+                    "direction": "from",
+                    "targetClassName": "bom.oneops.1.Cassandra",
+                    "actions": [
+                        {
+                            "actionName": "nodetool",
+                            "stepNumber": 1,
+                            "isCritical": true
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}'

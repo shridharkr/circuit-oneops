@@ -1,10 +1,6 @@
 require 'azure_mgmt_resources'
-require File.expand_path('../azure_utils.rb', __FILE__)
 require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
-require File.expand_path('../regions.rb', __FILE__)
 
-::Chef::Recipe.send(:include, AzureCommon)
-::Chef::Recipe.send(:include, AzureRegions)
 ::Chef::Recipe.send(:include, Azure::ARM::Resources)
 ::Chef::Recipe.send(:include, Azure::ARM::Resources::Models)
 
@@ -14,10 +10,10 @@ module AzureResources
   class ResourceGroup
     def initialize(compute_service)
       creds =
-        AzureCommon::AzureUtils.get_credentials(compute_service[:tenant_id],
-                                                compute_service[:client_id],
-                                                compute_service[:client_secret]
-                                               )
+        Utils.get_credentials(compute_service[:tenant_id],
+                              compute_service[:client_id],
+                              compute_service[:client_secret]
+                             )
 
       @client = Azure::ARM::Resources::ResourceManagementClient.new(creds)
       @client.subscription_id = compute_service[:subscription]
@@ -87,7 +83,7 @@ module AzureResources
         assembly[0..15] + '-' +
         platform_ci_id.to_s + '-' +
         environment[0..15] + '-' +
-        AzureRegions::RegionName.abbreviate(location)
+        Utils.abbreviate_location(location)
       OOLog.info("Resource Group Name is: #{resource_group_name}")
       OOLog.info("Resource Group Name Length: #{resource_group_name.length}")
       resource_group_name

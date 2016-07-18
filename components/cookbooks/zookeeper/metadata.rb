@@ -102,6 +102,17 @@ attribute 'client_port',
     :pattern => "[0-9]+"
   }   
 
+  attribute 'jmx_port',
+   :description          => 'Port to listen for remote JMX connections',
+   :required => 'required',
+   :default               => "11061",
+   :format => {
+     :category => '2.Configuration Parameters',
+     :help => 'The port to listen for remote JMX connections.  Zookeeper will also listen for JMX RMI connections on jmx_port + 1 so be sure that both ports are free',
+     :order => 3,
+     :pattern => "[0-9]+"
+   }
+
 attribute 'leader_port',
   :description          => 'Port followers use to connect to the leader',
   :required => 'required',
@@ -109,7 +120,7 @@ attribute 'leader_port',
   :format => {
     :category => '2.Configuration Parameters',
     :help => 'Port followers use to connect to the leader.',
-    :order => 3,
+    :order => 4,
     :pattern => "[0-9]+"
   }   
 
@@ -120,7 +131,7 @@ attribute 'election_port',
   :format => {
     :category => '2.Configuration Parameters',
     :help => 'The leader election port is only necessar.',
-    :order => 4,
+    :order => 5,
     :pattern => "[0-9]+"
   }   
 
@@ -131,7 +142,7 @@ attribute 'data_dir',
   :format => {
     :category => '2.Configuration Parameters',
     :help => 'the location where ZooKeeper will store the in-memory database snapshots and, unless specified otherwise, the transaction log of updates to the database. ',
-    :order => 5
+    :order => 6
   }   
 
 attribute 'journal_dir',
@@ -141,7 +152,7 @@ attribute 'journal_dir',
   :format => {
     :category => '2.Configuration Parameters',
     :help => 'the location where ZooKeeper will store the transaction log.',
-    :order => 6
+    :order => 7
   }   
 
 
@@ -152,7 +163,7 @@ attribute 'max_client_connections',
   :format => {
     :category => '2.Configuration Parameters',
     :help => 'Limits the number of concurrent connections (at the socket level) that a\nsingle client, identified by IP address, may make to a single member of the\nZooKeeper ensemble. This is used to prevent certain classes of DoS attacks,\nincluding file descriptor exhaustion. The zookeeper default is 60; this file\nbumps that to 300, but you will want to turn this up even more on a production\nmachine. Setting this to 0 entirely removes the limit on concurrent\nconnections',
-    :order => 7,
+    :order => 8,
     :pattern => "[0-9]+"
   }   
 
@@ -163,7 +174,7 @@ attribute 'snapshot_trigger',
   :format => {
     :category => '2.Configuration Parameters',
     :help => 'ZooKeeper logs transactions to a transaction log. After snapCount transactions are written to a log file a snapshot is started and a new transaction log file is created. The default snapCount is 100,000.',
-    :order => 8,
+    :order => 9,
     :pattern => "[0-9]+"
   }   
 
@@ -174,7 +185,7 @@ attribute 'initial_timeout_ticks',
   :format => {
     :category => '2.Configuration Parameters',
     :help => 'Time, in ticks, to allow followers to connect and sync to a leader. Increase\nif the amount of data managed by ZooKeeper is large(initLimit)',
-    :order => 9,
+    :order => 10,
     :pattern => "[0-9]+"
   }   
 
@@ -185,7 +196,7 @@ attribute 'sync_timeout_ticks',
   :format => {
     :category => '2.Configuration Parameters',
     :help => 'Amount of time, in ticks (see syncLimit), to allow followers to sync with ZooKeeper. If followers fall too far behind a leader, they will be dropped.',
-    :order => 10,
+    :order => 11,
     :pattern => "[0-9]+"
   }   
 
@@ -197,7 +208,7 @@ attribute 'autopurge_purgeinterval',
   :format => {
     :category => '2.Configuration Parameters',
     :help => 'The time interval in hours for which the purge task has to be triggered. Set to a positive integer (1 and above) to enable the auto purging. Defaults to 0..',
-    :order => 11,
+    :order => 12,
     :pattern => "[0-9]+"
   }   
 
@@ -208,7 +219,7 @@ attribute 'autopurge_snapretaincount',
   :format => {
     :category => '2.Configuration Parameters',
     :help => 'When enabled, ZooKeeper auto purge feature retains the number (autopurge.snapRetainCount) most recent snapshots and the corresponding transaction logs in the dataDir and dataLogDir respectively and deletes the rest. Defaults to 3. Minimum value is 3.',
-    :order => 12,
+    :order => 13,
     :pattern => "[0-9]+"
   }   
 

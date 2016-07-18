@@ -17,7 +17,15 @@ module AzureNetwork
       result = response.body
       result
     rescue MsRestAzure::AzureOperationError => e
-      OOLog.fatal("AzureOperationError Exception trying to get network security group #{network_security_group_name} Response: #{e.body}")
+      # If the error is that it doesn't exist, return nil
+      OOLog.info("Error of Exception is: '#{e.body.values[0]}'")
+      OOLog.info("Code of Exception is: '#{e.body.values[0]['code']}'")
+      if(e.body.values[0]['code'] == 'ResourceNotFound')
+        OOLog.info('SECGROUP DOES NOT EXIST!!  Returning nil')
+        return nil
+      else
+        OOLog.fatal("AzureOperationError Exception trying to get network security group #{network_security_group_name} Response: #{e.body}")
+      end
     rescue Exception => e
       OOLog.fatal("Azure::Network Security group - Exception trying to get network security group #{network_security_group_name} from resource group: #{resource_group_name}\n\rAzure::Network Security group - Exception is: #{e.message}")
     end

@@ -2,7 +2,6 @@
 require 'azure_mgmt_compute'
 require 'azure_mgmt_storage'
 require 'azure'
-require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
 require File.expand_path('../../libraries/attachdisk.rb', __FILE__)
 # invoke recipe to get credentials
 include_recipe "azure::get_credentials"
@@ -13,7 +12,7 @@ credentials = node['azureCredentials']
 # get platform resource group and availability set
 include_recipe 'azure::get_platform_rg_and_as'
 
-AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 storage = nil
 node.workorder.payLoad[:DependsOn].each do |dep|
@@ -46,4 +45,3 @@ else
 end
 node.set["raid_device"] = dev_id
 node.set["device"] = dev_id
-

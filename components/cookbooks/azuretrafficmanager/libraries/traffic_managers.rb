@@ -28,8 +28,8 @@ class TrafficManagers
             }
         )
       rescue => e
-        Chef::Log.error("ERROR traffic_manager create_update_profile status code - #{e.response.code}")
-        Chef::Log.error("ERROR - #{e.response}")
+        Chef::Log.warn("Response traffic_manager create_update_profile status code - #{e.response.code}")
+        Chef::Log.warn("Response - #{e.response}")
         return e.response.code
       end
     Chef::Log.info("Response traffic_manager create_update_profile status code - #{response.code}")
@@ -50,8 +50,8 @@ class TrafficManagers
               }
           )
         rescue => e
-          Chef::Log.error("ERROR traffic_manager delete_profile status code - #{e.response.code}")
-          Chef::Log.error("ERROR - #{e.response}")
+          Chef::Log.warn("ERROR traffic_manager delete_profile status code - #{e.response.code}")
+          Chef::Log.warn("ERROR - #{e.response}")
           return e.response.code
         end
       Chef::Log.info("Response traffic_manager delete_profile status code - #{response.code}")
@@ -72,8 +72,8 @@ class TrafficManagers
           }
       )
     rescue => e
-      Chef::Log.error("ERROR traffic_manager get_profile status code - #{e.response.code}")
-      Chef::Log.error("ERROR - #{e.response}")
+      Chef::Log.warn("Response traffic_manager get_profile status code - #{e.response.code}")
+      Chef::Log.warn("Response - #{e.response}")
       return e.response.code
     end
     Chef::Log.info("Response traffic_manager get_profile status code - #{response.code}")

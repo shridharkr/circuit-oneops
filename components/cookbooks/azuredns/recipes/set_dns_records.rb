@@ -2,14 +2,13 @@ require File.expand_path('../../libraries/dns', __FILE__)
 require File.expand_path('../../libraries/zone.rb', __FILE__)
 require File.expand_path('../../libraries/record_set.rb', __FILE__)
 require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
-require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
-
+require File.expand_path('../../../azure_base/libraries/utils.rb', __FILE__)
 
 
 ::Chef::Recipe.send(:include, AzureDns)
 
 #set the proxy if it exists as a cloud var
-AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 include_recipe 'azuredns::get_azure_token'
 

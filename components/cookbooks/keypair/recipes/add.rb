@@ -22,7 +22,10 @@ case node[:provider_class]
 when /vagrant/
   Chef::Log.info("keypair add not implemented for provider")
 when /azure/
-  include_recipe "azure::add_keypair"
+    include_recipe "azurekeypair::add" 
+    if node.workorder.rfcCi.rfcAction == "update" || node.workorder.rfcCi.rfcAction == "replace"
+      include_recipe "keypair::update_authorized_keys"
+    end
 else
   include_recipe "keypair::add_keypair_"+node[:provider_class]
   include_recipe "keypair::update_authorized_keys"

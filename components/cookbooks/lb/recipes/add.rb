@@ -62,9 +62,9 @@ when /azure_lb/
   include_recipe "azure_lb::add"
   lb_dns_name = node.azurelb_ip
 
-when /azure_gateway/
+when /azuregateway/
 
-  include_recipe "azure_gateway::add"
+  include_recipe "azuregateway::add"
   lb_dns_name = node.azure_ag_ip
 
 when /netscaler/

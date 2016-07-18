@@ -2,9 +2,9 @@ require 'azure_mgmt_compute'
 require 'azure_mgmt_network'
 require 'azure_mgmt_storage'
 require 'azure'
-require File.expand_path('../../../azure/libraries/azure_utils.rb', __FILE__)
 require File.expand_path('../../libraries/detachdisk.rb', __FILE__)
 require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
+require File.expand_path('../../../azure_base/libraries/utils.rb', __FILE__)
 
 
 ::Chef::Recipe.send(:include, Azure::ARM::Compute)
@@ -16,7 +16,7 @@ require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
 ::Chef::Recipe.send(:include, Azure::Core)
 ::Chef::Recipe.send(:include, Azure::Blob)
 
-AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 cloud_name = node['workorder']['cloud']['ciName']
 tenant_id = node['workorder']['services']['storage'][cloud_name]['ciAttributes']['tenant_id']
 client_id = node['workorder']['services']['storage'][cloud_name]['ciAttributes']['client_id']
@@ -47,4 +47,3 @@ dev_map.split(" ").each do |dev|
   AzureStorage::AzureDatadisk.delete_disk(storage_account_name,key1,blobname,1)
 
 end
-

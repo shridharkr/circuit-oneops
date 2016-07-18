@@ -107,6 +107,8 @@ if node.has_key?("deletable_entries")
   end
 end
 
+deletable_values.uniq!
+
 #
 # delete / create dns entries
 #
@@ -198,24 +200,23 @@ node[:entries].each do |entry|
 
     Chef::Log.info("response: #{resp_obj.inspect}")
 
-    if resp_obj["message"] =~ /IBDataConflictError/
-
-      Chef::Log.info("IBDataConflictError - sleeping 60s for dns to propagate")
-      sleep 60
-      existing_dns = get_existing_dns(dns_name,ns)
-      existing_dns.each do |del_value|
-        delete_dns(dns_name, del_value)
-      end
-
-      resp_obj = node.infoblox_conn.request(
-        :method => :post,
-        :path => "/wapi/v1.0/record:#{dns_type}",
-        :body => JSON.dump(record))
-
-      Chef::Log.info("retry response: #{resp_obj.inspect}")
-
+    infoblox_resp_obj = resp_obj.inspect
+    begin
+      infoblox_resp_obj = JSON.parse(resp_obj.body)
+      Chef::Log.info("infoblox_resp_obj: #{infoblox_resp_obj.inspect}")
+    rescue 
+      # ok - non formated response
     end
-    # lets verify using authoratative dns sever
+
+    if infoblox_resp_obj.class.to_s != "String" && infoblox_resp_obj.body.has_key?("Error")
+      msg = infoblox_resp_obj.inspect
+      puts "***FAULT:FATAL=#{msg}"
+      e = Exception.new("no backtrace")
+      e.set_backtrace("")
+      raise e
+    end
+    
+    # verify using authoratative dns sever
     sleep 5
     verified = false
     max_retry_count = 30

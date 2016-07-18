@@ -6,7 +6,9 @@
 
 # Wire util library to chef resources.
 extend Docker::Util
+
 Chef::Resource::RubyBlock.send(:include, Docker::Util)
+Chef::Mixin::Template::TemplateContext.send(:include, Docker::Util)
 
 docker_ver = node.docker_engine.version
 docker_rel = node.docker_engine.release
@@ -22,7 +24,7 @@ execute 'yum clean all' do
   group 'root'
   action :nothing
 end
-
+       
 # Configure the docker repo
 template node.docker_engine.repo_file do
   source 'docker.repo.erb'
@@ -31,6 +33,8 @@ template node.docker_engine.repo_file do
   mode 00644
   notifies :run, resources(:execute => 'yum clean all'), :immediately
 end
+
+include_recipe "docker_engine::network"
 
 # Package is available on OS repo.
 log 'package_install' do

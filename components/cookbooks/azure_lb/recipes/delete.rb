@@ -3,7 +3,7 @@ require 'azure_mgmt_network'
 
 
 #set the proxy if it exists as a cloud var
-AzureCommon::AzureUtils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
 # get platform resource group and availability set
 include_recipe 'azure::get_platform_rg_and_as'
@@ -28,11 +28,10 @@ resource_group_name = node['platform-resource-group']
 plat_name = platform_name.gsub(/-/, "").downcase
 lb_name = "lb-#{plat_name}"
 
-nameutil = Utils::NameUtils.new()
-public_ip_name = nameutil.get_component_name("lb_publicip", node.workorder.rfcCi.ciId)
+public_ip_name = Utils.get_component_name("lb_publicip", node.workorder.rfcCi.ciId)
 
 
-credentials = AzureCommon::AzureUtils.get_credentials(tenant_id, client_id, client_secret)
+credentials = Utils.get_credentials(tenant_id, client_id, client_secret)
 
 lb_svc = AzureNetwork::LoadBalancer.new(credentials, subscription_id)
 begin

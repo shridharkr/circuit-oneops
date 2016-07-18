@@ -79,9 +79,9 @@ end
 
 
 # ex) customer_domain: env.asm.org.oneops.com
-customer_domain = node.customer_domain
-if node.customer_domain !~ /^\./
-  customer_domain = '.'+node.customer_domain
+customer_domain = node.customer_domain.downcase
+if node.customer_domain.downcase !~ /^\./
+  customer_domain = '.'+node.customer_domain.downcase
 end
 
 
@@ -95,9 +95,15 @@ ci = nil
 
 # used to prevent full,short aliases on hostname entries
 is_hostname_entry = false
+lbs = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Lb/ }
+
 if node.workorder.payLoad.has_key?("Entrypoint")
-  ci = node.workorder.payLoad.Entrypoint[0]
-  dns_name = (ci[:ciName] +customer_domain).downcase
+ ci = node.workorder.payLoad.Entrypoint[0]
+ dns_name = (ci[:ciName] +customer_domain).downcase
+
+elsif lbs.size > 0
+ ci = lbs.first
+ dns_name = (ci[:ciName] +customer_domain).downcase
 
 else
   os = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Os/ }
@@ -212,9 +218,11 @@ end
  # platform level
 if node.workorder.cloud.ciAttributes.priority != "1"
 
-  # clear platform if not primary
-  entries.push({:name => primary_platform_dns_name, :values => [] })
-
+  # clear platform if not primary and not gslb
+  if !node.has_key?("gslb_domain")
+    entries.push({:name => primary_platform_dns_name, :values => [] })
+  end
+  
 else
 
   if node.has_key?("gslb_domain") && !node.gslb_domain.nil?

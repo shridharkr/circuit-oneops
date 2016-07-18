@@ -31,6 +31,11 @@ if !is_pkg_avail?('etcd', version)
     source "#{base_url}/#{file_name}"
   end
 
+  directory extract_path do
+    recursive true
+    action :delete
+  end
+
   [node.etcd.working_location, node.etcd.conf_location, extract_path].each do |dir|
     directory "#{dir}" do
       user 'root'

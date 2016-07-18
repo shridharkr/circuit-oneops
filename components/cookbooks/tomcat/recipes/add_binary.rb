@@ -214,7 +214,7 @@ unless node["tomcat"]["access_log_dir"].start_with?("/")
 end
 #Set up the log directories
 log_dir=node["tomcat"]["logfiles_path"]
-access_log_dir=node["tomcat"]["logfiles_path"]
+access_log_dir=node["tomcat"]["access_log_dir"]
 Chef::Log.info("Installation type #{node["tomcat"]["install_type"]} - access log #{access_log_dir} logpath : #{log_dir}")
 [log_dir,access_log_dir].each do |dir_name|
   directory dir_name do

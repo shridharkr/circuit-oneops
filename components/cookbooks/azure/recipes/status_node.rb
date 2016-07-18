@@ -2,13 +2,14 @@ require 'json'
 require 'azure_mgmt_compute'
 
 #set the proxy if it exists as a system prop
-AzureCommon::AzureUtils.set_proxy_from_env(node)
+Utils.set_proxy_from_env(node)
 
 cloud_name = node[:workorder][:cloud][:ciName]
 compute_service = node[:workorder][:services][:compute][cloud_name][:ciAttributes]
-credentials = AzureCommon::AzureUtils.get_credentials(compute_service[:tenant_id],
-                                                      compute_service[:client_id],
-                                                      compute_service[:client_secret])
+credentials = Utils.get_credentials(compute_service[:tenant_id],
+                                    compute_service[:client_id],
+                                    compute_service[:client_secret])
+
 location = compute_service[:location]
 subscription_id = compute_service[:subscription]
 
@@ -35,4 +36,3 @@ begin
 rescue Exception => e
   node.set['status_result'] = 'Error'
 end
-

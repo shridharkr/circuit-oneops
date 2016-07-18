@@ -8,7 +8,7 @@ category "Generic"
 
 resource "lb",
   :except => [ 'single' ],
-  :design => false,
+  :design => true,
   :cookbook => "oneops.1.lb",
   :requires => { "constraint" => "1..1", "services" => "compute,lb,dns" },
   :attributes => {
@@ -73,13 +73,24 @@ end
 
 
 # depends_on
+
 [ 'lb' ].each do |from|
   relation "#{from}::depends_on::compute",
-    :except => [ '_default', 'single' ],
+    :only => [ 'redundant' ],
     :relation_name => 'DependsOn',
     :from_resource => from,
     :to_resource   => 'compute',
     :attributes    => { "propagate_to" => 'both', "flex" => true, "current" =>2, "min" => 2, "max" => 10}
+end
+
+# -d name due to pack sync logic uses a map keyed by that name - it doesnt get put into cms
+[ 'lb' ].each do |from|
+  relation "#{from}::depends_on::compute-d",
+    :only => [ '_default' ],
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'compute',
+    :attributes    => { "flex" => false }
 end
 
 
@@ -89,5 +100,5 @@ end
     :relation_name => 'DependsOn',
     :from_resource => from,
     :to_resource   => 'lb',
-    :attributes    => { "propagate_to" => 'to', "flex" => false, "min" => 1, "max" => 1 }
+    :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
 end

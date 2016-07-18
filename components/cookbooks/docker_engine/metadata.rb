@@ -13,13 +13,13 @@ grouping 'default',
 attribute 'version',
           :description => 'Version',
           :required => 'required',
-          :default => '1.9.1',
+          :default => '1.11.2',
           :format => {
               :important => true,
               :help => 'Docker engine version',
               :category => '1.Binary',
               :order => 1,
-              :form => {:field => 'select', :options_for_select => [['1.9.1', '1.9.1'], ['1.10.2', '1.10.2']]}
+              :form => {:field => 'select', :options_for_select => [['1.9.1', '1.9.1'], ['1.10.2', '1.10.2'], ['1.11.2', '1.11.2']]}
           }
 
 attribute 'repo',
@@ -151,7 +151,45 @@ attribute 'limit_directives',
               :help => 'Systemd limit directives for docker engine. Use the string "infinity" to configure no limit on a specific resource.',
               :order => 1
           }
+          
+          
+attribute 'network',
+          :description => 'Network Overlay',
+          :default => 'none',
+          :format => {
+            :category => '7.Network',
+            :help => 'Network Overlay',
+            :form => {
+              :field => 'select',
+              :options_for_select => [['none', 'none'], ['flannel', 'flannel']]
+            },
+            :order => 1
+          }          
 
+attribute 'network_cidr',
+          :description => 'Network CIDR',
+          :default => '11.11.0.0/16',
+          :format => {
+            :category => '7.Network',
+            :help => 'Network CIDR',
+            :form => {
+              :filter => {:all => {:visible => 'network:ne:none'}},
+            },
+            :order => 2
+          }          
+
+attribute 'network_subnet',
+          :description => 'Network Subnet',
+          :default => '11.11.{INSTANCE_INDEX}.1/24',
+          :format => {
+            :category => '7.Network',
+            :help => 'Network Subnet ; {INSTANCE_INDEX} will be replace with the ciName index (number at the end of ciName)',
+            :form => {
+              :filter => {:all => {:visible => 'network:ne:none'}},
+            },
+            :order => 3
+          }          
+                    
 
 recipe 'status', 'Docker engine Status'
 recipe 'start', 'Start Docker engine'
