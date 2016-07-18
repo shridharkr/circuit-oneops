@@ -9,16 +9,13 @@ include_pack "genericlb"
 name "solrcloud"
 description "SolrCloud"
 category "Search"
-type		'Platform'
-
-platform :attributes => {'autoreplace' => 'false'}
+type    'Platform'
 
 environment "single", {}
 environment "redundant", {}
 
-
 resource 'user-app',
-         :cookbook => 'user',
+         :cookbook => 'oneops.1.user',
          :design => true,
          :requires => {'constraint' => '1..1'},
          :attributes => {
@@ -30,104 +27,97 @@ resource 'user-app',
          }
 
 resource "java",
-         :cookbook => "java",
+         :cookbook => "oneops.1.java",
          :design => true,
          :requires => {
              :constraint => "1..1",
+             :services => "*mirror",
              :help => "Java Programming Language Environment"
          },
          :attributes => {
-             'flavor' => 'oracle',
-             'jrejdk' => 'server-jre',
+             'flavor' => 'openjdk',
+             'jrejdk' => 'jdk',
              'version' => '8'
          }
 
 resource "artifact-app",
-  :cookbook => "artifact",
-  :design => true,
-  :requires => { "constraint" => "0..*" },
-  :attributes => {
-
-  }
+         :cookbook => "oneops.1.artifact",
+         :design => true,
+         :requires => { "constraint" => "0..*" }
 
 resource 'volume-app',
-  	:cookbook => "volume",
+         :cookbook => "oneops.1.volume",
          :requires => {'constraint' => '1..1', 'services' => 'compute'},
          :attributes => {'mount_point' => '/app/',
                          'size' => '100%FREE',
                          'device' => '',
                          'fstype' => 'ext4',
-                         'options' => ''
-         }
+                         'options' => ''}
 
 resource "solrcloud",
-  :cookbook => "solrcloud",
-  :source => Chef::Config[:register],
-  :design => true,
-  :requires => { "constraint" => "1..1"},
-  :monitors => {
-    'solrprocess' => {
-      :description => 'SolrProcess',
-      :source => '',
-      :chart => {'min' => '0', 'max' => '100', 'unit' => 'Percent'},
-      :cmd => 'check_solrprocess!:::node.workorder.rfcCi.ciAttributes.solr_version:::,:::node.workorder.rfcCi.ciAttributes.port_no:::',
-      :cmd_line => '/opt/nagios/libexec/check_solrprocess.sh "$ARG1$" "$ARG2$"',
-      :metrics => {
-        'up' => metric(:unit => '%', :description => 'Percent Up'),
-      },
-      :thresholds => {
-        'SolrProcessDown' => threshold('1m', 'avg', 'up', trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+         :cookbook => "oneops.1.solrcloud",
+         :design => true,
+         :requires => { "constraint" => "1..1"},
+         :monitors => {
+          'solrprocess' => {
+            :description => 'SolrProcess',
+            :source => '',
+            :chart => {'min' => '0', 'max' => '100', 'unit' => 'Percent'},
+            :cmd => 'check_solrprocess!:::node.workorder.rfcCi.ciAttributes.solr_version:::,:::node.workorder.rfcCi.ciAttributes.port_no:::',
+            :cmd_line => '/opt/nagios/libexec/check_solrprocess.sh "$ARG1$" "$ARG2$"',
+            :metrics => {
+              'up' => metric(:unit => '%', :description => 'Percent Up'),
+            },
+            :thresholds => {
+              'SolrProcessDown' => threshold('1m', 'avg', 'up', trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+            }
+          }
       }
-    }
-  }
 
 resource "secgroup",
-   :cookbook => "secgroup",
-   :design => true,
-   :attributes => {
-       "inbound" => '[ "22 22 tcp 0.0.0.0/0","8080 8080 tcp 0.0.0.0/0","8983 8983 tcp 0.0.0.0/0" ]'
-   },
-   :requires => {
-       :constraint => "1..1",
-       :services => "compute"
-   }
+         :cookbook => "oneops.1.secgroup",
+         :design => true,
+         :attributes => {"inbound" => '[ "22 22 tcp 0.0.0.0/0","8080 8080 tcp 0.0.0.0/0","8983 8983 tcp 0.0.0.0/0" ]'},
+         :requires => {
+            :constraint => "1..1",
+            :services => "compute"
+         }
 
 resource "tomcat-daemon",
-         :cookbook => "daemon",
+         :cookbook => "oneops.1.daemon",
          :design => true,
          :requires => {
-             :constraint => "1..1",
+             :constraint => "0..1",
              :help => "Restarts Tomcat"
          },
          :attributes => {
-             :service_name => 'tomcat7',
-             :use_script_status => 'true',
-             :pattern => ''
+            :service_name => 'tomcat7',
+            :use_script_status => 'true',
+            :pattern => ''
          },
-         :monitors => {
-             'tomcatprocess' => {:description => 'TomcatProcess',
-                           :source => '',
-                           :chart => {'min' => '0', 'max' => '100', 'unit' => 'Percent'},
-                           :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!:::node.workorder.rfcCi.ciAttributes.use_script_status:::!:::node.workorder.rfcCi.ciAttributes.pattern:::',
-                           :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$"',
-                           :metrics => {
-                               'up' => metric(:unit => '%', :description => 'Percent Up'),
-                           },
-                           :thresholds => {
-                               'TomcatDaemonProcessDown' => threshold('1m', 'avg', 'up', trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
-                           }
-             }
-          }
+         :monitors => {'tomcatprocess' => {
+                        :description => 'TomcatProcess',
+                        :source => '',
+                        :chart => {'min' => '0', 'max' => '100', 'unit' => 'Percent'},
+                        :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!:::node.workorder.rfcCi.ciAttributes.use_script_status:::!:::node.workorder.rfcCi.ciAttributes.pattern:::',
+                        :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$"',
+                        :metrics => {
+                             'up' => metric(:unit => '%', :description => 'Percent Up'),
+                        },
+                        :thresholds => {
+                            'TomcatDaemonProcessDown' => threshold('1m', 'avg', 'up', trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+                        }
+                       }
+                      }
 
 resource "tomcat",
-  :cookbook => "tomcat",
+  :cookbook => "oneops.1.tomcat",
   :design => true,
   :requires => {
-      :constraint => "1..*",
+      :constraint => "0..*",
       :services=> "mirror" },
    :attributes => {
        'install_type' => 'binary',
-       'mirrors' => '["$OO_CLOUD{satproxy}/mirrored-assets/apache.mirrors.pair.com/" ]',
        'tomcat_install_dir' => '/app',
        'webapp_install_dir' => '/app/tomcat7/webapps',
        'tomcat_user' => 'app',
@@ -144,9 +134,10 @@ resource "tomcat",
                      'format' => ''
                  },
                  :metrics => {
-                     'value' => metric( :unit => '',  :description => 'value', :dstype => 'DERIVE')
+                     'value' => metric( :unit => '',  :description => 'value', :dstype => 'DERIVE'),
+                     
                  }
-       },
+       },  
         'Log' => {:description => 'Log',
                  :source => '',
                  :chart => {'min' => 0, 'unit' => ''},
@@ -216,42 +207,28 @@ resource "tomcat",
 }
 
 resource "library",
-  :cookbook => "library",
-  :design => true,
-  :requires => { "constraint" => "1..*" },
-  :attributes => {
-    "packages"  => '["bc"]'
-  }
-
-resource "solr-monitor",
-  :cookbook => "solr-monitor",
-  :source => Chef::Config[:register],
-  :design => true,
-  :requires => { "constraint" => "1..1" },
-  :attributes => {
-             'logical_collection_name' => 'test',
-             'app_name' => 'testapp}',
-             'solrcloud_datacenter' => 'dal',
-             'solrcloud_env' => 'dev',
-             'email_addresses' => 'test@walmartlabs.com',
-             'graphite_server' => 'esm',
-             'graphite_port' => '2003'
-             }
+         :cookbook => "oneops.1.library",
+         :design => true,
+         :requires => { "constraint" => "1..*" },
+         :attributes => {
+           "packages"  => '["bc"]'
+         }
 
 # depends_on
 [
- {:from => 'solrcloud', :to => 'compute'},
+ {:from => 'solrcloud', :to => 'os'},
  {:from => 'solrcloud', :to => 'user-app'},
- {:from => 'user-app', :to => 'compute'},
+ {:from => 'user-app', :to => 'os'},
  {:from => 'tomcat-daemon', :to => 'tomcat'},
- {:from => 'java', :to => 'compute'},
+ {:from => 'os', :to => 'compute'},
+ {:from => 'java', :to => 'os'},
+ {:from => 'volume-app', :to => 'os'},
  {:from => 'solrcloud', :to => 'volume-app'},
  {:from => 'artifact-app', :to => 'volume-app'},
- {:from => 'volume-app', :to => 'compute'},
+ {:from => 'volume-app', :to => 'os'},
  {:from => 'solrcloud', :to => 'tomcat'},
  {:from => 'solrcloud', :to => 'tomcat-daemon'},
- {:from => 'tomcat', :to => 'java'},
- {:from => 'solr-monitor', :to => 'solrcloud'}
+ {:from => 'tomcat', :to => 'java'}
 ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
            :relation_name => 'DependsOn',
@@ -260,14 +237,14 @@ resource "solr-monitor",
            :attributes => {"flex" => false, "min" => 1, "max" => 1}
 end
 
- relation "solrcloud::depends_on::tomcat",
-              :relation_name => 'DependsOn',
-                    :from_resource => 'solrcloud',
-                    :to_resource => 'tomcat',
-                    :attributes => {"propagate_to" => "from", "flex" => false, "min" => 1, "max" => 1}
+relation "solrcloud::depends_on::tomcat",
+  :relation_name => 'DependsOn',
+  :from_resource => 'solrcloud',
+  :to_resource => 'tomcat',
+  :attributes => {"propagate_to" => "from", "flex" => false, "min" => 1, "max" => 1}
 
 # managed_via
-[ 'solr-monitor','tomcat','tomcat-daemon','solrcloud', 'file','user-app', 'java', 'volume-app', 'artifact-app'].each do |from|
+[ 'tomcat','tomcat-daemon','solrcloud', 'file','user-app', 'java', 'volume-app', 'artifact-app'].each do |from|
   relation "#{from}::managed_via::compute",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',
@@ -275,6 +252,3 @@ end
     :to_resource   => 'compute',
     :attributes    => { }
 end
-
-
-
