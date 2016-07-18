@@ -1,71 +1,80 @@
 #
-# Cookbook Name:: solrcloud
-# Recipe:: replacereplica.rb
+# Cookbook Name :: solrcloud
+# Recipe :: replacereplica.rb
 #
-# This recipe deletes the dead replicas adds the new node as replica to the solrcloud.
-#
+# The recipe adds the new node as replica to the solrcloud.
 #
 
 require 'open-uri'
 require 'json'
 require 'uri'
 
-ci = node.workorder.rfcCi.ciAttributes;
-collection_name = ci['collection_name']
+
 time = Time.now.getutc.to_i
 
-zk_select = ci['zk_select']
-if "#{zk_select}".include? "External"
+replacedipAddress = ''
+if (!node['zk_select'].include? "Embedded") && (node['solr_version'].start_with? "4.") && (node['solrcloud']['replace_nodes'] == 'true')
+
   ruby_block 'add_replaced_replica' do
     block do
       begin
-        if !"#{collection_name}".empty?
-          request_url = "http://#{node['ipaddress']}:8080/#{node['clusterstatus']['uri']}"
-          response = open(request_url).read
-          jsonresponse = JSON.parse(response)
+        request_url = "http://#{node['ipaddress']}:8080/#{node['clusterstatus']['uri']}"
+        Chef::Log.info("request_url -- "+request_url)
+        response = open(request_url).read
+        jsonresponse = JSON.parse(response)
 
-          if !jsonresponse["cluster"]["collections"].empty? && !jsonresponse["cluster"]["collections"]["#{collection_name}"].empty?
-            shardList = jsonresponse["cluster"]["collections"]["#{collection_name}"]["shards"].keys
-            replicaip = '';
-            maxShardsPerNode = jsonresponse["cluster"]["collections"]["#{collection_name}"]["maxShardsPerNode"]
-            replicationFactor = jsonresponse["cluster"]["collections"]["#{collection_name}"]["replicationFactor"]
-            numReplacedReplicas = 0;
+        if !jsonresponse["cluster"]["collections"].empty?
+          collectionList = jsonresponse["cluster"]["collections"].keys
+          collectionList.each do |collection|
+            shardList = jsonresponse["cluster"]["collections"][collection]["shards"].keys
+            maxShardsPerNode = jsonresponse["cluster"]["collections"][collection]["maxShardsPerNode"]
+            replicationFactor = jsonresponse["cluster"]["collections"][collection]["replicationFactor"]
             shardList.each do |shard|
-              if numReplacedReplicas < maxShardsPerNode
-                shardstate = jsonresponse["cluster"]["collections"]["#{collection_name}"]["shards"][shard]["state"]
-                if(shardstate == "active")
-                  replicaList = jsonresponse["cluster"]["collections"]["#{collection_name}"]["shards"][shard]["replicas"].keys
-                  count = 0;
-                  replicaip = 0;
-                  replicaList.each do |replica|
-                    replicastate = jsonresponse["cluster"]["collections"]["#{collection_name}"]["shards"][shard]["replicas"][replica]["state"]
-                    if(replicastate != "down")
-                      count = count + 1;
-                    end
-                  end
-                  if count < replicationFactor
-                    addreplica_url = "#{node['solr']['collection_url']}?action=ADDREPLICA&collection=#{collection_name}&shard=#{shard}&node=#{node['ipaddress']}:8080_solr"
-                    addreplica_response = open(addreplica_url).read
-                    numReplacedReplicas = numReplacedReplicas + 1;
-                  else
-                    Chef::Log.info("count value for shard #{shard} = #{count}")
-                  end
-                else ## shard down else block
-                  Chef::Log.error("#{shard} state is not in active.")
-                end
+              activereplicalist = Array.new()
+              downreplicalist = Array.new()
+              replicaList = jsonresponse["cluster"]["collections"][collection]["shards"][shard]["replicas"].keys
+              replicaList.each do |replica|
+                replicastate = jsonresponse["cluster"]["collections"][collection]["shards"][shard]["replicas"][replica]["state"]
+                replicaip = replica[0,replica.index(':')]
+                activereplicalist.push(replicaip) if replicastate == "active"
+                downreplicalist.push(replicaip) if replicastate == "down"
               end
-            end ## shardlist loop end
-          else ## collection end else block
-            Chef::Log.error("Collections are not created. Replaced node is part of the solrcloud and cannot add as a replica.")
-          end  
-        else ## collection not passed end block
-          Chef::Log.error("Collection name has not passed. Cannot add the replaced node as a replica.")
+              Chef::Log.info(shard)
+              Chef::Log.info(activereplicalist)
+              Chef::Log.info(downreplicalist)
+
+              if activereplicalist.size < Integer(replicationFactor)
+                noofoccurances = Integer(replicationFactor) - activereplicalist.size
+                if Integer(maxShardsPerNode) < Integer(noofoccurances)                  
+                  noofoccurances = Integer(maxShardsPerNode)
+                end
+                Chef::Log.info(noofoccurances)
+                while Integer(noofoccurances) > 0  do
+                  addreplica_url = "#{node['solr_collection_url']}?action=ADDREPLICA&collection=#{collection}&shard=#{shard}&name=#{node['ipaddress']}:8080_solr_#{collection}_#{shard}_replica_#{time}"
+                  Chef::Log.info(addreplica_url)
+                  addreplica_response = open(addreplica_url).read
+                  noofoccurances = Integer(noofoccurances) - 1
+                end
+              else
+                Chef::Log.info("activereplicaset size is equal or greater than replicationFactor")
+              end
+            end
+          end
+        else
+          Chef::Log.error("Collections are not created. Replaced node is part of the solrcloud and cannot add as a replica.")
         end
       rescue
-        Chef::Log.error("Exception while requesting clusterstate.")
+        raise "Exception while requesting clusterstate."
+      else
+        Chef::Log.info("in else block")
+      ensure
+        Chef::Log.info("in ensure block")
       end
     end
   end
+else
+  Chef::Log.info("add_replaced_replica not executed ")
 end
+
 
 

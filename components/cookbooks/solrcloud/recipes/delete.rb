@@ -1,36 +1,59 @@
 #
-# Cookbook Name:: solrcloud
-# Recipe:: delete.rb
+# Cookbook Name :: solrcloud
+# Recipe :: delete.rb
 #
-# This recipe deletes the directories.
+# The recipe deletes the solrcloud set up on the node marked for deletion.
 #
-#
 
-Chef::Log.info('Deleting cores directory')
-directory "#{node['user']['dir']}/solr-cores" do
-  only_if { ::File.directory?("#{node['user']['dir']}/solr-cores") }
-  recursive true
-  action :delete
+include_recipe 'solrcloud::default'
+
+if node['solr_version'].start_with? "4."
+	execute "tomcat#{node['tomcatversion']} stop" do
+	  command "service tomcat#{node['tomcatversion']} stop"
+	  user "#{node['solr']['user']}"
+	  action :run
+	  only_if { ::File.exists?("/etc/init.d/tomcat#{node['tomcatversion']}")}
+	end
+
+	["/app"].each { |dir|
+		Chef::Log.info("deleting #{dir} for user app")
+	  	directory dir do
+	    	owner node['solr']['user']
+	    	group node['solr']['user']
+	    	mode "0755"
+	    	recursive true
+	    	action :delete
+	  	end
+	}
+
+	# file "/etc/init.d/tomcat#{node['tomcatversion']}" do
+	# 	action :delete
+	# end
 end
 
-Chef::Log.info("Deleting tomcat#{node['tomcatversion']} directory")
-directory "#{node['user']['dir']}/tomcat#{node['tomcatversion']}" do
-  only_if { ::File.directory?("#{node['user']['dir']}/tomcat#{node['tomcatversion']}") }
-  recursive true
-  action :delete
+if (node['solr_version'].start_with? "5.") || (node['solr_version'].start_with? "6.")
+	execute "solr#{node['solrmajorversion']} stop" do
+	  command "service solr#{node['solrmajorversion']} stop"
+	  user "root"
+	  action :run
+	  only_if { ::File.exists?("/etc/init.d/solr#{node['solrmajorversion']}")}
+	end
+
+	[node['installation_dir_path']+"/solr#{node['solrmajorversion']}",node['data_dir_path'],"/app",node['installation_dir_path']+"/solr-#{node['solr_version']}"].each { |dir|
+		Chef::Log.info("deleting #{dir} for user app")
+	  	directory dir do
+	    	owner node['solr']['user']
+	    	group node['solr']['user']
+	    	mode "0755"
+	    	recursive true
+	    	action :delete
+	  	end
+	}
+
+	# file "/etc/init.d/solr#{node['solrmajorversion']}" do
+	# 	action :delete
+	# end
 end
 
-Chef::Log.info('Deleting solr-war-lib directory')
-directory "#{node['user']['dir']}/solr-war-lib" do
-  only_if { ::File.directory?("#{node['user']['dir']}/solr-war-lib") }
-  recursive true
-  action :delete
-end
 
-Chef::Log.info("Deleting #{node['user']['dir']}/tmp/tgz directory")
-directory "#{node['user']['dir']}/tmp/tgz" do
-  only_if { ::File.directory?("#{node['user']['dir']}/tmp/tgz") }
-  recursive true
-  action :delete
-end
 
