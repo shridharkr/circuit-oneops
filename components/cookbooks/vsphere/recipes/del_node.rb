@@ -12,7 +12,6 @@ tenant_model = TenantModel.new(service_compute[:endpoint], service_compute[:user
 compute_provider = tenant_model.get_compute_provider
 
 Chef::Log.info("Searching for VM ..... " + node[:server_name].to_s)
-Chef::Log.info("instance id: " + compute_attributes[:instance_id].to_s)
 start_time = Time.now
 Chef::Log.info("start time " + start_time.to_s)
 public_key = node.workorder.payLoad[:SecuredBy][0][:ciAttributes][:public]
