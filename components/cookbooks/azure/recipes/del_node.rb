@@ -138,11 +138,7 @@ begin
     Chef::Log.info("Delete VM response is: #{result.inspect}")
     # delete the NIC. A NIC is created with each VM, so we will delete the NIC when we delete the VM
     nic_name = Utils.get_component_name("nic",ci_name)
-    if ip_type == 'public'
-      delete_nic(credentials, subscription_id, node['platform-resource-group'], nic_name)
-    elsif ip_type == 'private'
-      delete_nic(credentials, subscription_id, compute_service['resource_group'], nic_name)
-    end
+    delete_nic(credentials, subscription_id, node['platform-resource-group'], nic_name)
     # public IP must be deleted after the NIC.
     if ip_type == 'public'
       public_ip_name = Utils.get_component_name("publicip",ci_name)

@@ -112,6 +112,16 @@ attribute 'sizemap',
     :category => '3.Mappings',
     :order => 1
   }
+  
+attribute 'flavormap',
+  :description => "Flavor Map",
+  :data_type => "hash",
+  :default => '{}',
+  :format => {
+     :help => 'Map of generic flavors to number of vcpus/ram/ephermal disk size',
+     :category => '3.Mappings',
+     :order => 2
+  }  
 
 attribute 'imagemap',
   :description => "Images Map",
@@ -137,7 +147,7 @@ attribute 'imagemap',
   :format => {
     :help => 'Map of generic OS image types to provider specific 64-bit OS image types',
     :category => '3.Mappings',
-    :order => 2
+    :order => 3
   }
 
 attribute 'repo_map',

@@ -130,7 +130,8 @@ begin
                                                 network_address,
                                                 subnet_address_list,
                                                 dns_list,
-                                                ip_type)
+                                                ip_type,
+                                                secgroup_name)
 rescue => ex
   OOLog.fatal("Error getting network profile: #{ex.message}")
 end

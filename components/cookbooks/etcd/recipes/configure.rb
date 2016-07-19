@@ -5,7 +5,11 @@
 # Apache License, Version 2.0
 
 # Get all the required computes
-computes = node.workorder.payLoad.RequiresComputes
+if node.workorder.payLoad.has_key?(:computes)
+        computes = node.workorder.payLoad.computes
+else
+        computes = node.workorder.payLoad.RequiresComputes
+end
 
 # Get the local compute
 local_server_ip = node.workorder.payLoad.ManagedVia[0]['ciAttributes']['private_ip']
@@ -14,7 +18,9 @@ local_server_name = node.workorder.payLoad.ManagedVia[0]['ciName']
 # Get etcd members
 etcd_cluster = Array.new
 computes.each do |c, index|
-  etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")
+ if c.ciAttributes.has_key?("private_ip") && c.ciAttributes.private_ip != nil
+    etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")
+  end
 end
 
 

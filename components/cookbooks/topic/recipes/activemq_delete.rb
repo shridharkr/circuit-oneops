@@ -15,6 +15,21 @@
 amq = node.workorder.payLoad[:activemq][0]
 appresourcename = "#{node['topic']['topicname']}"
 activemq_home = "#{amq[:ciAttributes][:installpath]}/activemq"
+destsubtype = 'T'
+compositetopicdef = " #{node['topic']['compositetopic']} "
+if !compositetopicdef.strip!.empty? 
+   destsubtype = 'compositeTopic'
+   compositevirtualtopic = "#{compositetopicdef}"
+end 
+virtualtopicdef = " #{node['topic']['virtualdestination']} "
+if !virtualtopicdef.strip!.empty? 
+   destsubtype = 'virtualTopic'
+   compositevirtualtopic = "#{virtualtopicdef}"
+end
+if !(compositetopicdef.empty? || virtualtopicdef.empty?)
+   puts "#{node['topic']['topicname']} can only has one non-empty entry for virtual topic or composite topic, not both"
+   exit 1
+end
 
 execute "delete ActiveMQ Topic" do
   cwd "#{amq[:ciAttributes][:installpath]}/activemq"
@@ -32,8 +47,8 @@ end
 ruby_block "Delete Destination Policy and virtual destination" do
   block do
      Chef::Resource::RubyBlock.send(:include, Topic::Activemq_dest_config_util)
-     Topic::Activemq_dest_config_util::deleteDestPolicy("#{activemq_home}/conf/activemq.xml", "#{node['topic']['destinationtype']}", "#{appresourcename}")
-     Topic::Activemq_dest_config_util::deleteVirtualDest("#{activemq_home}/conf/activemq.xml", "#{node['topic']['destinationtype']}", "#{appresourcename}")
+     Topic::Activemq_dest_config_util::deleteDestPolicy("#{activemq_home}/conf/activemq.xml", "#{destsubtype}", "#{appresourcename}")
+     Topic::Activemq_dest_config_util::deleteVirtualDest("#{activemq_home}/conf/activemq.xml", "#{destsubtype}", "#{appresourcename}")
   end
 end
 
