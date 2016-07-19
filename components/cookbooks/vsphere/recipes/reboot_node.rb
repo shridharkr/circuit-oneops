@@ -4,7 +4,7 @@ require File.expand_path('../../libraries/models/tenant_model', __FILE__)
 cloud_name = node[:workorder][:cloud][:ciName]
 service_compute = node[:workorder][:services][:compute][cloud_name][:ciAttributes]
 
-tenant_model = TenantModel.new(service_compute[:endpoint], service_compute[:username], service_compute[:password], service_compute[:publickey])
+tenant_model = TenantModel.new(service_compute[:endpoint], service_compute[:username], service_compute[:password], service_compute[:vsphere_pubkey])
 compute_provider = tenant_model.get_compute_provider
 instance_id = node[:compute][:instance_id]
 

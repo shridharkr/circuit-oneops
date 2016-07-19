@@ -43,8 +43,8 @@ attribute 'password',
     :order => 3
   }
 
-attribute 'publickey',
-  :description => "Public Key",
+attribute 'vsphere_pubkey',
+  :description => "vCenter Public Key",
   :required => "required",
   :default => "",
   :format => {
@@ -54,11 +54,11 @@ attribute 'publickey',
   }
 
 attribute 'datacenter',
-  :description => "Distribution Center",
+  :description => "Data Center",
   :required => "required",
   :default => "DistributionCenter1",
   :format => {
-    :help => 'Distribution Center',
+    :help => 'Data Center',
     :category => '2.Configuration',
     :order => 1
   }
@@ -68,7 +68,7 @@ attribute 'cluster',
   :required => "required",
   :default => "Cluster1",
   :format => {
-    :help => 'Distribution Center Cluster',
+    :help => 'Data Center Cluster',
     :category => '2.Configuration',
     :order => 2
   }
@@ -78,7 +78,7 @@ attribute 'datastore',
   :required => "required",
   :default => "datastore1",
   :format => {
-    :help => 'Distribution Center Datastore',
+    :help => 'Data Center Datastore',
     :category => '2.Configuration',
     :order => 3
   }
@@ -88,9 +88,29 @@ attribute 'network',
   :required => "required",
   :default => "VM Public Network",
   :format => {
-    :help => 'Distribution Center Network Name',
+    :help => 'Assign Network to NIC',
     :category => '2.Configuration',
-    :order => 1
+    :order => 4
+  }
+
+attribute 'is_bandwidth_throttled',
+  :description => "Throttle Bandwidth",
+  :default => "false",
+  :format => {
+    :help => 'Check box to enable bandwidth throttling for yum and rsync.',
+    :category => '2.Configuration',
+    :order => 5,
+    :form => {'field' => 'checkbox'}
+  }
+
+attribute 'data_transfer_rate',
+  :description => "Data Transfer Rate KBps",
+  :default => '',
+  :format => {
+    :help => 'Enter the Data Transfer Rate in KiloBytes per second.',
+    :category => '2.Configuration',
+    :order => 6,
+    :filter => {'all' => {'visible' => 'is_bandwidth_throttled:eq:true'}}
   }
 
 attribute 'sizemap',
@@ -106,7 +126,7 @@ attribute 'sizemap',
   attribute 'imagemap',
   :description => "Images Map",
   :data_type => "hash",
-  :default => '{"centos-7.2":"CentOS-7.2.1511-x86_64-minimal-cloud-init"}',
+  :default => '{"centos-7.2":""}',
   :format => {
     :help => 'Map of generic OS image types to provider specific 64-bit OS image types',
     :category => '3.Mappings',
@@ -116,7 +136,7 @@ attribute 'sizemap',
 attribute 'repo_map',
   :description => "OS Package Repositories keyed by OS Name",
   :data_type => "hash",
-  :default => '{}',
+  :default => '{"centos-7.2":""}',
   :format => {
     :help => 'Map of repositories by OS Type containing add commands - ex) yum-config-manager --add-repo repository_url or deb http://us.archive.ubuntu.com/ubuntu/ hardy main restricted ',
     :category => '4.Operating System',
@@ -126,7 +146,7 @@ attribute 'repo_map',
 attribute 'env_vars',
 :description => "System Environment Variables",
 :data_type => "hash",
-:default => '{}',
+:default => '{"rubygems":"","rubygemsbkp":"","misc":""}',
 :format => {
   :help => 'Environment variables - ex) http => http://yourproxy, https => https://yourhttpsproxy, etc',
   :category => '4.Operating System',

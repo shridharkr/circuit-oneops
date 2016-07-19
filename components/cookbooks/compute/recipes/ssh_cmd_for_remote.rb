@@ -37,24 +37,32 @@ ruby_block 'ssh cmds' do
   block do
 
     user = "root"
-    if node.has_key?("use_initial_user") && node.use_initial_user == true && 
+    if node.has_key?("use_initial_user") && node.use_initial_user == true &&
        !node.initial_user.nil? && node.initial_user != "unset"
       user = node.initial_user
     end
-    
+
     ssh_options = "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-    
+
     if node.ip.nil? || node.ip.empty?
       ip = "IP"
     else
       ip = node.ip
     end
 
+    bwlimit = ''
+    cloud_name = node[:workorder][:cloud][:ciName]
+    is_bandwidth_throttled = node.workorder.services[:compute][cloud_name][:ciAttributes][:is_bandwidth_throttled]
+    data_transfer_rate = node.workorder.services[:compute][cloud_name][:ciAttributes][:data_transfer_rate].to_s
+    if (node[:provider_class] == 'vsphere') && (is_bandwidth_throttled == 'true')
+      bwlimit = "--bwlimit=#{data_transfer_rate}"
+    end
+
     node.set[:ssh_key_file] = ssh_key_file
     node.set[:ssh_cmd] = "ssh -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
     node.set[:ssh_interactive_cmd] = "ssh -t -t -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
     node.set[:scp_cmd] = "scp -ri #{ssh_key_file} #{ssh_options} SOURCE #{user}@#{ip}:DEST "
-    node.set[:rsync_cmd] = "rsync -az --exclude=*.md --exclude=*.png -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
-  
+    node.set[:rsync_cmd] = "rsync #{bwlimit} -az --exclude=*.md --exclude=*.png -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
+
   end
 end

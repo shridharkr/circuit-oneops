@@ -6,7 +6,7 @@ class NicModel
 
     @network = network
     @name = name
-    @summary = 'lookat'
+    @summary = ''
   end
 
   attr_reader :network, :name, :status, :summary
