@@ -64,7 +64,7 @@ attribute 'datacenter',
   }
 
 attribute 'cluster',
-  :description => "DC Cluster",
+  :description => "Cluster",
   :required => "required",
   :default => "Cluster1",
   :format => {
@@ -74,7 +74,7 @@ attribute 'cluster',
   }
 
 attribute 'datastore',
-  :description => "DC Datastore",
+  :description => "Datastore",
   :required => "required",
   :default => "datastore1",
   :format => {
@@ -83,34 +83,33 @@ attribute 'datastore',
     :order => 3
   }
 
-attribute 'network',
-  :description => "DC Network Name",
+attribute 'resource_pool',
+  :description => "Resource Pool",
   :required => "required",
-  :default => "VM Public Network",
+  :default => "Resources",
   :format => {
-    :help => 'Assign Network to NIC',
+    :help => 'Use to apply resource restrictions',
     :category => '2.Configuration',
     :order => 4
   }
 
-attribute 'is_bandwidth_throttled',
-  :description => "Throttle Bandwidth",
-  :default => "false",
+attribute 'network',
+  :description => "Network Name",
+  :required => "required",
+  :default => "VM Public Network",
   :format => {
-    :help => 'Check box to enable bandwidth throttling for yum and rsync.',
+    :help => 'Compute will be assigned to this network',
     :category => '2.Configuration',
-    :order => 5,
-    :form => {'field' => 'checkbox'}
+    :order => 5
   }
 
-attribute 'data_transfer_rate',
-  :description => "Data Transfer Rate KBps",
+attribute 'bandwidth_throttle_rate',
+  :description => "Throttle Bandwidth KBps",
   :default => '',
   :format => {
-    :help => 'Enter the Data Transfer Rate in KiloBytes per second.',
+    :help => 'To throttle bandwidth enter data transfer rate in KiloBytes (integer) per second.',
     :category => '2.Configuration',
-    :order => 6,
-    :filter => {'all' => {'visible' => 'is_bandwidth_throttled:eq:true'}}
+    :order => 6
   }
 
 attribute 'sizemap',

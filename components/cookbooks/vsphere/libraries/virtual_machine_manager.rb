@@ -12,10 +12,14 @@ class VirtualMachineManager
     @public_key = public_key
   end
 
-  attr_reader :instance_id
-
   def ip_address
     ip_address = get_ip_address
+  end
+
+  attr_reader :instance_id
+
+  def bandwidth_throttle_rate=(bandwidth_throttle_rate)
+    @bandwidth_throttle_rate = bandwidth_throttle_rate
   end
 
   def inject_public_Key
@@ -49,6 +53,7 @@ class VirtualMachineManager
   private :inject_public_Key
 
   def throttle_yum(data_rate_KBps)
+    fail ArgumentError, 'data_rate_KBps is invalid' if data_rate_KBps.nil? || data_rate_KBps.empty?
     fail ArgumentError, 'instance_id is invalid' if @instance_id.nil? || @instance_id.empty?
 
     options = {}
@@ -101,7 +106,7 @@ class VirtualMachineManager
   end
   private :get_ip_address
 
-  def power_on(initial_boot, data_transfer_rate = nil)
+  def power_on(initial_boot)
     fail ArgumentError, 'instance_id is invalid' if @instance_id.nil? || @instance_id.empty?
 
     is_power_on = false
@@ -110,7 +115,7 @@ class VirtualMachineManager
 
     if initial_boot == true
       inject_public_Key
-      throttle_yum(data_transfer_rate) if !data_transfer_rate.nil?
+      throttle_yum(@bandwidth_throttle_rate) if !@bandwidth_throttle_rate.empty?
     end
     ip_address = get_ip_address
     is_power_on = true if !ip_address.nil?
@@ -118,18 +123,11 @@ class VirtualMachineManager
   end
   private :power_on
 
-  def clone(vm_attributes, service_compute, is_debug)
-    is_bandwidth_throttled = service_compute[:is_bandwidth_throttled]
-    data_transfer_rate = service_compute[:data_transfer_rate]
-
+  def clone(vm_attributes, is_debug)
     begin
       new_vm = @compute_provider.vm_clone(vm_attributes)
       @instance_id = new_vm['new_vm']['id']
-      if is_bandwidth_throttled == 'true'
-        power_on(initial_boot = true, data_transfer_rate)
-      else
-        power_on(initial_boot = false)
-      end
+      power_on(initial_boot = true)
     rescue => e
       Chef::Log.error('Cloning instance failed:' + e.to_s)
       if (!@instance_id.nil?) && (is_debug == 'false')
@@ -138,7 +136,6 @@ class VirtualMachineManager
       end
       exit 1
     end
-
     return @instance_id
   end
 

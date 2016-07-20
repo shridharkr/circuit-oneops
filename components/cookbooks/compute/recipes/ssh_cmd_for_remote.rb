@@ -51,11 +51,19 @@ ruby_block 'ssh cmds' do
     end
 
     bwlimit = ''
-    cloud_name = node[:workorder][:cloud][:ciName]
-    is_bandwidth_throttled = node.workorder.services[:compute][cloud_name][:ciAttributes][:is_bandwidth_throttled]
-    data_transfer_rate = node.workorder.services[:compute][cloud_name][:ciAttributes][:data_transfer_rate].to_s
-    if (node[:provider_class] == 'vsphere') && (is_bandwidth_throttled == 'true')
-      bwlimit = "--bwlimit=#{data_transfer_rate}"
+    if (node[:provider_class] == 'vsphere')
+      cloud_name = node[:workorder][:cloud][:ciName]
+      bandwidth_throttle_rate = node.workorder.services[:compute][cloud_name][:ciAttributes][:bandwidth_throttle_rate]
+      if !bandwidth_throttle_rate.nil? || !bandwidth_throttle_rate.empty?
+        begin
+          Integer(bandwidth_throttle_rate,10)
+          bwlimit = "--bwlimit=#{bandwidth_throttle_rate}"
+        rescue => ArgumentError
+          Chef::Log.error("bandwidth_throttle_rate cannot be applied")
+          Chef::Log.error(ArgumentError.to_s)
+          exit 1
+        end
+      end
     end
 
     node.set[:ssh_key_file] = ssh_key_file

@@ -65,7 +65,7 @@ def get_virtual_machine_attributes(service_compute, cpu_size, memory_size, volum
   virtual_machine_model.template_path = node[:image_id]
   virtual_machine_model.cluster = service_compute[:cluster]
   virtual_machine_model.datastore = service_compute[:datastore]
-  virtual_machine_model.resource_pool = 'Resources'
+  virtual_machine_model.resource_pool = service_compute[:resource_pool]
   virtual_machine_model.power_on = false
   virtual_machine_model.connection_state = 'connected'
   virtual_machine_model.volumes = volumes
@@ -106,10 +106,11 @@ vm_attributes = get_virtual_machine_attributes(service_compute, cpu_size, memory
 Chef::Log.info("Creating VM ..... " + node[:server_name].to_s)
 start_time = Time.now
 Chef::Log.info("start time " + start_time.to_s)
+is_debug = node.workorder.payLoad[:Environment][0][:ciAttributes][:debug]
 public_key = node.workorder.payLoad[:SecuredBy][0][:ciAttributes][:public]
 virtual_machine_manager = VirtualMachineManager.new(compute_provider, public_key)
-is_debug = node.workorder.payLoad[:Environment][0][:ciAttributes][:debug]
-instance_id = virtual_machine_manager.clone(vm_attributes, service_compute, is_debug)
+virtual_machine_manager.bandwidth_throttle_rate = service_compute[:bandwidth_throttle_rate]
+instance_id = virtual_machine_manager.clone(vm_attributes, is_debug)
 puts "***RESULT:instance_id="+instance_id
 # puts "***RESULT:hypervisor="+hypervisor
 Chef::Log.info("end time " + Time.now.to_s)
