@@ -113,12 +113,20 @@ class VirtualMachineManager
     Chef::Log.info("powering on instance")
     @compute_provider.vm_power_on({'instance_uuid' => @instance_id})
 
+    is_public_key_injected = false
+    is_yum_throttled = false
     if initial_boot == true
-      inject_public_Key
-      throttle_yum(@bandwidth_throttle_rate) if !@bandwidth_throttle_rate.empty?
+      is_public_key_injected = inject_public_Key
+      is_yum_throttled = throttle_yum(@bandwidth_throttle_rate) if !@bandwidth_throttle_rate.empty?
     end
     ip_address = get_ip_address
-    is_power_on = true if !ip_address.nil?
+
+    if initial_boot == true
+      is_power_on = true if (is_public_key_injected == true) && (is_yum_throttled == true) && (!ip_address.nil?)
+    elsif initial_boot == false
+      is_power_on = true if !ip_address.nil?
+    end
+
     return is_power_on
   end
   private :power_on
@@ -127,9 +135,10 @@ class VirtualMachineManager
     begin
       new_vm = @compute_provider.vm_clone(vm_attributes)
       @instance_id = new_vm['new_vm']['id']
-      power_on(initial_boot = true)
+      is_power_on = power_on(initial_boot = true)
+      raise 'Failed to power on instance' if is_power_on == false
     rescue => e
-      Chef::Log.error('Cloning instance failed:' + e.to_s)
+      Chef::Log.error('Cloning instance failed: ' + e.to_s)
       if (!@instance_id.nil?) && (is_debug == 'false')
         Chef::Log.error('Deleting failed instance')
         delete
