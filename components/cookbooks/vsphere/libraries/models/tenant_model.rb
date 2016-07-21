@@ -1,3 +1,4 @@
+require 'fog'
 require 'uri'
 
 class TenantModel
@@ -41,7 +42,7 @@ class TenantModel
   end
 
   def get_compute_provider
-    compute_provider=Fog::Compute.new(:provider => 'vsphere',
+    compute_provider=Fog::Compute::Vsphere.new( #:provider => 'vsphere',
                              :vsphere_server => @endpoint,
                              :vsphere_username => @username,
                              :vsphere_password=> @password,
