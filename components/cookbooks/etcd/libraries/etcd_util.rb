@@ -116,6 +116,24 @@ module Etcd
       puts "***FAULT:FATAL=#{msg}"
       Chef::Application.fatal!(msg)
     end
+    
+    def get_etcd_members_http(host)
+      uri = URI.parse("http://#{host}:2379/v2/members")
+      http = Net::HTTP.new(uri.host, uri.port)
+      req = Net::HTTP::Get.new(uri.path)
+      res = http.request(req)
+
+      if res.code != '200'
+        msg = "Failure getting etcd members. response code: #{res.code}, response body #{res.body}, response message #{res.message}"
+        Chef::Log.error(msg)
+        puts "***FAULT:FATAL= #{msg}"
+        e = Exception.new('no backtrace')
+        e.set_backtrace('')
+        raise e
+      end
+      
+      return res.body
+    end
 
   end
 
