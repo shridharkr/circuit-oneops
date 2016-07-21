@@ -1,2 +1,2 @@
-include_recipe "postgresql::add"
+include_recipe "postgresql-governor::add"
   

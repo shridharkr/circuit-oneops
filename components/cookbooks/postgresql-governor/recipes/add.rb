@@ -55,22 +55,50 @@ execute "chmod-700-data-dir" do
     action :run
 end
 
+
+
 require 'rubygems'
 require 'etcd'
-
-client = Etcd.client(host: node[:platform_fqdn], port: 2379)
+client = Etcd.client(host: 'localhost', port: 2379)
 ciName = node.workorder.payLoad.ManagedVia[0]['ciName'].split("-").join
 
-# use Etcd as the storage to save which compute is from primary/secondary clouds
 if node.workorder.cloud.ciAttributes.has_key?("priority") &&
-  node.workorder.cloud.ciAttributes.priority.to_i == 1
-  client.delete('/service/postgres/secondary_cloud/' + ciName) if client.exists?('/service/postgres/secondary_cloud/' + ciName)
+    node.workorder.cloud.ciAttributes.priority.to_i == 1
+  Chef::Log.info("In primary clouds")
+  
+  fqdn_resolv = `host #{node[:platform_fqdn]} | awk '{ print $NF }'`.split("\n")
+  Chef::Log.info("fqdn_resolv: #{fqdn_resolv.to_s}")
+  while true
+    if fqdn_resolv[0] =~ /NXDOMAIN/
+      Chef::Log.info("Unable to resolve platform-level FQDN, sleep 5s and retry: #{node[:platform_fqdn]}")
+      sleep(5)
+      fqdn_resolv = `host #{node[:platform_fqdn]} | awk '{ print $NF }'`.split("\n")
+    else
+      break;
+    end
+  end
+
   client.set('/service/postgres/primary_cloud/' + ciName, value: ciName)
 else
-  client.delete('/service/postgres/primary_cloud/' + ciName) if client.exists?('/service/postgres/primary_cloud/' + ciName)
-  client.set('/service/postgres/secondary_cloud/' + ciName, value: ciName)
-end
+  Chef::Log.info("In secondary clouds")
+  
+  # just want to set some value for key `/service/postgres/initialize` to avoid unclean leader takeover
+  # the value of `/service/postgres/initialize/` is not important
+  client.set('/service/postgres/initialize', value: ciName)
+  
+  fqdn_resolv = `host #{node[:platform_fqdn]} | awk '{ print $NF }'`.split("\n")
+  Chef::Log.info("fqdn_resolv: #{fqdn_resolv.to_s}")
+  while true
+    if fqdn_resolv.length > 1
+      Chef::Log.info("platform FQDN are resolved into more than 1 IPs.")
+      sleep(5)
+      fqdn_resolv = `host #{node[:platform_fqdn]} | awk '{ print $NF }'`.split("\n")
+    else
+      break;
+    end
+  end
 
+end
 
 # start to install and config governor
 remote_file "/tmp/governer.zip" do
