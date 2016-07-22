@@ -238,7 +238,7 @@ resource "hostname",
     :help => "optional hostname dns entry"
   },
   :attributes => {
-    :ptr_enabled => "false",
+    :ptr_enabled => "true",
     :ptr_source => "instance"
   }
 
@@ -289,6 +289,14 @@ end
     :to_resource   => 'hostname',
     :attributes    => { "propagate_to" => 'from', "flex" => false, "min" => 1, "max" => 1 }
 end
+
+#[ 'postgresql-governor' ].each do |from|
+#    relation "#{from}::depends_on::etcd",
+#    :relation_name => 'DependsOn',
+#    :from_resource => from,
+#    :to_resource   => 'etcd',
+#    :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
+#end
 
 [ 'etcd' ].each do |from|
     relation "#{from}::depends_on::hostname",
