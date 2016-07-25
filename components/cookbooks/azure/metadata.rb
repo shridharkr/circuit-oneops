@@ -164,16 +164,6 @@ attribute 'imagemap',
   :order => 2
 }
 
-attribute 'ephemeral_disk_sizemap',
-:description => "Ephemeral Disk Sizes Map",
-:data_type => "hash",
-:default => '{ "XS":"20","S":"70","M":"135","L":"285","XL":"605","XXL":"135","3XL":"285","4XL":"605","S-CPU":"50","M-CPU":"100","L-CPU":"200","XL-CPU":"400","8XL-CPU":"100","9XL-CPU":"200","10XL-CPU":"400","11XL-CPU":"800","S-MEM":"50","M-MEM":"100","L-MEM":"200","XL-MEM":"400","8XL-MEM":"100","9XL-MEM":"200","10XL-MEM":"400","11XL-MEM":"800"}',
-:format => {
-  :help => 'Map of generic datadisk sizes',
-  :category => '3.Mappings',
-  :order => 3
-}
-
 attribute 'repo_map',
 :description => "OS Package Repositories keyed by OS Name",
 :data_type => "hash",
