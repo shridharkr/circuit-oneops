@@ -18,7 +18,7 @@ default['kube']['api']['host'] = ''
 default['kube']['api']['bind-address'] = '0.0.0.0'
 default['kube']['api']['bind-port'] = '8080'
 default['kube']['api']['args'] = ''
-default['kube']['service']['addresses'] = '10.254.0.0/16'
+default['kube']['service']['addresses'] = node.kubernetes.service_addresses
 default['kube']['controller-manager']['args'] = ''
 default['kube']['scheduler']['args'] = ''
 
