@@ -97,7 +97,8 @@ ruby_block 'setting etcd member id' do
     if node.etcd.security_enabled == 'true'
       command = "etcdctl --ca-file #{node.etcd.security_path}/ca.crt --cert-file #{node.etcd.security_path}/server.crt --key-file #{node.etcd.security_path}/server.key member list | grep $(hostname -i)"
     elsif node.etcd.security_enabled == 'false'
-      command = 'etcdctl member list | grep $(hostname -i)'
+      cname = node.workorder.payLoad.ManagedVia[0]['ciName']
+      command = "etcdctl member list | grep #{cname}"
     end
 
     while retry_count < 10
