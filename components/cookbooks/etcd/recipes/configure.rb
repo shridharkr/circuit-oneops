@@ -18,8 +18,9 @@ else
   computes = node.workorder.payLoad.RequiresComputes
 end
 
-# Get the local compute
-local_server_ip = node.workorder.payLoad.ManagedVia[0]['ciAttributes']['private_ip']
+local_server_ip =  node.workorder.payLoad.ManagedVia[0]['ciAttributes']['private_ip']
+# `local_server_ip` is updated with the full hostname only if `etcd` depends on hostname component with PTR enabled
+local_server_ip =  get_full_hostname(local_server_ip) if depend_on_fqdn_ptr?
 local_server_name = node.workorder.payLoad.ManagedVia[0]['ciName']
 
 primary_cloud = false
@@ -39,7 +40,13 @@ if primary_cloud == true
     #if node.workorder.rfcCi.rfcAction =~ /add/
       computes.each do |c, index|
         if c.ciAttributes.has_key?("private_ip") && c.ciAttributes.private_ip != nil
-          etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")
+          if depend_on_fqdn_ptr?
+            hostname = get_full_hostname(c.ciAttributes.private_ip)
+            etcd_cluster.push("#{c.ciName}=http://#{hostname}:2380")
+          else
+            etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")
+          end
+  
         end
       end
       #else
@@ -104,7 +111,7 @@ else
   
   Chef::Log.info("platform_fqdn: #{platform_fqdn}")
   
-  json_members = get_etcd_members_http(platform_fqdn)
+  json_members = get_etcd_members_http(platform_fqdn, 2379)
   Chef::Log.info("json_members: "+JSON.parse(json_members).inspect.gsub("\n"," "))
   
   primary_hosts = Array.new
@@ -186,10 +193,14 @@ member_flags = {
 
 etcd_initial_cluster_token = primary_cloud ? 'etcd-cluster-1' : 'etcd-cluster-2'
 
+etcd_initial_cluster_state = "new"
+if node.workorder.rfcCi.rfcAction == "replace"
+  etcd_initial_cluster_state = "existing"
+end
 cluster_flags = {
     'ETCD_INITIAL_ADVERTISE_PEER_URLS' => "http://#{local_server_ip}:2380",
     'ETCD_INITIAL_CLUSTER' => "#{etcd_cluster.join(",")}",
-    'ETCD_INITIAL_CLUSTER_STATE' => 'new',
+    'ETCD_INITIAL_CLUSTER_STATE' => etcd_initial_cluster_state,
     'ETCD_INITIAL_CLUSTER_TOKEN' => etcd_initial_cluster_token,
     'ETCD_ADVERTISE_CLIENT_URLS' => "#{protocol}://#{local_server_ip}:2379"
 }.merge(JSON.parse(node.etcd.cluster_flags))

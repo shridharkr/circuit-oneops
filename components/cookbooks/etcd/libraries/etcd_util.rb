@@ -117,24 +117,95 @@ module Etcd
       Chef::Application.fatal!(msg)
     end
     
-    def get_etcd_members_http(host)
-      uri = URI.parse("http://#{host}:2379/v2/members")
+    def get_etcd_members_http(host, port)
+      
+      uri = URI.parse("http://#{host}:#{port}/v2/members")
       http = Net::HTTP.new(uri.host, uri.port)
       req = Net::HTTP::Get.new(uri.path)
       res = http.request(req)
-
       if res.code != '200'
-        msg = "Failure getting etcd members. response code: #{res.code}, response body #{res.body}, response message #{res.message}"
-        Chef::Log.error(msg)
-        puts "***FAULT:FATAL= #{msg}"
-        e = Exception.new('no backtrace')
-        e.set_backtrace('')
-        raise e
+        exit_with_err("Failure getting etcd members. response code: #{res.code}, response body #{res.body}, response message #{res.message}")
       end
       
       return res.body
     end
+    
+    # Test if Etcd is running at some host by GET the list of members via http
+    #
+    # @param - host
+    # @param - port
+    
+    require 'socket'
+    require 'timeout'
 
+    def is_port_open?(ip, port)
+      begin
+        Timeout::timeout(1) do
+          begin
+            s = TCPSocket.new(ip, port)
+            s.close
+            return true
+          rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+            return false
+          end
+        end
+      rescue Timeout::Error
+      end
+            
+      return false
+    end
+    
+    def get_full_hostname(ip)
+      full_hostname = `host #{ip} | awk '{ print $NF }' | sed 's/.$//'`.strip
+      while true
+        if full_hostname =~ /NXDOMAIN/
+          Chef::Log.info("Unable to resolve hostname from #{ip} by PTR, sleep and retry")
+          sleep(5)
+          full_hostname = `host #{ip} | awk '{ print $NF }' | sed 's/.$//'`.strip
+        else
+          break;
+        end
+      end
+      return full_hostname
+    end
+    
+    def get_cloud_fqdn(ip)
+      full_hostname = get_full_hostname(ip)
+      # full_hostname is the cloud-level and instance-level FQDN
+      # but we need to use cloud-level FQDN to connect to the Etcd running in (primary or secondary) clouds
+      # the temp solution is to:
+      # (1) drop the short hostname
+      # (2) add the platform name in front
+      arr = full_hostname.split(".")[1..-1]
+      platform_name = node.workorder.box.ciName
+      cloud_fqdn = [platform_name, arr.join(".")].join(".")
+      Chef::Log.info("cloud_fqdn: #{cloud_fqdn}")
+      return cloud_fqdn
+    end
+    
+    def depend_on_fqdn_ptr?
+      # if etcd depends on hostname/fqdn componenet with PTR enabled
+      depend_on_fqdn_ptr = false
+      node.workorder.payLoad[:DependsOn].each do |dep|
+        if dep["ciClassName"] =~ /Fqdn/
+          #Chef::Log.info("ciBaseAttributes content: "+dep["ciBaseAttributes"].inspect.gsub("\n"," "))
+          #Chef::Log.info("ciAttributes content: "+dep["ciAttributes"].inspect.gsub("\n"," "))
+          if !dep["ciBaseAttributes"].nil? && !dep["ciBaseAttributes"].empty?
+            hash = dep["ciBaseAttributes"]
+          else
+            hash = dep["ciAttributes"]
+          end
+
+          if hash["ptr_enabled"] == "true"
+            depend_on_fqdn_ptr = true
+            Chef::Log.info("depend_on_fqdn_ptr")
+            break
+          end
+        end
+      end
+      return depend_on_fqdn_ptr
+    end
+  
   end
 
 end
