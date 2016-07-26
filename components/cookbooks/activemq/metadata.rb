@@ -36,7 +36,7 @@ attribute 'version',
           :default => '5.13.0',
           :format => {
               :important => true,
-              :help => 'Version of ActiveMQ (eg: 5.11.1)',
+              :help => 'Version of ActiveMQ (eg: 5.13.0)',
               :category => '1.ActiveMQ',
               :order => 3,
           }
@@ -46,7 +46,7 @@ attribute 'transportconnector',
           :required => 'required',
           :data_type => 'hash',
           :default => '{
-             "nio":"nio://0.0.0.0:61616"
+             "nio":"nio://0.0.0.0:61616?maximumConnections=1000&amp;needClientAuth=false"
           }',
           :format => {
               :help => 'Transport Connectors for different protocols such as tcp, nio, ssl, openwire, amqp, mqtt',
@@ -78,6 +78,7 @@ attribute 'maxconnections',
          :format => {
              :help => 'Maximum connections for each transport connector.',
              :category => '1.ActiveMQ',
+             :filter => {'all' => {'visible' => 'false'}},
              :order => 7
          }
 
@@ -305,10 +306,11 @@ attribute 'needclientauth',
           :format => {
               :category => '4.Authentication and Authorization',
               :help => "Flag for the client authentication in SSL transport (if needClientAuth=false, the client won't need a keystore but requires a truststore in order to validate the broker's certificate).",
-              :filter => {'all' => {'visible' => 'adminconsolesecure:eq:true'}},
+              :filter => {'all' => {'visible' => 'false'}},
               :order => 2,
               :form => {'field' => 'checkbox'}
           }
+
 attribute 'adminconsolekeystore',
           :description => 'Keystore absolute path',
           :default => '$OO_LOCAL{keystorepath}',
