@@ -56,7 +56,7 @@ attribute 'endpoint',
 attribute 'sensu_client_version',
           :description => 'Sensu RPM/deb version',
           :required    => 'required',
-          :default     => 'sensu-0.21.0-2.x86_64',
+          :default     => 'sensu-0.21.0-2',
           :format      => {
             :help     => 'provide the sensu client version that needs to be installed.',
             :category => '2.endpoints',

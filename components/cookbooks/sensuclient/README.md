@@ -4,7 +4,7 @@ Install Sensu Client
 
 Requirements
 ------------
-OS: RHEL, CentOS
+OS: RHEL, CentOS (Feel free to enhance this for other environments)
 
 License and Authors
 -------------------
