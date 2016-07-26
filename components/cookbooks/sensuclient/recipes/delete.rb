@@ -4,7 +4,7 @@
 #
 # Copyright 2016, kaushiksriram100@gmail.com
 #
-# All rights reserved - Do Not Redistribute
+# Apache 2.0
 #
 include_recipe "sensuclient::stop"
 
