@@ -48,7 +48,7 @@ attribute 'endpoint',
           :required    => 'required',
           :default     => 'rabbitmqserver.example.com,rabbitmqserver2.example.com',
           :format      => {
-            :help     => 'sensu endpoints are the message queue endpoints. Separate multiple values with Comma. max of 6. defaults to port 5671',
+            :help     => 'sensu endpoints are the message queue endpoints. Separate multiple values with Comma. max of 6. defaults to port 5671. For user password please change in the rabbitmq_*.json files under files/default in the cookbook',
             :category => '2.endpoints',
             :order    => 1
           }
