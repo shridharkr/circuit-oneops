@@ -131,12 +131,25 @@ else
     url = m["peerURLs"][0]
     Chef::Log.info("member url is: #{url}")
     host = URI.parse(url).host
+    require 'resolv'
+    unless host =~ Resolv::IPv4::Regex
+      # ip is short hostname, convert it to ip address
+      host = `host #{host} | awk '{ print $NF }'`.strip
+    end
+    
     primary_hosts.push(host)
   end
   
+  Chef::Log.info("primary_hosts: #{primary_hosts.to_s}")
+  
   computes.each do |c, index|
     if c.ciAttributes.has_key?("private_ip") && !primary_hosts.include?(c.ciAttributes.private_ip)
-      etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")
+      if depend_on_fqdn_ptr?
+        hostname = get_full_hostname(c.ciAttributes.private_ip)
+        etcd_cluster.push("#{c.ciName}=http://#{hostname}:2380")
+      else
+        etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")
+      end
     end
   end
   
