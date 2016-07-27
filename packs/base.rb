@@ -739,6 +739,14 @@ end
     :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
 end
 
+# propagation rule for replace
+[ 'hostname' ].each do |from|
+  relation "#{from}::depends_on::compute",
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'compute',
+    :attributes    => { "propagate_to" => 'from', "flex" => false, "min" => 1, "max" => 1 }
+end
 
 # managed_via
 [ "os", 'user', 'job', 'file', 'volume', 'share', 'download', 'library', 'daemon', 'certificate', 'logstash' ].each do |from|
