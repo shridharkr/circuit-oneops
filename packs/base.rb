@@ -693,8 +693,7 @@ resource "hostname",
   }           
 
 resource "sensuclient",
-         :cookbook => "sensuclient",
-         :source => Chef::Config[:register],
+         :cookbook => "oneops.1.sensuclient",
          :design => true,
          :requires => {"constraint" => "0..1"}           
 
