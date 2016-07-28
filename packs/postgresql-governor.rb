@@ -265,14 +265,14 @@ resource "haproxy",
 }
 
 resource "lb",
-:except => [ 'single' ],
-:design => true,
-:cookbook => "oneops.1.lb",
-:requires => { "constraint" => "1..1", "services" => "compute,lb,dns" },
-:attributes => {
+  :except => [ 'single' ],
+  :design => true,
+  :cookbook => "oneops.1.lb",
+  :requires => { "constraint" => "1..1", "services" => "compute,lb,dns" },
+  :attributes => {
     "listeners" => '["tcp 5432 tcp 5000","tcp 2379 tcp 2379"]',
-},
-:payloads => {
+  },
+  :payloads => {
     'primaryactiveclouds' => {
         'description' => 'primaryactiveclouds',
         'definition' => '{
@@ -309,15 +309,8 @@ resource "lb",
         }
         ]
     }'
+  }
 }
-}
-
-#resource "lb",
-#  :except => [ 'single' ],
-#  :design => false,
-#  :attributes => {
-#    "listeners" => '["tcp 5432 tcp 5000","tcp 2379 tcp 2379"]',
-#}
 
 [ 'postgresql-governor' ].each do |from|
   relation "#{from}::depends_on::volume",
@@ -387,7 +380,7 @@ end
     :relation_name => 'DependsOn',
     :from_resource => from,
     :to_resource   => 'compute',
-    :attributes    => { "propagate_to" => 'both', "flex" => true, "current" =>2, "min" => 2, "max" => 10}
+    :attributes    => { "propagate_to" => 'both', "flex" => true, "current" =>3, "min" => 3, "max" => 10}
 end
 
 # -d name due to pack sync logic uses a map keyed by that name - it doesnt get put into cms
