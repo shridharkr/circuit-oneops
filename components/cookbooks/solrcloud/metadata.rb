@@ -9,7 +9,7 @@ grouping 'default',
 attribute 'solr_url',
   :description => 'Solr binary distribution base url',
   :required => 'required',
-  :default => '$OO_CLOUD{nexus}/nexus/content/groups/public/org/apache/solr',
+  :default => 'https://archive.apache.org/dist/lucene',
   :format => {
     :help => 'Nexus version of Solr binary distribution ',
     :category => '1.SolrCloud',
