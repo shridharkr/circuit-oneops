@@ -27,6 +27,9 @@ subscriptions = tmp.map(&:inspect).join(', ')
 #arrange handlers
 
 tmp1 = keepalive_handlers.split(",")
+
+#remove whitespaces
+tmp1.map!{ |var| var.gsub(/\s+/, "")}
 handlers = tmp1.map(&:inspect).join(', ')
 
 #arrange the keys
