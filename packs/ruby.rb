@@ -19,7 +19,7 @@ resource "ruby",
   :attributes => {
     "gems" => '{"bundler":""}'
   }
-  
+
 resource "secgroup",
    :cookbook => "oneops.1.secgroup",
    :design => true,
@@ -29,18 +29,19 @@ resource "secgroup",
    :requires => {
        :constraint => "1..1",
        :services => "compute"
-   }  
+   }
 
 # depends_on
-[ { :from => 'ruby',  :to => 'os' },
-  { :from => 'ruby',  :to => 'library' },
-  { :from => 'ruby',  :to => 'download'},
-  { :from => 'build',   :to => 'ruby' } ].each do |link|
+[{:from => 'ruby', :to => 'os'},
+ {:from => 'ruby', :to => 'library'},
+ {:from => 'ruby', :to => 'download'},
+ {:from => 'artifact', :to => 'ruby'},
+ {:from => 'build', :to => 'ruby'}].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
-    :relation_name => 'DependsOn',
-    :from_resource => link[:from],
-    :to_resource   => link[:to],
-    :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
+           :relation_name => 'DependsOn',
+           :from_resource => link[:from],
+           :to_resource   => link[:to],
+           :attributes    => {"flex" => false, "min" => 1, "max" => 1}
 end
 
 # managed_via
