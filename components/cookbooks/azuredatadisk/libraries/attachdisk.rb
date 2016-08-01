@@ -5,14 +5,14 @@ module AzureStorage
     def self.attach_disk(instance_name, subscription_id,rg_name,credentials,device_maps )
       vols = Array.new
       dev_list = ""
-      i = 2
+      i = 1
       dev_id=""
       OOLog.info('Subscription id is: ' + subscription_id)
       client = Azure::ARM::Compute::ComputeManagementClient.new(credentials)
       client.subscription_id = subscription_id
       storage_client = Azure::ARM::Storage::StorageManagementClient.new(credentials)
       storage_client.subscription_id = subscription_id
-      
+
       device_maps.each do |dev_vol|
         slice_size = dev_vol.split(":")[3]
         dev_id = dev_vol.split(":")[4]
@@ -23,17 +23,21 @@ module AzureStorage
         vm = get_vm_info(instance_name,client,rg_name)
 
         #Add a data disk
-        flag = false
-        (vm.properties.storage_profile.data_disks).each do |disk|
-          if disk.lun == i-1
-            flag = true
-          end
-        end
-        if flag == true
-          i = i+1
-          next
-        end
+        # flag = false
+        # (vm.properties.storage_profile.data_disks).each do |disk|
+        #   OOLog.info("lookat disk.lun:" + disk.lun.to_s)
+        #   if disk.lun == i-1
+        #     flag = true
+        #   end
+        # end
+        # if flag == true
+        #   OOLog.info("lookat before i:" + i.to_s)
+        #   i = i+1
+        #   OOLog.info("lookat after i:" + i.to_s)
+        #   next
+        # end
         access_key = get_storage_access_key(storage_account_name,storage_account_rg_name,storage_client)
+        OOLog.info("lookat access_key: " + access_key.to_s)
         vm.properties.storage_profile.data_disks.push(build_storage_profile(i,component_name,storage_account_name,slice_size,dev_id,access_key))
         attach_disk_to_vm(instance_name,client,rg_name,vm)
         OOLog.info("Adding #{dev_id} to the dev list")
@@ -47,6 +51,7 @@ module AzureStorage
     def self.attach_disk_to_vm(instance_name,client,rg_name,vm)
       begin
         start_time = Time.now.to_i
+        OOLog.info("lookat, create or update")
         vm_promise = client.virtual_machines.create_or_update(rg_name, instance_name, vm)
         my_vm = vm_promise.value!
         end_time = Time.now.to_i
@@ -62,7 +67,7 @@ module AzureStorage
           OOLog.fatal(ex.message)
       end
     end
-    
+
     # Get the information about the VM
     def self.get_vm_info(instance_name,client,rg_name)
       promise = client.virtual_machines.get(rg_name, instance_name)
@@ -95,6 +100,7 @@ module AzureStorage
       blob_name = "#{storage_account_name}-#{component_name}-datadisk-#{dev_name}.vhd"
       is_new_disk_or_old = check_blob_exist(storage_account_name,blob_name,access_key)
       if is_new_disk_or_old == true
+        OOLog.info("lookat, attaching")
         data_disk2.create_option = Azure::ARM::Compute::Models::DiskCreateOptionTypes::Attach
       else
         data_disk2.create_option = Azure::ARM::Compute::Models::DiskCreateOptionTypes::Empty
