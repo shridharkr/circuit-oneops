@@ -34,6 +34,26 @@ def delete_gslb_service_by_name(gslb_service_name)
     Chef::Log.info( "#{gslb_service_name} by platofrm already deleted.")
   end  
   
+  resp_obj = JSON.parse(conn.request(
+    :method=>:get,
+    :path=>"/nitro/v1/config/gslbservice_lbmonitor_binding/#{gslb_service_name}").body) #Array of GSLB Service Monitor Bindings will be returned 
+  if !resp_obj['gslbservice_lbmonitor_binding'].nil?
+    resp_obj['gslbservice_lbmonitor_binding'].each do |mon_bind|
+      rr  = JSON.parse(conn.request(
+        :method=>:get,
+        :path=>"/nitro/v1/config/lbmonitor/#{mon_bind['monitor_name']}").body)
+      mon_detail = rr['lbmonitor'].select {|v| v['monitorname'] == mon_bind['monitor_name']}
+      res_mon = JSON.parse(conn.request(
+        :method=>:delete,
+        :path=>"/nitro/v1/config/lbmonitor/#{mon_bind['monitor_name']}?args=type:#{mon_detail['type']}").body)
+      if res_mon['errorcode'] != 2131 && res_mon['errorcode'] != 0
+        Chef::Log.error( "delete monitor #{monitor_name} resp: #{res_mon.inspect}")
+        exit 1
+      else
+        Chef::Log.info( "delete monitor #{mon_bind['monitor_name']} resp: #{res_mon.inspect}")
+      end
+    end
+  end
 end
 
 
@@ -69,8 +89,12 @@ def get_gslb_service_name_by_platform
 end
 
 def create_gslb_service
+  ci = node.workorder.box
   gslb_service_name = get_gslb_service_name
   conn = @new_resource.connection
+  cloud_name = node.workorder.cloud.ciName
+  gdns_cloud_service = node.workorder.services["gdns"][cloud_name]
+  dc_name = gdns_cloud_service[:ciAttributes][:gslb_site_dns_id]
   
   Chef::Log.info("gslb_service_name: #{gslb_service_name}")
 
@@ -205,6 +229,188 @@ def create_gslb_service
     Chef::Log.info( "bind exists: #{bindings.inspect}")
   end        
   
+# Adding GSLB Health Monitors
+
+  begin
+    ecv_map = JSON.parse(node.workorder.payLoad.DependsOn[0].ciAttributes.ecv_map)
+  rescue Exception => e
+    ecv_map = {}
+  end
+
+  vport = @new_resource.port
+  iport = @new_resource.iport
+  vprotocol = @new_resource.servicetype.downcase
+  if !ecv_map.has_key?(iport)
+    ecv = "GET /"
+  end
+  ecv = ecv_map[iport.to_s]
+  monitor_name = ci["ciId"].to_s+"-#{vport}-#{dc_name}-gmon"
+  if monitor_name.length > 31 #This can happen only becuase of dc_name rest all characters will max sum upto 24, including the max port no. allowed
+    #monitor_name would take the 1st and last 2 characters of dc_name
+    monitor_name = ci["ciId"].to_s+"-#{vport}-#{dc_name[0]}#{dc_name[/.{,#{2}}\z/m]}-gmon"
+    dc_name = "#{dc_name[0]}#{dc_name[/.{,#{2}}\z/m]}"
+  end
+  monitor = {
+    :monitorname => monitor_name,
+    :type => 'HTTP',
+    :respcode => ['200'],
+    :httprequest => ecv
+  }
+
+  case vprotocol
+  when /tcp/
+    monitor = {
+      :monitorname => monitor_name,
+      :type => 'TCP'
+    }
+  when "udp"
+    monitor = {
+      :monitorname => monitor_name,
+      :type => 'UDP'
+    }
+  end
+
+  if vprotocol == 'ssl_bridge' || vprotocol == 'https' || vprotocol == 'ssl'
+    monitor[:secure] = 'YES'
+  else
+    monitor[:secure] = 'NO'
+  end
+
+  req = nil
+  method = :put
+
+  resp_obj = JSON.parse(conn.request(
+    :method=>:get,
+    :path=>"/nitro/v1/config/lbmonitor/#{monitor_name}").body)
+
+  if resp_obj["message"] =~ /No such resource/
+    method = :post
+    path = "/nitro/v1/config/lbmonitor/"
+    if monitor.has_key?(:httprequest) && !monitor[:httprequest].nil? &&
+      monitor[:httprequest].include?("&")
+      monitor[:httprequest] = "GET /"
+    end
+    req = URI::encode('object= { "lbmonitor":'+JSON.dump(monitor)+'}')
+  else
+    existing_monitor = resp_obj["lbmonitor"][0]
+    Chef::Log.info("existing monitor: #{existing_monitor.inspect}")
+    if existing_monitor["type"] != monitor[:type]
+      Chef::Log.info("delete monitor due to different types: existing: #{existing_monitor['type']} current: #{monitor[:type]}")
+      gslbsvc_lbmon_obj = JSON.parse(conn.request(
+        :method=>:get,
+        :path=>"/nitro/v1/config/gslbservice_lbmonitor_binding/#{gslb_service_name}").body)
+      if !gslbsvc_lbmon_obj['gslbservice_lbmonitor_binding'].nil? && !gslbsvc_lbmon_obj['gslbservice_lbmonitor_binding'].find{|glbmon| glbmon['monitor_name'] == monitor_name}.nil?
+        binding = { :monitor_name => monitor_name, :servicename => gslb_service_name }
+        Chef::Log.info("binding being deleted: #{binding.inspect}")
+        req = URI::encode('object={"params":{"action": "unbind"}, "gslbservice_lbmonitor_binding" : ' + JSON.dump(binding) + '}')
+        resp_obj = JSON.parse(conn.request(
+          :method=> :post,
+          :path=>"/nitro/v1/config/gslbservice_lbmonitor_binding/#{gslb_service_name}",
+          :body => req).body)
+
+        if ![0,258].include?(resp_obj["errorcode"])
+          Chef::Log.error( "delete bind #{binding.inspect} resp: #{resp_obj.inspect}")
+          exit 1
+        else
+          Chef::Log.info( "delete bind  #{binding.inspect} resp: #{resp_obj.inspect}")
+        end
+      end
+
+      resp_obj = JSON.parse(conn.request(
+        :method=> :delete,
+        :path=> "/nitro/v1/config/lbmonitor/#{monitor_name}?args=type:#{existing_monitor['type']}").body)
+
+      if resp_obj["errorcode"] != 0
+        Chef::Log.error( "delete #{monitor_name} resp: #{resp_obj.inspect}")
+        exit 1
+      else
+        Chef::Log.info( "delete #{monitor_name} resp: #{resp_obj.inspect}")
+      end
+
+      # create new monitor w/ new type
+      method = :post
+      path = "/nitro/v1/config/lbmonitor/"
+      if monitor.has_key?(:httprequest) && !monitor[:httprequest].nil? &&
+        monitor[:httprequest].include?("&")
+        monitor[:httprequest] = "GET /"
+      end
+      req = URI::encode('object= { "lbmonitor":'+JSON.dump(monitor)+'}')
+    else
+      # update
+      Chef::Log.info( "monitor #{monitor_name} exists.")
+      path = "/nitro/v1/config/lbmonitor/#{monitor_name}/"
+      req = '{ "lbmonitor": ['+JSON.dump(monitor)+'] }'
+    end
+  end
+
+  Chef::Log.info("#{method} #{monitor.inspect}")
+  resp = conn.request(
+    :method=> method,
+    :path=> path,
+    :body => req)
+
+  if !resp.nil? && resp.body != '(null)'
+    resp_obj = JSON.parse(resp.body)
+  else
+    resp_obj = { "errorcode" => 0, :message => "ok", :monitor => monitor }
+  end
+
+  if resp_obj["errorcode"] != 0
+    Chef::Log.error( "#{method} #{monitor_name} resp: #{resp_obj.inspect}")
+    exit 1
+  else
+    Chef::Log.info( "#{method} #{monitor_name} resp: #{resp_obj.inspect}")
+  end
+
+  # workaround for netscaler post format / uri encoded ampersand issue
+  if method == :post && !ecv.nil? && ecv.include?("&")
+    monitor[:httprequest] = ecv
+
+    resp = conn.request(
+    :method=> :put,
+    :path=> "/nitro/v1/config/lbmonitor/#{monitor_name}/",
+    :body => '{ "lbmonitor": ['+JSON.dump(monitor)+'] }')
+
+    resp_obj = JSON.parse(resp.body)
+
+    if resp_obj["errorcode"] != 0
+      Chef::Log.error( "put #{monitor_name} resp: #{resp_obj.inspect}")
+      exit 1
+    else
+      Chef::Log.info( "put #{monitor_name} resp: #{resp_obj.inspect}")
+    end
+  end
+
+
+  #Adding Bindings b/w GSLB Service and Monitor created above
+  binding = { :monitor_name => monitor_name, :servicename => gslb_service_name }
+  req = URI::encode('object={"params":{"action": "bind"}, "gslbservice_lbmonitor_binding" : ' + JSON.dump(binding) + '}')
+  resp_obj = JSON.parse(conn.request(
+    :method=>:get,
+    :path=>"/nitro/v1/config/gslbservice_lbmonitor_binding/#{gslb_service_name}").body)
+  Chef::Log.info("gslbservice_lbmonitor_binding "+resp_obj.inspect)
+  binding = Array.new
+  if !resp_obj["gslbservice_lbmonitor_binding"].nil?
+    binding = resp_obj["gslbservice_lbmonitor_binding"].select{|v| v["servicename"] == gslb_service_name }
+  end
+
+  if binding.size == 0
+    resp_obj = JSON.parse(conn.request(
+      :method=> :post,
+      :path=>"/nitro/v1/config/gslbservice_lbmonitor_binding/#{gslb_service_name}",
+      :body => req).body)
+    if resp_obj["errorcode"] != 0
+      Chef::Log.error( "monitor put bind  resp: #{resp_obj.inspect}")
+      exit 1
+    else
+      Chef::Log.info( "monitor post bind resp: #{resp_obj.inspect}")
+    end
+  else
+    Chef::Log.info( "**** monitor bind exists ****")
+  end
+  #End Bindings b/w GSLB Service and Monitor created above
+
+  # End GSLB Health Monitors
 
 end
 

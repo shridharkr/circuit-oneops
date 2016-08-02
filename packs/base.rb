@@ -691,7 +691,12 @@ resource "hostname",
     :services => "dns",
     :help => "optional hostname dns entry"
   }           
-           
+
+resource "sensuclient",
+         :cookbook => "oneops.1.sensuclient",
+         :design => true,
+         :requires => {"constraint" => "0..1"}           
+
 # depends_on
 [ { :from => 'compute',     :to => 'secgroup' } ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
@@ -721,6 +726,7 @@ end
   { :from => 'download',    :to => 'os' },
   { :from => 'file',        :to => 'volume' },
   { :from => 'file',        :to => 'os' },
+  {:from => 'sensuclient', :to => 'compute'  },
   { :from => 'library',     :to => 'os' }
 ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
@@ -749,7 +755,7 @@ end
 end
 
 # managed_via
-[ "os", 'user', 'job', 'file', 'volume', 'share', 'download', 'library', 'daemon', 'certificate', 'logstash' ].each do |from|
+[ "os", 'user', 'job', 'file', 'volume', 'share', 'download', 'library', 'daemon', 'certificate', 'logstash', 'sensuclient' ].each do |from|
   relation "#{from}::managed_via::compute",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',

@@ -19,7 +19,7 @@ module AzureCompute
 
     end
 
-    def build_profile(node, ephemeral_disk_sizemap)
+    def build_profile(node)
       #==================================================
       #Get the information from the workload in order to
       #extract the platform name and generate
@@ -114,26 +114,6 @@ module AzureCompute
       storage_profile.os_disk.caching = Azure::ARM::Compute::Models::CachingTypes::ReadWrite
       storage_profile.os_disk.create_option = Azure::ARM::Compute::Models::DiskCreateOptionTypes::FromImage
 
-      disk_size_map = JSON.parse(ephemeral_disk_sizemap)
-      vm_size = node['workorder']['rfcCi']['ciAttributes']['size']
-      OOLog.info("data disk size from size map: #{disk_size_map[vm_size]} ")
-      #if the VM exists already data disk property need not be updated. Updating the datadisk size will result in an error.
-
-      if node.VM_exists == false
-        OOLog.info("WM Doesn't exist, create the second disk")
-        #Add a data disk
-        data_disk1 = Azure::ARM::Compute::Models::DataDisk.new
-        data_disk1.name = "#{server_name}-datadisk"
-        data_disk1.lun = 0
-        data_disk1.disk_size_gb = disk_size_map[vm_size]
-        data_disk1.vhd = Azure::ARM::Compute::Models::VirtualHardDisk.new
-        data_disk1.vhd.uri = "https://#{storage_account_name}.blob.core.windows.net/vhds/#{storage_account_name}-#{server_name}-data1.vhd"
-        data_disk1.caching = Azure::ARM::Compute::Models::CachingTypes::ReadWrite
-        data_disk1.create_option = Azure::ARM::Compute::Models::DiskCreateOptionTypes::Empty
-        storage_profile.data_disks = Array.[](data_disk1)
-        OOLog.info("Data Disk Name is: '#{data_disk1.name}' ")
-        OOLog.info("Data Disk VHD URI is: #{data_disk1.vhd.uri}")
-      end
 
       return storage_profile
     end
