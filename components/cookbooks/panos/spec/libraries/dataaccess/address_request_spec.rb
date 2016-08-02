@@ -47,4 +47,22 @@ describe 'Address Request' do
     it 'throws an exception when there was an error from the firewall'
 
   end
+  
+  context 'create address' do
+    
+  end
+  
+  context 'delete address' do
+    
+  end
+  
+  context 'get all addresses' do
+    it 'returns all the addresses'
+    
+    it 'returns nil for no addresses'
+    
+    it 'throws an exception when there was an error from the firewall'
+    
+  end
+  
 end

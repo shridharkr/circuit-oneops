@@ -22,23 +22,68 @@ class AddressManager
   end
 
   # This function handles updating the firewall device
-  def update(name, new_ip)
-    # check if old address is configured in PANOS
-    address = AddressRequest.new(@url, @key)
-
-    # should use the name instead of the ip?
-    if address.exists?(name)
-      # set the new ip value on the object
-      # TODO the naming here is awful.  fix it.
-      address.address.address = new_ip
-
-      # update the address
-      address.update(address.address)
-
-      commit_and_check_status()
-    else
-      Chef::Log.info("address is not on firewall, won't update")
+  def update(addresses, tag_name)
+    #  convert address hash to an array of Address objects.
+    deploy_addresses = []
+    addresses['entries'].each do |deploy_addr|
+      deploy_addresses.push(Address.new(deploy_addr['name'], 'IP_NETMASK', deploy_addr['ip_address'], tag_name))
     end
+    
+    address = AddressRequest.new(@url, @key)
+    
+    # get the existing addresses from the firewall
+    # this is an array of Address objects
+    existing_addresses = address.get_all_for_tag(tag_name)
+    
+    # array holders for actions to be taken later
+    delete_address = []
+    create_address = []
+    update_address = []
+    
+    # compare with my hash of addresses from the deployment
+    existing_addresses.each do |addr|
+      if deploy_addresses.include?(addr)
+        # both arrays have the address, add it to the update array
+        update_address.push(addr)
+      else
+        # address from firewall is not in deployment, delete it
+        delete_address.push(addr)
+      end
+    end
+    
+    deploy_addresses.each do |dep_addr|
+      # if the deployment address is not found on the firewall
+      # we need to create it
+      if !existing_addresses.include?(dep_addr)
+        create_address.push(dep_addr)
+      end
+    end
+    
+    # delete the addresses the firewall has that the deployment doesn't
+    Chef::Log.info("Delete address are: #{delete_address}")
+    if delete_address.size > 0
+      delete_address.each do |del_addr|
+        address.delete(del_addr.name)
+      end
+    end
+    
+    # add the addresses the deployment has the firewall doesn't
+    Chef::Log.info("Create address are: #{create_address}")
+    if create_address.size > 0
+      create_address.each do |create_addr|
+        address.create(create_addr.name, create_addr.address, create_addr.tags)
+      end
+    end
+    
+    # update the addresses that both have
+    Chef::Log.info("Update address are: #{update_address}")
+    if update_address.size > 0
+      update_address.each do |update_addr|
+        address.update(update_addr)
+      end
+    end
+    
+    commit_and_check_status()
   end
 
   def create_dag_with_addresses(address_group_name, addresses, tag)

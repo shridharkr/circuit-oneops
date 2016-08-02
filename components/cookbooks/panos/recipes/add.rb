@@ -9,9 +9,13 @@ require 'crack'
 
 Chef::Log.info('MADE IT TO PANOS ADD RECIPE')
 
+# TODO: move all of this to a helper class to remove code duplication
+
+# get the cloud name
 cloud_name = node[:workorder][:cloud][:ciName]
 Chef::Log.info("Cloud Name: #{cloud_name}")
 
+# get the service information
 if node[:workorder][:services].has_key?(:firewall)
   Chef::Log.info("FW SERVICE IS: #{node[:workorder][:services][:firewall]}")
   fw_attributes =
@@ -22,13 +26,12 @@ if node[:workorder][:services].has_key?(:firewall)
 end
 
 if !node[:workorder][:payLoad].has_key?(:RequiresComputes)
-  msg = 'DependsOn does not exist for compute and firewall'
+  msg = 'RequiresComputes does not exist for compute and firewall'
   puts "***FAULT:FATAL=#{msg}"
   e = Exception.new(msg)
   raise e
 else
-  # for the Computes, need to add to an array and submit those to be created
-  # and added to the Firewall
+  # for the Computes, need to add to an array and submit those to be created/updated/deleted in the firewall
   addresses = Hash.new {|h,k| h[k] = Array.new }
   computes = node[:workorder][:payLoad][:RequiresComputes].select { |d| d[:ciClassName] =~ /Compute/ }
   computes.each do |compute|
@@ -40,11 +43,11 @@ end
 
 Chef::Log.info("ADDRESSES are: #{addresses}")
 
+# get the tag name and address group name
 nsPathParts = node[:workorder][:rfcCi][:nsPath].split('/')
 org_name = nsPathParts[1]
 assembly_name = nsPathParts[2]
 environment_name = nsPathParts[3]
-platform_name = nsPathParts[5]
 platform_ciid = node.workorder.box.ciId.to_s
 
 address_group_name = org_name[0..15] + '-' + assembly_name[0..15] + '-' + platform_ciid + '-' + environment_name[0..15]

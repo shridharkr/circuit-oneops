@@ -34,4 +34,9 @@ class Address
     end
   end
 
+  # override the == method to check if two Address objects equal based on name
+  def ==(another_address)
+    self.name == another_address.name
+  end
+
 end

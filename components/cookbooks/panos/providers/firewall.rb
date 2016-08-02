@@ -5,12 +5,12 @@ end
 
 action :update do
   begin
-    converge_by("Replace IP on Address") do
+    converge_by("Update Addresses") do
       address_manager = AddressManager.new(@new_resource.url_endpoint, @new_resource.username, @new_resource.password)
-      raise Exception.new("AddressName is required") if @new_resource.address_name.nil?
-      raise Exception.new("New IP Address is required") if @new_resource.new_ip.nil?
+      raise Exception.new("Tag is required") if @new_resource.tag.nil?
+      raise Exception.new("Address hash is required") if @new_resource.addresses.nil?
 
-      address_manager.update(@new_resource.address_name, @new_resource.new_ip)
+      address_manager.update(@new_resource.addresses, @new_resource.tag)
     end
 
     @new_resource.updated_by_last_action(true)
