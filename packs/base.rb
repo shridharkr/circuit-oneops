@@ -277,7 +277,7 @@ resource "fqdn",
                    "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
                    "direction": "from",
                    "targetClassName": "cloud.service.oneops.1.Rackspacedns"
-                 },    
+                 },
                  { "returnObject": true,
                    "returnRelation": false,
                    "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
@@ -457,7 +457,7 @@ resource "fqdn",
                        "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
                        "direction": "from",
                        "targetClassName": "cloud.service.Netscaler"
-                     },       
+                     },
                      { "returnObject": true,
                         "returnRelation": false,
                         "relationName": "base.Provides",
@@ -614,7 +614,7 @@ resource "daemon",
                   :metrics =>  {
                     'up'   => metric( :unit => '%', :description => 'Percent Up'),
                   },
-                  :thresholds => {  
+                  :thresholds => {
                      'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
                   }
                 }
@@ -690,12 +690,48 @@ resource "hostname",
     :constraint => "0..1",
     :services => "dns",
     :help => "optional hostname dns entry"
-  }           
+  }
 
 resource "sensuclient",
-         :cookbook => "oneops.1.sensuclient",
-         :design => true,
-         :requires => {"constraint" => "0..1"}           
+   :cookbook => "oneops.1.sensuclient",
+   :design => true,
+   :requires => {"constraint" => "0..1"}
+
+resource "firewall",
+ :cookbook => "oneops.1.firewall",
+ :design => true,
+ :requires => {
+   "constraint" => "0..1",
+   'services' => 'firewall'
+ },
+ :payloads => {
+   'computes' => {
+     'description' => 'computes',
+     'definition' => '{
+       "returnObject": false,
+       "returnRelation": false,
+       "relationName": "base.RealizedAs",
+       "direction": "to",
+       "targetClassName": "manifest.oneops.1.Firewall",
+       "relations": [
+         { "returnObject": false,
+           "returnRelation": false,
+           "relationName": "manifest.DependsOn",
+           "direction": "from",
+           "targetClassName": "manifest.oneops.1.Compute",
+           "relations": [
+             { "returnObject": true,
+             "returnRelation": false,
+             "relationName": "base.RealizedAs",
+             "direction": "from",
+             "targetClassName": "bom.oneops.1.Compute"
+             }
+           ]
+         }
+       ]
+     }'
+   }
+ }
 
 # depends_on
 [ { :from => 'compute',     :to => 'secgroup' } ].each do |link|
@@ -745,6 +781,14 @@ end
     :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
 end
 
+[ 'firewall' ].each do |from|
+  relation "#{from}::depends_on::compute",
+    :only => [ '_default', 'single' ],
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'compute',
+    :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
+end
 
 # managed_via
 [ "os", 'user', 'job', 'file', 'volume', 'share', 'download', 'library', 'daemon', 'certificate', 'logstash', 'sensuclient' ].each do |from|
