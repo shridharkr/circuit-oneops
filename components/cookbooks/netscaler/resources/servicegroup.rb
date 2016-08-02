@@ -12,12 +12,7 @@ attribute :name,
   
 attribute :port, 
   :kind_of => String,
-  :required => true, 
-  :callbacks => {
-                  "not in valid numeric range" => lambda { |m|
-                    Integer(m)<=65535 && Integer(m)>=1
-                  }
-                }
+  :required => true
                 
 attribute :protocol, 
   :kind_of => String,
