@@ -20,20 +20,20 @@ if(server_name.size > 63)
   server_name = server_name.slice(0,63-(rfcCi["ciId"].to_s.size)-1)+'-'+ rfcCi["ciId"].to_s
   Chef::Log.info("Truncated server name to 64 chars : #{server_name}")
 end
-os = nil
-ostype = "default-cloud"
-if node.workorder.payLoad.has_key?("os")
-  os = node.workorder.payLoad.os.first
-  ostype = os[:ciAttributes][:ostype]   
-else
-  Chef::Log.warn("missing os payload - using default-cloud")
-end
 
 cloud_name = node[:workorder][:cloud][:ciName]
 cloud = node[:workorder][:services][:compute][cloud_name][:ciAttributes]
 
-if ostype == "default-cloud"
-  ostype = cloud[:ostype]
+os = nil
+ostype = "default-cloud"
+if node.workorder.payLoad.has_key?("os")
+  os = node.workorder.payLoad.os.first
+  ostype = os[:ciAttributes][:ostype]
+else
+  Chef::Log.warn("missing os payload - using default-cloud")
+  if ostype == "default-cloud"
+    ostype = cloud[:ostype]
+  end
 end
 
 sizemap = JSON.parse( cloud[:sizemap] )
@@ -76,7 +76,7 @@ initial_user = "root"
 if ostype.include?("buntu") &&
     # rackspace uses root for all images
     !node.workorder.cloud.ciAttributes[:location].include?("rackspace") &&
-    !node.workorder.cloud.ciName.downcase.include?("rackspace") 
+    !node.workorder.cloud.ciName.downcase.include?("rackspace")
 
    initial_user = "ubuntu"
 end
@@ -105,4 +105,3 @@ node.set[:ostype] = ostype
 node.set[:size_id] = size_id
 node.set[:image_id] = image_id
 node.set[:kp_name] = kp_name
-

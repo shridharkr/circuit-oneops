@@ -45,7 +45,7 @@ begin
     :openstack_tenant => compute_service[:tenant],
     :openstack_auth_url => compute_service[:endpoint]
   })
-  
+
   quantum.networks.each do |net|
     if net.name == compute_service[:subnet]
       Chef::Log.info("net_id: "+net.id)
@@ -62,8 +62,22 @@ nsPathParts = rfcCi["nsPath"].split("/")
 customer_domain = node["customer_domain"]
 owner = node.workorder.payLoad.Assembly[0].ciAttributes["owner"] || "na"
 node.set["max_retry_count_add"] = 30
+ostype = node.workorder.payLoad.os[0].ciAttributes["ostype"]
+if compute_service.has_key?("initial_user") && !compute_service[:initial_user].empty? && ostype =~ /windows*/
+  node.set["use_initial_user"] = true
+  initial_user = compute_service[:initial_user]
+  # put initial_user on the node for the following recipes
+  node.set[:initial_user] = initial_user
+end
 
-Chef::Log.info("compute::add -- name: "+node.server_name+" domain: "+customer_domain+" provider: "+cloud_name)  
+if ostype =~ /windows*/
+  circuit_dir = "/opt/oneops/inductor/circuit-oneops-1"
+  user_data_file = "#{circuit_dir}/components/cookbooks/compute/files/default/user_data_script.ps1"
+  user_data_script = File.read(user_data_file)
+  Chef::Log.info("user_data_script => SET")
+end
+
+Chef::Log.info("compute::add -- name: "+node.server_name+" domain: "+customer_domain+" provider: "+cloud_name)
 Chef::Log.debug("rfcCi attrs:"+rfcCi["ciAttributes"].inspect.gsub("\n"," "))
 
 flavor = ""
@@ -75,13 +89,13 @@ scheduler_hints = {}
 server = nil
 
 ruby_block 'set flavor/image/availability_zone' do
-  block do  
-  
-    
+  block do
+
+
     if compute_service.has_key?("availability_zones") && !compute_service[:availability_zones].empty?
       availability_zones = JSON.parse(compute_service[:availability_zones])
     end
-    
+
     if availability_zones.size > 0
       case node.workorder.box.ciAttributes.availability
       when "redundant"
@@ -93,21 +107,21 @@ ruby_block 'set flavor/image/availability_zone' do
         availability_zone = availability_zones[random_index]
       end
     end
-    
+
     manifest_ci = node.workorder.payLoad.RealizedAs[0]
-    
+
     if manifest_ci["ciAttributes"].has_key?("required_availability_zone") &&
       !manifest_ci["ciAttributes"]["required_availability_zone"].empty?
-      
+
       availability_zone = manifest_ci["ciAttributes"]["required_availability_zone"]
       Chef::Log.info("using required_availability_zone: #{availability_zone}")
     end
-    
+
     if ! rfcCi["ciAttributes"]["instance_id"].nil? && ! rfcCi["ciAttributes"]["instance_id"].empty?
-      server = conn.servers.get(rfcCi["ciAttributes"]["instance_id"])      
+      server = conn.servers.get(rfcCi["ciAttributes"]["instance_id"])
     else
-      conn.servers.all.each do |i| 
-        if i.name == node.server_name && i.os_ext_sts_task_state != "deleting" && i.state != "DELETED" 
+      conn.servers.all.each do |i|
+        if i.name == node.server_name && i.os_ext_sts_task_state != "deleting" && i.state != "DELETED"
           server = i
           break
         end
@@ -123,9 +137,9 @@ ruby_block 'set flavor/image/availability_zone' do
         Chef::Log.error("cannot find flavor: #{node.size_id}")
         exit 1
       end
-        
+
       # image_id
-      image = conn.images.get node.image_id  
+      image = conn.images.get node.image_id
       Chef::Log.info("image: "+image.inspect.gsub("\n"," ").gsub("<","").gsub(">",""))
       if image.nil?
         Chef::Log.error("cannot find image: #{node.image_id}")
@@ -137,11 +151,11 @@ ruby_block 'set flavor/image/availability_zone' do
         puts "***FAULT:FATAL=#{msg}"
         e = Exception.new("no backtrace")
         e.set_backtrace("")
-        raise e  
-      end        
+        raise e
+      end
       node.set[:existing_server] = true
     end
-      
+
   end
 end
 
@@ -151,8 +165,8 @@ ruby_block 'setup security groups' do
   block do
 
     secgroups = []
-    if node[:workorder][:payLoad].has_key?("DependsOn") && 
-      secgroups = node[:workorder][:payLoad][:DependsOn].select{ |ci| ci[:ciClassName] =~ /Secgroup/ }  
+    if node[:workorder][:payLoad].has_key?("DependsOn") &&
+      secgroups = node[:workorder][:payLoad][:DependsOn].select{ |ci| ci[:ciClassName] =~ /Secgroup/ }
     end
 
     secgroups.each do |sg|
@@ -183,27 +197,27 @@ ruby_block 'setup security groups' do
               puts "***FAULT:FATAL= #{msg}"
               e = Exception.new("no backtrace")
               e.set_backtrace("")
-              raise e  
-          end  
-        end  
-      end  
+              raise e
+          end
+        end
+      end
     end
-    
+
     # add default security group
     sg = conn.list_security_groups.body['security_groups'].select { |g| g['name'] == "default"}
     Chef::Log.info("sg: #{sg.inspect}")
     security_groups.push(sg.first["id"])
-    
-    Chef::Log.info("security_groups: #{security_groups.inspect}") 
+
+    Chef::Log.info("security_groups: #{security_groups.inspect}")
 
   end
 end
 
 
-=begin 
-  
+=begin
+
   openstack vm metadata:
-  owner ( assembly attr )  
+  owner ( assembly attr )
   mgmt_url ( new inductor property)
   organization (org ciName)
   assembly (assembly ciName)
@@ -219,7 +233,7 @@ if node.has_key?("mgmt_url") && !node.mgmt_url.empty?
   mgmt_url = node.mgmt_url
 end
 
-metadata = { 
+metadata = {
   "owner" => owner,
   "mgmt_url" =>  mgmt_url,
   "organization" => node.workorder.payLoad[:Organization][0][:ciName],
@@ -235,17 +249,17 @@ ruby_block 'create server' do
 
     if server.nil?
       Chef::Log.info("server not found - creating")
-      
+
       # openstack cant have .'s in key_pair name
       node.set["kp_name"] = node.kp_name.gsub(".","-")
-      
-      begin        
-        
-        # network / quantum support   
+
+      begin
+
+        # network / quantum support
         if !net_id.empty?
-       
-          Chef::Log.info("metadata: "+metadata.inspect+ " key_name: #{node.kp_name}")  
-       
+
+          Chef::Log.info("metadata: "+metadata.inspect+ " key_name: #{node.kp_name}")
+
           server_request = {
             :name => node.server_name,
             :image_ref => image.id,
@@ -255,16 +269,21 @@ ruby_block 'create server' do
             :metadata => metadata,
             :nics => [ { "net_id" => net_id } ]
           }
-          
+
+          Chef::Log.info("ostype: " + ostype)
+          if ostype =~ /windows*/
+            server_request[:user_data] = user_data_script
+          end
+
           if !availability_zone.empty?
             server_request[:availability_zone] = availability_zone
             puts "***RESULT:availability_zone=#{availability_zone}"
           end
-          
+
           if scheduler_hints.keys.size > 0
             server_request[:scheduler_hints] = scheduler_hints
           end
-    
+
         else
           # older versions of openstack do not allow nics or security_groups
           server_request = {
@@ -274,17 +293,17 @@ ruby_block 'create server' do
             :key_name => node.kp_name
           }
         end
-        
+
         start_time = Time.now.to_i
-        
+
         server = conn.servers.create server_request
-     
+
         end_time = Time.now.to_i
-        
+
         duration = end_time - start_time
-        
+
         Chef::Log.info("server create returned in: #{duration}s")
-      
+
         rescue Exception =>e
           message = ""
           case e.message
@@ -296,41 +315,41 @@ ruby_block 'create server' do
           else
             message = e.message
           end
-          
+
           case e.response[:body]
            when /\"code\": 400/
             message = JSON.parse(e.response[:body])['badRequest']['message']
           end
-          
+
           if message =~ /Invalid imageRef provided/
                Chef::Log.error(" #{node[:ostype]} OS type does not exist. Select the different OS type and retry the deployment")
                message = "Select the different OS type in compute component and retry the deployment"
           end
-          
+
           if message =~ /availability zone/ && server_request.has_key?(:availability_zone)
             Chef::Log.info("availability zone: #{server_request[:availability_zone]}")
           end
-          
+
           puts "***FAULT:FATAL="+message
           e = Exception.new("no backtrace")
           e.set_backtrace("")
           raise e
-          
+
         end
-    
+
       # give openstack a min
       sleep 60
-    
+
       # wait for server to be ready checking every 30 sec
       server.wait_for( Fog.timeout, 20 ) { server.ready? }
-      
-      end_time = Time.now.to_i  
+
+      end_time = Time.now.to_i
       duration = end_time - start_time
-      
+
       Chef::Log.info("server ready in: #{duration}s")
-      
+
     end
-  
+
     Chef::Log.info("server: "+server.inspect.gsub("\n"," ").gsub("<","").gsub(">",""))
     puts "***RESULT:instance_id="+server.id
     hypervisor = server.os_ext_srv_attr_hypervisor_hostname || ""
@@ -353,30 +372,30 @@ ruby_block 'set node network params' do
     if server.addresses.has_key? "public"
       public_ip = server.addresses["public"][0]["addr"]
       node.set[:ip] = public_ip
-      puts "***RESULT:public_ip="+public_ip 
-      if ! server.addresses.has_key? "private" 
-        puts "***RESULT:dns_record="+public_ip 
-        # in some openstack installs only public_ip is set 
+      puts "***RESULT:public_ip="+public_ip
+      if ! server.addresses.has_key? "private"
+        puts "***RESULT:dns_record="+public_ip
+        # in some openstack installs only public_ip is set
         # lets set private_ip to this addr too for other cookbooks which use private_ip
-        private_ip = public_ip   
-        puts "***RESULT:private_ip="+private_ip   
+        private_ip = public_ip
+        puts "***RESULT:private_ip="+private_ip
       end
     end
-    
+
     # use private ip if both are set
-    if server.addresses.has_key? "private" 
+    if server.addresses.has_key? "private"
       private_ip = server.addresses["private"][0]["addr"]
       node.set[:ip] = private_ip
       puts "***RESULT:private_ip="+private_ip
       puts "***RESULT:dns_record="+private_ip
     end
-    
+
     # specific network
     if !compute_service[:subnet].empty?
-       
+
       network_name = compute_service[:subnet]
       if server.addresses.has_key?(network_name)
-        
+
         addrs = server.addresses[network_name]
         addrs_map = {}
         # some time openstack returns 2 of same addr
@@ -395,7 +414,7 @@ ruby_block 'set node network params' do
         node.set[:ip] = private_ip
       end
     end
-    
+
     if private_ip.empty?
       server.addresses.each_value do |addr_list|
         addr_list.each do |addr|
@@ -403,14 +422,14 @@ ruby_block 'set node network params' do
           if addr["OS-EXT-IPS:type"] == "fixed"
             private_ip = addr["addr"]
             node.set[:ip] = private_ip
-          end          
+          end
         end
       end
     end
-    
-    if((public_ip.nil? || public_ip.empty?) && 
+
+    if((public_ip.nil? || public_ip.empty?) &&
        rfcCi["rfcAction"] != "add" && rfcCi["rfcAction"] != "replace")
-      
+
       public_ip = node.workorder.rfcCi.ciAttributes.public_ip
       node.set[:ip] = public_ip
       Chef::Log.info("node ip: " + node.ip)
@@ -419,31 +438,31 @@ ruby_block 'set node network params' do
 
 
     if node.workorder.rfcCi.ciAttributes.require_public_ip == 'true' && public_ip.empty?
-      
+
       if compute_service[:public_network_type] == "floatingip"
-        
+
         server.addresses.each_value do |addr_list|
           addr_list.each do |addr|
             puts "addr: #{addr.inspect}"
-   
+
             if addr["OS-EXT-IPS:type"] == "floating"
               public_ip = addr["addr"]
               node.set["ip"] = public_ip
             end
           end
         end
-        
+
         if public_ip.empty?
           floating_ip = conn.addresses.create
           floating_ip.server = server
           public_ip = floating_ip.ip
         end
-            
-      end      
-      
+
+      end
+
     end
-   
-    
+
+
     puts "***RESULT:public_ip="+public_ip
     dns_record = public_ip
     if dns_record.empty? && !private_ip.empty?
@@ -451,24 +470,24 @@ ruby_block 'set node network params' do
     end
     puts "***RESULT:dns_record="+dns_record
     # lets set private_ip to this addr too for other cookbooks which use private_ip
-    puts "***RESULT:private_ip="+private_ip       
+    puts "***RESULT:private_ip="+private_ip
     puts "***RESULT:host_id=#{server.host_id}"
-    
+
     if node.ip_attribute == "private_ip"
       node.set[:ip] = private_ip
       Chef::Log.info("setting node.ip: #{private_ip}")
     else
-      node.set[:ip] = public_ip      
+      node.set[:ip] = public_ip
       Chef::Log.info("setting node.ip: #{public_ip}")
     end
-    
+
     if server.image.has_key? "id"
-	    server_image_id = server.image["id"]
-	    server_image = conn.images.get server_image_id
-	    if ! server_image.nil?
+      server_image_id = server.image["id"]
+      server_image = conn.images.get server_image_id
+      if ! server_image.nil?
         puts "***RESULT:server_image_id=" + server_image_id
-		    puts "***RESULT:server_image_name=" + server_image.name
-	    end 
+        puts "***RESULT:server_image_name=" + server_image.name
+      end
     end
   end
 end
@@ -485,7 +504,7 @@ ruby_block 'catch errors/faults' do
       e.set_backtrace("")
       raise e
     end
-    
+
     # catch other, e.g. stuck in BUILD state
     if !node.has_key?("ip") || node.ip.nil?
       msg = "server.state: "+ server.state + " and no ip for vm: #{server.id}"
@@ -495,45 +514,38 @@ ruby_block 'catch errors/faults' do
       e.set_backtrace("")
       raise e
     end
-  
+
   end
-end      
-    
+end
+
 include_recipe "compute::ssh_port_wait"
-    
+
 ruby_block 'handle ssh port closed' do
   block do
-        
+
     if node[:ssh_port_closed]
       Chef::Log.error("ssh port closed after 5min, dumping console log")
       begin
         console_log = server.console.body
-      
+
         console_log["output"].split("\n").each do |row|
           case row
           when /IP information for eth0... failed|Could not retrieve public key from instance metadata/
             puts "***FAULT:KNOWN=#{row}"
           else
-            puts "***FAULT:FATAL=SSH port not open on VM"  
-          end      
+            puts "***FAULT:FATAL=SSH port not open on VM"
+          end
           Chef::Log.info("console-log:" +row)
         end
-      rescue Exception => e        
+      rescue Exception => e
         Chef::Log.error("could not dump console-log. exception: #{e.inspect}")
       end
-        
+
       Chef::Log.error("ssh port closed after 5min - fail")
       e = Exception.new("no backtrace")
       e.set_backtrace("")
-      raise e 
+      raise e
     end
-    
-  end
-end
 
-if compute_service.has_key?("initial_user") && !compute_service[:initial_user].empty?
-  node.set["use_initial_user"] = true
-  initial_user = compute_service[:initial_user]
-  # put initial_user on the node for the following recipes
-  node.set[:initial_user] = initial_user
+  end
 end

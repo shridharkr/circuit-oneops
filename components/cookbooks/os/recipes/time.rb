@@ -1,4 +1,9 @@
 # timezone
+
+if node.platform =~ /windows/
+    include_recipe "windowsos::time"
+    return true
+end
 execute "rm -f /etc/localtime"
 execute "ln -s /usr/share/zoneinfo/#{node.workorder.rfcCi.ciAttributes.timezone} /etc/localtime"
 

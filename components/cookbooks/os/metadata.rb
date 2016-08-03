@@ -5,7 +5,7 @@ maintainer_email "support@oneops.com"
 license          "Apache License, Version 2.0"
 depends          "shared"
 depends          "simple_iptables"
-
+depends           "windowsos"
 grouping 'default',
   :access => "global",
   :packages => [ 'base', 'mgmt.catalog', 'mgmt.manifest', 'catalog']
@@ -54,7 +54,7 @@ attribute 'ostype',
     :form => { 'field' => 'select', 'options_for_select' => [
       ['Ubuntu 14.04','ubuntu-14.04'],
       ['CentOS 7.0','centos-7.0'],
-      ['CentOS 7.2','centos-7.2']] }
+      ['Windows 2012 R2','windows_2012_r2']] }
   }
 
 attribute 'image_id',
