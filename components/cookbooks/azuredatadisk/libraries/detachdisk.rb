@@ -21,7 +21,6 @@ module AzureStorage
       c=Azure::Core.config()
       c.storage_access_key = access_key
       c.storage_account_name = storage_account_name
-
       service = Azure::Blob::BlobService.new()
 
       container = "vhds"
@@ -47,6 +46,7 @@ module AzureStorage
           OOLog.debug("Error in deleting the data disk (page blob):#{blobname}")
         end
       rescue Exception => e
+        OOLog.debug(e.message.inspect)
         OOLog.debug(e.message)
       end
       OOLog.info("Successfully deleted the Datadisk(page blob):#{blobname}")

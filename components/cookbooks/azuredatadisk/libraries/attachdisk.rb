@@ -23,21 +23,17 @@ module AzureStorage
         vm = get_vm_info(instance_name,client,rg_name)
 
         #Add a data disk
-        # flag = false
-        # (vm.properties.storage_profile.data_disks).each do |disk|
-        #   OOLog.info("lookat disk.lun:" + disk.lun.to_s)
-        #   if disk.lun == i-1
-        #     flag = true
-        #   end
-        # end
-        # if flag == true
-        #   OOLog.info("lookat before i:" + i.to_s)
-        #   i = i+1
-        #   OOLog.info("lookat after i:" + i.to_s)
-        #   next
-        # end
+         flag = false
+         (vm.properties.storage_profile.data_disks).each do |disk|
+           if disk.lun == i-1
+             flag = true
+           end
+         end
+         if flag == true
+           i = i+1
+           next
+        end
         access_key = get_storage_access_key(storage_account_name,storage_account_rg_name,storage_client)
-        OOLog.info("lookat access_key: " + access_key.to_s)
         vm.properties.storage_profile.data_disks.push(build_storage_profile(i,component_name,storage_account_name,slice_size,dev_id,access_key))
         attach_disk_to_vm(instance_name,client,rg_name,vm)
         OOLog.info("Adding #{dev_id} to the dev list")
@@ -51,7 +47,6 @@ module AzureStorage
     def self.attach_disk_to_vm(instance_name,client,rg_name,vm)
       begin
         start_time = Time.now.to_i
-        OOLog.info("lookat, create or update")
         vm_promise = client.virtual_machines.create_or_update(rg_name, instance_name, vm)
         my_vm = vm_promise.value!
         end_time = Time.now.to_i
@@ -60,9 +55,14 @@ module AzureStorage
         OOLog.info("VM: #{my_vm.body.name} UPDATED!!!")
         return true
       rescue  MsRestAzure::AzureOperationError =>e
-          OOLog.fatal(e.body)
+	  OOLog.debug( e.body.inspect)
+          if e.body.to_s =~ /InvalidParameter/ && e.body.to_s =~ /already exists/
+            OOLog.debug("The disk is already attached")
+          else
+            OOLog.fatal(e.body)
+          end
       rescue MsRestAzure::CloudErrorData =>e
-          OOLog.fatal(e.body.message)
+	    OOLog.fatal(e.body.message)
       rescue Exception => ex
           OOLog.fatal(ex.message)
       end
@@ -100,7 +100,6 @@ module AzureStorage
       blob_name = "#{storage_account_name}-#{component_name}-datadisk-#{dev_name}.vhd"
       is_new_disk_or_old = check_blob_exist(storage_account_name,blob_name,access_key)
       if is_new_disk_or_old == true
-        OOLog.info("lookat, attaching")
         data_disk2.create_option = Azure::ARM::Compute::Models::DiskCreateOptionTypes::Attach
       else
         data_disk2.create_option = Azure::ARM::Compute::Models::DiskCreateOptionTypes::Empty
@@ -112,16 +111,19 @@ module AzureStorage
       c=Azure::Core.config()
       c.storage_access_key = access_key
       c.storage_account_name = storage_account_name
+	
       service = Azure::Blob::BlobService.new()
       container = "vhds"
       begin
         blob_prop = service.get_blob_properties(container,blobname)
+        Chef::Log.info("Blob properties #{blob_prop.inspect}")
         if blob_prop != nil
           OOLog.info("disk exists")
           return true
         end
       rescue Exception => e
         OOLog.debug(e.message)
+        OOLog.debug(e.message.inspect)
         return false
       end
     end

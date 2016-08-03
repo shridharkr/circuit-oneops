@@ -368,7 +368,7 @@ if node[:platform_family] == "rhel" && node[:platform_version].to_i >= 7
   end
 end
 ruby_block 'create-ephemeral-volume-on-azure-vm' do
-  only_if { token_class =~ /azure/ || _fstype != 'tmpfs' }
+  only_if { (storage.nil? && token_class =~ /azure/) || _fstype != 'tmpfs' }
   block do
     initial_mountpoint = '/mnt/resource'
 
