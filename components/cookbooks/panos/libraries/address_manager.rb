@@ -24,6 +24,7 @@ class AddressManager
   # This function handles updating the firewall device
   def update(addresses, tag_name)
     #  convert address hash to an array of Address objects.
+    # do this for easier comparison of the existing addresses in the firewall
     deploy_addresses = []
     addresses['entries'].each do |deploy_addr|
       deploy_addresses.push(Address.new(deploy_addr['name'], 'IP_NETMASK', deploy_addr['ip_address'], tag_name))
@@ -42,19 +43,20 @@ class AddressManager
     
     # compare with my hash of addresses from the deployment
     existing_addresses.each do |addr|
-      if deploy_addresses.include?(addr)
-        # both arrays have the address, add it to the update array
-        update_address.push(addr)
-      else
+      if !deploy_addresses.include?(addr)
         # address from firewall is not in deployment, delete it
         delete_address.push(addr)
       end
     end
     
+    # these are the addresses passed into the method, the new or updated addresses.
     deploy_addresses.each do |dep_addr|
-      # if the deployment address is not found on the firewall
-      # we need to create it
-      if !existing_addresses.include?(dep_addr)
+      if existing_addresses.include?(dep_addr)
+        # both arrays have the address, add it to the update array
+        update_address.push(dep_addr)
+      else
+        # if the deployment address is not found on the firewall
+        # we need to create it
         create_address.push(dep_addr)
       end
     end
@@ -86,6 +88,7 @@ class AddressManager
     commit_and_check_status()
   end
 
+  # this function creates the tag, addresses and dynamic address group
   def create_dag_with_addresses(address_group_name, addresses, tag)
     # create the tag that will be used
     tag_request = TagRequest.new(@url, @key)
@@ -107,6 +110,7 @@ class AddressManager
     commit_and_check_status()
   end
 
+  # this function deletes the addresses and address group from the firewall
   def delete_addresses_and_dag(address_group_name, addresses)
     # delete the addresses
     address_request = AddressRequest.new(@url, @key)

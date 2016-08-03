@@ -49,17 +49,23 @@ describe 'Address Request' do
   end
   
   context 'create address' do
+    it 'succeeds when it creates the address'
+    
+    it 'throws an exception when there was an error from the firewall'
     
   end
   
   context 'delete address' do
+    it 'succeeds when it delets the address'
+    
+    it 'throws an exception when there was an error from the firewall'
     
   end
   
-  context 'get all addresses' do
-    it 'returns all the addresses'
+  context 'get all addresses with tag name' do
+    it 'returns all the addresses with the tag name'
     
-    it 'returns nil for no addresses'
+    it 'returns nil for no addresses found with the tag name'
     
     it 'throws an exception when there was an error from the firewall'
     
