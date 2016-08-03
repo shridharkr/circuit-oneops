@@ -1,4 +1,4 @@
-include_pack "lbdb"
+include_pack "base"
 
 name "postgresql-governor"
 description "Governor based PostgreSQL"
@@ -17,6 +17,26 @@ resource "secgroup",
              :constraint => "1..1",
              :services => "compute"
          }
+
+resource "volume",
+:requires => { "constraint" => "1..1", "services" => "compute" },
+:attributes => {
+    "mount_point"   => '/db',
+    "fstype"        => 'xfs'
+},
+:monitors => {
+    'usage' =>  {'description' => 'Usage',
+        'chart' => {'min'=>0,'unit'=> 'Percent used'},
+        'cmd' => 'check_disk_use!:::node.workorder.rfcCi.ciAttributes.mount_point:::',
+        'cmd_line' => '/opt/nagios/libexec/check_disk_use.sh $ARG1$',
+        'metrics' => { 'space_used' => metric( :unit => '%', :description => 'Disk Space Percent Used'),
+            'inode_used' => metric( :unit => '%', :description => 'Disk Inode Percent Used') },
+        :thresholds => {
+            'LowDiskSpace' => threshold('5m','avg','space_used',trigger('>',90,5,1),reset('<',90,5,1)),
+            'LowDiskInode' => threshold('5m','avg','inode_used',trigger('>',90,5,1),reset('<',90,5,1)),
+        },
+    },
+}
 
 resource "postgresql-governor",
   :cookbook => "oneops.1.postgresql-governor",
@@ -129,97 +149,8 @@ resource "postgresql-governor",
                   :thresholds => {
                   }
                 }
-             },
-  :payloads => { 'master' => {
-      'description' => 'Master DB', 
-      'definition' => '{ 
-         "returnObject": false, 
-         "returnRelation": false, 
-         "relationName": "base.RealizedAs", 
-         "direction": "to", 
-         "relationAttrs":[{"attributeName":"priority", "condition":">", "avalue":"1"}],
-         "relations": [ 
-           { "returnObject": false, 
-             "returnRelation": false, 
-             "relationName": "manifest.Requires", 
-             "direction": "to",
-             "targetClassName": "manifest.Platform", 
-             "relations": [ 
-               { "returnObject": false,
-                 "returnRelation": false,
-                 "relationName": "manifest.Entrypoint",
-                 "direction": "from",
-                 "relations": [
-                   {"returnObject": false,
-                   "returnRelation": false,
-                   "relationName": "manifest.DependsOn",
-                   "direction": "from",
-                   "relations": [ 
-                     { "returnObject": true, 
-                       "returnRelation": false, 
-                       "relationName": "base.RealizedAs", 
-                       "direction": "from",
-                       "relationAttrs":[{"attributeName":"priority", "condition":"eq", "avalue":"1"}]
-                     }
-                    ]
-                   }  
-                 ]
-               }
-             ]
-           } 
-         ] 
-      }'  
-    },
- 'master_redundant' => {
-      'description' => 'Master DB in redundant mode', 
-      'definition' => '{ 
-         "returnObject": false, 
-         "returnRelation": false, 
-         "relationName": "base.RealizedAs", 
-         "direction": "to", 
-         "relationAttrs":[{"attributeName":"priority", "condition":">", "avalue":"1"}],
-         "relations": [ 
-           { "returnObject": false, 
-             "returnRelation": false, 
-             "relationName": "manifest.Requires", 
-             "direction": "to",
-             "targetClassName": "manifest.Platform", 
-             "relations": [ 
-               { "returnObject": false,
-                 "returnRelation": false,
-                 "relationName": "manifest.Entrypoint",
-                 "direction": "from",
-                 "relations": [
-                   {"returnObject": false,
-                   "returnRelation": false,
-                   "relationName": "manifest.DependsOn",
-                   "direction": "from",
-                   "relations": [ 
-                     { "returnObject": false, 
-                       "returnRelation": false, 
-                       "relationName": "manifest.DependsOn", 
-                       "direction": "from",
-                       "targetClassName": "manifest.oneops.1.Compute",                            
-                       "relations": [ 
-                         { "returnObject": true, 
-                           "returnRelation": false, 
-                           "relationName": "base.RealizedAs", 
-                           "targetClassName": "bom.oneops.1.Compute",                            
-                           "direction": "from",
-                           "relationAttrs":[{"attributeName":"priority", "condition":"eq", "avalue":"1"}]
-                         }
-                        ]                       
-                     }
-                    ]
-                   }  
-                 ]
-               }
-             ]
-           } 
-         ] 
-      }'  
-    }
-  }
+             }
+
     
 resource "artifact",
   :cookbook => "oneops.1.artifact",
@@ -264,60 +195,36 @@ resource "haproxy",
      :check_port => '15432'
 }
 
-resource "lb",
-  :except => [ 'single' ],
+resource "database",
+  :cookbook => "oneops.1.database",
   :design => true,
-  :cookbook => "oneops.1.lb",
-  :requires => { "constraint" => "1..1", "services" => "compute,lb,dns" },
-  :attributes => {
-    "listeners" => '["tcp 5432 tcp 5000","tcp 2379 tcp 2379"]',
-  },
-  :payloads => {
-    'primaryactiveclouds' => {
-        'description' => 'primaryactiveclouds',
-        'definition' => '{
-        "returnObject": false,
-        "returnRelation": false,
-        "relationName": "base.RealizedAs",
-        "direction": "to",
-        "targetClassName": "manifest.Lb",
-        "relations": [
-        { "returnObject": false,
-            "returnRelation": false,
-            "relationName": "manifest.Requires",
-            "direction": "to",
-            "targetClassName": "manifest.Platform",
-            "relations": [
-            { "returnObject": false,
-                "returnRelation": false,
-                "relationAttrs":[{"attributeName":"priority", "condition":"eq", "avalue":"1"},
-                {"attributeName":"adminstatus", "condition":"neq", "avalue":"offline"}],
-                "relationName": "base.Consumes",
-                "direction": "from",
-                "targetClassName": "account.Cloud",
-                "relations": [
-                { "returnObject": true,
-                    "returnRelation": false,
-                    "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"lb"}],
-                    "relationName": "base.Provides",
-                    "direction": "from",
-                    "targetClassName": "cloud.service.Netscaler"
-                }
-                ]
-            }
-            ]
-        }
-        ]
-    }'
-  }
-}
+  :requires => { "constraint" => "1..*" },
+  :attributes => {  "dbname"        => 'mydb',
+    "username"      => 'myuser',
+    "password"      => 'mypassword' }
+
+
+relation "fqdn::depends_on::compute",
+  :only => [ '_default', 'single' ],
+  :relation_name => 'DependsOn',
+  :from_resource => 'fqdn',
+  :to_resource   => 'compute',
+  :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
+
+relation "fqdn::depends_on_flex::compute",
+  :except => [ '_default', 'single' ],
+  :relation_name => 'DependsOn',
+  :from_resource => 'fqdn',
+  :to_resource   => 'compute',
+  :attributes => { "propagate_to" => 'both', "flex" => true, "min" => 3, "max" => 3 }
+
 
 [ 'postgresql-governor' ].each do |from|
   relation "#{from}::depends_on::volume",
     :relation_name => 'DependsOn',
     :from_resource => from,
     :to_resource   => 'volume',
-    :attributes    => { "flex" => false, "min" => 1, "max" => 1 } 
+    :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
 end
 
 # postgresql cookbook needs to re-run when primary and second clouds are flipped.
@@ -331,13 +238,13 @@ end
     :attributes    => { "propagate_to" => 'from', "flex" => false, "min" => 1, "max" => 1 }
 end
 
-#[ 'postgresql-governor' ].each do |from|
-#    relation "#{from}::depends_on::etcd",
-#    :relation_name => 'DependsOn',
-#    :from_resource => from,
-#    :to_resource   => 'etcd',
-#    :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
-#end
+[ 'postgresql-governor' ].each do |from|
+    relation "#{from}::depends_on::etcd",
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'etcd',
+    :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
+end
 
 [ 'etcd' ].each do |from|
     relation "#{from}::depends_on::hostname",
@@ -372,29 +279,8 @@ end
   :attributes    => { "flex" => false, "min" => 1, "max" => 1 } 
 end
 
-# depends_on
-
-[ 'lb' ].each do |from|
-    relation "#{from}::depends_on::compute",
-    :only => [ 'redundant' ],
-    :relation_name => 'DependsOn',
-    :from_resource => from,
-    :to_resource   => 'compute',
-    :attributes    => { "propagate_to" => 'both', "flex" => true, "current" =>3, "min" => 3, "max" => 10}
-end
-
-# -d name due to pack sync logic uses a map keyed by that name - it doesnt get put into cms
-[ 'lb' ].each do |from|
-    relation "#{from}::depends_on::compute-d",
-    :only => [ '_default' ],
-    :relation_name => 'DependsOn',
-    :from_resource => from,
-    :to_resource   => 'compute',
-    :attributes    => { "flex" => false }
-end
-
 # managed_via
-[ 'postgresql-governor','etcd', 'haproxy', 'artifact' ].each do |from|
+[ 'postgresql-governor','etcd', 'haproxy', 'artifact', 'database' ].each do |from|
   relation "#{from}::managed_via::compute",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',
