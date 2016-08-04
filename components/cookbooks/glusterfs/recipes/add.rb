@@ -26,22 +26,12 @@ cloud_name = node[:workorder][:cloud][:ciName]
   if node[:workorder][:services].has_key? "mirror"
     mirrors = JSON.parse(node[:workorder][:services][:mirror][cloud_name][:ciAttributes][:mirrors])
   else
-    msg = "Cloud Mirror Service has not been defined"
-    Chef::Log.error(msg)
-    puts "***FAULT:FATAL= #{msg}"
-    e = Exception.new("no backtrace")
-    e.set_backtrace("")
-    raise e
+    exit_with_error "Cloud Mirror Service has not been defined"
   end
 
 glusterfs_source = mirrors['glusterfs']
 if glusterfs_source.nil?
-  msg = "glusterfs source repository has not beed defined in cloud mirror service"
-  Chef::Log.error(msg)
-  puts "***FAULT:FATAL= #{msg}"
-  e = Exception.new("no backtrace")
-  e.set_backtrace("")
-  raise e
+  exit_with_error "glusterfs source repository has not beed defined in cloud mirror service"
 else
   Chef::Log.info("glusterfs source repository has been defined in cloud mirror service #{glusterfs_source}")
 end
@@ -94,7 +84,7 @@ if last_compute == "compute-#{local_cloud_index}-#{local_compute_index}"
             Chef::Log.info("Maximum retry count is 9. Current retry count is #{retry_count}. Sleeping 20 seconds. ")
             sleep 20
           end
-          Chef::Application.fatal!("#{command} got failed. #{output}") if retry_count == 9
+          exit_with_error "#{command} got failed. #{output}" if retry_count == 9
           retry_count += 1
         end
       end
@@ -118,11 +108,14 @@ if last_compute == "compute-#{local_cloud_index}-#{local_compute_index}"
 
   replicas_arg = replicas > 1 ? "replica #{replicas}" : ""
   bricks_arg = bricks.sort.map{|b| b[1]}.join(' ')
-  ruby_block "creating volume" do
+
+  check_for_volume_in_existing_cluster(computes, "#{parent[:ciName]}")
+
+  ruby_block "creating volume #{parent[:ciName]}" do
     block do
-      execute_command("yes y | gluster volume create #{parent[:ciName]} #{replicas_arg} #{bricks_arg} force")
+      Chef::Log.info("****** #{node.glusterfs.volume_exists} ******")
+      execute_command("yes y | gluster volume create #{parent[:ciName]} #{replicas_arg} #{bricks_arg} force") if node.glusterfs.volume_exists.empty?
     end
-    not_if "gluster volume info #{parent[:ciName]}"
   end
 
   existing_bricks = `gluster volume info #{parent[:ciName]}`.scan(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}.*/)
