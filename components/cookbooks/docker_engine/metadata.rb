@@ -176,19 +176,7 @@ attribute 'network_cidr',
               :filter => {:all => {:visible => 'network:ne:none'}},
             },
             :order => 2
-          }          
-
-attribute 'network_subnet',
-          :description => 'Network Subnet',
-          :default => '11.11.{INSTANCE_INDEX}.1/24',
-          :format => {
-            :category => '7.Network',
-            :help => 'Network Subnet ; {INSTANCE_INDEX} will be replace with the ciName index (number at the end of ciName)',
-            :form => {
-              :filter => {:all => {:visible => 'network:ne:none'}},
-            },
-            :order => 3
-          }          
+          }      
                     
 
 recipe 'status', 'Docker engine Status'

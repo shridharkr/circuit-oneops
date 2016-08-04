@@ -29,8 +29,7 @@ resource 'docker_engine',
              :root => '$OO_LOCAL{docker-root}',
              :repo => '$OO_LOCAL{docker-repo}',
              :network => 'flannel',
-             :network_cidr => '11.11.0.0/16',
-             :network_subnet => '11.11.{INSTANCE_INDEX}.1/24',           
+             :network_cidr => '11.11.0.0/16'
          } 
  
 resource 'secgroup-master',
@@ -281,7 +280,7 @@ resource 'kubernetes-master',
        ]
     }'
   },
-    'worker-computes' => {
+    'node-computes' => {
       'description' => 'computes',
       'definition' => '{
          "returnObject": false,
@@ -299,7 +298,7 @@ resource 'kubernetes-master',
                { "returnObject": false,
                  "returnRelation": false,
                  "relationName": "manifest.Requires",
-                 "targetCiName": "kubernetes-worker",
+                 "targetCiName": "kubernetes-node",
                  "direction": "from",
                  "targetClassName": "manifest.oneops.1.Kubernetes",
                 "relations": [
@@ -355,7 +354,7 @@ resource 'kubernetes-master',
   }
 
 
-resource 'kubernetes-worker',
+resource 'kubernetes-node',
   :cookbook => 'oneops.1.kubernetes',
   :design => true,
   :requires => { "constraint" => "1..1", "services" => "*mirror" },
@@ -405,7 +404,7 @@ resource 'kubernetes-worker',
      ]
   }'
 },
-  'worker-computes' => {
+  'node-computes' => {
     'description' => 'computes',
     'definition' => '{
        "returnObject": false,
@@ -423,7 +422,7 @@ resource 'kubernetes-worker',
              { "returnObject": false,
                "returnRelation": false,
                "relationName": "manifest.Requires",
-               "targetCiName": "kubernetes-worker",
+               "targetCiName": "kubernetes-node",
                "direction": "from",
                "targetClassName": "manifest.oneops.1.Kubernetes",
               "relations": [
@@ -451,7 +450,12 @@ resource 'kubernetes-worker',
     }'
   }  
 }
-  
+
+resource "lb",
+  :attributes => {
+    "listeners"     => '["any all any all"]',
+    "ecv_map"       => '{"all":"port-check"}'
+  }
   
 resource "lb-master-certificate",
   :cookbook => "oneops.1.certificate",
@@ -465,7 +469,8 @@ resource "lb-master",
   :cookbook => "oneops.1.lb",
   :requires => { "constraint" => "1..1", "services" => "compute,lb,dns" },
   :attributes => {
-    "listeners"     => '["http 8080 http 8080"]',
+    "listeners"     => '["http 8080 http 8080",
+                         "http 80 http 8080"]',
     "ecv_map"       => '{"8080":"GET /api/"}'
   },
   :payloads => {
@@ -821,7 +826,16 @@ resource 'user-master',
   :design => true,
   :requires => { "constraint" => "0..*" }
 
+resource 'system-container-apps',
+  :cookbook => "oneops.1.container-app",
+  :design => true,
+  :requires => { "constraint" => "0..*" }
 
+resource 'hostname',
+  :cookbook => "oneops.1.container-app",
+  :design => true,
+  :requires => { "constraint" => "1..1" }    
+    
 #    
 # relations
 #
@@ -878,15 +892,24 @@ end
 end    
 
 # needed for kube-proxy --master arg (only takes 1 ip) and a name/domain will not work 
-# more notes in the worker recipe
-[ 'kubernetes-worker' ].each do |from|
+# more notes in the node recipe
+[ 'kubernetes-node' ].each do |from|
   relation "#{from}::depends_on::lb-master",
     :except => [ '_default', 'single' ],
     :relation_name => 'DependsOn',
     :from_resource => from,
     :to_resource   => 'lb-master',
     :attributes    => { "propagate_to" => 'both', "flex" => false, "converge" => true }
-end   
+end
+
+[ 'system-container-apps' ].each do |from|
+  relation "#{from}::depends_on::kubernetes-node",
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'kubernetes-node',
+    :attributes    => { "flex" => false, "converge" => true }
+end
+
 
 [ 'fqdn-master' ].each do |from|
   relation "#{from}::depends_on::compute-master",
@@ -911,8 +934,8 @@ end
   { :from => 'etcd-master',      :to => 'os-master' },        
   { :from => 'kubernetes-master',:to => 'etcd-master' },
   { :from => 'os-master',        :to => 'compute-master' },
-  { :from => 'kubernetes-worker',:to => 'docker_engine' },
-  { :from => 'kubernetes-worker',:to => 'compute' }
+  { :from => 'kubernetes-node',:to => 'docker_engine' },
+  { :from => 'kubernetes-node',:to => 'compute' }
     ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
     :relation_name => 'DependsOn',
@@ -923,7 +946,7 @@ end
 
 
 # managed_via
-[ 'os-master','etcd-master','kubernetes-master','user-master' ].each do |from|
+[ 'os-master','etcd-master','kubernetes-master','user-master','system-container-apps' ].each do |from|
   relation "#{from}::managed_via::compute-master",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',
@@ -932,7 +955,7 @@ end
     :attributes    => { } 
 end
 
-[ 'kubernetes-worker'].each do |from|
+[ 'kubernetes-node'].each do |from|
   relation "#{from}::managed_via::compute",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',
