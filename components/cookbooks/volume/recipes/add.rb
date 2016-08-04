@@ -368,7 +368,7 @@ if node[:platform_family] == "rhel" && node[:platform_version].to_i >= 7
   end
 end
 ruby_block 'create-ephemeral-volume-on-azure-vm' do
-  only_if { (storage.nil? && token_class =~ /azure/) || _fstype != 'tmpfs' }
+  only_if { (storage.nil? && token_class =~ /azure/ && _fstype != 'tmpfs') }
   block do
     initial_mountpoint = '/mnt/resource'
 
@@ -506,13 +506,15 @@ ruby_block 'create-storage-non-ephemeral-volume' do
       devices.push(raid_device)
     else
       Chef::Log.info("raid device " +raid_device+" missing.")
+      volume_device = node[:volume][:device]
+      volume_device = node[:device] if volume_device.nil? || volume_device.empty?
       if node[:storage_provider_class] =~ /azure/
-        Chef::Log.info("Checking for"+ node[:device] + "....")
-        if ::File.exists?(node[:device])
-          Chef::Log.info("device "+node[:device]+" found. Using this device for logical volumes.")
-          devices.push(node[:device])
+        Chef::Log.info("Checking for"+ volume_device + "....")
+        if ::File.exists?(volume_device)
+          Chef::Log.info("device " + volume_device + " found. Using this device for logical volumes.")
+          devices.push(volume_device)
         else
-          Chef::Log.info("No storage device named " +node[:device]+" found. Exiting ...")
+          Chef::Log.info("No storage device named " + volume_device + " found. Exiting ...")
           exit 1
         end
       else
