@@ -83,27 +83,9 @@ directory data_dir do
   mode 0700
 end
 
-
-
-misc_proxy = ENV["misc_proxy"]
-
-if node.postgresql.version.to_f == 9.2 &&
-   ["redhat","centos"].include?(node.platform) &&
-   node.platform_version.to_f > 6 && misc_proxy.nil?
-  if !repo_url.to_s.empty?
-    bash 'create-pgdg-rhel-6-repo' do
-      code <<-EOF
-      sudo yum-config-manager --add-repo #{repo_url}/mirrored-assets/pgdg-rhel-7/
-      echo gpgcheck=0 >> /etc/yum.repos.d/*mirrored-assets_pgdg-rhel-7_.repo
-      EOF
-      not_if 'test -f /etc/yum.repos.d/*mirrored-assets_pgdg-rhel-7_.repo'
-      returns [0,1]
-    end
-  else    
-    execute "rpm -ivh http://yum.postgresql.org/9.2/redhat/rhel-7-x86_64/pgdg-centos92-9.2-2.noarch.rpm" do
-      returns [0,1]
-    end
-  end
+# try to add public repo - but os.repo_list could already have this setup for internal repo - ok if fails/exit code 1
+execute "rpm -ivh http://yum.postgresql.org/9.2/redhat/rhel-7-x86_64/pgdg-centos92-9.2-2.noarch.rpm" do
+  returns [0,1]
 end
 
 package "postgresql" do
