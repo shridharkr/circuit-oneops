@@ -63,7 +63,7 @@ is_hot_standby = false
 
 master_payload = nil
 
- #Install the gem pg
+# install the gem pg
 execute "sudo /usr/bin/gem install pg -v 0.17.1 --no-rdoc --no-ri -- --with-pg-config=/usr/pgsql-#{node[:postgresql][:version]}/bin/pg_config"
 
 
