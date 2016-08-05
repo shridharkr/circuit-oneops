@@ -186,7 +186,7 @@ Array(1..slice_count).each do |i|
   end
 
   if node.storage_provider_class =~ /azure/
-    Chef::Log.error("Adding #{dev} to the device list")
+    Chef::Log.info("Adding #{dev} to the device list")
     vols.push(volume.to_s+":"+dev)
   else
     Chef::Log.info("added "+volume.id.to_s)
