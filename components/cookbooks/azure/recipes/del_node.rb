@@ -130,7 +130,9 @@ begin
     node.set["storage_account"] = storage_account
     node.set["vhd_uri"]=vhd_uri
     Chef::Log.info(vm.properties.inspect)
-    node.set["datadisk_uri"] = vm.properties.storage_profile.data_disks[0].vhd.uri
+    if vm.properties.storage_profile.data_disks.count > 0
+      node.set["datadisk_uri"] = vm.properties.storage_profile.data_disks[0].vhd.uri
+    end
     ci_name = node['workorder']['rfcCi']['ciId']
     Chef::Log.info("Deleting Azure VM: '#{server_name}'")
     #delete the VM from the platform resource group

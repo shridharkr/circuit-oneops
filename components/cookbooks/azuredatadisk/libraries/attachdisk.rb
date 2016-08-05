@@ -5,14 +5,14 @@ module AzureStorage
     def self.attach_disk(instance_name, subscription_id,rg_name,credentials,device_maps )
       vols = Array.new
       dev_list = ""
-      i = 2
+      i = 1
       dev_id=""
       OOLog.info('Subscription id is: ' + subscription_id)
       client = Azure::ARM::Compute::ComputeManagementClient.new(credentials)
       client.subscription_id = subscription_id
       storage_client = Azure::ARM::Storage::StorageManagementClient.new(credentials)
       storage_client.subscription_id = subscription_id
-      
+
       device_maps.each do |dev_vol|
         slice_size = dev_vol.split(":")[3]
         dev_id = dev_vol.split(":")[4]
@@ -23,15 +23,15 @@ module AzureStorage
         vm = get_vm_info(instance_name,client,rg_name)
 
         #Add a data disk
-        flag = false
-        (vm.properties.storage_profile.data_disks).each do |disk|
-          if disk.lun == i-1
-            flag = true
-          end
-        end
-        if flag == true
-          i = i+1
-          next
+         flag = false
+         (vm.properties.storage_profile.data_disks).each do |disk|
+           if disk.lun == i-1
+             flag = true
+           end
+         end
+         if flag == true
+           i = i+1
+           next
         end
         access_key = get_storage_access_key(storage_account_name,storage_account_rg_name,storage_client)
         vm.properties.storage_profile.data_disks.push(build_storage_profile(i,component_name,storage_account_name,slice_size,dev_id,access_key))
@@ -55,14 +55,19 @@ module AzureStorage
         OOLog.info("VM: #{my_vm.body.name} UPDATED!!!")
         return true
       rescue  MsRestAzure::AzureOperationError =>e
-          OOLog.fatal(e.body)
+	  OOLog.debug( e.body.inspect)
+          if e.body.to_s =~ /InvalidParameter/ && e.body.to_s =~ /already exists/
+            OOLog.debug("The disk is already attached")
+          else
+            OOLog.fatal(e.body)
+          end
       rescue MsRestAzure::CloudErrorData =>e
-          OOLog.fatal(e.body.message)
+	    OOLog.fatal(e.body.message)
       rescue Exception => ex
           OOLog.fatal(ex.message)
       end
     end
-    
+
     # Get the information about the VM
     def self.get_vm_info(instance_name,client,rg_name)
       promise = client.virtual_machines.get(rg_name, instance_name)
@@ -106,16 +111,19 @@ module AzureStorage
       c=Azure::Core.config()
       c.storage_access_key = access_key
       c.storage_account_name = storage_account_name
+	
       service = Azure::Blob::BlobService.new()
       container = "vhds"
       begin
         blob_prop = service.get_blob_properties(container,blobname)
+        Chef::Log.info("Blob properties #{blob_prop.inspect}")
         if blob_prop != nil
           OOLog.info("disk exists")
           return true
         end
       rescue Exception => e
         OOLog.debug(e.message)
+        OOLog.debug(e.message.inspect)
         return false
       end
     end
