@@ -831,11 +831,10 @@ resource 'system-container-apps',
   :design => true,
   :requires => { "constraint" => "0..*" }
 
+# for clean nodes list
 resource 'hostname',
-  :cookbook => "oneops.1.container-app",
-  :design => true,
   :requires => { "constraint" => "1..1" }    
-    
+
 #    
 # relations
 #
