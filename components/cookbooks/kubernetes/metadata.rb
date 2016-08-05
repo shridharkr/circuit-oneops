@@ -76,7 +76,7 @@ attribute 'version',
     :help => 'Version',
     :category => '1.Shared',
     :order => 1
-  }        
+  }
   
 attribute 'network',
   :grouping => 'cluster',
@@ -87,7 +87,7 @@ attribute 'network',
     :important => true,
     :help => 'Network overlay - flannel or openvswitch',
     :category => '1.Shared',
-    :order => 1
+    :order => 2
   }        
 
 attribute 'api_port',
@@ -99,19 +99,31 @@ attribute 'api_port',
     :important => true,
     :help => 'API Port',
     :category => '1.Master',
-    :order => 1
+    :order => 3
   }
+
+attribute 'log_level',
+  :grouping => 'cluster',
+  :description => "log_level",
+  :default => "2",
+  :required => "required",
+  :format => {
+    :important => true,
+    :help => 'Log Level - 0 to 4 (min to max) ',
+    :category => '1.Master',
+    :order => 4
+  }    
 
 attribute 'service_addresses',
   :grouping => 'cluster',
   :description => "service address cidr",
-  :default => "10.254.0.0/16",
+  :default => "172.16.48.0/20",
   :required => "required",
   :format => {
     :important => true,
     :help => 'service address cidr',
     :category => '1.Master',
-    :order => 1
+    :order => 5
   }
 
 attribute 'controller_manager_args',
@@ -124,9 +136,8 @@ attribute 'controller_manager_args',
     :important => true,
     :help => 'Controller Manager Args',
     :category => '1.Master',
-    :order => 1
+    :order => 6
   }
-  
     
 attribute 'scheduler_args',
   :grouping => 'cluster',
@@ -137,7 +148,19 @@ attribute 'scheduler_args',
   :format => {
     :help => 'Scheduler Args',
     :category => '1.Master',
-    :order => 1
+    :order => 7
+  }
+    
+attribute 'cluster_cloud_map',
+  :grouping => 'cluster',
+  :description => "Map of Clouds to Clusters",
+  :data_type => "hash",
+  :default => '{}',
+  :required => "required",
+  :format => {
+    :help => 'Map of Clouds to Clusters',
+    :category => '1.Master',
+    :order => 8
   }
     
 attribute 'kubelet_port',
@@ -146,7 +169,7 @@ attribute 'kubelet_port',
   :default => "10250",
   :required => "required",
   :format => {
-    :help => 'Minon Kublet',
+    :help => 'The port for the Kubelet to serve on.',
     :category => '1.Worker',
     :order => 1
   }
@@ -155,7 +178,9 @@ attribute 'kubelet_args',
   :grouping => 'cluster',
   :description => "kubelet args",
   :data_type => "hash",
-  :default => '{}',
+  :default => '{"cluster_dns":"172.16.48.1",
+                "cluster_domain":"cluster.local",
+                "pod-infra-container-image":"gcr.io/google_containers/pause:2.0"}',
   :required => "required",
   :format => {
     :help => 'Minon Args',
