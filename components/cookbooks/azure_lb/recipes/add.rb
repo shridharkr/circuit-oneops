@@ -33,9 +33,16 @@ def get_probes_from_wo
     ci = node.workorder.ci
   end
 
+  listeners = get_listeners_from_wo()
+
   ecvs = Array.new
   ecvs_raw = JSON.parse(ci[:ciAttributes][:ecv_map])
-  if ecvs_raw
+  if ecvs_raw && listeners
+    if ecvs_raw.length != listeners.count
+      raise("LB Listeners and ECVs are not the same length. Bad LB configuration!")
+    end
+
+    index = 0
     ecvs_raw.each do |item|
       # each item is an array
       port = item[0].to_i
@@ -45,7 +52,16 @@ def get_probes_from_wo
       probe_name = "Probe#{port}"
       interval_secs = 15
       num_probes = 3
-      protocol = Azure::ARM::Network::Models::ProbeProtocol::Http
+
+
+      listener = listeners[index]
+
+      if listener && listener.iprotocol.upcase == "HTTPS"
+        protocol = Azure::ARM::Network::Models::ProbeProtocol::Tcp
+        request_path = nil  #If Protocol is set to TCP, this value MUST BE NULL.
+      else
+        protocol = Azure::ARM::Network::Models::ProbeProtocol::Http
+      end
 
       ecvs.push({
                     :probe_name => probe_name,
@@ -356,10 +372,17 @@ get_compute_nat_rules(subscription_id, resource_group_name, lb_name, frontend_ip
 # Configure LB properties
 lb_props = AzureNetwork::LoadBalancer.create_lb_props(frontend_ipconfigs, backend_address_pools, lb_rules, nat_rules, probes)
 
+
 # Create LB
 lb_svc = AzureNetwork::LoadBalancer.new(credentials, subscription_id)
-lb = lb_svc.create_update(location, resource_group_name, lb_name, lb_props)
 
+lb = nil
+
+begin
+  lb = lb_svc.create_update(location, resource_group_name, lb_name, lb_props)
+rescue
+
+end
 if lb.nil?
   OOLog.fatal("Load Balancer '#{lb.name}' could not be created")
 else
