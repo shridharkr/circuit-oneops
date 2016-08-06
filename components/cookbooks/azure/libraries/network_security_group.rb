@@ -76,7 +76,10 @@ module AzureNetwork
       result = response.body
       result
     rescue MsRestAzure::AzureOperationError => e
-      OOLog.fatal("AzureOperationError Error deleting NSG #{net_sec_group_name} Error Response: #{e.body}")
+      OOLog.info("AzureOperationError Error deleting NSG #{net_sec_group_name}")
+      if !e.body.nil?
+        OOLog.info("Error response: #{e.body}")
+      end
     rescue Exception => e
       OOLog.fatal("Exception trying to delete network security group #{net_sec_group_name} Error body: #{e.body.to_s} Exception is: #{e.message}")
     end
