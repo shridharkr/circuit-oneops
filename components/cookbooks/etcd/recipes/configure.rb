@@ -5,22 +5,99 @@
 # Apache License, Version 2.0
 
 # Get all the required computes
+require 'uri'
+require 'net/http'
+
+# wire util library to chef resources.
+extend Etcd::Util
+Chef::Resource::RubyBlock.send(:include, Etcd::Util)
+
+platform_level_fqdn = true
+
 if node.workorder.payLoad.has_key?(:computes)
-        computes = node.workorder.payLoad.computes
+  computes = node.workorder.payLoad.computes
 else
-        computes = node.workorder.payLoad.RequiresComputes
+  computes = node.workorder.payLoad.RequiresComputes
 end
 
-# Get the local compute
-local_server_ip = node.workorder.payLoad.ManagedVia[0]['ciAttributes']['private_ip']
+local_server_ip =  node.workorder.payLoad.ManagedVia[0]['ciAttributes']['private_ip']
+# `local_server_ip` is updated with the full hostname only if `etcd` depends on hostname component
+local_server_ip =  get_full_hostname(node[:ipaddress]) if depend_on_hostname_ptr?
 local_server_name = node.workorder.payLoad.ManagedVia[0]['ciName']
 
-# Get etcd members
+primary_cloud = false
+
+if node.workorder.cloud.ciAttributes.has_key?("priority") &&
+    node.workorder.cloud.ciAttributes.priority == "1"
+  primary_cloud = true
+end
+
+Chef::Log.info("rfcAction: #{node.workorder.rfcCi.rfcAction}")
+
 etcd_cluster = Array.new
-computes.each do |c, index|
- if c.ciAttributes.has_key?("private_ip") && c.ciAttributes.private_ip != nil
-    etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")
+# Get etcd members
+
+if primary_cloud == true
+  Chef::Log.info("In primary clouds")
+  if depend_on_hostname_ptr?
+    platform_fqdn = get_fqdn(node[:ipaddress], platform_level_fqdn)
+    # query platform-level fqdn for the computes in primary clouds
+    primary_computes_ips = `host #{platform_fqdn} | awk '{ print $NF }'`.split("\n")
+    # if there are computes from secondary clouds
+    if primary_computes_ips.length < computes.length
+      primary_computes = Array.new
+      # filter out the compute instances in secondary clouds from `computes`
+      computes.each do |c, index|
+        if c.ciAttributes.has_key?("private_ip") && c.ciAttributes.private_ip != nil &&
+            primary_computes_ips.include?(c.ciAttributes.private_ip)
+          primary_computes.push(c)
+        end
+      end
+      computes = primary_computes
+    end
   end
+
+  computes.each do |c, index|
+    if c.ciAttributes.has_key?("private_ip") && c.ciAttributes.private_ip != nil
+      if depend_on_hostname_ptr?
+        full_hostname = get_full_hostname(c.ciAttributes.private_ip)
+        etcd_cluster.push("#{c.ciName}=http://#{full_hostname}:2380")
+      else
+        etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")
+      end
+    end
+  end
+else
+
+# Assume that the nodes from secondary clouds will form a new Etcd cluster, which is
+# independet of the Etcd cluster in primary clouds.
+
+# The goal of the following method is to identify which IPs belong to secondary clouds.
+# It assumes:
+# (1) Etcd component has to depend on "hostname" component with PTR enabled.
+# (2) no LB is used. Otherwise, querying FQDN (host `fqnd`) will return the IPs of LB
+
+# By querying the platform-level fqdn, we could know the computes from the primary clouds.
+# After removing the returned IPs from workorder.PayLoad.computes, the remaining IPs should
+# belong to secondary clouds.
+
+  Chef::Log.info("secondary clouds...")
+  platform_fqdn = get_fqdn(node[:ipaddress], platform_level_fqdn)
+  primary_computes_ips = `host #{platform_fqdn} | awk '{ print $NF }'`.split("\n")
+  Chef::Log.info("primary_computes_ips: #{primary_computes_ips.to_s}")
+  
+  computes.each do |c, index|
+    if c.ciAttributes.has_key?("private_ip") && !primary_computes_ips.include?(c.ciAttributes.private_ip)
+      Chef::Log.info("c.ciAttributes.private_ip: #{c.ciAttributes.private_ip}")
+      if depend_on_hostname_ptr?
+        hostname = get_full_hostname(c.ciAttributes.private_ip)
+        etcd_cluster.push("#{c.ciName}=http://#{hostname}:2380")
+      else
+        etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")
+      end
+    end
+  end
+  
 end
 
 
@@ -73,11 +150,24 @@ member_flags = {
     'ETCD_CORS' => 'none'
 }.merge(JSON.parse(node.etcd.member_flags))
 
+etcd_initial_cluster_token = primary_cloud ? 'etcd-cluster-1' : 'etcd-cluster-2'
+
+etcd_initial_cluster_state = "new"
+if node.workorder.rfcCi.rfcAction == "replace"
+  etcd_initial_cluster_state = "existing"
+elsif node.workorder.rfcCi.rfcAction == "update"
+  # continue to use the original state
+  etcd_initial_cluster_state = `cat /etc/etcd/etcd.conf | grep ETCD_INITIAL_CLUSTER_STATE | tr "=" "\n" | tail -n 1 | tr -d '"'`.strip
+  if etcd_initial_cluster_state.empty?
+     etcd_initial_cluster_state = "new"
+  end
+end
+
 cluster_flags = {
     'ETCD_INITIAL_ADVERTISE_PEER_URLS' => "http://#{local_server_ip}:2380",
     'ETCD_INITIAL_CLUSTER' => "#{etcd_cluster.join(",")}",
-    'ETCD_INITIAL_CLUSTER_STATE' => 'new',
-    'ETCD_INITIAL_CLUSTER_TOKEN' => 'etcd-cluster-1',
+    'ETCD_INITIAL_CLUSTER_STATE' => etcd_initial_cluster_state,
+    'ETCD_INITIAL_CLUSTER_TOKEN' => etcd_initial_cluster_token,
     'ETCD_ADVERTISE_CLIENT_URLS' => "#{protocol}://#{local_server_ip}:2379"
 }.merge(JSON.parse(node.etcd.cluster_flags))
 

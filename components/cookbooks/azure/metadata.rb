@@ -130,7 +130,7 @@ attribute 'dns_ip',
 attribute 'sizemap',
 :description => "Sizes Map",
 :data_type => "hash",
-:default => '{ "XS":"Standard_A0","S":"Standard_A1","M":"Standard_A2","L":"Standard_A3","XL":"Standard_A4","XXL":"Standard_A6","3XL":"Standard_A7","4XL":"Standard_G1","S-CPU":"Standard_D2","M-CPU":"Standard_D3","L-CPU":"Standard_D4","S-IO":"Standard_DS1","M-IO":"Standard_DS2","L-IO":"Standard_DS3"}',
+:default => '{ "XS":"Standard_A0","S":"Standard_A1","M":"Standard_A2","L":"Standard_A3","XL":"Standard_A4","XXL":"Standard_A5","3XL":"Standard_A6","4XL":"Standard_A7","S-CPU":"Standard_D1","M-CPU":"Standard_D2","L-CPU":"Standard_D3","XL-CPU":"Standard_D4","8XL-CPU":"Standard_D11","9XL-CPU":"Standard_D12","10XL-CPU":"Standard_D13","11XL-CPU":"Standard_D14","S-MEM":"Standard_DS1","M-MEM":"Standard_DS2","L-MEM":"Standard_DS3","XL-MEM":"Standard_DS4","8XL-MEM":"Standard_DS11","9XL-MEM":"Standard_DS12","10XL-MEM":"Standard_DS13","11XL-MEM":"Standard_DS14"}',
 :format => {
   :help => 'Map of generic compute sizes to provider specific',
   :category => '3.Mappings',
@@ -162,16 +162,6 @@ attribute 'imagemap',
   :help => 'Map of generic OS image types to provider specific 64-bit OS image types',
   :category => '3.Mappings',
   :order => 2
-}
-
-attribute 'ephemeral_disk_sizemap',
-:description => "Ephemeral Disk Sizes Map",
-:data_type => "hash",
-:default => '{ "XS":"0","S":"20","M":"17","L":"45","XL":"100","XXL":"100"}',
-:format => {
-  :help => 'Map of generic datadisk sizes',
-  :category => '3.Mappings',
-  :order => 3
 }
 
 attribute 'repo_map',

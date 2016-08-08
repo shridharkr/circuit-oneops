@@ -37,6 +37,10 @@ monitors = []
 old_monitor_names = []
 iport_map.each_pair do |iport,protocol|
   
+  iport_name = iport
+  if iport.downcase == 'any'
+    next
+  end  
   base_monitor_name =  [env_name, assembly_name, platform_name, iport, lb_ci_id].join("-") + "-monitor"
   
   sg_name = [env_name, platform_name, cloud_name, iport, lb_ci_id, "svcgrp"].join("-")

@@ -41,6 +41,10 @@ attribute :port,
   :kind_of => Integer,
   :required => true  
 
+attribute :iport,
+  :kind_of => Integer,
+  :required => true
+
 attribute :connection, 
   :kind_of => Object,
   :required => true 

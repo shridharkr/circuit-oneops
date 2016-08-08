@@ -32,8 +32,8 @@ if cloud_service.nil?
   exit 1
 end
 
-if cloud_service[:ciClassName] !~ /netscaler/i
-  Chef::Log.info("lb cloud service is #{cloud_service} but this action is only supported for netscaler cloud service hence exiting...")
+if cloud_service[:ciClassName] !~ /netscaler|f5/i
+  Chef::Log.info("lb cloud service is #{cloud_service} but this action is only supported for netscaler Or F5-BigIP cloud service hence exiting...")
   exit 0
 end
 
@@ -62,6 +62,15 @@ node.set["loadbalancers"] = lbs
 case cloud_service[:ciClassName]
 when /netscaler/i
   include_recipe "netscaler::unbind_sg"
+when /f5/i
+  JSON.parse(node.workorder.ci.ciAttributes.vnames).keys.each do |lb_name|
+    vport = lb_name.rpartition('_')[2].partition('tcp')[0]
+    vproto = lb_name.rpartition('_')[0].rpartition('-')[2].downcase
+    lbs.push({:name => lb_name, :vport => vport, :vprotocol => vproto})
+  end
+  node.set["loadbalancers"] = lbs
+  node.set["lb_details"] = JSON.parse(node.workorder.ci.ciAttributes.vnames)
+  include_recipe "f5-bigip::unbind_pool"
 when /rackspace/i
 
 when /haproxy/i

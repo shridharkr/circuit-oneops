@@ -14,7 +14,7 @@ postgresql:
   name: <%= node.workorder.payLoad.ManagedVia[0]['ciName'].split("-").join %>
   listen:  <%= node[:ipaddress] %>:5432
   data_dir: <%= node['postgresql-governor'][:data] %>
-  maximum_lag_on_failover: 1048576 # 1 megabyte in bytes
+  maximum_lag_on_failover: <%= node['postgresql-governor'][:maximum_lag_on_failover] %> # by default 8 megabyte in bytes
   # use_tcp_for_local_connection: true
   replication:
     username: replicator
