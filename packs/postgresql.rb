@@ -132,7 +132,33 @@ resource "postgresql",
                   }
                 }
              },
-  :payloads => { 'master' => {
+  :payloads => { 'RequiresComputes' => {
+    'description' => 'computes',
+    'definition' => '{
+       "returnObject": false,
+       "returnRelation": false,
+       "relationName": "base.RealizedAs",
+       "direction": "to",
+       "targetClassName": "manifest.oneops.1.Postgresql",
+       "relations": [
+         { "returnObject": false,
+           "returnRelation": false,
+           "relationName": "manifest.DependsOn",
+           "direction": "from",
+           "targetClassName": "manifest.oneops.1.Compute",
+           "relations": [
+             { "returnObject": true,
+               "returnRelation": false,
+               "relationName": "base.RealizedAs",
+               "direction": "from",
+               "targetClassName": "bom.oneops.1.Compute"
+             }
+           ]
+         }
+       ]
+    }'
+  },
+    'master' => {
       'description' => 'Master DB', 
       'definition' => '{ 
          "returnObject": false, 

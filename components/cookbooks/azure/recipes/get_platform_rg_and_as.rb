@@ -50,6 +50,8 @@ if app_type == 'lb'
   location = node.workorder.services['lb'][cloud_name][:ciAttributes][:location]
 elsif app_type == 'fqdn'
   location = node.workorder.services['dns'][cloud_name][:ciAttributes][:location]
+elsif app_type == 'storage'
+  location = node.workorder.services['storage'][cloud_name][:ciAttributes][:region]
 else
   location = node.workorder.services['compute'][cloud_name][:ciAttributes][:location]
 end

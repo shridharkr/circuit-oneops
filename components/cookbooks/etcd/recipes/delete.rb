@@ -13,8 +13,10 @@ Chef::Resource::RubyBlock.send(:include, Etcd::Util)
 # Removing etcd member
 member_id = node.workorder.rfcCi['ciAttributes']['member_id']
 
+platform_level_fqdn = false
 etcd_conn = "localhost"
-etcd_conn = get_cloud_fqdn(node[:ipaddress]) if depend_on_fqdn_ptr?
+# need to get cloud-level fqdn
+etcd_conn = get_fqdn(node[:ipaddress], platform_level_fqdn) if depend_on_hostname_ptr?
 
 # if VM is replaced, `member_id` will be empty, so another way
 # to retrieve member_id is to query the etcd cluster
@@ -29,7 +31,7 @@ if member_id.nil? || member_id.empty?
       break
     end
   end
-  Chef::Log.info("get member_id: #{member_id} from querying Etcd cluster")
+  Chef::Log.info("d: #{member_id} from querying Etcd cluster")
 end
 
 # only delete the member if member_id is not empty

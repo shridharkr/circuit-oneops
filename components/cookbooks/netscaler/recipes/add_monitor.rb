@@ -60,8 +60,11 @@ rescue Exception => e
   ecv_map = {}
 end
 
+
+
 begin
   ecv_map.keys.each do |port|
+    next if port == 'all'
     port_int = Integer(port)
   end
 rescue Exception => e
