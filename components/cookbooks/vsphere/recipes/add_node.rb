@@ -38,25 +38,7 @@ def get_cdrom(compute_provider, service_compute, instance_uuid = nil)
   return compute_provider.cdroms.new(cdroms_attributes)
 end
 
-def get_customization_spec
-  ip_settings = {}
-  ip_settings['ip'] = '10.9.108.212'
-  ip_settings['subnetMask'] = '255.255.252.0'
-  ip_settings['gateway'] = ['10.9.108.1']
-  ip_settings['domain'] = 's06000.us.wal-mart.com'
-  ip_settings['dnsServerList'] = ['10.9.108.98', '161.173.7.20']
-
-  custom_spec = {}
-  custom_spec['domain'] = 's06000.us.wal-mart.com'
-  custom_spec['hostname'] = 'oneopstesthost2'
-  custom_spec['time_zone'] = 'UTC'
-  custom_spec['ipsettings'] = ip_settings
-  # custom_spec['encryptionKey'] = []
-
-  return custom_spec
-end
-
-def get_virtual_machine_attributes(service_compute, cpu_size, memory_size, volumes, network_interface, customization_spec)
+def get_virtual_machine_attributes(service_compute, cpu_size, memory_size, volumes, network_interface)
   virtual_machine_model = VirtualMachineModel.new(node[:server_name])
   virtual_machine_model.cpus = cpu_size
   virtual_machine_model.memory_mb = memory_size
@@ -70,7 +52,6 @@ def get_virtual_machine_attributes(service_compute, cpu_size, memory_size, volum
   virtual_machine_model.connection_state = 'connected'
   virtual_machine_model.volumes = volumes
   virtual_machine_model.interfaces = [network_interface]
-  virtual_machine_model.customization_spec = customization_spec
 
   return virtual_machine_model.serialize_object
 end
@@ -98,10 +79,9 @@ volumes.push(get_volume(compute_provider, service_compute[:datastore], 'data_dis
 
 Chef::Log.info("configuring network interfaces")
 network_interface = get_network_interface(compute_provider, service_compute)
-customization_spec = get_customization_spec()
 
 Chef::Log.info("configuring virtual machine")
-vm_attributes = get_virtual_machine_attributes(service_compute, cpu_size, memory_size, volumes, network_interface, customization_spec)
+vm_attributes = get_virtual_machine_attributes(service_compute, cpu_size, memory_size, volumes, network_interface)
 
 Chef::Log.info("Creating VM ..... " + node[:server_name].to_s)
 start_time = Time.now
@@ -117,7 +97,6 @@ Chef::Log.info("end time " + Time.now.to_s)
 total_time = Time.now - start_time
 Chef::Log.info("Total time to create " + total_time.to_s)
 
-Chef::Log.info("Getting ip address... ")
 ip_address = virtual_machine_manager.ip_address
 node.set[:ip] = ip_address
 Chef::Log.info("Assigned ip address is " + ip_address)
