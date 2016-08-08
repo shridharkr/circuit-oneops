@@ -135,6 +135,10 @@ class Chef
         set_or_return(:enabled, arg, :kind_of => [TrueClass, FalseClass])
       end
 
+      def do_not_overwrite(arg = false)
+        set_or_return(:do_not_overwrite, arg, :kind_of => [TrueClass, FalseClass])
+      end
+
       def connection_limit(arg = nil)
         set_or_return(:connection_limit, arg,  :required => true)
       end
