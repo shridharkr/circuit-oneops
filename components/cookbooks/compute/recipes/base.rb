@@ -43,7 +43,7 @@ ruby_block 'install base' do
     end
 
     # add repo_list from compute
-    if !node.["repo_list"].nil? &&
+    if !node["repo_list"].nil? &&
        node.repo_list.include?("[")
       
       Chef::Log.info("adding compute-level repo_list: #{node.repo_list}")
