@@ -42,8 +42,7 @@ class TenantModel
   end
 
   def get_compute_provider
-    compute_provider=Fog::Compute::Vsphere.new( #:provider => 'vsphere',
-                             :vsphere_server => @endpoint,
+    compute_provider=Fog::Compute::Vsphere.new(:vsphere_server => @endpoint,
                              :vsphere_username => @username,
                              :vsphere_password=> @password,
                              :vsphere_expected_pubkey_hash => @vsphere_expected_pubkey_hash)

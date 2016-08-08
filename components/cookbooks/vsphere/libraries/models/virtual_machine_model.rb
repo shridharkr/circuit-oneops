@@ -10,21 +10,13 @@ class VirtualMachineModel
               :power_on, :connection_state, :volumes, :interfaces, :cdroms, :customization_spec
 
   def cpus=(cpus)
-    # if cpus.is_a?(Integer)
       cpus = Integer(cpus)
       @cpus = cpus
-    # else
-    #   fail ArgumentError, 'cpus is invalid'
-    # end
   end
 
   def memory_mb=(memory_mb)
-    # if memory_mb.is_a?(Integer)
       memory_mb = Integer(memory_mb)
       @memory_mb = memory_mb
-    # else
-    #   fail ArgumentError, 'memory_mb is invalid'
-    # end
   end
 
   def guest_id=(guest_id)

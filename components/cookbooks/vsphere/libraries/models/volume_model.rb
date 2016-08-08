@@ -31,11 +31,7 @@ class VolumeModel
 
   def size_gb=(size_gb)
     size_gb = Integer(size_gb)
-    # if size_gb.is_a?(Integer)
-      @size_gb = valid_size(size_gb)
-    # else
-    #   fail ArgumentError, 'size_gb is invalid'
-    # end
+    @size_gb = valid_size(size_gb)
   end
 
   def serialize_object
