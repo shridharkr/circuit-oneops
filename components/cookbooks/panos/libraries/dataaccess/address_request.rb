@@ -153,18 +153,24 @@ class AddressRequest
         }
       )
       get_all_hash = Crack::XML.parse(get_response)
-      Chef::Log.info("get_hash is: #{get_all_hash}")
+      Chef::Log.info("get_all_hash is: #{get_all_hash}")
       raise Exception.new("PANOS error getting address: #{get_all_hash['response']['msg']}") if get_all_hash['response']['status'] == 'error'
       # if the entry isn't found, the response from PANOS isn't an error, the result attribute
       # in the XML response is nil
-      if get_all_hash['response']['result'].nil?
+      Chef::Log.info("RESULT IS: #{get_all_hash['response']['result']}")
+      if !get_all_hash['response']['result'].nil?
+        Chef::Log.info('HAVE A RESULT!!')
         entries = get_all_hash['response']['result']['address']['entry']
         entries.each do |entry|
+          Chef::Log.info("Entry is: #{entry}")
           # tag is optional so we have to check for nil
           tag = nil
           if entry.has_key?('tag')
+            Chef::Log.info("Entry Has a Tag!!!")
             tag = entry['tag']['member']
           end
+          Chef::Log.info("Tag is #{tag}")
+          Chef::Log.info("Tag to check against is: #{tag_name}")
           # add the address to an array if the tags are equal
           if !tag.nil? && tag == tag_name
             address_array.push(Address.new(entry['name'], 'IP_NETMASK', entry['ip_netmask'], tag))

@@ -28,10 +28,30 @@ class CommitRequest
     	)
       commit_hash = Crack::XML.parse(commit_response)
       Chef::Log.info("commit_hash is: #{commit_hash}")
-      raise Exception.new("PANOS Error committing: #{commit_hash['response']['msg']}") if commit_hash['response']['status'] == 'error'
-      job = PanosJob.new(commit_hash['response']['result']['job'].to_i)
-      Chef::Log.info("PANOS Jobid is: #{job}")
-      return job
+      if commit_hash['response']['status'] == 'error'
+        Chef::Log.info("Error Code is: #{commit_hash['response']['code']}")
+        if commit_hash['response']['code'].to_i == 13
+          # a commit is already in progress, need to sleep and try again
+          Chef::Log.info('Sleeping 30 seconds and trying commit again...')
+          sleep(30)
+          commit_configs()
+        else
+          raise Exception.new("PANOS Error committing: #{commit_hash['response']['msg']}")
+        end
+      end
+      
+      if commit_hash['response'].has_key?('result')
+        # if job exists in the payload that means a job was submitted to commit the changes.
+        if commit_hash['response']['result'].has_key?('job')
+          job = PanosJob.new(commit_hash['response']['result']['job'].to_i)
+          Chef::Log.info("PANOS Jobid is: #{job}")
+          return job
+        else
+          return nil
+        end
+      else
+        return nil
+      end
     rescue => e
       raise Exception.new("Exception committing PANOS job: #{e}")
     end

@@ -41,6 +41,9 @@ class AddressManager
     create_address = []
     update_address = []
     
+    Chef::Log.info("Existing addresses: #{existing_addresses}")
+    Chef::Log.info("Deployment addresses: #{deploy_addresses}")
+    
     # compare with my hash of addresses from the deployment
     existing_addresses.each do |addr|
       if !deploy_addresses.include?(addr)
@@ -136,15 +139,17 @@ class AddressManager
     commit = CommitRequest.new(@url, @key)
     job = commit.commit_configs
 
-    # check status until complete
-    # won't continue until the update is complete.
-    status = StatusRequest.new(@url, @key)
-    until status.job_complete?(job) do
-      Chef::Log.info("job, #{job.id} still in progress")
-      sleep(5)
+    if !job.nil?
+      # check status until complete
+      # won't continue until the update is complete.
+      status = StatusRequest.new(@url, @key)
+      until status.job_complete?(job) do
+        Chef::Log.info("job, #{job.id} still in progress")
+        sleep(5)
+      end
+  
+      Chef::Log.info("Job, #{job.id} complete!")
     end
-
-    Chef::Log.info("Job, #{job.id} complete!")
   end
 
 end
