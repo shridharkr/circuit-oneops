@@ -24,7 +24,6 @@ module Couchbase
                 first_couchbase_node = @data["workorder"]["payLoad"]["DependsOn"][0]
 
                 compute_nodes.each do |node|
-                    Chef::Log.info("ip: #{node["rfcAction"]}")
                     if node["rfcAction"] != "add"
 
                         return {
@@ -35,7 +34,6 @@ module Couchbase
                     end
 
                 end
-                Chef::Log.info("here here")
                 # must be creating cluster or updating it
                 return {
                     "ip" => "localhost",
