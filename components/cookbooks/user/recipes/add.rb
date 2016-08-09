@@ -1,4 +1,5 @@
-node.set[:user][:home] = node[:user][:home_directory].empty? ? "/home/#{node[:user][:username]}" : node[:user][:home_directory]
+home_dir = node[:user][:home_directory]
+node.set[:user][:home] = home_dir && !home_dir.empty? ? home_dir : "/home/#{node[:user][:username]}"
 
 Chef::Log.info("Stopping the nslcd service")
 `sudo killall -9  /usr/sbin/nslcd`
