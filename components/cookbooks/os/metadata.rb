@@ -282,40 +282,40 @@ recipe "upgrade-os-package",
          }
        }
 
-recipe 'upgrade-security-compliace',
-       :description => 'upgrade to security requirements configued by cloud compliance',
-       :args        => {
-         'compliance' => {
-           :name => 'Compliance Name',
-           :description => 'Compliance name to apply, use "*" to apply all compliances.',
-           :defaultValue => '*',
-           :required => true,
-           :dataType => 'string'
-         },
-         'version' => {
-           :name => 'Compliance Version',
-           :description => 'Compliance version to upgrade to, use "0" to upgrade latest versions.',
-           :defaultValue => '0',
-           :required => false,
-           :dataType => 'string'
-         }
-       }
-
-recipe 'downgrade-security-compliace',
-       :description => 'downgrade/remove security requirements configued by cloud compliance',
-       :args        => {
-         'compliance' => {
-           :name => 'Name',
-           :description => 'Compliance name to downgrade, use "*" to downgrade all compliances.',
-           :defaultValue => '*',
-           :required => true,
-           :dataType => 'string'
-         },
-         'version' => {
-           :name => 'Version',
-           :description => 'Compliance version to downgrade to, use "0" to completely remove compliance.',
-           :defaultValue => '0',
-           :required => false,
-           :dataType => 'string'
-         }
-       }
+# recipe 'upgrade-security-compliace',
+#        :description => 'upgrade to security requirements configued by cloud compliance',
+#        :args        => {
+#          'compliance' => {
+#            :name => 'Compliance Name',
+#            :description => 'Compliance name to apply, use "*" to apply all compliances.',
+#            :defaultValue => '*',
+#            :required => true,
+#            :dataType => 'string'
+#          },
+#          'version' => {
+#            :name => 'Compliance Version',
+#            :description => 'Compliance version to upgrade to, use "0" to upgrade latest versions.',
+#            :defaultValue => '0',
+#            :required => false,
+#            :dataType => 'string'
+#          }
+#        }
+#
+# recipe 'downgrade-security-compliace',
+#        :description => 'downgrade/remove security requirements configued by cloud compliance',
+#        :args        => {
+#          'compliance' => {
+#            :name => 'Name',
+#            :description => 'Compliance name to downgrade, use "*" to downgrade all compliances.',
+#            :defaultValue => '*',
+#            :required => true,
+#            :dataType => 'string'
+#          },
+#          'version' => {
+#            :name => 'Version',
+#            :description => 'Compliance version to downgrade to, use "0" to completely remove compliance.',
+#            :defaultValue => '0',
+#            :required => false,
+#            :dataType => 'string'
+#          }
+#        }
