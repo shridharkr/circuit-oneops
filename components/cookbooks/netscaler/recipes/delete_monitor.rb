@@ -25,7 +25,7 @@ node.monitors.each do |monitor|
     # for some reason netscaler lbmonitor has a secure flag instead of using https proto
     if type == "HTTPS" || type == "SSL_BRIDGE"
       type = "HTTP"
-    elsif type == "ALL"
+    elsif type == "ANY"
       Chef::Log.info("skipping monitor delete for type #{type} - uses implicit/default monitor")
       next
     end
