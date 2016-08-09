@@ -11,7 +11,7 @@ module Couchbase
 
                 attributes = find_attributes
                 ip = attributes["ip"]
-                username = attributes["adminuser"]
+		username = attributes["adminuser"]
                 password = attributes["adminpassword"]
 
                 @cluster = Couchbase::CouchbaseCluster.new(ip, username, password)
@@ -24,18 +24,18 @@ module Couchbase
                 first_couchbase_node = @data["workorder"]["payLoad"]["DependsOn"][0]
 
                 compute_nodes.each do |node|
-
+                    Chef::Log.info("ip: #{node["rfcAction"]}")
                     if node["rfcAction"] != "add"
 
                         return {
-                            "ip" => node["ciAttributes"]["public_ip"],
+                            "ip" => node["ciAttributes"]["private_ip"],
                             "adminuser" => first_couchbase_node["ciAttributes"]["adminuser"],
                             "adminpassword" => first_couchbase_node["ciAttributes"]["adminpassword"]
                         }
                     end
 
                 end
-
+                Chef::Log.info("here here")
                 # must be creating cluster or updating it
                 return {
                     "ip" => "localhost",

@@ -201,6 +201,10 @@ module Couchbase
       node_list
     end
 
+    def list_node(ip_node)
+      list_nodes.select { |node| node.fetch(:ip) == ip_node }
+    end
+
     def healthy_nodes
       response = @rest.cluster_details
       nodes = response['nodes']

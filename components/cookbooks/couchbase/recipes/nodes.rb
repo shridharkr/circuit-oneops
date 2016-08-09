@@ -24,7 +24,7 @@ end
 ##
 def get_couchbase_attributes
   array = node.workorder.payLoad.DependsOn.reject do |d|
-    d['ciClassName'] !~ /Couchbase/
+    d['ciClassName'] != 'Couchbase'
   end
   array.first[:ciAttributes]
 end
