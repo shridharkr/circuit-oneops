@@ -11,7 +11,8 @@ class Chef
 			accept_ranges = ""
 			parts_details = []
 
-			Net::HTTP.start(uri.host,uri.port){ |http|
+			ssl = uri.scheme == "https" ? true : false
+			Net::HTTP.start(uri.host,uri.port, :use_ssl => ssl){ |http|
 				headers = http.head(uri.path).to_hash
 				content_length = headers["content-length"][0].to_i
 				accept_ranges = headers["accept-ranges"][0]
@@ -36,6 +37,7 @@ class Chef
 			Chef::Log.info("Fetching in #{parts.length} parts")
 			Chef::Log.debug("Part details: #{pp parts.inspect}")
 			# todo.. resume mode
+			install_gem_output = `gem install parallel` #install parallel gem
 			require 'parallel'
 
 			download_start = Time.now
@@ -99,7 +101,8 @@ class Chef
 			Chef::Log.info("Fetching file: #{remote_file} part: #{part['slot']} Start: #{part['start']} End: #{part['end']}")
 			uri = URI(remote_file)
 
-			Net::HTTP.start(uri.host, uri.port) do |http|
+			ssl = uri.scheme == "https" ? true : false
+			Net::HTTP.start(uri.host, uri.port,:use_ssl => ssl) do |http|
 				request = Net::HTTP::Get.new uri
 				Chef::Log.debug("Requesting slot: #{part['slot']} from #{part['start']} to #{part['end']}")
 				request.add_field('Range', "bytes=#{part['start']}-#{part['end']}")
