@@ -33,7 +33,7 @@ when 'flannel'
       
   # returns 4 when already done
   flannel_conf = "{\"Network\": \"#{network_cidr}\", \"Backend\": {\"Type\": \"vxlan\", \"VNI\": 1}}"
-  execute "etcdctl mk /atomic.io/network/config '#{flannel_conf}'" do
+  execute "etcdctl mk /docker-flannel/network/config '#{flannel_conf}'" do
       returns [0,4]
   end
   
