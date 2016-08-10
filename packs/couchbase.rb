@@ -11,7 +11,7 @@ platform :attributes => {'autoreplace' => 'false'}
 resource 'compute',
          :attributes => {
            'ostype' => 'default-cloud',
-           'size' => 'M'
+           'size' => 'S'
          }
 
 resource 'user-app',
@@ -31,7 +31,7 @@ resource 'couchbase',
          :design => true,
          :requires => {'constraint' => '1..1', 'services' => 'compute,mirror'},
          :attributes => {
-             'version' => '2.5.2',
+             'version' => 'community_3.0.1',
              'port' => '8091',
              'checksum' => '',
              'arch' => 'x86_64',

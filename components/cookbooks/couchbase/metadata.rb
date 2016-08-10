@@ -20,30 +20,70 @@ attribute 'mirrors',
               :category => '1.Global',
               :help => "Couchbase binary distribution mirrors - uri without /version/artifact.rpm path. Uses official or cloud mirror if it's empty.",
               :order => 1,
+              :filter => {'all' => {'visible' => 'false'}},
               :editable => false
+          }
+
+attribute 'message_enterprise',
+          :description => "Important Message",
+          :default => "Couchbase Enterprise edition is supported by Couchbase. Support could be purchased on www.couchbase.com.",
+          :data_type => 'text',
+          :format => {
+              :help => 'Important Message',
+              :category => '1.Global',
+              :order => 2,
+              :filter => {'all' => {'visible' => 'version:neq:community_3.0.1'}},
+              :editable => false,
+          }
+
+attribute 'message_community',
+          :description => "Important Message",
+          :default => "Couchbase community edition is not supported by Couchbase. Support is available on Couchbase forums.",
+          :data_type => 'text',
+          :format => {
+              :help => 'Important Message',
+              :category => '1.Global',
+              :order => 2,
+              :filter => {'all' => {'visible' => 'version:eq:community_3.0.1'}},
+              :editable => false,
           }
 
 attribute 'distributionurl',
           :description => 'Binary Distribution',
-          :default => 'http://gec-maven-nexus.walmart.com/nexus/content/repositories/thirdparty/com/couchbase/server/couchbase-server-enterprise/',
+          :default => 'http://packages.couchbase.com/releases/',
           :format => {
             :category => '1.Global',
             :help => "Couchbase binary distribution mirrors. Select official or cloud mirror.",
-            :order => 1,
-            :form => {'field' => 'select', 'options_for_select' => [['Nexus', 'http://gec-maven-nexus.walmart.com/nexus/content/repositories/thirdparty/com/couchbase/server/couchbase-server-enterprise/'], ['Couchbase', 'http://packages.couchbase.com/releases/']]
-            }
+            :order => 3,
           }
 
+attribute 'edition',
+        :description => "Deprecated Edition",
+        :required => "required",
+        :default => "community",
+        :format => {
+            :help => 'Edition. By default it uses Community edition.',
+            :category => '1.Global',
+            :order => 4,
+            :editable => true,
+            :filter => {'all' => {'visible' => 'false'}},
+            :form => {'field' => 'select', 'options_for_select' => [['Enterprise', 'enterprise'], ['Community', 'community']]}
+        }
 
+# Enterprise version keys retained for backwards compatibility. New entries should follow the format 'enterprise_<Version Number>'
 attribute 'version',
           :description => 'Version',
           :required => 'required',
-          :default => '2.5.2',
+          :default => 'community_3.0.1',
           :format => {
-              :help => 'Version of Couchbase',
-              :category => '1.Global',
-              :order => 2,
-              :form => {'field' => 'select', 'options_for_select' => [['3.0.3', '3.0.3'], ['2.5.2', '2.5.2'], ['2.2.0', '2.2.0']]}
+            :help => 'Version of Couchbase',
+            :category => '1.Global',
+            :order => 5,
+            :filter => {'all' => {'visible' => 'true'}},
+            :form => {'field' => 'select', 'options_for_select' => [
+                ['Enterprise 3.0.3', '3.0.3'], ['Enterprise 2.5.2', '2.5.2'], ['Enterprise 2.2.0', '2.2.0'], ['Community 3.0.1', 'community_3.0.1']
+              ]
+            }
           }
 
 attribute 'upgradecouchbase',
@@ -52,10 +92,9 @@ attribute 'upgradecouchbase',
           :format => {
               :help => 'If selected, CouchBase Server will be upgraded to selected version',
               :category => '1.Global',
-              :order => 3,
+              :order => 6,
               :form => { 'field' => 'checkbox' }
           }
-
 
 attribute 'arch',
           :description => 'Arch',
@@ -64,35 +103,19 @@ attribute 'arch',
           :format => {
               :help => 'Processor architecture. x86_64 (64 bit) or x86 (32 bit).',
               :category => '1.Global',
-              :order => 4,
+              :order => 7,
 	            :editable => false
           }
-        #      :form => {'field' => 'select', 'options_for_select' => [['x86_64', 'x86_64'], ['x86', 'x86']]}
-        #  }
-
-
-attribute 'edition',
-          :description => "Edition",
-          :required => "required",
-          :default => 'enterprise',
-          :format => {
-              :help => 'Edition. By default it uses Enterprise edition.',
-              :category => '1.Global',
-              :order => 5,
-	            :editable => false
-          }
-        #      :form => {'field' => 'select', 'options_for_select' => [['Enterprise', 'enterprise'], ['Community'], ['community']]}
-        #  }
-
 
 attribute 'checksum',
-          :description => "Checksum",
-          :format => {
-              :category => '1.Global',
-              :help => 'SHA-256 checksum of the file',
-	            :editable => false,
-              :order => 6
-          }
+        :description => "Checksum",
+        :format => {
+        :category => '1.Global',
+        :help => 'SHA-256 checksum of the file',
+        :editable => false,
+        :order => 8,
+        :filter => {'all' => {'visible' => 'false'}}
+        }
 
 # cluster
 attribute 'port',
@@ -121,9 +144,10 @@ attribute 'adminpassword',
           :required => "required",
           :default => "password",
           :format => {
-              :help => 'Cluster administration password',
+              :help => 'Cluster administration password with min length of 6',
               :category => '2.Cluster',
-              :order => 3
+              :order => 3,
+              :pattern => "^.{6,}$"
           }
 
 
@@ -213,10 +237,10 @@ attribute 'sender',
           }
 
 attribute 'recipents',
-          :description => "Email Recipents",
+          :description => "Email Recipients",
           :default => 'admin@example.com',
           :format => {
-              :help => 'Recipents addresses with comma separated',
+              :help => 'Recipients addresses with comma separated',
               :category => '4.Settings',
               :order => 7
 
@@ -231,4 +255,3 @@ recipe "restart", "Restart Couchbase"
 recipe "repair", "Repair Couchbase"
 recipe "remove-from-cluster", "Remove Couchbase server from cluster"
 recipe "add-to-cluster", "Add Couchbase server to cluster"
-
