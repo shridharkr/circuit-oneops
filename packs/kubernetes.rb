@@ -10,16 +10,8 @@ resource 'secgroup',
   :attributes => {
       :inbound => '[
         "22 22 tcp 0.0.0.0/0", 
-        "80 80 tcp 0.0.0.0/0",
-        "8472 8472 udp 0.0.0.0/0",
-        "8285 8285 udp 0.0.0.0/0",
-        "53 53 tcp 0.0.0.0/0",
-        "53 53 udp 0.0.0.0/0",
-        "2181 2181 tcp 0.0.0.0/0",
-        "3888 3888 tcp 0.0.0.0/0",
-        "8080 8080 tcp 0.0.0.0/0", 
-        "2888 2888 tcp 0.0.0.0/0",
-        "10053 10053 tcp 0.0.0.0/0"
+        "1 65535 tcp 0.0.0.0/0",
+        "1 65535 udp 0.0.0.0/0"
       ]'
   }
 
@@ -36,7 +28,10 @@ resource 'secgroup-master',
   :cookbook => 'oneops.1.secgroup',
   :design => true,
   :attributes => {
-      :inbound => '["22 22 tcp 0.0.0.0/0", "8080 8080 tcp 0.0.0.0/0", "2379 2380 tcp 0.0.0.0/0" ]'
+      :inbound => '["22 22 tcp 0.0.0.0/0", 
+                    "8080 8080 tcp 0.0.0.0/0", 
+                    "2379 2380 tcp 0.0.0.0/0",
+                    "8472 8472 udp 0.0.0.0/0"]'
   },
   :requires => {
       :constraint => '1..1',
@@ -833,9 +828,9 @@ resource 'system-container-apps',
 
 # for clean nodes list
 resource 'hostname',
-  :requires => { "constraint" => "1..1" }    
+  :requires => { "constraint" => "1..1", "services" => "dns" }
 
-#    
+#
 # relations
 #
 
