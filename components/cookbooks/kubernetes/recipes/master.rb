@@ -92,7 +92,7 @@ cookbook_file '/opt/nagios/libexec/check_nodes.rb' do
 end
 
 cookbook_file '/opt/nagios/libexec/check_pods.rb' do
-  source 'check_nodes.rb'
+  source 'check_pods.rb'
   mode 00755
   action :create
 end
