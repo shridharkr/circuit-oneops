@@ -41,7 +41,7 @@ imagemap = JSON.parse( cloud[:imagemap] )
 
 # size / flavor
 size_id = sizemap[rfcCi["ciAttributes"]["size"]]
-
+Chef::Log.debug("node_lookup SizeID: #{size_id}")
 # image_id
 image_id = ''
 if !os.nil? && os[:ciAttributes].has_key?("image_id") && !os[:ciAttributes][:image_id].empty?
@@ -49,7 +49,7 @@ if !os.nil? && os[:ciAttributes].has_key?("image_id") && !os[:ciAttributes][:ima
 else
   image_id = imagemap[ostype]
 end
-
+Chef::Log.debug("node_lookup imageID: #{image_id}")
 if rfcCi["rfcAction"] != "delete" && (image_id.nil? || image_id.empty?)
   exit_with_error "Compute image id provided is null or empty. Please specify different OS type."
 end

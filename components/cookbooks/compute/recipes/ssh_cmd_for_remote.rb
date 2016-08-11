@@ -61,7 +61,9 @@ ruby_block 'ssh cmds' do
       # TODO: Need to revisit. Duplicated cookbooks causing errors in windows
       #node.set[:rsync_cmd] = "rsync -az --exclude=*.md --exclude=*.png --exclude='simple_iptables' --exclude='artifact' -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
 
-      node.set[:ssh_cmd_windows] = "rsync -az --exclude=*.md --exclude=*.png --exclude='simple_iptables' --exclude='artifact' -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
+      node.set[:ssh_interactive_cmd] = "ssh -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
+
+      node.set[:rsync_cmd_windows] = "rsync -az --exclude=*.md --exclude=*.png --exclude='simple_iptables' --exclude='artifact' -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
     end
 
 

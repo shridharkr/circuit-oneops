@@ -131,6 +131,9 @@ ruby_block 'set flavor/image/availability_zone' do
 
     if server.nil?
       # size / flavor
+
+      Chef::Log.debug("add_node_openstack SizeID: #{node.size_id}")
+
       flavor = conn.flavors.get node.size_id
       Chef::Log.info("flavor: "+flavor.inspect.gsub("\n"," ").gsub("<","").gsub(">",""))
       if flavor.nil?

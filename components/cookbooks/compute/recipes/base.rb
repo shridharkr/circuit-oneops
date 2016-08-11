@@ -142,9 +142,8 @@ ruby_block 'install base' do
 
       install_base = "components/cookbooks/compute/files/default/install_base.ps1"
       install_cmd = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File #{sub_circuit_dir}/#{install_base} -proxy '#{proxy}' -chocoRepo '#{choco_repo}' -gemRepo '#{gem_repo}' "
-      Chef::Log.info("Command: #{install_cmd}")
-      cmd = node.ssh_cmd_windows.gsub("IP",node.ip) + install_cmd
-
+      # cmd = node.ssh_cmd_windows.gsub("IP",node.ip) + install_cmd
+      cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + install_cmd
     end
 
     Chef::Log.info("Executing Command: #{cmd}")
