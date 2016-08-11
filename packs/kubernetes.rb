@@ -830,6 +830,122 @@ resource 'system-container-apps',
 resource 'hostname',
   :requires => { "constraint" => "1..1", "services" => "dns" }
 
+
+resource 'daemon-apiserver',
+  :cookbook => "oneops.1.daemon",
+  :design => true,
+  :attributes => {
+      :service_name => 'kube-apiserver',
+      :use_script_status => 'true'
+  },
+  :requires => { "constraint" => "1..1" },
+  :monitors => {
+      'process' =>  { :description => 'Process',
+                  :source => '',
+                  :chart => {'min'=>'0','max'=>'100','unit'=>'Percent'},
+                  :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!:::node.workorder.rfcCi.ciAttributes.use_script_status:::!:::node.workorder.rfcCi.ciAttributes.pattern:::!:::node.workorder.rfcCi.ciAttributes.secondary_down:::',
+                  :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$" "$ARG4$"',
+                  :metrics =>  {
+                    'up'   => metric( :unit => '%', :description => 'Percent Up'),
+                  },
+                  :thresholds => {  
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+                  }
+                }
+  }
+
+resource 'daemon-controller-manager',
+  :cookbook => "oneops.1.daemon",
+  :design => true,
+  :attributes => {
+      :service_name => 'kube-controller-manager',
+      :use_script_status => 'true'
+  },
+  :requires => { "constraint" => "1..1" },
+  :monitors => {
+      'process' =>  { :description => 'Process',
+                  :source => '',
+                  :chart => {'min'=>'0','max'=>'100','unit'=>'Percent'},
+                  :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!:::node.workorder.rfcCi.ciAttributes.use_script_status:::!:::node.workorder.rfcCi.ciAttributes.pattern:::!:::node.workorder.rfcCi.ciAttributes.secondary_down:::',
+                  :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$" "$ARG4$"',
+                  :metrics =>  {
+                    'up'   => metric( :unit => '%', :description => 'Percent Up'),
+                  },
+                  :thresholds => {  
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+                  }
+                }
+  }
+
+resource 'daemon-scheduler',
+  :cookbook => "oneops.1.daemon",
+  :design => true,
+  :attributes => {
+      :service_name => 'kube-scheduler',
+      :use_script_status => 'true'
+  },
+  :requires => { "constraint" => "1..1" },
+  :monitors => {
+      'process' =>  { :description => 'Process',
+                  :source => '',
+                  :chart => {'min'=>'0','max'=>'100','unit'=>'Percent'},
+                  :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!:::node.workorder.rfcCi.ciAttributes.use_script_status:::!:::node.workorder.rfcCi.ciAttributes.pattern:::!:::node.workorder.rfcCi.ciAttributes.secondary_down:::',
+                  :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$" "$ARG4$"',
+                  :metrics =>  {
+                    'up'   => metric( :unit => '%', :description => 'Percent Up'),
+                  },
+                  :thresholds => {  
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+                  }
+                }
+  }
+        
+resource 'daemon-kubelet',
+  :cookbook => "oneops.1.daemon",
+  :design => true,
+  :attributes => {
+      :service_name => 'kubelet',
+      :use_script_status => 'true'
+  },
+  :requires => { "constraint" => "1..1" },
+  :monitors => {
+      'process' =>  { :description => 'Process',
+                  :source => '',
+                  :chart => {'min'=>'0','max'=>'100','unit'=>'Percent'},
+                  :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!:::node.workorder.rfcCi.ciAttributes.use_script_status:::!:::node.workorder.rfcCi.ciAttributes.pattern:::!:::node.workorder.rfcCi.ciAttributes.secondary_down:::',
+                  :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$" "$ARG4$"',
+                  :metrics =>  {
+                    'up'   => metric( :unit => '%', :description => 'Percent Up'),
+                  },
+                  :thresholds => {  
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+                  }
+                }
+  }
+
+resource 'daemon-proxy',
+  :cookbook => "oneops.1.daemon",
+  :design => true,
+  :attributes => {
+      :service_name => 'kube-proxy',
+      :use_script_status => 'true'
+  },  
+  :requires => { "constraint" => "1..1" },
+  :monitors => {
+      'process' =>  { :description => 'Process',
+                  :source => '',
+                  :chart => {'min'=>'0','max'=>'100','unit'=>'Percent'},
+                  :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!:::node.workorder.rfcCi.ciAttributes.use_script_status:::!:::node.workorder.rfcCi.ciAttributes.pattern:::!:::node.workorder.rfcCi.ciAttributes.secondary_down:::',
+                  :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$" "$ARG4$"',
+                  :metrics =>  {
+                    'up'   => metric( :unit => '%', :description => 'Percent Up'),
+                  },
+                  :thresholds => {  
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+                  }
+                }
+  }
+        
 #
 # relations
 #
@@ -923,13 +1039,18 @@ end
     :attributes    => { "flex" => false, "converge" => true, "min" => 1, "max" => 1 }
 end
 
-[ { :from => 'user-master',      :to => 'os-master' },
-  { :from => 'etcd-master',      :to => 'compute-master' },
-  { :from => 'etcd-master',      :to => 'os-master' },        
-  { :from => 'kubernetes-master',:to => 'etcd-master' },
-  { :from => 'os-master',        :to => 'compute-master' },
-  { :from => 'kubernetes-node',:to => 'docker_engine' },
-  { :from => 'kubernetes-node',:to => 'compute' }
+[ { :from => 'user-master',       :to => 'os-master' },
+  { :from => 'etcd-master',       :to => 'compute-master' },
+  { :from => 'etcd-master',       :to => 'os-master' },        
+  { :from => 'kubernetes-master', :to => 'etcd-master' },
+  { :from => 'os-master',         :to => 'compute-master' },
+  { :from => 'daemon-controller-manager', :to => 'kubernetes-master' },
+  { :from => 'daemon-apiserver',  :to => 'kubernetes-master' },
+  { :from => 'daemon-scheduler',  :to => 'kubernetes-master' },
+  { :from => 'daemon-kubelet',    :to => 'kubernetes-node' },
+  { :from => 'daemon-proxy',      :to => 'kubernetes-node' },
+  { :from => 'kubernetes-node',   :to => 'docker_engine' },
+  { :from => 'kubernetes-node',   :to => 'compute' }
     ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
     :relation_name => 'DependsOn',
@@ -940,7 +1061,8 @@ end
 
 
 # managed_via
-[ 'os-master','etcd-master','kubernetes-master','user-master','system-container-apps' ].each do |from|
+[ 'os-master','etcd-master','kubernetes-master','user-master','system-container-apps',
+  'daemon-controller-manager', 'daemon-apiserver', 'daemon-scheduler'].each do |from|
   relation "#{from}::managed_via::compute-master",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',
@@ -949,7 +1071,7 @@ end
     :attributes    => { } 
 end
 
-[ 'kubernetes-node'].each do |from|
+[ 'kubernetes-node', 'daemon-kubelet', 'daemon-proxy'].each do |from|
   relation "#{from}::managed_via::compute",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',
