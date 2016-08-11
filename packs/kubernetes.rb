@@ -346,7 +346,38 @@ resource 'kubernetes-master',
          ]
       }'
     }          
-  }
+  },
+:monitors => {
+    'nodes' =>  { :description => 'Nodes',
+                :source => '',
+                :cmd => 'check_nodes',
+                :cmd_line => '/opt/nagios/libexec/check_nodes.rb',
+                :metrics =>  {
+                  'ready'   => metric( :unit => 'count', :description => 'Ready'),
+                  'total'   => metric( :unit => 'count', :description => 'Total'),
+                  'percent_ready'   => metric( :unit => '%', :description => 'Percent Ready'),                  
+                },
+                :thresholds => {
+                  'PercentReady' => threshold('1m','avg','percent_ready',trigger('<=', 75, 1, 1), reset('>', 75, 1, 1))
+                }
+              },
+    'pods' =>  { :description => 'Pods',
+                :source => '',
+                :cmd => 'check_pods',
+                :cmd_line => '/opt/nagios/libexec/check_pods.rb',
+                :metrics =>  {
+                  'pending'   => metric( :unit => 'count', :description => 'Pending'),
+                  'running'   => metric( :unit => 'count', :description => 'Running'),
+                  'crash'   => metric( :unit => 'count', :description => 'CrashLoopBackOff'),                    
+                  'total'   => metric( :unit => 'count', :description => 'Total'),
+                  'percent_running'   => metric( :unit => '%', :description => 'Percent Running'),                  
+                },
+                :thresholds => {
+                  'PercentRunning' => threshold('1m','avg','percent_running',trigger('<=', 75, 1, 1), reset('>', 75, 1, 1))
+                }
+              }
+                
+}
 
 
 resource 'kubernetes-node',
