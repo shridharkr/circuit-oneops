@@ -84,3 +84,15 @@ end
     action [:enable, :restart]
   end
 end
+
+cookbook_file '/opt/nagios/libexec/check_nodes.rb' do
+  source 'check_nodes.rb'
+  mode 00755
+  action :create
+end
+
+cookbook_file '/opt/nagios/libexec/check_pods.rb' do
+  source 'check_nodes.rb'
+  mode 00755
+  action :create
+end
