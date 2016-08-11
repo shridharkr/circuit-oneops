@@ -880,7 +880,7 @@ resource 'daemon-apiserver',
                     'up'   => metric( :unit => '%', :description => 'Percent Up'),
                   },
                   :thresholds => {  
-                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1), 'unhealthy')
                   }
                 }
   }
@@ -903,7 +903,7 @@ resource 'daemon-controller-manager',
                     'up'   => metric( :unit => '%', :description => 'Percent Up'),
                   },
                   :thresholds => {  
-                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1), 'unhealthy')
                   }
                 }
   }
@@ -926,7 +926,7 @@ resource 'daemon-scheduler',
                     'up'   => metric( :unit => '%', :description => 'Percent Up'),
                   },
                   :thresholds => {  
-                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1), 'unhealthy')
                   }
                 }
   }
@@ -949,7 +949,7 @@ resource 'daemon-kubelet',
                     'up'   => metric( :unit => '%', :description => 'Percent Up'),
                   },
                   :thresholds => {  
-                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1), 'unhealthy')
                   }
                 }
   }
@@ -972,7 +972,7 @@ resource 'daemon-proxy',
                     'up'   => metric( :unit => '%', :description => 'Percent Up'),
                   },
                   :thresholds => {  
-                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1), 'unhealthy')
                   }
                 }
   }
