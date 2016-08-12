@@ -1,7 +1,7 @@
 # Solrcloud Cookbook
 
 
-SolrCloud Pack is a platform service that makes it easy to deploy, operate solrcloud in the walmart private and public clouds. You can set up and configure your Solrcloud cluster in minutes from the ONEOPS and enables you to monitor and resize your cluster up or down.
+SolrCloud Pack is a platform service that makes it easy to deploy, operate solrcloud in the private and public clouds. You can set up and configure your Solrcloud cluster in minutes from the ONEOPS and enables you to monitor and resize your cluster up or down.
 
 
 
