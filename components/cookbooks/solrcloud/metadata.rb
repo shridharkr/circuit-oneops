@@ -170,14 +170,14 @@ attribute 'solr_min_heap',
   }
 
 attribute 'zk_select',
-  :description => 'Internal/External/Embedded',
+  :description => 'Internal/External',
   :required => 'required',
   :default => 'External',
   :format => {
-      :help => 'Internal/External/Embedded',
+      :help => 'Internal/External',
       :category => '3.Zookeeper',
       :order => 17,
-      :form => {'field' => 'select', 'options_for_select' => [['ExternalEnsemble', 'ExternalEnsemble'],['InternalEnsemble-SameAssembly', 'InternalEnsemble-SameAssembly'],['Embedded', 'Embedded']]}
+      :form => {'field' => 'select', 'options_for_select' => [['ExternalEnsemble', 'ExternalEnsemble'],['InternalEnsemble-SameAssembly', 'InternalEnsemble-SameAssembly']]}
   }
 
 attribute 'zk_host_fqdns',
@@ -190,26 +190,6 @@ attribute 'zk_host_fqdns',
       :order => 18
   }
 
-attribute 'num_instances',
-  :description => 'num_instances',
-  :default => '1',
-  :format => {
-    :help => 'num_instances',
-    :category => '3.Zookeeper',
-    :filter => {'all' => {"visible" => "zk_select:eq:Embedded"}},
-    :order => 19
-  }
-
-attribute 'port_num_list',
-  :description => 'Port nos list',
-  :default => '8080',
-  :format => {
-    :help => 'Port num list',
-    :category => '3.Zookeeper',
-    :filter => {'all' => {"visible" => "zk_select:eq:Embedded"}},
-    :order => 20
-  }
-
 attribute 'platform_name',
   :description => 'Platform Name',
   :default => 'zookeeper',
@@ -217,18 +197,8 @@ attribute 'platform_name',
     :help => 'Platform Name',
     :category => '3.Zookeeper',
     :filter => {'all' => {"visible" => "zk_select:eq:InternalEnsemble-SameAssembly"}},
-    :order => 21
+    :order => 19
   }
-
-# attribute 'memberid',
-#   :description => 'Member Id',
-#   :grouping => 'bom',
-#   :format => {
-#       :help => 'Unique Id of the Etcd member',
-#       :important => true,
-#       :category => '4.Identity',
-#       :order => 24
-#   }
 
 
 recipe "addreplica",
