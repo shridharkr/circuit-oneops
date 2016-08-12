@@ -24,14 +24,19 @@ module Couchbase
                 first_couchbase_node = @data["workorder"]["payLoad"]["DependsOn"][0]
 
                 compute_nodes.each do |node|
-                    if node["rfcAction"] != "add"
+                  if node["rfcAction"] != "add"
+                    if node['ciAttributes'].has_key?("public_ip") && !node['ciAttributes']['public_ip'].empty?
+	              ip_address=node['ciAttributes']["public_ip"]
+		    else
+		      ip_address=node['ciAttributes']["private_ip"]
+		    end
 
-                        return {
-                            "ip" => node["ciAttributes"]["private_ip"],
+                    return {
+                            "ip" => ip_address,
                             "adminuser" => first_couchbase_node["ciAttributes"]["adminuser"],
                             "adminpassword" => first_couchbase_node["ciAttributes"]["adminpassword"]
                         }
-                    end
+                  end
 
                 end
                 # must be creating cluster or updating it

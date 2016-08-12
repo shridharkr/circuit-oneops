@@ -19,8 +19,7 @@ module Couchbase
 
         # cm is dynamic payload defined in the pack to get the resources
         if (@data.workorder.payLoad.has_key?('cm'))
-
-          cm = @data.workorder.payLoad.cm.select { |c| c['ciClassName'] == 'Couchbase' }.first
+          cm = @data.workorder.payLoad.cm.select { |c| c['ciClassName'].split('.').last == 'Couchbase' }.first
 
           attributes = cm["ciAttributes"]
           @username = attributes["adminuser"]
@@ -28,7 +27,7 @@ module Couchbase
           @port = attributes["port"]
 
         else
-          cb = @data.workorder.payLoad.DependsOn.select { |c| c['ciClassName'] == 'Couchbase' }.first
+          cb = @data.workorder.payLoad.DependsOn.select { |c| c['ciClassName'].split('.').last == 'Couchbase' }.first
 
           attributes = cb["ciAttributes"]
           @username = attributes["adminuser"]
@@ -38,18 +37,21 @@ module Couchbase
 
         @nodes=@data.workorder.payLoad.ManagedVia
         @nodes.each { |node|
-          if node['ciAttributes'].has_key?("public_ip")
+          if node['ciAttributes'].has_key?("public_ip") && !node['ciAttributes']['public_ip'].empty?
             ip=node['ciAttributes']["public_ip"]
-            begin
-              @cluster = Couchbase::CouchbaseCluster.new(ip, @username, @password)
-              if @cluster.list_nodes.length > 0
-                break
-              end
-            rescue Exception => e
-              Chef::Log.warn "NODE:#{ip} #{e.message}"
+	  else
+            ip=node['ciAttributes']["private_ip"]
+	  end
+          
+	  begin
+            @cluster = Couchbase::CouchbaseCluster.new(ip, @username, @password)
+            if @cluster.list_nodes.length > 0
+              break
             end
-
+          rescue Exception => e
+            Chef::Log.warn "NODE:#{ip} #{e.message}"
           end
+
         }
 
       end
@@ -190,8 +192,8 @@ module Couchbase
         logs='Logs uploaded to https://s3.amazonaws.com/customers.couchbase.com/walmartlabs/ -'
 
         @nodes.each do |node|
-          if node['ciAttributes'].has_key?("public_ip")
-            logs += collect_cb_log(node['ciAttributes']["public_ip"]) + ' '
+          if node['ciAttributes'].has_key?("private_ip")
+            logs += collect_cb_log(node['ciAttributes']["private_ip"]) + ' '
           end
         end
         Chef::Log.info logs
@@ -338,7 +340,7 @@ module Couchbase
       def check_for_nodes_mismatch
 
         # Get list of nodes in OneOps
-        workorder_nodes=@nodes.map{ |n| n['ciAttributes']['public_ip'] }.sort
+        workorder_nodes=@nodes.map{ |n| n['ciAttributes']['private_ip'] }.sort
         # Get list of nodes in Couchbase cluster
         list_nodes=@cluster.list_nodes.map{ |n| n.fetch(:ip) }.sort
 
@@ -375,7 +377,7 @@ module Couchbase
           return
         end
 
-        oo_bucket = @data.workorder.payLoad.cb_buckets.select { |c| c['ciClassName'] == 'Bucket' }.map { |oneops_bucket| oneops_bucket['ciAttributes']['bucketname'] }.sort
+        oo_bucket = @data.workorder.payLoad.cb_buckets.select { |c| c['ciClassName'].split('.').last == 'Bucket' }.map { |oneops_bucket| oneops_bucket['ciAttributes']['bucketname'] }.sort
         cluster_bucket = @cluster.list_buckets.sort
         Chef::Log.info "check_for_buckets_mismatch: Bucket in Couchbase cluster = #{cluster_bucket.join(', ')}"
 
@@ -405,7 +407,7 @@ module Couchbase
         computes = Hash.new
 
         @nodes.each do |compute_node|
-          computes[compute_node['ciAttributes']['public_ip']] = compute_node['ciAttributes']['hypervisor']
+          computes[compute_node['ciAttributes']['private_ip']] = compute_node['ciAttributes']['hypervisor']
         end
 
         duplicates = computes.group_by { |compute| compute[1] }.values.select { |compute| compute.size > 1 }.flatten
