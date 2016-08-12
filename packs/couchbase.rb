@@ -157,6 +157,325 @@ resource 'couchbase-cluster',
 
          }
 
+resource 'diagnostic-cache',
+         :cookbook => 'oneops.1.diagnostic_cache',
+         :design => true,
+         :requires => {'constraint' => '1..1'},
+         :attributes => {
+             'username' => 'app',
+             'description' => 'Disgnotic-Cache',
+             'home_directory' => '/app/',
+             'system_account' => true,
+             'sudoer' => true,
+             'adminuser' => 'Administrator',
+             'adminpassword' => 'password'
+         },
+         :payloads => {
+             'dc' => {
+                 'description' => 'Diagnostic',
+                 'definition' => '{
+                 "returnObject": false,
+                 "returnRelation": false,
+                 "relationName": "bom.DependsOn",
+                 "direction": "from",
+                 "targetClassName": "bom.oneops.1.Compute",
+                 "relations": [
+                   { "returnObject": true,
+                     "returnRelation": false,
+                     "relationName": "bom.DependsOn",
+                     "direction": "to",
+                     "targetClassName": "bom.oneops.1.Couchbase"
+                   }
+                  ]
+               }'
+             },
+             'cb_cmp' => {
+                 'description' => 'Get Computes for Couchbase',
+                 'definition' => '{
+                 "returnObject": false,
+                 "returnRelation": false,
+                 "relationName": "bom.DependsOn",
+                 "direction": "from",
+                 "targetClassName": "bom.oneops.1.Compute",
+                 "relations": [
+                   { "returnObject": false,
+                     "returnRelation": false,
+                     "relationName": "bom.DependsOn",
+                     "direction": "to",
+                     "targetClassName": "bom.oneops.1.Couchbase",
+                     "relations": [ 
+                       { "returnObject": false, 
+                         "returnRelation": false, 
+                         "relationName": "bom.DependsOn", 
+                         "direction": "to", 
+                         "targetClassName": "bom.oneops.1.Ring", 
+                         "relations": [ 
+                           { "returnObject": false, 
+                             "returnRelation": false, 
+                             "relationName": "bom.DependsOn", 
+                             "direction": "from",
+                             "targetClassName": "bom.oneops.1.Couchbase",
+                             "relations": [ 
+                               { "returnObject": true, 
+                                 "returnRelation": false, 
+                                 "relationName": "bom.DependsOn", 
+                                 "direction": "from",
+                                 "targetClassName": "bom.oneops.1.Couchbase"
+                               }
+                             ]
+                           } 
+                         ]
+                       }
+                     ]
+                    }
+                  ]
+                 }'
+             }
+         },
+         :monitors => {
+             'client-interface-port' => {
+                 :description => 'Client Interface Port',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_client_interface!#{cmd_options[:host]}!#{cmd_options[:port]}!#{cmd_options[:critical]}!#{cmd_options[:wait]}',
+                 :cmd_line => '/opt/nagios/libexec/check_port.pl  -h $ARG1$ -p $ARG2$ -c $ARG3$ -w $ARG4$ -v',
+                 :cmd_options => {
+                     'host' => 'localhost',
+                     'port' => '11211',
+                     'critical' => '1.0',
+                     'wait' => '0.5'
+                 },
+                 :metrics => {
+                     'port_open' => metric(:unit => '', :description => 'Port Open', :dstype => 'GAUGE'),
+                     'rta' => metric(:unit => '', :description => 'Response Time Avg', :dstype => 'GAUGE'),
+                     'critical_response' => metric(:unit => '', :description => 'Critical Response Time', :dstype => 'GAUGE'),
+                 },
+                 :thresholds => {
+                     'CriticalExceptions' => threshold('1m', 'avg', 'critical_response', trigger('>=', 1, 5, 1), reset('<', 1, 5, 1)),
+                 }
+
+             },
+             'internal-cluster-port' => {
+                 :description => 'Internal Cluster Port',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_client_interface!#{cmd_options[:host]}!#{cmd_options[:port]}!#{cmd_options[:critical]}!#{cmd_options[:wait]}',
+                 :cmd_line => '/opt/nagios/libexec/check_port.pl  -h $ARG1$ -p $ARG2$ -c $ARG3$ -w $ARG4$ -v',
+                 :cmd_options => {
+                     'host' => 'localhost',
+                     'port' => '11210',
+                     'critical' => '1.0',
+                     'wait' => '0.5'
+                 },
+                 :metrics => {
+                     'port_open' => metric(:unit => '', :description => 'Port Open', :dstype => 'GAUGE'),
+                     'rta' => metric(:unit => '', :description => 'Response Time Avg', :dstype => 'GAUGE'),
+                     'critical_response' => metric(:unit => '', :description => 'Critical Response Time', :dstype => 'GAUGE'),
+                 },
+                 :thresholds => {
+                     'CriticalExceptions' => threshold('1m', 'avg', 'critical_response', trigger('>=', 1, 5, 1), reset('<', 1, 5, 1)),
+                 }
+
+             },
+             'cb-admin-console' => {
+                 :description => 'Couchbase Admin Console',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_admin_console!#{cmd_options[:host]}!#{cmd_options[:port]}!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::!#{cmd_options[:wait]}!#{cmd_options[:critical]}',
+                 :cmd_line => '/opt/nagios/libexec/check_http_admin_console.sh $ARG1$ $ARG2$ /pools $ARG3$ $ARG4$ $ARG6$  $ARG5$  "HTTP/1.1 200"',
+                 :cmd_options => {
+                     'host' => 'localhost',
+                     'port' => '8091',
+                     'critical' => '10',
+                     'wait' => '5.0',
+                 },
+                 :metrics =>  {
+                     'time'   => metric( :unit => '', :description => 'Response Time', :dstype => 'GAUGE'),
+                     'size'   => metric( :unit => '', :description => 'Size', :dstype => 'GAUGE', :display => false),
+                     'critical_response' => metric(:unit => '', :description => 'Critical Response Time', :dstype => 'GAUGE'),
+                 },
+                 :thresholds => {
+                     'TimeExceptions' => threshold('1m', 'avg', 'time', trigger('>=', 6, 10, 1), reset('<', 6, 1, 1)),
+                     'CriticalExceptions' => threshold('1m', 'avg', 'critical_response', trigger('>=', 1, 5, 1), reset('<', 1, 5, 1)),
+                 }
+             },
+             'cluster-node-size' => {
+                 :description => 'Cluster Node Size',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_node_size!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
+                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
+                 :metrics => {
+                     'cluster_node_size' => metric(:unit => '', :description => 'cluster_node_size', :dstype => 'GAUGE'),
+                 },
+                 :thresholds => {
+                 }
+
+             },
+             'rebalance-status' => {
+                 :description => 'Rebalance Status',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_rebalance!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
+                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
+                 :metrics => {
+                     'rebalance' => metric(:unit => '', :description => 'Rebalance Running Status', :dstype => 'GAUGE'),
+                     'rebalance_failed' => metric(:unit => '', :description => 'Rebalance Failed', :dstype => 'GAUGE'),
+                 },
+                 :thresholds => {
+                 }
+
+             },
+             'node-status' => {
+                 :description => 'Node Status',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_node_status!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
+                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
+                 :metrics => {
+                     'unhealthy_node_status' => metric(:unit => '', :description => 'Unhealthy Node Status', :dstype => 'GAUGE'),
+                     'unhealthy_node_cluster_membership' => metric(:unit => '', :description => 'Unhealthy Node Cluster Membership', :dstype => 'GAUGE'),
+                     'unable_to_connect_to_node' => metric(:unit => '', :description => 'Unable To Connect To Node', :dstype => 'GAUGE'),
+                 },
+                 :thresholds => {
+                     'UnhealthyNodeStatusExceptions' => threshold('1m', 'avg', 'unhealthy_node_status', trigger('>=', 1, 5, 1), reset('<', 1, 5, 1), 'unhealthy'),
+                     'NodeConnectExceptions' => threshold('1m', 'avg', 'unable_to_connect_to_node', trigger('>=', 1, 5, 1), reset('<', 1, 5, 1), 'unhealthy'),
+                     'UnhealthyNodeClusterMembershipExceptions' => threshold('1m', 'avg', 'unhealthy_node_cluster_membership', trigger('>=', 1, 5, 1), reset('<', 1, 5, 1), 'unhealthy'),
+                 }
+
+             },
+             'writing-data-to-disk-failed' => {
+                 :description => 'Writing Data to Disk Failed',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
+                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
+                 :metrics => {
+                     'writing_data_to_disk_failed' => metric(:unit => '%', :description => 'Writing data to disk for a specific bucket has failed', :dstype => 'GAUGE'),
+                 },
+                 :thresholds => {
+                     'WritingDataToDiskFailedExceptions' => threshold('1m', 'avg', 'writing_data_to_disk_failed', trigger('>=', 1, 5, 1), reset('<', 1, 5, 1)),
+                 }
+
+             },
+             'metadata-overhead' => {
+                 :description => 'Metadata Overhead',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
+                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
+                 :metrics => {
+                     'metadata_overhead' => metric(:unit => '%', :description => 'Metadata Overhead', :dstype => 'GAUGE'),
+                 },
+                 :thresholds => {
+                     'MetadataOverheadOneHundredExceptions' => threshold('1m', 'avg', 'metadata_overhead', trigger('>=', 100, 5, 1), reset('<', 100, 5, 1)),
+                     'MetadataOverheadFiftyExceptions' => threshold('1m', 'avg', 'metadata_overhead', trigger('>=', 50, 5, 1), reset('<', 50, 5, 1)),
+                 }
+
+             },
+             'disk-space-used' => {
+                 :description => 'Disk Space Used',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
+                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
+                 :metrics => {
+                     'disk_space_used' => metric(:unit => '%', :description => 'Disk Space Used', :dstype => 'GAUGE'),
+                 },
+                 :thresholds => {
+                     'DiskSpaceExceptions' => threshold('1m', 'avg', 'disk_space_used', trigger('>=', 90, 5, 1), reset('<', 90, 5, 1)),
+
+                 }
+
+             },
+             'cache-miss-ratio' => {
+                 :description => 'Cache Miss Ratio',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_cache_miss_ratio!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
+                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
+                 :metrics => {
+                     # 'resident_item_ratio' => metric(:unit => '%', :description => 'Resident Item Ratio', :dstype => 'GAUGE'),
+                     'cache_miss_ratio' => metric(:unit => '%', :description => 'Cache Miss Ratio', :dstype => 'GAUGE'),
+                     # 'replica_resident_ratio' => metric(:unit => '%', :description => 'Replica Resident Ratio', :dstype => 'GAUGE'),
+                 },
+                 :thresholds => {
+                     'HighCacheMissRatio' => threshold('5m', 'avg', 'cache_miss_ratio', trigger('>', 50, 5, 1), reset('<', 50, 5, 1)),
+                 }
+             },
+             'disk_read_write' => {
+                 :description => 'Disk Read/Write',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
+                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
+                 :metrics => {
+                     'disk_write_queue' => metric(:unit => '', :description => 'Disk Write Queue', :dstype => 'GAUGE'),
+                     'disk_read_per_sec' => metric(:unit => '', :description => 'Disk Read per Second', :dstype => 'GAUGE'),
+                 },
+                 :thresholds => {
+                     'HighDiskWriteQueue' => threshold('5m', 'avg', 'disk_write_queue', trigger('>', 1000, 5, 1), reset('<', 1000, 5, 1)),
+                     'HighDiskRead' => threshold('5m', 'avg', 'disk_read_per_sec', trigger('>', 10, 5, 1), reset('<', 10, 5, 1)),
+                 }
+             },
+             'replica_ejection_per_sec' => {
+                 :description => 'Ejection per Second',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
+                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
+                 :metrics => {
+                     'replica_ejection_per_sec' => metric(:unit => '', :description => 'Replica Ejection per Second', :dstype => 'GAUGE'),
+                     'active_ejection_per_sec' => metric(:unit => '', :description => 'Active Ejection per Second', :dstype => 'GAUGE'),
+                 },
+                 :thresholds => {
+                     'HighReplicaEjection' => threshold('5m', 'avg', 'replica_ejection_per_sec', trigger('>', 1, 5, 1), reset('<', 1, 5, 1)),
+                     'HighActiveEjection' => threshold('5m', 'avg', 'active_ejection_per_sec', trigger('>', 1, 5, 1), reset('<', 1, 5, 1)),
+                 }
+             },
+             'temp_oom_per_sec' => {
+                 :description => 'Temp OOM per second',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
+                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
+                 :metrics => {
+                     'temp_oom_per_sec' => metric(:unit => '', :description => 'Temp OOM per second', :dstype => 'GAUGE'),
+                 },
+                 :thresholds => {
+                     'HighTempOOM' => threshold('5m', 'avg', 'temp_oom_per_sec', trigger('>', 3, 5, 1), reset('<', 3, 5, 1)),
+                 }
+             },
+             'doc_resident' => {
+                 :description => 'Docs Resident in RAM',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
+                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
+                 :metrics => {
+                     'replica_doc_resident' => metric(:unit => '%', :description => 'Replica resident % - Percentage of replicas in RAM.', :dstype => 'GAUGE'),
+                     'active_doc_resident' => metric(:unit => '%', :description => 'Active docs resident % - Percentage of docs in RAM', :dstype => 'GAUGE'),
+                 },
+                 :thresholds => {
+                     'HighReplicaDocResident' => threshold('5m', 'avg', 'replica_doc_resident', trigger('<', 100, 5, 1), reset('=', 100, 5, 1)),
+                     'HighActiveDocResident' => threshold('5m', 'avg', 'active_doc_resident', trigger('<', 100, 5, 1), reset('=', 100, 5, 1)),
+                 }
+             },
+             'shared_hypervisor_count' => {
+                 :description => 'Shared Hypervisor Count',
+                 :source => '',
+                 :chart => {'min' => 0, 'unit' => ''},
+                 :cmd => 'check_shared_hypervisor!',
+                 :cmd_line => '/opt/nagios/libexec/check_shared_hypervisor.rb',
+                 :metrics => {
+                     'shared_hypervisor_count' => metric(:unit => '', :description => 'Shared Hypervisor Count - The number of other Couchbase nodes in this cluster sharing this hypervisor', :dstype => 'GAUGE')
+                 },
+                 :thresholds => {
+                     'SharedHypervisorCount' => threshold('5m', 'avg', 'shared_hypervisor_count', trigger('>=', 1, 5, 1), reset('<', 1, 5, 1))
+                 }
+             }
+         }
+
 # overwrite volume and filesystem from generic_ring with new mount point
 resource 'volume',
          :requires => {'constraint' => '1..1', 'services' => 'compute'},
@@ -180,6 +499,8 @@ resource "secgroup",
 
 # depends_on
 [{:from => 'user-app',  :to => 'compute'},
+ {:from => 'diagnostic-cache',  :to => 'compute'},
+ {:from => 'diagnostic-cache', :to => 'user-app'},
  {:from => 'couchbase', :to => 'user-app'},
  {:from => 'couchbase', :to => 'compute'},
  {:from => 'couchbase', :to => 'volume'},
@@ -227,7 +548,7 @@ relation "bucket::depends_on::couchbase",
          :attributes    =>{"flex" => false}
 
 # managed_via
-['user-app', 'couchbase', 'bucket', 'couchbase-cluster', 'build'].each do |from|
+['user-app', 'diagnostic-cache', 'couchbase', 'bucket', 'couchbase-cluster', 'build'].each do |from|
   relation "#{from}::managed_via::compute",
            :except => ['_default'],
            :relation_name => 'ManagedVia',
