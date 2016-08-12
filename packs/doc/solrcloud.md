@@ -1,7 +1,7 @@
 # SolrCloud Cookbook
 
 
-SolrCloud Pack is a platform service that makes it easy to set up, manage, deploy, operate and scale solrcloud as a search solution for your we application in walmart private and public clouds. You can set up and configure your Solrcloud cluster in minutes from the ONEOPS and enables you to monitor and resize your cluster up or down. As your volume of data and traffic fluctuates, the pack automatically scales to meet the rapidly scaling search requirements. The pack monitors the solution to ensure that a) it has sufficient resources, and that b) it isn’t consuming too many resources. With the Walmart SolrCloud platform you don’t have to manage multiple pieces of software, manually configure, design a replication and high-availability strategy, provision hardware, scale your search engine, or recover failed nodes. The environment is automatically kept up-to-date and provide maintenance and support of the solution and reduces the the time to configure and implement the SolrCloud search solution.
+SolrCloud Pack is a platform service that makes it easy to set up, manage, deploy, operate and scale solrcloud as a search solution for your web application in private and public clouds. You can set up and configure your Solrcloud cluster in minutes from the ONEOPS and enables you to monitor and resize your cluster up or down. As your volume of data and traffic fluctuates, the pack automatically scales to meet the rapidly scaling search requirements. The pack monitors the solution to ensure that a) it has sufficient resources, and that b) it isn’t consuming too many resources. With the SolrCloud platform you don’t have to manage multiple pieces of software, manually configure, design a replication and high-availability strategy, provision hardware, scale your search engine, or recover failed nodes. The environment is automatically kept up-to-date and provide maintenance and support of the solution and reduces the the time to configure and implement the SolrCloud search solution.
 
 
 Apache Solrcloud is an open source enterprise search platform, written in Java. SolrCloud Pack installs any version of the apache solrcloud ( 4.x.x, 5.x.x, 6.0.0 ). The solrcloud pack installs solr as a war in a tomcat web container for 4.x.x versions and as a standalone server for 5.x.x , 6.x.x versions etc.
@@ -40,7 +40,7 @@ Please note that the actions in the operation phase are not used for the solrclo
 # Installation Steps
 
 * Create an Assembly
--- GoTo https://oneops.prod.walmart.com and create assembly .
+-- GoTo oneops web link and create assembly .
 #### Design Phase
  * Add a "New Platform".
  * Choose "SolrCloud" pack in "walmartLabs" pack source. Save and Commit the design.
