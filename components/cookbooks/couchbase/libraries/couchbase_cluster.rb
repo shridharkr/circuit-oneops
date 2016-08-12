@@ -13,7 +13,6 @@ module Couchbase
       @password = password
       @cli=Couchbase::CouchbaseCLI.new(ip, user, password)
       @rest=Couchbase::CouchbaseREST.new(ip, user, password)
-
       begin
         list_buckets
       rescue Exception => e
