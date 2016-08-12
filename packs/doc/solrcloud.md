@@ -43,7 +43,7 @@ Please note that the actions in the operation phase are not used for the solrclo
 -- GoTo oneops web link and create assembly .
 #### Design Phase
  * Add a "New Platform".
- * Choose "SolrCloud" pack in "walmartLabs" pack source. Save and Commit the design.
+ * Choose "SolrCloud" from the pack source. Save and Commit the design.
  * Click on the "solrcloud" component .
  * Click on the "user-app" Component and add the developers ssh keys.
 
