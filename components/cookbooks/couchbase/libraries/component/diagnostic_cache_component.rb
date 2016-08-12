@@ -7,7 +7,7 @@ module Couchbase
 
         # dc is dynamic payload defined in the pack to get the resources
         if (@data.workorder.payLoad.has_key?('dc'))
-          dc = @data.workorder.payLoad.dc.select { |c| c['ciClassName'] == 'Couchbase' }.first
+          dc = @data.workorder.payLoad.dc.select { |c| c['ciClassName'].split('.').last == 'Couchbase' }.first
   
           attributes = dc["ciAttributes"]
           @username = attributes["adminuser"]
@@ -27,8 +27,8 @@ module Couchbase
         end
         
         @nodes.each { |node|
-          if node['ciAttributes'].has_key?("public_ip")
-            ip=node['ciAttributes']["public_ip"]
+          if node['ciAttributes'].has_key?("private_ip")
+            ip=node['ciAttributes']["private_ip"]
             begin
               @cluster = Couchbase::CouchbaseCluster.new(ip, @username, @password)
               if @cluster.list_nodes.length > 0
