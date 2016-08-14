@@ -216,10 +216,15 @@ lbs.each do |lb|
       server_name = compute["ciAttributes"]["instance_name"]
     end
 
+    port = lb[:iport]
+    if lb[:iport] == 'all'
+      port = '*'
+    end
+    
     req = {"servicegroup_servicegroupmember_binding" => {
              "servicegroupname" => sg_name,
              "servername" => server_name,
-             "port" => lb[:iport]
+             "port" => port
              }
            }
 

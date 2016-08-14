@@ -1,11 +1,11 @@
 # Flanneld configuration options  
 
 # etcd url location.  Point this to the server where etcd runs
-FLANNEL_ETCD="<%= node.set['etcd']['servers'] %>"
+FLANNEL_ETCD="<%= node.etcd.servers %>"
 
 # etcd config key.  This is the configuration key that flannel queries
 # For address range assignment
-FLANNEL_ETCD_KEY="/atomic.io/network"
+FLANNEL_ETCD_KEY="/docker-flannel/network"
 
 # Any additional options that you want to pass
 #FLANNEL_OPTIONS=""

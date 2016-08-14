@@ -17,25 +17,6 @@ include_recipe 'kubernetes::firewall'
 include_recipe 'kubernetes::go'
 include_recipe 'kubernetes::install'
 
-kubelet_args_value = ''
-if node.kubernetes.has_key?("kubelet_args")
-  kubelet_args = JSON.parse(node.kubernetes.kubelet_args)
-  kubelet_args.each_pair do |k,v|
-    Chef::Log.info("setting kubelet arg: --#{k}=#{v}")
-    kubelet_args_value += " --#{k}=#{v}"
-  end
-end
-node.set['kube']['kubelet']['args'] = kubelet_args_value
-  
-proxy_args_value = ''
-if node.kubernetes.has_key?("proxy_args")
-  proxy_args = JSON.parse(node.kubernetes.proxy_args)
-  proxy_args.each_pair do |k,v|
-    Chef::Log.info("setting proxy arg: --#{k}=#{v}")
-    proxy_args_value += " --#{k}=#{v}"
-  end
-end
-node.set['kube']['proxy']['args'] = proxy_args_value  
 
 # generate kubernetes config file
 %w(config kubelet proxy).each do |file|

@@ -169,7 +169,7 @@ module Etcd
       return full_hostname
     end
     
-    def get_cloud_fqdn(ip)
+    def get_fqdn(ip, platform_level)
       full_hostname = get_full_hostname(ip)
       # full_hostname is the cloud-level and instance-level FQDN
       # but we need to use cloud-level FQDN to connect to the Etcd running in (primary or secondary) clouds
@@ -178,24 +178,28 @@ module Etcd
       # (2) add the platform name in front
       arr = full_hostname.split(".")[1..-1]
       platform_name = node.workorder.box.ciName
+      
+      # if platfor_level = true, drop cloud info (e.g. dfwiaas4) from cloud-level domain
+      if platform_level == true
+        arr.delete_at(3)
+      end
+      
       cloud_fqdn = [platform_name, arr.join(".")].join(".")
-      Chef::Log.info("cloud_fqdn: #{cloud_fqdn}")
+      Chef::Log.info("fqdn: #{cloud_fqdn}")
       return cloud_fqdn
     end
     
-    def depend_on_fqdn_ptr?
+    def depend_on_hostname_ptr?
       # if etcd depends on hostname/fqdn componenet with PTR enabled
       depend_on_fqdn_ptr = false
       node.workorder.payLoad[:DependsOn].each do |dep|
         if dep["ciClassName"] =~ /Fqdn/
-          #Chef::Log.info("ciBaseAttributes content: "+dep["ciBaseAttributes"].inspect.gsub("\n"," "))
-          #Chef::Log.info("ciAttributes content: "+dep["ciAttributes"].inspect.gsub("\n"," "))
           if !dep["ciBaseAttributes"].nil? && !dep["ciBaseAttributes"].empty?
             hash = dep["ciBaseAttributes"]
           else
             hash = dep["ciAttributes"]
           end
-
+                
           if hash["ptr_enabled"] == "true"
             depend_on_fqdn_ptr = true
             Chef::Log.info("depend_on_fqdn_ptr")
@@ -203,9 +207,8 @@ module Etcd
           end
         end
       end
-      return depend_on_fqdn_ptr
+    return depend_on_fqdn_ptr
     end
-  
   end
 
 end

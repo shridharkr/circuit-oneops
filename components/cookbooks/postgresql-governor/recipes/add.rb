@@ -85,18 +85,6 @@ else
   # just want to set some value for key `/service/postgres/initialize` to avoid unclean leader takeover
   # the value of `/service/postgres/initialize/` is not important
   client.set('/service/postgres/initialize', value: ciName)
-  
-  fqdn_resolv = `host #{node[:platform_fqdn]} | awk '{ print $NF }'`.split("\n")
-  Chef::Log.info("fqdn_resolv: #{fqdn_resolv.to_s}")
-  while true
-    if fqdn_resolv.length > 1
-      Chef::Log.info("platform FQDN are resolved into more than 1 IPs.")
-      sleep(5)
-      fqdn_resolv = `host #{node[:platform_fqdn]} | awk '{ print $NF }'`.split("\n")
-    else
-      break;
-    end
-  end
 
 end
 

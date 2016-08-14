@@ -81,9 +81,12 @@ local   all         all                               ident
 host    all         all         0.0.0.0/0          md5
 # IPv6 local connections:
 host    all         all         ::1/128               md5
-<% node[:postgresql][:slave_ips].each do |slave_ip|
-   if !slave_ip.nil? && !slave_ip.empty? %>
-host   replication    replicator    <%= slave_ip %>/32        trust
-<% 
-  end
-end %>
+<% if node[:postgresql][:strict_replicators] == 'false' %>
+host    replication    replicator    0.0.0.0/0    trust
+<% else 
+     node[:postgresql][:slave_ips].each do |slave_ip|
+       if !slave_ip.nil? && !slave_ip.empty? %>
+host    replication    replicator    <%= slave_ip %>/32        trust
+<%     end
+     end
+   end %>

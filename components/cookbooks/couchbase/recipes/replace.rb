@@ -1,8 +1,17 @@
+#
+# Kloopz 2013 - All Rights Reserved - Do not distribute
+#
 
 ci = node.workorder.rfcCi.ciAttributes
 cloud_name = node.workorder.cloud.ciName
 cookbook_name = node.app_name.downcase
+final_version = ci['version']
+final_edition = 'enterprise'
 
+if (ci['version'].include?('community'))
+  final_version = ci['version'].gsub('community_','')
+  final_edition = 'community'
+end
 
 couchbase_app_server "execute_prerequisites" do
   action :prerequisites
@@ -13,8 +22,8 @@ a_cloud_mirrors = node[:workorder][:services][:mirror][cloud_name][:ciAttributes
 
 
 couchbase_app_server "download_pack_install_couchbase" do
-  version           ci['version']
-  edition           ci['edition']
+  version           final_version
+  edition           final_edition
   arch              ci['arch']
   sha256            ci['checksum']
   distributionurl   ci['distributionurl']
@@ -60,7 +69,7 @@ couchbase_cluster "waiting_on_init_cluster" do
 end
 
 couchbase_server_hotfix "apply_cb_hotfix_220" do
-  version           ci['version']
+  version           final_version
   sha256            ci['checksum']
   cbhotfix_220_url  node["couchbase"]["cbhotfix_220_url"]
   user              ci['adminuser']

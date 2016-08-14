@@ -14,7 +14,7 @@
 def get_node_ips
   ips = []
   node.workorder.payLoad.ManagedVia.each do |n|
-    ips.push(n[:ciAttributes]['public_ip'])
+    ips.push(n[:ciAttributes]['priviate_ip'])
   end
   ips
 end
@@ -24,7 +24,7 @@ end
 ##
 def get_couchbase_attributes
   array = node.workorder.payLoad.DependsOn.reject do |d|
-    d['ciClassName'] !~ /Couchbase/
+    d['ciClassName'].split('.').last != 'Couchbase'
   end
   array.first[:ciAttributes]
 end
@@ -36,7 +36,7 @@ def get_cluster
   array = node.workorder.payLoad.ManagedVia.reject do |d|
     d['isActiveInRelease']
   end
-  array.first[:ciAttributes]['public_ip']
+  array.first[:ciAttributes]['private_ip']
 end
 
 cluster = get_cluster
