@@ -50,6 +50,7 @@ ruby_block 'ssh cmds' do
       ip = node.ip
     end
 
+    node.set[:oneops_user] = user
     node.set[:ssh_key_file] = ssh_key_file
     node.set[:ssh_cmd] = "ssh -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
     node.set[:ssh_interactive_cmd] = "ssh -t -t -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "

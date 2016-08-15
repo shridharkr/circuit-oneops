@@ -124,6 +124,13 @@ ruby_block 'install base' do
     if os_type !~ /windows/
       install_base = "components/cookbooks/compute/files/default/install_base.sh"
       cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + "\"#{sudo}#{sub_circuit_dir}/#{install_base} #{args}\""
+
+      Chef::Log.info("Executing Command: #{cmd}")
+      result = shell_out(cmd)
+
+      Chef::Log.debug("#{cmd} returned: #{result.stdout}")
+      result.error!
+
     else
       # install base: oneops user, ruby, chef, nagios
 
@@ -142,15 +149,36 @@ ruby_block 'install base' do
 
       install_base = "components/cookbooks/compute/files/default/install_base.ps1"
       install_cmd = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File #{sub_circuit_dir}/#{install_base} -proxy '#{proxy}' -chocoRepo '#{choco_repo}' -gemRepo '#{gem_repo}' "
-      # cmd = node.ssh_cmd_windows.gsub("IP",node.ip) + install_cmd
       cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + install_cmd
+
+      Chef::Log.info("Executing Command: #{cmd}")
+      result = shell_out(cmd)
+
+      Chef::Log.debug("#{cmd} returned: #{result.stdout}")
+      result.error!
+
+
+      user = node.oneops_user
+      sudo_file = "/home/#{user}/circuit-oneops-1/components/cookbooks/compute/files/default/sudo"
+      sudo_cmd = "cp #{sudo_file} /usr/bin "
+
+      cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + sudo_cmd
+      Chef::Log.info("Executing Command: #{cmd}")
+      result = shell_out(cmd)
+
+      Chef::Log.debug("#{cmd} returned: #{result.stdout}")
+      result.error!
+
+
+      sudo_cmd = "chmod +x /usr/bin/sudo"
+      cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + sudo_cmd
+      Chef::Log.info("Executing Command: #{cmd}")
+      result = shell_out(cmd)
+
+      Chef::Log.debug("#{cmd} returned: #{result.stdout}")
+      result.error!
+
     end
-
-    Chef::Log.info("Executing Command: #{cmd}")
-    result = shell_out(cmd)
-
-    Chef::Log.debug("#{cmd} returned: #{result.stdout}")
-    result.error!
 
 
     cmd = node.ssh_cmd.gsub("IP",node.ip) + "\"grep processor /proc/cpuinfo | wc -l\""
