@@ -65,9 +65,10 @@ module AzureNetwork
         puts("operation took #{duration} seconds")
         return result
       rescue  MsRestAzure::AzureOperationError =>e
-        puts("Error getting LoadBalancer '#{load_balancer_name}' in ResourceGroup '#{resource_group_name}' ")
-        puts("Error Response: #{e.response}")
-        puts("Error Body: #{e.body}")
+        OOLog.info("Error getting LoadBalancer '#{load_balancer_name}' in ResourceGroup '#{resource_group_name}' ")
+        OOLog.info("Error Code: #{e.body['error']['code']}")
+        OOLog.info("Error Message: #{e.body['error']['message']}")
+
         result = Azure::ARM::Network::Models::LoadBalancer.new
         return result
       end
@@ -89,10 +90,11 @@ module AzureNetwork
         puts("operation took #{duration} seconds")
         return result
       rescue  MsRestAzure::AzureOperationError =>e
-        puts("Error creating/updating load balancer '#{load_balancer_name}'")
-        puts("Error Response: #{e.response}")
-        puts("Error Body: #{e.body}")
-        raise e
+        msg = "Error Code: #{e.body['error']['code']}"
+        msg += "Error Message: #{e.body['error']['message']}"
+        OOLog.fatal("Error creating/updating load balancer '#{load_balancer_name}'. #{msg} ")
+      rescue => ex
+        OOLog.fatal("Error creating/updating load balancer '#{load_balancer_name}'. #{ex.message} ")
       end
     end
 
@@ -108,10 +110,11 @@ module AzureNetwork
         puts("operation took #{duration} seconds")
         return result
       rescue  MsRestAzure::AzureOperationError =>e
-        puts("Error deleting load balancer '#{load_balancer_name}'")
-        puts("Error Response: #{e.response}")
-        puts("Error Body: #{e.body}")
-        raise e
+        msg = "Error Code: #{e.body['error']['code']}"
+        msg += "Error Message: #{e.body['error']['message']}"
+        OOLog.fatal("Error deleting load balancer '#{load_balancer_name}'. #{msg} ")
+      rescue => ex
+        OOLog.fatal("Error deleting load balancer '#{load_balancer_name}'. #{ex.message} ")
       end
     end
 

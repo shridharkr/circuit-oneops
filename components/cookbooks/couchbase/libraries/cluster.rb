@@ -15,7 +15,11 @@ class Chef::Recipe::Cluster
     end
     
     @this_node.workorder.payLoad.cb_cmp.each do |n|
-      ip_address = n["ciAttributes"]["private_ip"]
+      if node['ciAttributes'].has_key?("public_ip") && !node['ciAttributes']['public_ip'].empty?
+	ip_address=node['ciAttributes']["public_ip"]
+      else
+        ip_address=node['ciAttributes']["private_ip"]
+      end
       action = n[:rfcAction] == 'delete' ? 'delete' : 'nothing'
       @ips.push(Chef::Recipe::Node.new(ip_address, action))
     end

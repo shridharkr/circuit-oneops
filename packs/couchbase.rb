@@ -9,9 +9,9 @@ platform :attributes => {'autoreplace' => 'false'}
 
 # Overriding the default compute
 resource 'compute',
-         :attributes => {
-           'ostype' => 'default-cloud',
-           'size' => 'M'
+         :cookbook => 'oneops.1.compute',
+         :attributes => {'ostype' => 'default-cloud',
+                         'size' => 'S'
          }
 
 resource 'user-app',
@@ -31,7 +31,7 @@ resource 'couchbase',
          :design => true,
          :requires => {'constraint' => '1..1', 'services' => 'compute,mirror'},
          :attributes => {
-             'version' => '2.5.2',
+             'version' => 'community_3.0.1',
              'port' => '8091',
              'checksum' => '',
              'arch' => 'x86_64',
@@ -49,7 +49,7 @@ resource 'couchbase',
                 "returnRelation": false, 
                 "relationName": "bom.DependsOn", 
                 "direction": "to", 
-                "targetClassName": "bom.oneops.1.Ring", 
+                "targetClassName": "bom.oneops.1.Ring",
                 "relations": [ 
                   { "returnObject": false, 
                     "returnRelation": false, 
@@ -90,13 +90,13 @@ resource 'bucket',
                  "returnRelation": false, 
                  "relationName": "bom.DependsOn", 
                  "direction": "from", 
-                 "targetClassName": "bom.oneops.1.Ring", 
+                 "targetClassName": "bom.oneops.1.Ring",
                  "relations": [ 
                    { "returnObject": true, 
                      "returnRelation": false, 
                      "relationName": "bom.DependsOn", 
                      "direction": "from",
-                     "targetClassName": "bom.oneops.1.Couchbase" 
+                     "targetClassName": "bom.oneops.1.Couchbase"
                      
                    } 
                   ] 
@@ -182,7 +182,6 @@ resource "secgroup",
 [{:from => 'user-app',  :to => 'compute'},
  {:from => 'couchbase', :to => 'user-app'},
  {:from => 'couchbase', :to => 'compute'},
- {:from => 'couchbase', :to => 'os'},
  {:from => 'couchbase', :to => 'volume'},
  {:from => 'build', :to => 'couchbase'}].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
@@ -228,7 +227,7 @@ relation "bucket::depends_on::couchbase",
          :attributes    =>{"flex" => false}
 
 # managed_via
-['user-app','couchbase','bucket','couchbase-cluster','build'].each do |from|
+['user-app', 'couchbase', 'bucket', 'couchbase-cluster', 'build'].each do |from|
   relation "#{from}::managed_via::compute",
            :except => ['_default'],
            :relation_name => 'ManagedVia',

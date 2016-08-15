@@ -4,29 +4,71 @@ require 'tempfile'
 class Chef
 	class REST
 		def streaming_request(url,headers,local_path,&block)
-      		uri = URI(url)
+			uri = URI(url)
 			chunk_minimum = 1048576 * 2  # 1 Mb * 2
 			num_chunk_max = 10          # maximum of part download in parallel
 			content_length = 0
 			accept_ranges = ""
 			parts_details = []
 
-			Net::HTTP.start(uri.host,uri.port){ |http|
-				headers = http.head(uri.path).to_hash
-				content_length = headers["content-length"][0].to_i
-				accept_ranges = headers["accept-ranges"][0]
-			}
+			headers = probe_url(url)
+			content_length = headers["content-length"][0].to_i
+			accept_ranges = (headers["accept-ranges"].nil? || headers["accept-ranges"].empty?) ? "" : headers["accept-ranges"][0]
+			remote_url = headers["location"].nil? ? url : headers["location"][0]
+			local_tmp = nil
 
-			unless (accept_ranges == "bytes") || (content_length >= chunk_minimum )
-				# doesn't support range request
-				parts_details.push({'slot' => 0, 'start' => 0, 'end' => content_length})
-			else
+		    if (accept_ranges != "bytes") || (content_length <= chunk_minimum )
+		        # doesn't support range request
+		        file="#{local_path}.tmp"
+		        download_file_single(remote_url,file)
+		        local_tmp = Tempfile.new(File.basename(local_path,".*"),File.dirname(local_path),'wb+')
+		        local_tmp.binmode
+		        local_tmp.write(File.open(file,'rb').read)
+		        local_tmp.flush
+      		else
 				# server support range request
 				parts_details = calculate_parts(content_length,num_chunk_max,chunk_minimum)
+				local_tmp = fetch(URI(remote_url),local_path,parts_details)
 			end
-
-			local_tmp = fetch(uri,local_path,parts_details)
+			local_tmp
     	end
+
+    	def probe_url(url)
+    		uri = URI(url)
+			ssl = uri.scheme == "https" ? true : false
+			headers_h = nil
+			Net::HTTP.start(uri.host,uri.port, :use_ssl => ssl){ |http|
+				url_path = !uri.query.nil? ? "#{uri.path}?#{uri.query}": uri.path
+				headers = http.head(url_path)
+				headers_h = headers.to_hash
+				if headers.code == "301" || headers.code == "307"
+					new_url = headers_h["location"]
+					headers_h = probe_url(URI(new_url[0]))
+					headers_h["location"] = new_url
+				end
+
+			}
+			headers_h
+    	end
+
+	    def download_file_single(remote_file,local_file)
+	    	Chef::Log.debug("Saving file to #{local_file}")
+	    	Chef::Log.info("Fetching file: #{remote_file}")
+	    	url_uri = URI(remote_file)
+
+	    	ssl = url_uri.scheme == "https" ? true : false
+	    	Net::HTTP.start(url_uri.host, url_uri.port,:use_ssl => ssl) do |http|
+	        	request = Net::HTTP::Get.new url_uri
+
+	        	http.request request do |response|
+	        		open local_file, 'wb' do |io|
+	            		response.read_body do |chunk|
+	            			io.write chunk
+	            		end
+	        		end
+	    		end
+	    	end
+	    end
 
 		def fetch(uri,local_path,parts,resume=false)
 			full_path = "#{uri.scheme}://#{uri.host}:#{uri.port}#{uri.path}"
@@ -36,6 +78,7 @@ class Chef
 			Chef::Log.info("Fetching in #{parts.length} parts")
 			Chef::Log.debug("Part details: #{pp parts.inspect}")
 			# todo.. resume mode
+			install_gem_output = `gem install parallel` #install parallel gem
 			require 'parallel'
 
 			download_start = Time.now
@@ -99,7 +142,8 @@ class Chef
 			Chef::Log.info("Fetching file: #{remote_file} part: #{part['slot']} Start: #{part['start']} End: #{part['end']}")
 			uri = URI(remote_file)
 
-			Net::HTTP.start(uri.host, uri.port) do |http|
+			ssl = uri.scheme == "https" ? true : false
+			Net::HTTP.start(uri.host, uri.port,:use_ssl => ssl) do |http|
 				request = Net::HTTP::Get.new uri
 				Chef::Log.debug("Requesting slot: #{part['slot']} from #{part['start']} to #{part['end']}")
 				request.add_field('Range', "bytes=#{part['start']}-#{part['end']}")

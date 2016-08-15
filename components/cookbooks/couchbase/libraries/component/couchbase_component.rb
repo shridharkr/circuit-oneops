@@ -65,7 +65,7 @@ module Couchbase
             def remove_from_cluster
 
                 @cluster = Couchbase::CouchbaseCluster.new(@ip, @username, @password)
-                outgoing_node_ip = @data.workorder.payLoad.ManagedVia.first.ciAttributes.public_ip
+                outgoing_node_ip = @data.workorder.payLoad.ManagedVia.first.ciAttributes.private_ip
                 servers = []
                 begin
                   servers = @cluster.list_servers
@@ -107,11 +107,11 @@ module Couchbase
                   return
                 end
                                   
-                incoming_node_ip = @data.workorder.payLoad.ManagedVia.first.ciAttributes.public_ip
+                incoming_node_ip = @data.workorder.payLoad.ManagedVia.first.ciAttributes.private_ip
 
                 # use Ip of different server in cluster
                 @data.workorder.payLoad.cb_cmp.each do |n|
-                  ip=n['ciAttributes']['public_ip']
+                  ip=n['ciAttributes']['private_ip']
                   if (ip != incoming_node_ip)
                     begin
                       @cluster = Couchbase::CouchbaseCluster.new(ip, @username, @password)

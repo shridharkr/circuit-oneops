@@ -31,12 +31,11 @@ when 'flannel'
     network_cidr = docker['ciAttributes']['network_cidr']
   end
       
-  #execute "etcdctl mk /atomic.io/network/config '{\"Network\": \"#{network_cidr}\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\", \"VNI\": 1}}'"
   # returns 4 when already done
-  execute "etcdctl mk /atomic.io/network/config '{\"Network\":\"#{network_cidr}\"}'" do
-    returns [0,4]
+  flannel_conf = "{\"Network\": \"#{network_cidr}\", \"Backend\": {\"Type\": \"vxlan\", \"VNI\": 1}}"
+  execute "etcdctl mk /docker-flannel/network/config '#{flannel_conf}'" do
+      returns [0,4]
   end
-
   
 
   service 'flanneld' do
@@ -84,4 +83,16 @@ end
   service service do
     action [:enable, :restart]
   end
+end
+
+cookbook_file '/opt/nagios/libexec/check_nodes.rb' do
+  source 'check_nodes.rb'
+  mode 00755
+  action :create
+end
+
+cookbook_file '/opt/nagios/libexec/check_pods.rb' do
+  source 'check_pods.rb'
+  mode 00755
+  action :create
 end
