@@ -97,10 +97,11 @@ class Chef
 
 			parts.each do |part|
 				part_file = "#{local_path}.#{part['slot']}.tmp"
-				size = File.size(part_file) - 1 #offset by one, part of calculation of start + 1
-				unless part['end'] == '' 
-					part_size = part['end'] - part['start']
-					unless size == part_size
+				size = File.size(part_file)
+				if part['end'] != '' 
+					part_size = (part['slot'] + 1 == parts.length) ? part['size'] : part['size'] + 1
+					if size != part_size
+						Chef::Log.debug("slot: #{part['slot']} comparing #{part_size} == #{part['size']}   fize_size = #{size}")
 						Chef::Log.warn("File: #{part_file} does not seem to complete its download, please retry and verify")
 						failure_flag = true
 					end
@@ -139,13 +140,13 @@ class Chef
 
 		def download_file(part,remote_file,local_file)
 			Chef::Log.debug("Saving file to #{local_file}")
-			Chef::Log.info("Fetching file: #{remote_file} part: #{part['slot']} Start: #{part['start']} End: #{part['end']}")
+			Chef::Log.info("Fetching file: #{remote_file} part: #{part['slot']} [Start: #{part['start']} End: #{part['end']}]")
 			uri = URI(remote_file)
 
 			ssl = uri.scheme == "https" ? true : false
 			Net::HTTP.start(uri.host, uri.port,:use_ssl => ssl) do |http|
 				request = Net::HTTP::Get.new uri
-				Chef::Log.debug("Requesting slot: #{part['slot']} from #{part['start']} to #{part['end']}")
+				Chef::Log.debug("Requesting slot: #{part['slot']} from [#{part['start']} to #{part['end']}]")
 				request.add_field('Range', "bytes=#{part['start']}-#{part['end']}")
 
 				http.request request do |response|
@@ -159,23 +160,28 @@ class Chef
 		end
 
 		def calculate_parts(content_length,parts=10,chunk_size=1048576)
+			Chef::Log.debug("content_length = #{content_length}")
 			parts_details = []
 			chunk_parts = content_length / chunk_size
-		
-			unless chunk_parts <= parts
+			
+			if chunk_parts >= parts
 				chunk_size = content_length / parts
 				chunk_parts = parts
 			end
+
+			Chef::Log.debug("chunk_size = #{chunk_size}")
 
 			(0..chunk_parts).each do |n|
 				current_size = ((n * chunk_size) + chunk_size) >= content_length ? content_length : (n * chunk_size) + chunk_size
 				byte_start = (n * chunk_size == 0) ? 0 : (n * chunk_size) + 1 
 				byte_end = (n * chunk_size == 0) ? (chunk_size * 1)  : current_size
+				byte_size = byte_end == '' ? content_length - byte_start.to_i : byte_end.to_i - byte_start.to_i
 				
-				if n == chunk_parts
-					byte_end = ''
+				if ( byte_start < content_length && byte_end <= content_length )
+					parts_details.push({'slot' => n, 'start' => byte_start, 'end' => byte_end, 'size' => byte_size })
+				elsif( byte_start  > content_length && byte_end > content_length)
+					parts_details.push({'slot' => n, 'start' => byte_start, 'end' => '' })
 				end
-				parts_details.push({'slot' => n, 'start' => byte_start, 'end' => byte_end})
 			end
 
 			return parts_details
