@@ -163,7 +163,7 @@ computes = node.workorder.payLoad.has_key?('RequiresComputes')?
       node.workorder.payLoad.RequiresComputes : {}
 
 # This will add all the computes from the data nodes and master nodes
-fqdn_depends_on = node.workorder.payLoad.DependsOn.reject { |d| d['ciClassName'] != 'bom.Fqdn' }
+fqdn_depends_on = node.workorder.payLoad.DependsOn.reject { |d| d['ciClassName'] != 'bom.oneops.1.Fqdn' }
 Chef::Log.info("----fqdn_depends_on #{fqdn_depends_on}--------------------------")
 unicastNodes = '['
 computes.each do |cm|
