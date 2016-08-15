@@ -379,6 +379,11 @@ resource 'kubernetes-master',
                 
 }
 
+# tmp add back for old env deletion
+resource 'kubernetes-worker',
+  :cookbook => 'oneops.1.kubernetes',
+  :design => true,
+  :requires => { "constraint" => "0..1" }
 
 resource 'kubernetes-node',
   :cookbook => 'oneops.1.kubernetes',
