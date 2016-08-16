@@ -93,6 +93,8 @@ execute "remove_old_file_from_monitor" do
   only_if {::File.exists?("#{cch_old_file_monitor}") }
 end
 
+# check_cluster_health.rb is a place holder and got populated
+# by check_cluster_health.erb perodically by a cron job
 template "#{check_cluster_health}" do
   source "check_cluster_health.rb"
   owner 'root'

@@ -299,167 +299,69 @@ resource 'diagnostic-cache',
                      'CriticalExceptions' => threshold('1m', 'avg', 'critical_response', trigger('>=', 1, 5, 1), reset('<', 1, 5, 1)),
                  }
              },
-             'cluster-node-size' => {
-                 :description => 'Cluster Node Size',
+             'cluster-cluster' => {
+                 :description => 'Cluster Health Info',
                  :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_node_size!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
+                 :chart => {'min'=>0, 'unit'=>''},
+                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
                  :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
                  :metrics => {
-                     'cluster_node_size' => metric(:unit => '', :description => 'cluster_node_size', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'rebalance-status' => {
-                 :description => 'Rebalance Status',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_rebalance!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
-                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
-                 :metrics => {
-                     'rebalance' => metric(:unit => '', :description => 'Rebalance Running Status', :dstype => 'GAUGE'),
-                     'rebalance_failed' => metric(:unit => '', :description => 'Rebalance Failed', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'node-status' => {
-                 :description => 'Node Status',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_node_status!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
-                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
-                 :metrics => {
-                     'unhealthy_node_status' => metric(:unit => '', :description => 'Unhealthy Node Status', :dstype => 'GAUGE'),
-                     'unhealthy_node_cluster_membership' => metric(:unit => '', :description => 'Unhealthy Node Cluster Membership', :dstype => 'GAUGE'),
-                     'unable_to_connect_to_node' => metric(:unit => '', :description => 'Unable To Connect To Node', :dstype => 'GAUGE'),
+                     'cluster_node_size' => metric(:unit => '', :description => 'cluster_node_size', :dstype => 'GAUGE', :display_group => "Cluster Node Size"),
+                     
+                     'rebalance' => metric(:unit => '', :description => 'Rebalance Running Status', :dstype => 'GAUGE', :display_group => "Rebalance"),
+                     'rebalance_failed' => metric(:unit => '', :description => 'Rebalance Failed', :dstype => 'GAUGE', :display_group => "Rebalance"),
+                     
+                     'unhealthy_node_status' => metric(:unit => '', :description => 'Unhealthy Node Status', :dstype => 'GAUGE', :display_group => "Node Issues"),
+                     'unhealthy_node_cluster_membership' => metric(:unit => '', :description => 'Unhealthy Node Cluster Membership', :dstype => 'GAUGE', :display_group => "Node Issues"),
+                     'unable_to_connect_to_node' => metric(:unit => '', :description => 'Unable To Connect To Node', :dstype => 'GAUGE', :display_group => "Node Issues"),
+                     
+                     'writing_data_to_disk_failed' => metric(:unit => '%', :description => 'Writing data to disk for a specific bucket has failed', :dstype => 'GAUGE', :display_group => "Write Failed"),
+                     
+                     'metadata_overhead' => metric(:unit => '%', :description => 'Metadata Overhead', :dstype => 'GAUGE', :display_group => "Metadata Overhead"),
+                     
+                     'disk_space_used' => metric(:unit => '%', :description => 'Disk Space Used', :dstype => 'GAUGE', :display_group => "Disk Space"),
+                     
+                     'cache_miss_ratio' => metric(:unit => '%', :description => 'Cache Miss Ratio', :dstype => 'GAUGE', :display_group => "Cache Miss"),
+                     
+                     'disk_write_queue' => metric(:unit => '', :description => 'Disk Write Queue', :dstype => 'GAUGE', :display_group => "Disk Performance"),
+                     'disk_read_per_sec' => metric(:unit => '', :description => 'Disk Read per Second', :dstype => 'GAUGE', :display_group => "Disk Performance"),
+                     
+                     'replica_ejection_per_sec' => metric(:unit => '', :description => 'Replica Ejection per Second', :dstype => 'GAUGE', :display_group => "Ejection"),
+                     'active_ejection_per_sec' => metric(:unit => '', :description => 'Active Ejection per Second', :dstype => 'GAUGE', :display_group => "Ejection"),
+                     
+                     'temp_oom_per_sec' => metric(:unit => '', :description => 'Temp OOM per second', :dstype => 'GAUGE', :display_group => "OOM"),
+                     
+                     'replica_doc_resident' => metric(:unit => '%', :description => 'Replica resident % - Percentage of replicas in RAM.', :dstype => 'GAUGE', :display_group => "Doc Resident"),
+                     'active_doc_resident' => metric(:unit => '%', :description => 'Active docs resident % - Percentage of docs in RAM', :dstype => 'GAUGE', :display_group => "Doc Resident")
+                     
                  },
                  :thresholds => {
                      'UnhealthyNodeStatusExceptions' => threshold('1m', 'avg', 'unhealthy_node_status', trigger('>=', 1, 5, 1), reset('<', 1, 5, 1), 'unhealthy'),
                      'NodeConnectExceptions' => threshold('1m', 'avg', 'unable_to_connect_to_node', trigger('>=', 1, 5, 1), reset('<', 1, 5, 1), 'unhealthy'),
                      'UnhealthyNodeClusterMembershipExceptions' => threshold('1m', 'avg', 'unhealthy_node_cluster_membership', trigger('>=', 1, 5, 1), reset('<', 1, 5, 1), 'unhealthy'),
-                 }
-
-             },
-             'writing-data-to-disk-failed' => {
-                 :description => 'Writing Data to Disk Failed',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
-                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
-                 :metrics => {
-                     'writing_data_to_disk_failed' => metric(:unit => '%', :description => 'Writing data to disk for a specific bucket has failed', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
+                     
                      'WritingDataToDiskFailedExceptions' => threshold('1m', 'avg', 'writing_data_to_disk_failed', trigger('>=', 1, 5, 1), reset('<', 1, 5, 1)),
-                 }
-
-             },
-             'metadata-overhead' => {
-                 :description => 'Metadata Overhead',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
-                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
-                 :metrics => {
-                     'metadata_overhead' => metric(:unit => '%', :description => 'Metadata Overhead', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
+                     
                      'MetadataOverheadOneHundredExceptions' => threshold('1m', 'avg', 'metadata_overhead', trigger('>=', 100, 5, 1), reset('<', 100, 5, 1)),
                      'MetadataOverheadFiftyExceptions' => threshold('1m', 'avg', 'metadata_overhead', trigger('>=', 50, 5, 1), reset('<', 50, 5, 1)),
-                 }
-
-             },
-             'disk-space-used' => {
-                 :description => 'Disk Space Used',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
-                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
-                 :metrics => {
-                     'disk_space_used' => metric(:unit => '%', :description => 'Disk Space Used', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
+                     
                      'DiskSpaceExceptions' => threshold('1m', 'avg', 'disk_space_used', trigger('>=', 90, 5, 1), reset('<', 90, 5, 1)),
-
-                 }
-
-             },
-             'cache-miss-ratio' => {
-                 :description => 'Cache Miss Ratio',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_cache_miss_ratio!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
-                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
-                 :metrics => {
-                     # 'resident_item_ratio' => metric(:unit => '%', :description => 'Resident Item Ratio', :dstype => 'GAUGE'),
-                     'cache_miss_ratio' => metric(:unit => '%', :description => 'Cache Miss Ratio', :dstype => 'GAUGE'),
-                     # 'replica_resident_ratio' => metric(:unit => '%', :description => 'Replica Resident Ratio', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
+                     
                      'HighCacheMissRatio' => threshold('5m', 'avg', 'cache_miss_ratio', trigger('>', 50, 5, 1), reset('<', 50, 5, 1)),
-                 }
-             },
-             'disk_read_write' => {
-                 :description => 'Disk Read/Write',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
-                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
-                 :metrics => {
-                     'disk_write_queue' => metric(:unit => '', :description => 'Disk Write Queue', :dstype => 'GAUGE'),
-                     'disk_read_per_sec' => metric(:unit => '', :description => 'Disk Read per Second', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
+                     
                      'HighDiskWriteQueue' => threshold('5m', 'avg', 'disk_write_queue', trigger('>', 1000, 5, 1), reset('<', 1000, 5, 1)),
                      'HighDiskRead' => threshold('5m', 'avg', 'disk_read_per_sec', trigger('>', 10, 5, 1), reset('<', 10, 5, 1)),
-                 }
-             },
-             'replica_ejection_per_sec' => {
-                 :description => 'Ejection per Second',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
-                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
-                 :metrics => {
-                     'replica_ejection_per_sec' => metric(:unit => '', :description => 'Replica Ejection per Second', :dstype => 'GAUGE'),
-                     'active_ejection_per_sec' => metric(:unit => '', :description => 'Active Ejection per Second', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
+                     
                      'HighReplicaEjection' => threshold('5m', 'avg', 'replica_ejection_per_sec', trigger('>', 1, 5, 1), reset('<', 1, 5, 1)),
                      'HighActiveEjection' => threshold('5m', 'avg', 'active_ejection_per_sec', trigger('>', 1, 5, 1), reset('<', 1, 5, 1)),
-                 }
-             },
-             'temp_oom_per_sec' => {
-                 :description => 'Temp OOM per second',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
-                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
-                 :metrics => {
-                     'temp_oom_per_sec' => metric(:unit => '', :description => 'Temp OOM per second', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
+                     
                      'HighTempOOM' => threshold('5m', 'avg', 'temp_oom_per_sec', trigger('>', 3, 5, 1), reset('<', 3, 5, 1)),
-                 }
-             },
-             'doc_resident' => {
-                 :description => 'Docs Resident in RAM',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_cluster_health!:::node.workorder.rfcCi.ciAttributes.adminuser:::!:::node.workorder.rfcCi.ciAttributes.adminpassword:::',
-                 :cmd_line => '/opt/nagios/libexec/check_cluster_health.rb  -U $ARG1$ -P $ARG2$',
-                 :metrics => {
-                     'replica_doc_resident' => metric(:unit => '%', :description => 'Replica resident % - Percentage of replicas in RAM.', :dstype => 'GAUGE'),
-                     'active_doc_resident' => metric(:unit => '%', :description => 'Active docs resident % - Percentage of docs in RAM', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
+                     
                      'HighReplicaDocResident' => threshold('5m', 'avg', 'replica_doc_resident', trigger('<', 100, 5, 1), reset('=', 100, 5, 1)),
-                     'HighActiveDocResident' => threshold('5m', 'avg', 'active_doc_resident', trigger('<', 100, 5, 1), reset('=', 100, 5, 1)),
+                     'HighActiveDocResident' => threshold('5m', 'avg', 'active_doc_resident', trigger('<', 100, 5, 1), reset('=', 100, 5, 1))
+                     
                  }
+                 
              },
              'shared_hypervisor_count' => {
                  :description => 'Shared Hypervisor Count',
