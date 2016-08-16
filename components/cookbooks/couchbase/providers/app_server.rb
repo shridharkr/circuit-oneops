@@ -111,6 +111,11 @@ action :download_install_couchbase do
   if (base_url.include? "couchbase.com") && (version.include? "3.")
     arch = "centos6."+new_resource.arch
   end
+
+  if ('community' == new_resource.edition)
+      base_url = base_url.gsub('couchbase-server-enterprise', 'couchbase-server-community')
+  end
+
   pkg = PackageFinder.search_for(base_url, "couchbase-server-#{new_resource.edition}", new_resource.version, arch, pkg_type)
 
 
@@ -136,9 +141,31 @@ action :download_install_couchbase do
   version_installed = version_installed.strip!
 
   #Chef::Log.info("#{couchbase_installed} couchbase-server-#{new_resource.version}")
-  log "Cheking_couchbase_pack_installed_vs_selected" do
+  log "Checking_couchbase_pack_installed_vs_selected" do
     message "Couchbase Server version installed: #{couchbase_installed} vs: couchbase-server-#{new_resource.version}"
     level :info
+  end
+
+  if couchbase_installed != nil
+
+    edition_installed = `egrep license /opt/couchbase/etc/runtime.ini`
+    
+    if edition_installed == nil || edition_installed.index('=') == nil
+      Chef::Application.fatal!("Unable to determine installed couchbase edition. Please correct license entry in /opt/couchbase/etc/runtime.ini")
+    end
+    
+    edition_installed = edition_installed[edition_installed.index('=') + 1 .. edition_installed.length].strip
+
+    if new_resource.edition != edition_installed
+      msg = "Incompatible versions detected: Couchbase installed edition is #{edition_installed} whereas the binary being installed is #{new_resource.edition}"
+      #Chef::Application.fatal!("#{msg}")
+      puts "***FAULT:FATAL="+msg
+      Chef::Log.error("#{msg}")
+      e = Exception.new("no backtrace")
+      e.set_backtrace("")
+      raise e
+    end
+
   end
 
   if couchbase_installed == nil && new_resource.version == "2.2.0" && new_resource.replace_node == nil
