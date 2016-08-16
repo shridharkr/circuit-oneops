@@ -77,8 +77,10 @@ if ostype =~ /windows*/
   Chef::Log.info("user_data_script => SET")
 end
 
+Chef::Log.debug("Initital USER: #{initial_user}")
 Chef::Log.info("compute::add -- name: "+node.server_name+" domain: "+customer_domain+" provider: "+cloud_name)
 Chef::Log.debug("rfcCi attrs:"+rfcCi["ciAttributes"].inspect.gsub("\n"," "))
+
 
 flavor = ""
 image = ""
