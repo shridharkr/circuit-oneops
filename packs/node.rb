@@ -35,7 +35,7 @@ resource "nodejs",
          :design => true,
          :requires => {
            :constraint => "1..1",
-           :services => "mirror",
+           :services => "*mirror",
            :help => "nodejs programming language environment"
          },
          :attributes => {
