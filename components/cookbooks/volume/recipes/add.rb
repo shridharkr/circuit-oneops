@@ -36,7 +36,8 @@ node.workorder.payLoad[:DependsOn].each do |dep|
 end
 
 cloud_name = node[:workorder][:cloud][:ciName]
-
+newDevicesAttached = ""
+mode = "no-raid"
 vol_size =  node.workorder.rfcCi.ciAttributes[:size]
 Chef::Log.info("-------------------------------------------------------------")
 Chef::Log.info("Volume Size : "+vol_size )
@@ -263,6 +264,7 @@ ruby_block 'create-iscsi-volume-ruby-block' do
           dev_list += dev_id+" "
           i+=1
         end
+	newDevicesAttached = dev_list
 
         # wait until all are attached
         fin = false
@@ -296,7 +298,6 @@ ruby_block 'create-iscsi-volume-ruby-block' do
 
       end
 
-      mode = "raid10"
       if node.workorder.rfcCi.ciAttributes.has_key?("mode")
         mode = node.workorder.rfcCi.ciAttributes["mode"]
       end
@@ -305,7 +306,7 @@ ruby_block 'create-iscsi-volume-ruby-block' do
       exec_count = 0
       max_retry = 10
 
-      if vols.size > 1
+      if vols.size > 1 && mode != 'no-raid'
 
         cmd = "yes |mdadm --create -l#{level} -n#{vols.size.to_s} --assume-clean --chunk=256 #{raid_device} #{dev_list} 2>&1"
         until ::File.exists?(raid_device) || has_created_raid || exec_count > max_retry do
@@ -498,30 +499,34 @@ end
 ruby_block 'create-storage-non-ephemeral-volume' do
   only_if { storage != nil && token_class !~ /virtualbox|vagrant/ }
   block do
-
-    raid_device = node.raid_device
-    devices = Array.new
-    if ::File.exists?(raid_device)
-      Chef::Log.info(raid_device+" exists.")
-      devices.push(raid_device)
+    if mode != "no-raid"
+      raid_devices = node.raid_device
     else
-      Chef::Log.info("raid device " +raid_device+" missing.")
-      volume_device = node[:volume][:device]
-      volume_device = node[:device] if volume_device.nil? || volume_device.empty?
-      if node[:storage_provider_class] =~ /azure/
-        Chef::Log.info("Checking for"+ volume_device + "....")
-        if ::File.exists?(volume_device)
-          Chef::Log.info("device " + volume_device + " found. Using this device for logical volumes.")
-          devices.push(volume_device)
+      raid_devices = newDevicesAttached
+    end
+    devices = Array.new
+    raid_devices.split(" ").each do |raid_device|
+      if ::File.exists?(raid_device)
+        Chef::Log.info(raid_device+" exists.")
+        devices.push(raid_device)
+      else
+        Chef::Log.info("raid device " +raid_device+" missing.")
+        volume_device = node[:volume][:device]
+        volume_device = node[:device] if volume_device.nil? || volume_device.empty?
+        if node[:storage_provider_class] =~ /azure/
+          Chef::Log.info("Checking for"+ volume_device + "....")
+          if ::File.exists?(volume_device)
+            Chef::Log.info("device " + volume_device + " found. Using this device for logical volumes.")
+            devices.push(volume_device)
+          else
+            Chef::Log.info("No storage device named " + volume_device + " found. Exiting ...")
+            exit 1
+          end
         else
-          Chef::Log.info("No storage device named " + volume_device + " found. Exiting ...")
           exit 1
         end
-      else
-        exit 1
       end
     end
-
     total_size = 0
     device_list = ""
     existing_dev = `pvdisplay -s`
