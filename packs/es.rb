@@ -72,137 +72,28 @@ resource 'elasticsearch',
                          'CriticalLogException' => threshold('1m', 'avg', 'logelasticsearch_criticals', trigger('>=', 1, 5, 1), reset('<', 1, 15, 1)),
                        }
              },
-             'status' => {
-                 :description => 'Status',
+             'ElasticSearchStats' => {
+                 :description => 'elasticsearch_stats',
                  :source => '',
                  :chart => {'min' => 0, 'unit' => ''},
                  :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
                  :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
                  :metrics => {
-                     'status' => metric(:unit => '', :description => 'status', :dstype => 'GAUGE'),
+                     'status' => metric(:unit => '',:description => 'status',:dstype => 'GAUGE',:display_group => "Process Status"),
+                     'indexed_doc_count' => metric(:unit => '', :description => 'doc_count', :dstype => 'DERIVE',:display_group => "Index"),
+                     'search_rate' => metric(:unit => '', :description => 'search_rate', :dstype => 'GAUGE',:display_group => "Search"),
+                     'filter_cache_evictions' => metric(:unit => '', :description => 'filter_cache_evictions', :dstype => 'GAUGE',:display_group => "Cache"),
+                     'heap_used_percent' => metric(:unit => '%', :description => 'Heap used percent', :dstype => 'GAUGE',:display_group => "Jvm_Stats"),
+                     'gc_old_collections' => metric(:unit => '', :description => 'gc_old_collections', :dstype => 'GUAGE',:display_group => "Jvm_Stats"),
+                     'index_rejections' => metric(:unit => '', :description => 'index_rejections', :dstype => 'GAUGE',:display_group => "Index"),
+                     'search_rejections' => metric(:unit => '', :description => 'search_rejections', :dstype => 'GAUGE',:display_group => "Search"),
+                     'disk_reads' => metric(:unit => '', :description => 'disk_reads', :dstype => 'GAUGE',:display_group => "Disk"),
+                     'disk_writes' => metric(:unit => '', :description => 'disk_writes', :dstype => 'GAUGE',:display_group => "Disk"),
+
                  },
                  :thresholds => {
                  }
-
-             },
-             'indexed_doc_count' => {
-                 :description => 'Indexed_doc_count',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'indexed_doc_count' => metric(:unit => '', :description => 'doc_count', :dstype => 'DERIVE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'search_rate' => {
-                 :description => 'Search_rate',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'search_rate' => metric(:unit => '', :description => 'search_rate', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'filter_cache_evictions' => {
-                 :description => 'Filter_cache_evictions',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'filter_cache_evictions' => metric(:unit => '', :description => 'filter_cache_evictions', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'heap_used_percent' => {
-                 :description => 'Heap_used_percent',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'heap_used_percent' => metric(:unit => '%', :description => 'Heap used percent', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'gc_old_collections' => {
-                 :description => 'Gc_old_collections',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'gc_old_collections' => metric(:unit => '', :description => 'gc_old_collections', :dstype => 'GUAGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'index_rejections' => {
-                 :description => 'Index_rejections',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'index_rejections' => metric(:unit => '', :description => 'index_rejections', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'search_rejections' => {
-                 :description => 'Search_rejections',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'search_rejections' => metric(:unit => '', :description => 'search_rejections', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'disk_reads' => {
-                 :description => 'Disk_reads',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'disk_reads' => metric(:unit => '', :description => 'disk_reads', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'disk_writes' => {
-                 :description => 'Disk_writes',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'disk_writes' => metric(:unit => '', :description => 'disk_writes', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
              }
-             
          }
          
 resource 'index',
@@ -560,135 +451,27 @@ resource 'master-elasticsearch',
                            'CriticalLogException' => threshold('1m', 'avg', 'logelasticsearch_criticals', trigger('>=', 1, 5, 1), reset('<', 1, 15, 1)),
                        }
              },
-             'status' => {
-                 :description => 'Status',
+             'ElasticSearchStats' => {
+                 :description => 'elasticsearch_stats',
                  :source => '',
                  :chart => {'min' => 0, 'unit' => ''},
                  :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
                  :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
                  :metrics => {
-                     'status' => metric(:unit => '', :description => 'status', :dstype => 'GAUGE'),
+                     'status' => metric(:unit => '',:description => 'status',:dstype => 'GAUGE',:display_group => "Process Status"),
+                     'indexed_doc_count' => metric(:unit => '', :description => 'doc_count', :dstype => 'DERIVE',:display_group => "Index"),
+                     'search_rate' => metric(:unit => '', :description => 'search_rate', :dstype => 'GAUGE',:display_group => "Search"),
+                     'filter_cache_evictions' => metric(:unit => '', :description => 'filter_cache_evictions', :dstype => 'GAUGE',:display_group => "Cache"),
+                     'heap_used_percent' => metric(:unit => '%', :description => 'Heap used percent', :dstype => 'GAUGE',:display_group => "Jvm_Stats"),
+                     'gc_old_collections' => metric(:unit => '', :description => 'gc_old_collections', :dstype => 'GUAGE',:display_group => "Jvm_Stats"),
+                     'index_rejections' => metric(:unit => '', :description => 'index_rejections', :dstype => 'GAUGE',:display_group => "Index"),
+                     'search_rejections' => metric(:unit => '', :description => 'search_rejections', :dstype => 'GAUGE',:display_group => "Search"),
+                     'disk_reads' => metric(:unit => '', :description => 'disk_reads', :dstype => 'GAUGE',:display_group => "Disk"),
+                     'disk_writes' => metric(:unit => '', :description => 'disk_writes', :dstype => 'GAUGE',:display_group => "Disk"),
+
                  },
                  :thresholds => {
                  }
-
-             },
-             'indexed_doc_count' => {
-                 :description => 'Indexed_doc_count',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'indexed_doc_count' => metric(:unit => '', :description => 'doc_count', :dstype => 'DERIVE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'search_rate' => {
-                 :description => 'Search_rate',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'search_rate' => metric(:unit => '', :description => 'search_rate', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'filter_cache_evictions' => {
-                 :description => 'Filter_cache_evictions',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'filter_cache_evictions' => metric(:unit => '', :description => 'filter_cache_evictions', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'heap_used_percent' => {
-                 :description => 'Heap_used_percent',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'heap_used_percent' => metric(:unit => '%', :description => 'Heap used percent', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'gc_old_collections' => {
-                 :description => 'Gc_old_collections',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'gc_old_collections' => metric(:unit => '', :description => 'gc_old_collections', :dstype => 'GUAGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'index_rejections' => {
-                 :description => 'Index_rejections',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'index_rejections' => metric(:unit => '', :description => 'index_rejections', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'search_rejections' => {
-                 :description => 'Search_rejections',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'search_rejections' => metric(:unit => '', :description => 'search_rejections', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'disk_reads' => {
-                 :description => 'Disk_reads',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'disk_reads' => metric(:unit => '', :description => 'disk_reads', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
-             },
-             'disk_writes' => {
-                 :description => 'Disk_writes',
-                 :source => '',
-                 :chart => {'min' => 0, 'unit' => ''},
-                 :cmd => 'check_es_node_stats!:::node.workorder.rfcCi.ciAttributes.http_port:::',
-                 :cmd_line => '/opt/nagios/libexec/check_es_node_stats.rb $ARG1$',
-                 :metrics => {
-                     'disk_writes' => metric(:unit => '', :description => 'disk_writes', :dstype => 'GAUGE'),
-                 },
-                 :thresholds => {
-                 }
-
              }
          }
 
