@@ -135,6 +135,13 @@ class Chef
 			end
 
 			temp_file.flush
+
+			# Remove the temp part file
+			parts.each do |part|
+				file="#{local_path}.#{part['slot']}.tmp"
+				File.delete(file)
+			end
+
 			temp_file
 		end
 
@@ -160,7 +167,6 @@ class Chef
 		end
 
 		def calculate_parts(content_length,parts=10,chunk_size=1048576)
-			Chef::Log.debug("content_length = #{content_length}")
 			parts_details = []
 			chunk_parts = content_length / chunk_size
 			
@@ -169,19 +175,25 @@ class Chef
 				chunk_parts = parts
 			end
 
-			Chef::Log.debug("chunk_size = #{chunk_size}")
+			content_remainder = content_length % chunk_parts # e.g. 31521931 % 10 = 1
 
-			(0..chunk_parts).each do |n|
-				current_size = ((n * chunk_size) + chunk_size) >= content_length ? content_length : (n * chunk_size) + chunk_size
-				byte_start = (n * chunk_size == 0) ? 0 : (n * chunk_size) + 1 
-				byte_end = (n * chunk_size == 0) ? (chunk_size * 1)  : current_size
-				byte_size = byte_end == '' ? content_length - byte_start.to_i : byte_end.to_i - byte_start.to_i
-				
-				if ( byte_start < content_length && byte_end <= content_length )
-					parts_details.push({'slot' => n, 'start' => byte_start, 'end' => byte_end, 'size' => byte_size })
-				elsif( byte_start  > content_length && byte_end > content_length)
-					parts_details.push({'slot' => n, 'start' => byte_start, 'end' => '' })
+			byte_start = 0
+			byte_end = 0
+
+			(0..chunk_parts-1).each do |n|
+				byte_start = (n*chunk_size == 0) ? 0 : (n*chunk_size) + 1
+				byte_end = ((n*chunk_size)+chunk_size) <= content_length ? ((n*chunk_size)+chunk_size) : ''
+				if byte_end == content_length # http server doesn't like the end of range to be
+					byte_end = ''             # the same as the content_length
 				end
+				byte_size = (byte_end == '') ? content_length - byte_start.to_i : byte_end.to_i - byte_start.to_i
+				parts_details.push({'slot' => n, 'start' => byte_start, 'end' => byte_end, 'size' => byte_size })
+			end
+
+			unless(content_remainder == 0)
+				byte_start = byte_end + 1
+				byte_size = content_length - byte_start
+				parts_details.push({'slot' => chunk_parts, 'start' => byte_start, 'end' => '', 'size' => byte_size})
 			end
 
 			return parts_details
