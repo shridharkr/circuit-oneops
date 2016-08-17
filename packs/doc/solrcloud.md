@@ -1,14 +1,14 @@
 # SolrCloud Cookbook
 
 
-SolrCloud Pack is a platform service that makes it easy to set up, manage, deploy, operate and scale solrcloud as a search solution for your web application in private and public clouds. You can set up and configure your Solrcloud cluster in minutes from the ONEOPS and enables you to monitor and resize your cluster up or down. As your volume of data and traffic fluctuates, the pack automatically scales to meet the rapidly scaling search requirements. The pack monitors the solution to ensure that a) it has sufficient resources, and that b) it isn’t consuming too many resources. With the SolrCloud platform you don’t have to manage multiple pieces of software, manually configure, design a replication and high-availability strategy, provision hardware, scale your search engine, or recover failed nodes. The environment is automatically kept up-to-date and provide maintenance and support of the solution and reduces the the time to configure and implement the SolrCloud search solution.
+SolrCloud Pack is a platform service that makes it easy to set up, manage, deploy, operate and scale solrcloud as a search solution for your web application in private and public clouds. You can set up and configure your Solrcloud cluster in minutes from the ONEOPS and enables you to monitor and resize your cluster up or down. As your volume of data and traffic fluctuates, the pack automatically scales to meet the rapidly scaling search requirements. The pack monitors the solution to ensure that a) it has sufficient resources, and that b) it is not consuming too many resources. With the SolrCloud platform you do not have to manage multiple pieces of software, manually configure, design a replication and high-availability strategy, provision hardware, scale your search engine, or recover failed nodes. The environment is automatically kept up-to-date and provide maintenance and support of the solution and reduces the the time to configure and implement the SolrCloud search solution.
 
 
 Apache Solrcloud is an open source enterprise search platform, written in Java. SolrCloud Pack installs any version of the apache solrcloud ( 4.x.x, 5.x.x, 6.0.0 ). The solrcloud pack installs solr as a war in a tomcat web container for 4.x.x versions and as a standalone server for 5.x.x , 6.x.x versions etc.
 
 The objective of this document is to guide the solrcloud pack installation with Internal/External/Embedded zookeeper cluster mode based on the user selection and uploads the default config to the zookeeper and gets started. The assumption is that the zookeeper is already installed and ready if the user choose the External Ensemble. The zookeeper and the solrcloud gets install at once for Internal Ensemble (same assembly) option.
 
-Please note that the actions in the operation phase are not used for the solrcloud with embedded zookeeper mode. It is a local installation with a single zookeeper instance running locally. We need to do all actions through command line or solrcloud REST API's.
+Please note that the actions in the operation phase are not used for the solrcloud with embedded zookeeper mode. It is a local installation with a single zookeeper instance running locally. We need to do all actions through command line or solrcloud REST APIs.
 
 
 
@@ -42,10 +42,10 @@ Please note that the actions in the operation phase are not used for the solrclo
 * Create an Assembly
 -- GoTo oneops web link and create assembly .
 #### Design Phase
- * Add a "New Platform".
- * Choose "SolrCloud" from the pack source. Save and Commit the design.
- * Click on the "solrcloud" component .
- * Click on the "user-app" Component and add the developers ssh keys.
+ * Add a New Platform.
+ * Choose SolrCloud from the pack source. Save and Commit the design.
+ * Click on the solrcloud component .
+ * Click on the user-app Component and add the developers ssh keys.
 
    ###### Note
    If you want to deploy solr-4.x.x version then update the required parameters of the"tomcat" component else ignore the tomcat component configuration.
@@ -64,8 +64,8 @@ Please note that the actions in the operation phase are not used for the solrclo
      * custom configname - Give the custom config name for the custom config jar.
 
      ###### Note
-      * If you choose any 4.x.x version then it shows an option."Add all of the replaced nodes to the old collection".
-      * If you choose any 5.x.x/6.x.x version then it asks for a set of additional parameters in the section "SolrCloud stand alone server parameters" to customize the installation/data directory paths.
+      * If you choose any 4.x.x version then it shows an option. (Add all of the replaced nodes to the old collection).
+      * If you choose any 5.x.x/6.x.x version then it asks for a set of additional parameters in the section (SolrCloud stand alone server parameters) to customize the installation/data directory paths.
 
      ##### SolrCloud stand alone server parameters section
       * installation_dir_path
@@ -78,25 +78,27 @@ Please note that the actions in the operation phase are not used for the solrclo
       * solr_min_heap
 
      ##### Zookeeper section
-      There are 3 options : 
-      * External Ensemble - Need to provide the external zookeeper fqdns string.
-      * Embedded zookeeper
-        * Need to provide few parameters. [ 1. no of instances - to launch on a single node and 2. port no list ] - to run on a node.
-        * Solrcloud detects the zookeeper which is in the same assembly and constructs the fqdn connection string and gets installed with the zookeeper in the same assembly.
-      * Internal Ensemble (same assembly) - Need to provide few parameters. [ 1.platform_name ] of the zookeeper design to construct the fqdn string locally.
+      There are 2 options : 
+      * External Ensemble - The assumption is that zookeeper is deployed and running.
+        Parameters:
+        External ZK hosts : Provide the external zookeeper "fqdn" address
+      * Internal Ensemble : The assumption is that both the solrcloud and zookeeper platforms are added to the design.
+        Parameters :
+        Platform Name : Provide the platform name of the zookeeper which is given in the design phase.
+        This feature will auto discover the zookeeper fqdn and both the solrcloud and zookeeper platforms need to be deployed together.
 
  * Commit the design.
 
 #### Transition Phase
  * Create an environment and pull the design into transition phase .
- * Choose  "redundant" mode and update the scaling values .
+ * Choose the redundant mode and update the scaling values .
  ##### Note
   * We can also update the components in the transition phase and then needs to be locked .
  
- ##### Changes to "user-app" Component
+ ##### Changes to user-app Component
   * We can add more ssh keys if required and lock this component to avoid overriding the ssh keys from the design phase when you pull the latest design .
 
- ##### Changes to "solrcloud" Component
+ ##### Changes to solrcloud Component
   * We can update the values provided in the design phase for each environment in the transition phase if required.
 
  ##### Changes to "tomcat" Component
@@ -141,18 +143,18 @@ Please note that the actions in the operation phase are not used for the solrclo
 
 # Update the Installation
   * Touch any component to update or re-install that component .
-  * Touch the "tomcat" and "solrcloud" computes to update the solr-4.x.x version  installation. (or) Touch the solrcloud component to update the solr-5.x.x/solr-6.x.x version installation.
+  * Touch the "tomcat" and solrcloud computes to update the solr-4.x.x version  installation. (or) Touch the solrcloud component to update the solr-5.x.x/solr-6.x.x version installation.
   * Follow the below steps to change the solr version and install new major version of solrcloud
     * Go to Operations phase and Stop the solr
     * Go to Transition phase and Update the solr version and other required attributes in the solrcloud component.
     * Commit and deploy the solrcloud with new version.
     ##### Note
         * This is to deploy another major version on the same VM and test the functionality of your use cases/sceanrios and it doesn't upgrade the installation of solr version to higher version.
-  * To reinstall the ssh keys , Touch and update the "user-app" component .
-  * To add the ssh keys , Go to Transition phase and add the ssh keys to the "user-app" component and deploy the changes.
+  * To reinstall the ssh keys , Touch and update the user-app component .
+  * To add the ssh keys , Go to Transition phase and add the ssh keys to the user-app component and deploy the changes.
 
     ##### solr-4.x.x version
-    * To update the zookeeper connection string -  Update the "zookeeper fqdn" string in the solrcloud component and do touch and deploy both the "tomcat" and "solrcloud" components.
+    * To update the zookeeper connection string -  Update the zookeeper fqdn string in the solrcloud component and do touch and deploy both the "tomcat" and "solrcloud" components.
     * Directory structure of pack installation
     ```      
     /{use-app}/solr-config
@@ -165,7 +167,7 @@ Please note that the actions in the operation phase are not used for the solrclo
     ```
 
     ##### solr-5.x.x/6.x.x version
-    * To update the zookeeper connection string -  Update the "zookeeper fqdn" string in the solrcloud component and do touch and deploy the "solrcloud" component.
+    * To update the zookeeper connection string -  Update the zookeeper fqdn string in the solrcloud component and do touch and deploy the solrcloud component.
     * Directory structure of pack installation
     ```
     /{installation_dir_path}/solr-config{solr_major_version}
