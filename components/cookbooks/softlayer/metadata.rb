@@ -1,4 +1,4 @@
-name             "Softlayer"
+name             "softlayer"
 description      "Compute Cloud Service"
 version          "0.1"
 maintainer       "OneOps"
