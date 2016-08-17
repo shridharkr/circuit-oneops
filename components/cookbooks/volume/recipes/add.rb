@@ -302,6 +302,31 @@ ruby_block 'create-iscsi-volume-ruby-block' do
         mode = node.workorder.rfcCi.ciAttributes["mode"]
       end
       level = mode.gsub("raid","")
+      msg = ""
+      case mode
+        when "raid0"
+          if vols.size < 2
+            msg = "Minimum of 2 storage slices are required for "+mode
+          end
+        when "raid1"
+          if vols.size < 2 || vols.size%2 != 0
+            msg = "Minimum of 2 storage slices and storage slice count mod 2 are required for "+mode
+          end
+        when "raid5"
+          if vols.size < 3
+            msg = "Minimum of 3 storage slices are required for "+mode
+          end
+        when "raid10"
+          if vols.size < 4 || vols.size%2 != 0
+            msg = "Minimum of 4 storage slices and storage slice count mod 2 are required for "+mode
+          end
+      end
+      unless msg.empty?
+        puts "***FAULT:FATAL=#{msg}"
+        e = Exception.new("no backtrace")
+        e.set_backtrace("")
+        raise e
+      end
       has_created_raid = false
       exec_count = 0
       max_retry = 10
