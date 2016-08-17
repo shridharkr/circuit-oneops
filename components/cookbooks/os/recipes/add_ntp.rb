@@ -21,6 +21,12 @@ template "/etc/ntp.conf" do
 end
 
 service "ntpd" do
+  case node['platform']
+  when 'centos','redhat','fedora'
+    service_name 'ntpd'
+  else
+    service_name 'ntp'
+  end
   action [ :enable, :start ]
 end
 
