@@ -47,7 +47,7 @@ def get_virtual_machine_attributes(service_compute, cpu_size, memory_size, volum
   virtual_machine_model.template_path = node[:image_id]
   virtual_machine_model.cluster = service_compute[:cluster]
   virtual_machine_model.datastore = service_compute[:datastore]
-  virtual_machine_model.resource_pool = service_compute[:resource_pool]
+  virtual_machine_model.resource_pool = [service_compute[:cluster], service_compute[:resource_pool]]
   virtual_machine_model.power_on = false
   virtual_machine_model.connection_state = 'connected'
   virtual_machine_model.volumes = volumes
