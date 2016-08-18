@@ -8,16 +8,9 @@
 include_recipe 'solrcloud::default'
 
 
-if !node['zk_select'].include? "Embedded"
-	include_recipe 'solrcloud::solrcloud'
-	include_recipe 'solrcloud::deploy'
-	include_recipe 'solrcloud::customconfig'
-end
-
-
-if node['zk_select'].include? "Embedded"
-	include_recipe 'solrcloud::embeddedzookeeper'
-end
+include_recipe 'solrcloud::solrcloud'
+include_recipe 'solrcloud::deploy'
+include_recipe 'solrcloud::customconfig'
 
 
 # Chef::Log.info("Configure Logging")
