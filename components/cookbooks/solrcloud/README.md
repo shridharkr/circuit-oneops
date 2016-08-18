@@ -9,6 +9,7 @@ SolrCloud Pack is a platform service that makes it easy to deploy, operate solrc
 
 ## Attributes
 
+
 ### SolrCloud
 ```
 * solr_url
