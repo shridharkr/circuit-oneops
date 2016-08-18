@@ -45,7 +45,7 @@ attribute 'solr_version',
   :format => {
     :help => 'Nexus version of Solr binary distribution ',
     :category => '1.SolrCloud',
-    :form => {'field' => 'select', 'options_for_select' => [['4.10.3', '4.10.3'],['4.10.3.2', '4.10.3.2'],['5.0.0', '5.0.0'],['5.1.0', '5.1.0'],['5.2.0', '5.2.0'],['5.2.1', '5.2.1'],['5.3.0', '5.3.0'],['5.3.1', '5.3.1'],['5.3.2', '5.3.2'],['5.4.0', '5.4.0'],['5.4.1', '5.4.1'],['5.5.0', '5.5.0'],['5.5.1', '5.5.1'],['6.0.0', '6.0.0']]},
+    :form => {'field' => 'select', 'options_for_select' => [['4.10.3', '4.10.3'],['4.10.3.2', '4.10.3.2'],['5.0.0', '5.0.0'],['5.1.0', '5.1.0'],['5.2.0', '5.2.0'],['5.2.1', '5.2.1'],['5.3.0', '5.3.0'],['5.3.1', '5.3.1'],['5.3.2', '5.3.2'],['5.4.0', '5.4.0'],['5.4.1', '5.4.1'],['5.5.0', '5.5.0'],['5.5.1', '5.5.1'],['6.0.0', '6.0.0'],['6.0.1', '6.0.1'],['6.1.0', '6.1.0']]},
     :order => 4
   }
 
@@ -92,7 +92,7 @@ attribute 'installation_dir_path',
   :format => {
     :help => 'installation directory',
     :category => '2.SolrCloud Standalone server Paramerters',
-    :filter => {"all" => {"visible" => "solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
+    :filter => {"all" => {"visible" => "solr_version:eq:6.1.0 || solr_version:eq:6.0.1 || solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
     :order => 9
   }
 
@@ -102,7 +102,7 @@ attribute 'data_dir_path',
   :format => {
     :help => 'data directory',
     :category => '2.SolrCloud Standalone server Paramerters',
-    :filter => {"all" => {"visible" => "solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
+    :filter => {"all" => {"visible" => "solr_version:eq:6.1.0 || solr_version:eq:6.0.1 || solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
     :order => 10
   }
 
@@ -112,7 +112,7 @@ attribute 'port_no',
   :format => {
     :help => 'port no',
     :category => '2.SolrCloud Standalone server Paramerters',
-    :filter => {"all" => {"visible" => "solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
+    :filter => {"all" => {"visible" => "solr_version:eq:6.1.0 || solr_version:eq:6.0.1 || solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
     :order => 11
   }
 
@@ -123,7 +123,7 @@ attribute 'gc_tune_params',
   :format => {
     :help => 'GC_TUNE_params',
     :category => '2.SolrCloud Standalone server Paramerters',
-    :filter => {"all" => {"visible" => "solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
+    :filter => {"all" => {"visible" => "solr_version:eq:6.1.0 || solr_version:eq:6.0.1 || solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
     :order => 12
   }
 
@@ -134,7 +134,7 @@ attribute 'gc_log_params',
   :format => {
     :help => 'GC_LOG_params',
     :category => '2.SolrCloud Standalone server Paramerters',
-    :filter => {"all" => {"visible" => "solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
+    :filter => {"all" => {"visible" => "solr_version:eq:6.1.0 || solr_version:eq:6.0.1 || solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
     :order => 13
   }
 
@@ -145,7 +145,7 @@ attribute 'solr_opts_params',
   :format => {
     :help => 'SOLR_OPTS_params',
     :category => '2.SolrCloud Standalone server Paramerters',
-    :filter => {"all" => {"visible" => "solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
+    :filter => {"all" => {"visible" => "solr_version:eq:6.1.0 || solr_version:eq:6.0.1 || solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
     :order => 14
   }
 
@@ -155,7 +155,7 @@ attribute 'solr_max_heap',
   :format => {
     :help => 'solr_max_heap',
     :category => '2.SolrCloud Standalone server Paramerters',
-    :filter => {"all" => {"visible" => "solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
+    :filter => {"all" => {"visible" => "solr_version:eq:6.1.0 || solr_version:eq:6.0.1 || solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
     :order => 15
   }
 
@@ -165,7 +165,7 @@ attribute 'solr_min_heap',
   :format => {
     :help => 'solr_min_heap',
     :category => '2.SolrCloud Standalone server Paramerters',
-    :filter => {"all" => {"visible" => "solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
+    :filter => {"all" => {"visible" => "solr_version:eq:6.1.0 || solr_version:eq:6.0.1 || solr_version:eq:6.0.0 || solr_version:eq:5.0.0 || solr_version:eq:5.1.0 || solr_version:eq:5.2.0 || solr_version:eq:5.2.1 || solr_version:eq:5.3.0 || solr_version:eq:5.3.1 || solr_version:eq:5.3.2 || solr_version:eq:5.4.0 || solr_version:eq:5.4.1 || solr_version:eq:5.5.0 || solr_version:eq:5.5.1"}},
     :order => 16
   }
 
@@ -342,6 +342,6 @@ recipe "status", "Solr Status"
 recipe "start", "Start Solr"
 recipe "stop", "Stop Solr"
 recipe "restart", "Restart Solr"
-# recipe "delete", "Deletes all the files and directories"
+recipe "uninstall", "uninstall the solr and deletes all the data"
 recipe "updateclusterstate", "Deletes all the dead/down replicas and update cluster state"
 

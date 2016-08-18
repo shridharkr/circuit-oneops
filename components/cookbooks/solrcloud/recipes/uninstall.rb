@@ -1,8 +1,8 @@
 #
 # Cookbook Name :: solrcloud
-# Recipe :: delete.rb
+# Recipe :: uninstall.rb
 #
-# The recipe deletes the solrcloud set up on the node marked for deletion.
+# The recipe uninstall the solr and deletes all the data.
 #
 
 include_recipe 'solrcloud::default'
@@ -26,9 +26,9 @@ if node['solr_version'].start_with? "4."
 	  	end
 	}
 
-	# file "/etc/init.d/tomcat#{node['tomcatversion']}" do
-	# 	action :delete
-	# end
+	file "/etc/init.d/tomcat#{node['tomcatversion']}" do
+		action :delete
+	end
 end
 
 if (node['solr_version'].start_with? "5.") || (node['solr_version'].start_with? "6.")
@@ -39,7 +39,7 @@ if (node['solr_version'].start_with? "5.") || (node['solr_version'].start_with? 
 	  only_if { ::File.exists?("/etc/init.d/solr#{node['solrmajorversion']}")}
 	end
 
-	[node['installation_dir_path']+"/solr#{node['solrmajorversion']}",node['data_dir_path'],"/app",node['installation_dir_path']+"/solr-#{node['solr_version']}"].each { |dir|
+	[node['data_dir_path'],node['installation_dir_path']+"/solr-#{node['solr_version']}"].each { |dir|
 		Chef::Log.info("deleting #{dir} for user app")
 	  	directory dir do
 	    	owner node['solr']['user']
@@ -50,9 +50,14 @@ if (node['solr_version'].start_with? "5.") || (node['solr_version'].start_with? 
 	  	end
 	}
 
-	# file "/etc/init.d/solr#{node['solrmajorversion']}" do
-	# 	action :delete
-	# end
+	link "node['installation_dir_path']/solr#{node['solrmajorversion']}" do
+	  link_type :symbolic
+	  action :delete
+	end
+
+	file "/etc/init.d/solr#{node['solrmajorversion']}" do
+		action :delete
+	end
 end
 
 
