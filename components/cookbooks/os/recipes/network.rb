@@ -180,8 +180,8 @@ ruby_block 'setup bind and dhclient' do
 
       additional_search_domains = JSON.parse(node.workorder.rfcCi.ciAttributes.additional_search_domains)
       additional_search_domains.each do |d|
-        customer_domains += "\"#{d}\","
-        customer_domains_dot_terminated += "#{d}. "
+        customer_domains += "\"#{d.strip}\","
+        customer_domains_dot_terminated += "#{d.strip}. "
       end
     end
     customer_domains += "\"#{customer_domain}\""
