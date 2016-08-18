@@ -21,7 +21,6 @@ ruby_block 'remote peer probe' do
   block do
     Chef::Resource::RubyBlock.send(:include, Chef::Mixin::ShellOut)
     computes.each do |c|
-    
       ssh_cmd = "ssh -i #{ssh_key_file} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@#{c.ciAttributes[:private_ip]} "
       probe_cmd = "gluster peer probe #{local_ip}"
       peer_probe = shell_out("#{ssh_cmd} \"#{probe_cmd}\"")
