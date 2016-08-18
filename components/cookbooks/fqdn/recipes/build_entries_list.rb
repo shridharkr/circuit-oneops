@@ -103,7 +103,12 @@ if node.workorder.payLoad.has_key?("Entrypoint")
 
 elsif lbs.size > 0
  ci = lbs.first
- dns_name = (ci[:ciName] +customer_domain).downcase
+ ci_name_parts = ci[:ciName].split('-')
+ # remove instance and cloud id from ci name
+ ci_name_parts.pop
+ ci_name_parts.pop 
+ ci_name = ci_name_parts.join('-')
+ dns_name = (ci_name + customer_domain).downcase
 
 else
   os = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Os/ }
@@ -181,7 +186,9 @@ deletable_entries = [{:name => dns_name, :values => values }]
 
 # cloud-level short aliases
 aliases.each do |a|
-  next if a.empty?
+  next if a.empty? 
+  # skip if user has a short alias same as platform name
+  next if a == node.workorder.box.ciName
   alias_name = a + customer_domain
   Chef::Log.info("short alias dns_name: #{alias_name} values: "+dns_name)
   entries.push({:name => alias_name, :values => dns_name })
