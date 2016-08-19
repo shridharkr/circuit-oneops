@@ -1,3 +1,9 @@
+
+def exit_with_error(msg)
+	puts "***FAULT:FATAL=#{msg}"
+	Chef::Application.fatal!(msg)
+end
+
 def find_bricks(index,replicas,length)
   bricks = Array.new
   for n in 0..(replicas-1)
