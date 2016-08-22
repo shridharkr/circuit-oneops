@@ -23,13 +23,10 @@ Chef::Log.info("provider: #{provider} ..")
 os_type = node[:workorder][:rfcCi][:ciAttributes][:ostype]
 Chef::Log.info("node[os_type: #{os_type} ..")
 
-raise("Stop execution")
 if os_type =~ /windows/
-
   Chef::Log.info("os type is windows !.")
   include_recipe "windowsos::add"
   return true
-  
 end
 
 # common plugins dir that components put their check scripts

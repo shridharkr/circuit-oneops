@@ -110,6 +110,8 @@ Set-Content config.yml "- C:/tools/ruby23"
 # Set the latest path to the current session, so that we get the latest path
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
+$env:Path += ";C:\cygdrive\c\tools\ruby23\bin;C:\tools\DevKit2\bin"
+
 #ruby dk.rb init
 ruby dk.rb install
 
@@ -123,6 +125,9 @@ gem install bundler --version 1.10.5 --no-ri --no-rdoc
 
 Add-Content C:\cygwin64\home\admin\.bash_profile 'export PATH=$PATH:/cygdrive/c/tools/ruby23/bin/'
 New-Item C:\cygwin64\opt\admin\workorder\ -ItemType directory
+
+Add-Content C:\cygwin64\home\oneops\.bash_profile 'export PATH=$PATH:/cygdrive/c/tools/ruby23/bin:/cygdrive/c/tools/DevKit2'
+New-Item -ItemType Directory -Force -Path C:\cygwin64\opt\oneops\workorder\
 
 Set-Location "C:\"
 Write-Output "End of windows install_base script"

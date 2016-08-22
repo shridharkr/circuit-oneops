@@ -1,11 +1,7 @@
 Chef::Log.info("Executing WindowsOS::Add recipe ...")
 
+Chef::Log.info("running install_packages")
 include_recipe "windowsos::install_packages"
-include_recipe "os::time"
 
-file 'c:/tmp/first_chef_file' do
-  content '<html>This is a placeholder for the home page.</html>'
-  mode '0755'
-  owner 'admin'
-  group 'admin'
-end
+Chef::Log.info("running os::time")
+include_recipe "os::time"
