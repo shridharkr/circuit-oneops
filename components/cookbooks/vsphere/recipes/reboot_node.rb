@@ -12,7 +12,9 @@ Chef::Log.info("Rebooting instance: " + node[:compute][:instance_name].to_s)
 public_key = node.workorder.payLoad[:SecuredBy][0][:ciAttributes][:public]
 virtual_machine_manager = VirtualMachineManager.new(compute_provider, public_key, instance_id)
 is_rebooted = virtual_machine_manager.reboot
+
 if is_rebooted == true
+  node.set[:ip] = virtual_machine_manager.ip_address
   Chef::Log.info("Rebooted Successfully.")
 else
   Chef::Log.error("Failed to reboot.")
