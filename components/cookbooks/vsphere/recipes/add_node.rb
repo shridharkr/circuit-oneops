@@ -66,6 +66,9 @@ cpu_size = size_values[0]
 memory_size = size_values[1]
 disk_size = size_values[2]
 
+public_key = node.workorder.payLoad[:SecuredBy][0][:ciAttributes][:public]
+bandwidth_throttle_rate = service_compute[:bandwidth_throttle_rate]
+
 Chef::Log.info("Connecting to vCenter " + service_compute[:endpoint].to_s)
 Chef::Log.info("Data Center " + service_compute[:datacenter].to_s)
 Chef::Log.info("Cluster " + service_compute[:cluster].to_s)
@@ -83,25 +86,22 @@ network_interface = get_network_interface(compute_provider, service_compute)
 Chef::Log.info("configuring virtual machine")
 vm_attributes = get_virtual_machine_attributes(service_compute, cpu_size, memory_size, volumes, network_interface)
 
-Chef::Log.info("Creating VM ..... " + node[:server_name].to_s)
-start_time = Time.now
-Chef::Log.info("start time " + start_time.to_s)
-is_debug = node.workorder.payLoad[:Environment][0][:ciAttributes][:debug]
-public_key = node.workorder.payLoad[:SecuredBy][0][:ciAttributes][:public]
-virtual_machine_manager = VirtualMachineManager.new(compute_provider, public_key)
-virtual_machine_manager.bandwidth_throttle_rate = service_compute[:bandwidth_throttle_rate]
-instance_id = virtual_machine_manager.clone(vm_attributes, is_debug)
-puts "***RESULT:instance_id="+instance_id
-# puts "***RESULT:hypervisor="+hypervisor
-Chef::Log.info("end time " + Time.now.to_s)
-total_time = Time.now - start_time
-Chef::Log.info("Total time to create " + total_time.to_s)
+instance_id = node[:compute][:instance_id]
+if !instance_id.nil?
+  Chef::Log.info("Updating VM ..... " + node[:server_name].to_s)
+  virtual_machine_manager = VirtualMachineManager.new(compute_provider, public_key, instance_id)
+else
+  Chef::Log.info("Creating VM ..... " + node[:server_name].to_s)
+  start_time = Time.now
+  Chef::Log.info("start time " + start_time.to_s)
+  is_debug = node.workorder.payLoad[:Environment][0][:ciAttributes][:debug]
+  virtual_machine_manager = VirtualMachineManager.new(compute_provider, public_key)
+  virtual_machine_manager.bandwidth_throttle_rate = bandwidth_throttle_rate
+  virtual_machine_manager.clone(vm_attributes, is_debug)
+  Chef::Log.info("end time " + Time.now.to_s)
+  total_time = Time.now - start_time
+  Chef::Log.info("Total time to create " + total_time.to_s)
+end
 
-ip_address = virtual_machine_manager.ip_address
-node.set[:ip] = ip_address
-Chef::Log.info("Assigned ip address is " + ip_address)
-puts "***RESULT:private_ip="+ip_address
-puts "***RESULT:public_ip="+ip_address
-puts "***RESULT:dns_record="+ip_address
-
+node.set[:ip] = virtual_machine_manager.ip_address
 Chef::Log.info("Exiting vSphere add_node ")
