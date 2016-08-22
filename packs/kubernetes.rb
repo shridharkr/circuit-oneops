@@ -38,6 +38,10 @@ resource 'secgroup-master',
       :services => 'compute'
   }
 
+resource 'os',
+   :attributes => { 'sysctl' => '{"net.core.somaxconn":"2048","net.ipv6.conf.all.forwarding":"1"}'
+                  }
+  
 resource 'compute-master',
   :cookbook => "oneops.1.compute",
   :design => true,
@@ -87,7 +91,8 @@ resource 'os-master',
   :design => true,
   :requires => { "constraint" => "1..1", "services" => "compute,dns,*ntp" },
   :attributes => { "ostype"   => "centos-7.2",
-                   "dhclient" => 'true'
+                   "dhclient" => 'true',
+                   'sysctl' => '{"net.core.somaxconn":"2048","net.ipv6.conf.all.forwarding":"1"}'                       
                  },
 :monitors => {
     'cpu' =>  { :description => 'CPU',
