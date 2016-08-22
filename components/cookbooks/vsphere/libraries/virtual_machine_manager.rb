@@ -3,7 +3,7 @@ require 'fog'
 class VirtualMachineManager
   USER = 'root'
   PASSWORD = ''
-  EPHEMERAL_MOUNT = '/mnt/resources'
+  EPHEMERAL_MOUNT = '/mnt/resource'
   def initialize(compute_provider, public_key, instance_id = nil)
     fail ArgumentError, 'compute_provider is invalid' if compute_provider.nil?
     fail ArgumentError, 'public_key is invalid' if public_key.nil?
@@ -156,7 +156,7 @@ class VirtualMachineManager
     time_to_live = 180
     start_time = Time.now
     ip_address = nil
-    Chef::Log.info("Get ip address")
+    Chef::Log.info("getting ip address")
     loop do
       response = @compute_provider.get_virtual_machine(@instance_id)
       ip_address = response['ipaddress']

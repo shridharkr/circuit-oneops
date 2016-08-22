@@ -13,7 +13,7 @@ public_key = node.workorder.payLoad[:SecuredBy][0][:ciAttributes][:public]
 virtual_machine_manager = VirtualMachineManager.new(compute_provider, public_key, instance_id)
 is_powercycled = virtual_machine_manager.powercycle
 if is_powercycled == true
-  Chef::Log.info("Powercycle Successfully.")
+  Chef::Log.info("Powercycling Successful.")
 else
   Chef::Log.error("Failed to Powercycle.")
 end

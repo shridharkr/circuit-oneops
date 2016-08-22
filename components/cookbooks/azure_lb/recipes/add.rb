@@ -39,7 +39,7 @@ def get_probes_from_wo
   ecvs_raw = JSON.parse(ci[:ciAttributes][:ecv_map])
   if ecvs_raw && listeners
     if ecvs_raw.length != listeners.count
-      raise("LB Listeners and ECVs are not the same length. Bad LB configuration!")
+      OOLog.fatal("LB Listeners and ECVs are not the same length. Bad LB configuration!")
     end
 
     index = 0
