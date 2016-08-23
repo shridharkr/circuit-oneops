@@ -91,7 +91,7 @@ node.monitors.each do |mon|
     :httprequest => ecv
   }
     
-  # cleanup previous sg
+  # cleanup previous az
   if node.has_key?("ns_conn_prev")
     
     resp_obj = JSON.parse(node.ns_conn_prev.request(
