@@ -191,7 +191,7 @@ resource 'logstash',
 resource "fqdn",
   :cookbook => "oneops.1.fqdn",
   :design => true,
-  :requires => { "constraint" => "1..1", "services" => "compute,dns,*gdns,lb" },
+  :requires => { "constraint" => "1..1", "services" => "compute,dns,*gdns" },
   :attributes => { "aliases" => '[]' },
   :payloads => {
 'environment' => {
@@ -706,9 +706,7 @@ resource "sensuclient",
     :attributes    => { "flex" => false, "converge" => true, "min" => 1, "max" => 1 }
 end
 
-[ { :from => 'os',          :to => 'compute' },
-  { :from => 'hostname',    :to => 'compute'},
-  { :from => 'hostname',    :to => 'os' },
+[ { :from => 'hostname',    :to => 'os' },
   { :from => 'user',        :to => 'os' },
   { :from => 'job',         :to => 'os' },
   { :from => 'volume',      :to => 'os' },
@@ -745,6 +743,14 @@ end
     :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
 end
 
+# propagation rule for replace and updating /etc/profile.d/oneops.sh
+[ 'hostname','os' ].each do |from|
+  relation "#{from}::depends_on::compute",
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'compute',
+    :attributes    => { 'propagate_to' => 'from' }
+end
 
 # managed_via
 [ "os", 'user', 'job', 'file', 'volume', 'share', 'download', 'library', 'daemon', 'certificate', 'logstash', 'sensuclient' ].each do |from|

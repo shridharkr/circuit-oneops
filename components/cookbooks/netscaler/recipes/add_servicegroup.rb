@@ -56,8 +56,6 @@ cleanup_servicegroups.each do |sg|
   n.run_action(:delete)
 end
 
-include_recipe "netscaler::add_monitor"
-
 
 # cleanup different servicetype for other clouds' in same dc
 if node.workorder.rfcCi.has_key?("ciBaseAttributes") &&
@@ -216,10 +214,15 @@ lbs.each do |lb|
       server_name = compute["ciAttributes"]["instance_name"]
     end
 
+    port = lb[:iport]
+    if lb[:iport] == 'all'
+      port = '*'
+    end
+    
     req = {"servicegroup_servicegroupmember_binding" => {
              "servicegroupname" => sg_name,
              "servername" => server_name,
-             "port" => lb[:iport]
+             "port" => port
              }
            }
 
@@ -235,7 +238,10 @@ lbs.each do |lb|
 
   end
 
+  
+  include_recipe "netscaler::add_monitor"  
 
+  # bind monitors
   node.monitors.each do |mon|
     next if mon[:iport] != lb[:iport]
     

@@ -26,6 +26,7 @@ ruby_block 'install base' do
   block do
 
     Chef::Resource::RubyBlock.send(:include, Chef::Mixin::ShellOut)
+    shell_timeout = 3600
 
     # install os package repos - repo_map keyed by os
     os_type = node.ostype
@@ -46,8 +47,8 @@ ruby_block 'install base' do
     if node.workorder.rfcCi.has_key?("repo_list") &&
        node.workorder.rfcCi.ciAttributes.repo_list.include?("[")
 
-      Chef::Log.info("adding compute-level repo_list: #{node.workorder.rfcCi.ciAttributes.repo_list}")
-      repo_cmds += JSON.parse(node.workorder.rfcCi.ciAttributes.repo_list)
+      Chef::Log.info("adding compute-level repo_list: #{node.repo_list}")
+      repo_cmds += JSON.parse(node.repo_list)
     end
 
     if repo_cmds.size > 0 && os_type !~ /windows*/
@@ -72,7 +73,7 @@ ruby_block 'install base' do
     cookbook_path = "#{circuit_dir}/shared/"
     Chef::Log.info("Syncing #{cookbook_path} ...")
     cmd = node.rsync_cmd.gsub("SOURCE",cookbook_path).gsub("DEST","~/shared/").gsub("IP",node.ip)
-    result = shell_out(cmd)
+    result = shell_out(cmd, :timeout => shell_timeout)
     Chef::Log.info("#{cmd} returned: #{result.stdout}")
     result.error!
 
@@ -92,11 +93,14 @@ ruby_block 'install base' do
 
     Chef::Log.info("Syncing #{cookbook_path} ...")
     cmd = node.rsync_cmd.gsub("SOURCE",cookbook_path).gsub("DEST","~/#{sub_circuit_dir}/").gsub("IP",node.ip)
-    result = shell_out(cmd)
+    result = shell_out(cmd, :timeout => shell_timeout)
     Chef::Log.debug("#{cmd} returned: #{result.stdout}")
     result.error!
 
+
+    # install base: oneops user, ruby, chef, nagios
     env_vars = JSON.parse(node.workorder.services.compute[cloud_name][:ciAttributes][:env_vars])
+    Chef::Log.info("env_vars: #{env_vars.inspect}")
     args = ""
     proxy = ''
     gem_repo = ''
@@ -118,7 +122,6 @@ ruby_block 'install base' do
       sudo = "sudo "
     end
 
-    #install_base = "components/cookbooks/compute/files/default/install_base.sh"
     Chef::Log.info("Installing base sw for oneops ...")
 
     if os_type !~ /windows/
@@ -180,17 +183,17 @@ ruby_block 'install base' do
 
     end
 
-
     cmd = node.ssh_cmd.gsub("IP",node.ip) + "\"grep processor /proc/cpuinfo | wc -l\""
-    result = shell_out(cmd)
+    result = shell_out(cmd, :timeout => shell_timeout)
     cores = result.stdout.gsub("\n","")
     puts "***RESULT:cores=#{cores}"
 
     cmd = node.ssh_cmd.gsub("IP",node.ip) + "\"free | head -2 | tail -1 | awk '{ print \\$2/1024 }'\""
     puts cmd
-    result = shell_out(cmd)
+    result = shell_out(cmd, :timeout => shell_timeout)
     ram = result.stdout.gsub("\n","")
     puts "***RESULT:ram=#{ram}"
+
   end
 
 end

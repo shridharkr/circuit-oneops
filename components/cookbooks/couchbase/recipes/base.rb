@@ -15,6 +15,7 @@ require "#{dir}/libraries/component/couchbase_component"
 require "#{dir}/libraries/component/ring_component"
 require "#{dir}/libraries/component/precbhook"
 require "#{dir}/libraries/component/cbcluster_component"
+require "#{dir}/libraries/component/diagnostic_cache_component"
 require "#{dir}/libraries/workorder_factory"
 
 component = Couchbase::Factory::WorkOrderFactory.init(node)

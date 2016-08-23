@@ -33,6 +33,8 @@ Chef::Log.info("Cloud Provider: #{provider}")
 # refactoring azure specific recipe to an azure folder to make it easier to manage all the files.
 if provider =~ /azure/
   include_recipe 'azure::add_node'
+elsif provider =~ /vsphere/
+  include_recipe 'vsphere::add_node'
 else
   include_recipe "compute::add_node_"+provider
 end

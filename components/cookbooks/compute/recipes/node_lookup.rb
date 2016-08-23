@@ -105,3 +105,4 @@ node.set[:ostype] = ostype
 node.set[:size_id] = size_id
 node.set[:image_id] = image_id
 node.set[:kp_name] = kp_name
+node.set[:repo_list] = os['ciAttributes']['repo_list']

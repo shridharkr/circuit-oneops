@@ -1,5 +1,5 @@
-name             "Kubernetes-deployment"
-description      "Kubernetes Deployment Object"
+name             "Container-app"
+description      "Container application model"
 version          "0.1"
 maintainer       "OneOps"
 maintainer_email "support@oneops.com"
@@ -13,7 +13,6 @@ grouping 'bom',
   :access => "global",
   :packages => [ 'bom' ]
  
-    
 attribute 'deployment_yaml',
   :description => "Deployment YAML",
   :data_type => "text",
@@ -23,14 +22,13 @@ attribute 'deployment_yaml',
     :order => 1
   }
 
-attribute 'deployment_url',
+attribute 'app_url',
   :description => "Deployment URL",
   :grouping => 'bom',
   :format => {
-    :help => 'Deployment URL for your app',
+    :help => 'URL to your app',
     :category => '1.Runtime',
     :order => 1
   }
     
-  
 recipe "repair", "Repair"

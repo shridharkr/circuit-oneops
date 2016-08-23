@@ -7,15 +7,13 @@ Requires=docker.socket
 [Service]
 EnvironmentFile=-/etc/kubernetes/config
 EnvironmentFile=-/etc/kubernetes/kubelet
-ExecStart=/usr/bin/kubelet \
-	    ${KUBE_LOGTOSTDERR} \
-	    ${KUBE_LOG_LEVEL} \
+# moving args to be inside here. for some reason kubelet + systemd doesnt work with args from the env var
+ExecStart=/usr/bin/kubelet <%= node['kube']['kubelet']['args'].strip %> \
 	    ${KUBELET_API_SERVERS} \
 	    ${KUBELET_ADDRESS} \
 	    ${KUBELET_PORT} \
-	    ${KUBELET_HOSTNAME} \
 	    ${KUBE_ALLOW_PRIV} \
-	    ${KUBELET_ARGS}
+	    ${KUBE_LOG_LEVEL}
 Restart=on-failure
 
 [Install]

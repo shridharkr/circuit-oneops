@@ -10,16 +10,8 @@ resource 'secgroup',
   :attributes => {
       :inbound => '[
         "22 22 tcp 0.0.0.0/0", 
-        "80 80 tcp 0.0.0.0/0",
-        "8472 8472 udp 0.0.0.0/0",
-        "8285 8285 udp 0.0.0.0/0",
-        "53 53 tcp 0.0.0.0/0",
-        "53 53 udp 0.0.0.0/0",
-        "2181 2181 tcp 0.0.0.0/0",
-        "3888 3888 tcp 0.0.0.0/0",
-        "8080 8080 tcp 0.0.0.0/0", 
-        "2888 2888 tcp 0.0.0.0/0",
-        "10053 10053 tcp 0.0.0.0/0"
+        "1 65535 tcp 0.0.0.0/0",
+        "1 65535 udp 0.0.0.0/0"
       ]'
   }
 
@@ -29,21 +21,27 @@ resource 'docker_engine',
              :root => '$OO_LOCAL{docker-root}',
              :repo => '$OO_LOCAL{docker-repo}',
              :network => 'flannel',
-             :network_cidr => '11.11.0.0/16',
-             :network_subnet => '11.11.{INSTANCE_INDEX}.1/24',           
+             :network_cidr => '11.11.0.0/16'
          } 
  
 resource 'secgroup-master',
   :cookbook => 'oneops.1.secgroup',
   :design => true,
   :attributes => {
-      :inbound => '["22 22 tcp 0.0.0.0/0", "8080 8080 tcp 0.0.0.0/0", "2379 2380 tcp 0.0.0.0/0" ]'
+      :inbound => '["22 22 tcp 0.0.0.0/0", 
+                    "8080 8080 tcp 0.0.0.0/0", 
+                    "2379 2380 tcp 0.0.0.0/0",
+                    "8472 8472 udp 0.0.0.0/0"]'
   },
   :requires => {
       :constraint => '1..1',
       :services => 'compute'
   }
 
+resource 'os',
+   :attributes => { 'sysctl' => '{"net.core.somaxconn":"2048","net.ipv6.conf.all.forwarding":"1"}'
+                  }
+  
 resource 'compute-master',
   :cookbook => "oneops.1.compute",
   :design => true,
@@ -93,7 +91,8 @@ resource 'os-master',
   :design => true,
   :requires => { "constraint" => "1..1", "services" => "compute,dns,*ntp" },
   :attributes => { "ostype"   => "centos-7.2",
-                   "dhclient" => 'true'
+                   "dhclient" => 'true',
+                   'sysctl' => '{"net.core.somaxconn":"2048","net.ipv6.conf.all.forwarding":"1"}'                       
                  },
 :monitors => {
     'cpu' =>  { :description => 'CPU',
@@ -281,7 +280,7 @@ resource 'kubernetes-master',
        ]
     }'
   },
-    'worker-computes' => {
+    'node-computes' => {
       'description' => 'computes',
       'definition' => '{
          "returnObject": false,
@@ -299,7 +298,7 @@ resource 'kubernetes-master',
                { "returnObject": false,
                  "returnRelation": false,
                  "relationName": "manifest.Requires",
-                 "targetCiName": "kubernetes-worker",
+                 "targetCiName": "kubernetes-node",
                  "direction": "from",
                  "targetClassName": "manifest.oneops.1.Kubernetes",
                 "relations": [
@@ -352,10 +351,46 @@ resource 'kubernetes-master',
          ]
       }'
     }          
-  }
+  },
+:monitors => {
+    'nodes' =>  { :description => 'Nodes',
+                :source => '',
+                :cmd => 'check_nodes',
+                :cmd_line => '/opt/nagios/libexec/check_nodes.rb',
+                :metrics =>  {
+                  'ready'   => metric( :unit => 'count', :description => 'Ready'),
+                  'total'   => metric( :unit => 'count', :description => 'Total'),
+                  'percent_ready'   => metric( :unit => '%', :description => 'Percent Ready'),                  
+                },
+                :thresholds => {
+                  'PercentReady' => threshold('1m','avg','percent_ready',trigger('<=', 75, 1, 1), reset('>', 75, 1, 1))
+                }
+              },
+    'pods' =>  { :description => 'Pods',
+                :source => '',
+                :cmd => 'check_pods',
+                :cmd_line => '/opt/nagios/libexec/check_pods.rb',
+                :metrics =>  {
+                  'pending'   => metric( :unit => 'count', :description => 'Pending'),
+                  'running'   => metric( :unit => 'count', :description => 'Running'),
+                  'crash'   => metric( :unit => 'count', :description => 'CrashLoopBackOff'),                    
+                  'total'   => metric( :unit => 'count', :description => 'Total'),
+                  'percent_running'   => metric( :unit => '%', :description => 'Percent Running'),                  
+                },
+                :thresholds => {
+                  'PercentRunning' => threshold('1m','avg','percent_running',trigger('<=', 75, 1, 1), reset('>', 75, 1, 1))
+                }
+              }
+                
+}
 
-
+# tmp add back for old env deletion
 resource 'kubernetes-worker',
+  :cookbook => 'oneops.1.kubernetes',
+  :design => true,
+  :requires => { "constraint" => "0..1" }
+
+resource 'kubernetes-node',
   :cookbook => 'oneops.1.kubernetes',
   :design => true,
   :requires => { "constraint" => "1..1", "services" => "*mirror" },
@@ -405,7 +440,7 @@ resource 'kubernetes-worker',
      ]
   }'
 },
-  'worker-computes' => {
+  'node-computes' => {
     'description' => 'computes',
     'definition' => '{
        "returnObject": false,
@@ -423,7 +458,7 @@ resource 'kubernetes-worker',
              { "returnObject": false,
                "returnRelation": false,
                "relationName": "manifest.Requires",
-               "targetCiName": "kubernetes-worker",
+               "targetCiName": "kubernetes-node",
                "direction": "from",
                "targetClassName": "manifest.oneops.1.Kubernetes",
               "relations": [
@@ -451,7 +486,12 @@ resource 'kubernetes-worker',
     }'
   }  
 }
-  
+
+resource "lb",
+  :attributes => {
+    "listeners"     => '["any all any all"]',
+    "ecv_map"       => '{"all":"port-check"}'
+  }
   
 resource "lb-master-certificate",
   :cookbook => "oneops.1.certificate",
@@ -465,7 +505,8 @@ resource "lb-master",
   :cookbook => "oneops.1.lb",
   :requires => { "constraint" => "1..1", "services" => "compute,lb,dns" },
   :attributes => {
-    "listeners"     => '["http 8080 http 8080"]',
+    "listeners"     => '["http 8080 http 8080",
+                         "http 80 http 8080"]',
     "ecv_map"       => '{"8080":"GET /api/"}'
   },
   :payloads => {
@@ -821,8 +862,132 @@ resource 'user-master',
   :design => true,
   :requires => { "constraint" => "0..*" }
 
+resource 'system-container-apps',
+  :cookbook => "oneops.1.container-app",
+  :design => true,
+  :requires => { "constraint" => "0..*" }
 
-#    
+# for clean nodes list
+resource 'hostname',
+  :requires => { "constraint" => "1..1", "services" => "dns" }
+
+
+resource 'daemon-apiserver',
+  :cookbook => "oneops.1.daemon",
+  :design => true,
+  :attributes => {
+      :service_name => 'kube-apiserver',
+      :use_script_status => 'true'
+  },
+  :requires => { "constraint" => "1..1" },
+  :monitors => {
+      'process' =>  { :description => 'Process',
+                  :source => '',
+                  :chart => {'min'=>'0','max'=>'100','unit'=>'Percent'},
+                  :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!true!null!false',
+                  :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$" "$ARG4$"',
+                  :metrics =>  {
+                    'up'   => metric( :unit => '%', :description => 'Percent Up'),
+                  },
+                  :thresholds => {  
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1), 'unhealthy')
+                  }
+                }
+  }
+
+resource 'daemon-controller-manager',
+  :cookbook => "oneops.1.daemon",
+  :design => true,
+  :attributes => {
+      :service_name => 'kube-controller-manager',
+      :use_script_status => 'true'
+  },
+  :requires => { "constraint" => "1..1" },
+  :monitors => {
+      'process' =>  { :description => 'Process',
+                  :source => '',
+                  :chart => {'min'=>'0','max'=>'100','unit'=>'Percent'},
+                  :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!true!null!false',
+                  :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$" "$ARG4$"',
+                  :metrics =>  {
+                    'up'   => metric( :unit => '%', :description => 'Percent Up'),
+                  },
+                  :thresholds => {  
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1), 'unhealthy')
+                  }
+                }
+  }
+
+resource 'daemon-scheduler',
+  :cookbook => "oneops.1.daemon",
+  :design => true,
+  :attributes => {
+      :service_name => 'kube-scheduler',
+      :use_script_status => 'true'
+  },
+  :requires => { "constraint" => "1..1" },
+  :monitors => {
+      'process' =>  { :description => 'Process',
+                  :source => '',
+                  :chart => {'min'=>'0','max'=>'100','unit'=>'Percent'},
+                  :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!true!null!false',
+                  :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$" "$ARG4$"',
+                  :metrics =>  {
+                    'up'   => metric( :unit => '%', :description => 'Percent Up'),
+                  },
+                  :thresholds => {  
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1), 'unhealthy')
+                  }
+                }
+  }
+        
+resource 'daemon-kubelet',
+  :cookbook => "oneops.1.daemon",
+  :design => true,
+  :attributes => {
+      :service_name => 'kubelet',
+      :use_script_status => 'true'
+  },
+  :requires => { "constraint" => "1..1" },
+  :monitors => {
+      'process' =>  { :description => 'Process',
+                  :source => '',
+                  :chart => {'min'=>'0','max'=>'100','unit'=>'Percent'},
+                  :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!true!null!false',
+                  :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$" "$ARG4$"',
+                  :metrics =>  {
+                    'up'   => metric( :unit => '%', :description => 'Percent Up'),
+                  },
+                  :thresholds => {  
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1), 'unhealthy')
+                  }
+                }
+  }
+
+resource 'daemon-proxy',
+  :cookbook => "oneops.1.daemon",
+  :design => true,
+  :attributes => {
+      :service_name => 'kube-proxy',
+      :use_script_status => 'true'
+  },  
+  :requires => { "constraint" => "1..1" },
+  :monitors => {
+      'process' =>  { :description => 'Process',
+                  :source => '',
+                  :chart => {'min'=>'0','max'=>'100','unit'=>'Percent'},
+                  :cmd => 'check_process!:::node.workorder.rfcCi.ciAttributes.service_name:::!true!null!false',
+                  :cmd_line => '/opt/nagios/libexec/check_process.sh "$ARG1$" "$ARG2$" "$ARG3$" "$ARG4$"',
+                  :metrics =>  {
+                    'up'   => metric( :unit => '%', :description => 'Percent Up'),
+                  },
+                  :thresholds => {  
+                     'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1), 'unhealthy')
+                  }
+                }
+  }
+        
+#
 # relations
 #
 
@@ -878,15 +1043,24 @@ end
 end    
 
 # needed for kube-proxy --master arg (only takes 1 ip) and a name/domain will not work 
-# more notes in the worker recipe
-[ 'kubernetes-worker' ].each do |from|
+# more notes in the node recipe
+[ 'kubernetes-node' ].each do |from|
   relation "#{from}::depends_on::lb-master",
     :except => [ '_default', 'single' ],
     :relation_name => 'DependsOn',
     :from_resource => from,
     :to_resource   => 'lb-master',
     :attributes    => { "propagate_to" => 'both', "flex" => false, "converge" => true }
-end   
+end
+
+[ 'system-container-apps' ].each do |from|
+  relation "#{from}::depends_on::kubernetes-node",
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'kubernetes-node',
+    :attributes    => { "flex" => false, "converge" => true }
+end
+
 
 [ 'fqdn-master' ].each do |from|
   relation "#{from}::depends_on::compute-master",
@@ -906,13 +1080,18 @@ end
     :attributes    => { "flex" => false, "converge" => true, "min" => 1, "max" => 1 }
 end
 
-[ { :from => 'user-master',      :to => 'os-master' },
-  { :from => 'etcd-master',      :to => 'compute-master' },
-  { :from => 'etcd-master',      :to => 'os-master' },        
-  { :from => 'kubernetes-master',:to => 'etcd-master' },
-  { :from => 'os-master',        :to => 'compute-master' },
-  { :from => 'kubernetes-worker',:to => 'docker_engine' },
-  { :from => 'kubernetes-worker',:to => 'compute' }
+[ { :from => 'user-master',       :to => 'os-master' },
+  { :from => 'etcd-master',       :to => 'compute-master' },
+  { :from => 'etcd-master',       :to => 'os-master' },        
+  { :from => 'kubernetes-master', :to => 'etcd-master' },
+  { :from => 'os-master',         :to => 'compute-master' },
+  { :from => 'daemon-controller-manager', :to => 'kubernetes-master' },
+  { :from => 'daemon-apiserver',  :to => 'kubernetes-master' },
+  { :from => 'daemon-scheduler',  :to => 'kubernetes-master' },
+  { :from => 'daemon-kubelet',    :to => 'kubernetes-node' },
+  { :from => 'daemon-proxy',      :to => 'kubernetes-node' },
+  { :from => 'kubernetes-node',   :to => 'docker_engine' },
+  { :from => 'kubernetes-node',   :to => 'compute' }
     ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
     :relation_name => 'DependsOn',
@@ -923,7 +1102,8 @@ end
 
 
 # managed_via
-[ 'os-master','etcd-master','kubernetes-master','user-master' ].each do |from|
+[ 'os-master','etcd-master','kubernetes-master','user-master','system-container-apps',
+  'daemon-controller-manager', 'daemon-apiserver', 'daemon-scheduler'].each do |from|
   relation "#{from}::managed_via::compute-master",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',
@@ -932,7 +1112,7 @@ end
     :attributes    => { } 
 end
 
-[ 'kubernetes-worker'].each do |from|
+[ 'kubernetes-node', 'daemon-kubelet', 'daemon-proxy'].each do |from|
   relation "#{from}::managed_via::compute",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',

@@ -10,6 +10,7 @@ module Couchbase
       @password
       @env_profile
       @errors
+      @nodes
 
       def initialize(data)
         @data = data
@@ -18,8 +19,7 @@ module Couchbase
 
         # cm is dynamic payload defined in the pack to get the resources
         if (@data.workorder.payLoad.has_key?('cm'))
-
-          cm = @data.workorder.payLoad.cm.select { |c| c['ciClassName'] =~ /Couchbase/ }.first
+          cm = @data.workorder.payLoad.cm.select { |c| c['ciClassName'].split('.').last == 'Couchbase' }.first
 
           attributes = cm["ciAttributes"]
           @username = attributes["adminuser"]
@@ -27,7 +27,7 @@ module Couchbase
           @port = attributes["port"]
 
         else
-          cb = @data.workorder.payLoad.DependsOn.select { |c| c['ciClassName'] =~ /Couchbase/ }.first
+          cb = @data.workorder.payLoad.DependsOn.select { |c| c['ciClassName'].split('.').last == 'Couchbase' }.first
 
           attributes = cb["ciAttributes"]
           @username = attributes["adminuser"]
@@ -35,20 +35,23 @@ module Couchbase
           @port = attributes["port"]
         end
 
-        nodes=@data.workorder.payLoad.ManagedVia
-        nodes.each { |node|
-          if node['ciAttributes'].has_key?("public_ip")
+        @nodes=@data.workorder.payLoad.ManagedVia
+        @nodes.each { |node|
+          if node['ciAttributes'].has_key?("public_ip") && !node['ciAttributes']['public_ip'].empty?
             ip=node['ciAttributes']["public_ip"]
-            begin
-              @cluster = Couchbase::CouchbaseCluster.new(ip, @username, @password)
-              if @cluster.list_nodes.length > 0
-                break
-              end
-            rescue Exception => e
-              Chef::Log.warn "NODE:#{ip} #{e.message}"
+	  else
+            ip=node['ciAttributes']["private_ip"]
+	  end
+          
+	  begin
+            @cluster = Couchbase::CouchbaseCluster.new(ip, @username, @password)
+            if @cluster.list_nodes.length > 0
+              break
             end
-
+          rescue Exception => e
+            Chef::Log.warn "NODE:#{ip} #{e.message}"
           end
+
         }
 
       end
@@ -91,24 +94,63 @@ module Couchbase
       end
 
       def reset_quota
-        nodes=@data.workorder.payLoad.ManagedVia
-        if @cluster.need_reset_quota? && @cluster.all_healthy? && @cluster.all_active? && nodes.size == @cluster.list_nodes.size
+        if @cluster.need_reset_quota? && @cluster.all_healthy? && @cluster.all_active? && @nodes.size == @cluster.list_nodes.size && !@cluster.rebalance_needed?
           @cluster.reset_quota
         end
 
         if @cluster.need_reset_quota?
+          if !@cluster.rebalance_needed?
+            reset_cluster_manager
+          end
           @errors.push("Unable to 'Reset Quota'. SEE: https://confluence.walmart.com/x/qI6-Bw")
         else
           Chef::Log.info("Quota was reset")
         end
       end
 
+      def reset_cluster_manager_on_node(ip)
+        `curl --data "erlang:halt()." -u #{@username}:#{@password} http://#{ip}:8091/diag/eval`
+      end
+
+      def loop_until_node_healthy(ip)
+        cluster=nil
+        begin
+          Timeout::timeout(25) do
+            reset_cluster_manager_on_node(ip)
+            begin
+              while cluster.nil? do
+                begin
+                  cluster=Couchbase::CouchbaseCluster.new(ip, @username, @password)
+                rescue Exception => e
+                  #puts "NODE:#{ip} #{e.message}"
+                  sleep(2)
+                  Chef::Log.info "Sleep 2 seconds before reconnection to node #{ip}"
+                end
+                #is_node_healthy=cluster.nil?
+              end
+            end while !(cluster.all_healthy? && cluster.all_active?)
+          end
+        rescue Timeout::Error
+          Chef::Log.warn "Timeout. Unable to connect #{ip}"
+        end
+      end
+
+      def reset_cluster_manager
+        @nodes.each { |node|
+          ip = node['ciAttributes']['private_ip']
+          unless ip.nil?
+            Chef::Log.info "Resetting cluster manager for ip:#{ip}"
+            loop_until_node_healthy(ip)
+          end
+        }
+      end
+
+
       def run_rebalance
 
-        nodes=@data.workorder.payLoad.ManagedVia
         inactive_nodes = @cluster.list_inactive_nodes
 
-        if @cluster.rebalance_needed? && @cluster.all_healthy? && nodes.size == @cluster.list_nodes.size && inactive_nodes.size <= 1
+        if @cluster.rebalance_needed? && @cluster.all_healthy? && @nodes.size == @cluster.list_nodes.size && inactive_nodes.size <= 1
           if inactive_nodes.size == 1
             Chef::Log.info("Adding node #{inactive_nodes.first.fetch(:ip)} back.")
             @cluster.server_readd
@@ -117,12 +159,13 @@ module Couchbase
           @cluster.rebalance
 
           if @cluster.rebalance_needed?
+            reset_cluster_manager
             @errors.push("Unable to Rebalance. SEE: https://confluence.walmart.com/x/qI6-Bw")
           end
 
         elsif @cluster.rebalance_needed? || !@cluster.all_healthy?
           #reason it fails to rebalance
-          if nodes.size != @cluster.list_nodes.size
+          if @nodes.size != @cluster.list_nodes.size
             @errors.push("Cache Nodes mismatch OneOps Computes. SEE: https://confluence.walmart.com/x/qI6-Bw")
           end
 
@@ -146,12 +189,11 @@ module Couchbase
 
       def collect_cb_logs
 
-        nodes=@data.workorder.payLoad.ManagedVia
         logs='Logs uploaded to https://s3.amazonaws.com/customers.couchbase.com/walmartlabs/ -'
 
-        nodes.each do |node|
-          if node['ciAttributes'].has_key?("public_ip")
-            logs += collect_cb_log(node['ciAttributes']["public_ip"]) + ' '
+        @nodes.each do |node|
+          if node['ciAttributes'].has_key?("private_ip")
+            logs += collect_cb_log(node['ciAttributes']["private_ip"]) + ' '
           end
         end
         Chef::Log.info logs
@@ -298,7 +340,7 @@ module Couchbase
       def check_for_nodes_mismatch
 
         # Get list of nodes in OneOps
-        workorder_nodes=@data.workorder.payLoad.ManagedVia.map{ |n| n['ciAttributes']['public_ip'] }.sort
+        workorder_nodes=@nodes.map{ |n| n['ciAttributes']['private_ip'] }.sort
         # Get list of nodes in Couchbase cluster
         list_nodes=@cluster.list_nodes.map{ |n| n.fetch(:ip) }.sort
 
@@ -335,7 +377,7 @@ module Couchbase
           return
         end
 
-        oo_bucket = @data.workorder.payLoad.cb_buckets.select { |c| c['ciClassName'] =~ /Bucket/ }.map { |oneops_bucket| oneops_bucket['ciAttributes']['bucketname'] }.sort
+        oo_bucket = @data.workorder.payLoad.cb_buckets.select { |c| c['ciClassName'].split('.').last == 'Bucket' }.map { |oneops_bucket| oneops_bucket['ciAttributes']['bucketname'] }.sort
         cluster_bucket = @cluster.list_buckets.sort
         Chef::Log.info "check_for_buckets_mismatch: Bucket in Couchbase cluster = #{cluster_bucket.join(', ')}"
 
@@ -364,8 +406,8 @@ module Couchbase
         # create a hash with the node_ip and hypervisor attributes
         computes = Hash.new
 
-        @data.workorder.payLoad.ManagedVia.each do |compute_node|
-          computes[compute_node['ciAttributes']['public_ip']] = compute_node['ciAttributes']['hypervisor']
+        @nodes.each do |compute_node|
+          computes[compute_node['ciAttributes']['private_ip']] = compute_node['ciAttributes']['hypervisor']
         end
 
         duplicates = computes.group_by { |compute| compute[1] }.values.select { |compute| compute.size > 1 }.flatten

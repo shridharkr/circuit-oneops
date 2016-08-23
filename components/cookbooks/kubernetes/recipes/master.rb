@@ -31,11 +31,11 @@ when 'flannel'
     network_cidr = docker['ciAttributes']['network_cidr']
   end
       
-  #execute "etcdctl mk /atomic.io/network/config '{\"Network\": \"#{network_cidr}\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\", \"VNI\": 1}}'"
-  execute "etcdctl mk /atomic.io/network/config '{\"Network\":\"#{network_cidr}\"}'" do
-    returns [0,4]
+  # returns 4 when already done
+  flannel_conf = "{\"Network\": \"#{network_cidr}\", \"Backend\": {\"Type\": \"vxlan\", \"VNI\": 1}}"
+  execute "etcdctl mk /docker-flannel/network/config '#{flannel_conf}'" do
+      returns [0,4]
   end
-
   
 
   service 'flanneld' do
@@ -57,19 +57,7 @@ end
 
 include_recipe 'kubernetes::install'
 
-
-kubelet_args_value = ''
-if node.kubernetes.has_key?("kubelet_args")
-  kubelet_args = JSON.parse(node.kubernetes.kubelet_args)
-  kubelet_args.each_pair do |k,v|
-    Chef::Log.info("setting kubelet arg: --#{k}=#{v}")
-    kubelet_args_value += " --#{k}=#{v}"
-  end
-end
-node.set['kube']['kubelet']['args'] = kubelet_args_value
-
-
-# generate kubernetes config file
+# generate kubernetes config files
 %w(apiserver config controller-manager scheduler).each do |file|
   template "/etc/kubernetes/#{file}" do
     cookbook 'kubernetes'
@@ -81,7 +69,7 @@ node.set['kube']['kubelet']['args'] = kubelet_args_value
   end
 end
 
-# generate systemd file
+# generate systemd files
 %w(kube-apiserver.service kube-controller-manager.service kube-scheduler.service).each do |service|
   cookbook_file "/usr/lib/systemd/system/#{service}" do
     source service
@@ -95,4 +83,16 @@ end
   service service do
     action [:enable, :restart]
   end
+end
+
+cookbook_file '/opt/nagios/libexec/check_nodes.rb' do
+  source 'check_nodes.rb'
+  mode 00755
+  action :create
+end
+
+cookbook_file '/opt/nagios/libexec/check_pods.rb' do
+  source 'check_pods.rb'
+  mode 00755
+  action :create
 end

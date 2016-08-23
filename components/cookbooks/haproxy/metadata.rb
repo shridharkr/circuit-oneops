@@ -9,6 +9,45 @@ grouping 'default',
   :access => "global",
   :packages => [ 'base', 'mgmt.catalog', 'catalog', 'mgmt.manifest', 'manifest', 'bom' ]
 
+grouping 'service',
+  :access => "global",
+  :packages => [ 'service.lb', 'mgmt.cloud.service', 'cloud.service' ]
+
+# attrs for cloud service
+attribute 'endpoint',
+  :grouping => 'service',
+  :description => "endpoint",
+  :required => "required",
+  :format => {
+    :important => true,
+    :help => 'Endpoint of haproxy',
+    :category => '1.General',
+    :order => 1
+  }    
+  
+
+attribute 'username',
+  :grouping => 'service',
+  :description => "username",
+  :required => "required",
+  :format => {
+    :important => true,
+    :help => 'Username',
+    :category => '1.General',
+    :order => 3
+  }      
+
+attribute 'password',
+  :grouping => 'service',
+  :description => "password",
+  :encrypted => true, 
+  :required => "required",
+  :format => {
+    :help => 'Password',
+    :category => '1.General',
+    :order => 4
+  }        
+    
 
 attribute 'enable_stats_socket',
   :description => "Enable Stats Socket",

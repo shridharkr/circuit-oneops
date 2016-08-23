@@ -13,37 +13,63 @@
 # limitations under the License.
 #
 
+
 # kubernetes master
 default['kube']['api']['host'] = ''
 default['kube']['api']['bind-address'] = '0.0.0.0'
-default['kube']['api']['bind-port'] = '8080'
-default['kube']['api']['args'] = ''
-default['kube']['service']['addresses'] = '10.254.0.0/16'
-default['kube']['controller-manager']['args'] = ''
+default['kube']['api']['bind-port'] = node.kubernetes.api_port
+default['kube']['service']['addresses'] = node.kubernetes.service_addresses
 default['kube']['scheduler']['args'] = ''
 
-# kubernetes minions
+controller_manager_args_value = ''
+if node.kubernetes.has_key?("controller_manager_args")
+  args = JSON.parse(node.kubernetes.controller_manager_args)
+  args.each_pair do |k,v|
+    Chef::Log.info("setting controller_manager arg: --#{k}=#{v}")
+    controller_manager_args_value += " --#{k}=#{v}"
+  end
+end
+node.set['kube']['controller-manager']['args'] = controller_manager_args_value
+  
+scheduler_args_value = ''
+if node.kubernetes.has_key?("scheduler_args")
+  args = JSON.parse(node.kubernetes.scheduler_args)
+  args.each_pair do |k,v|
+    Chef::Log.info("setting scheduler arg: --#{k}=#{v}")
+    scheduler_args_value += " --#{k}=#{v}"
+  end
+end
+node.set['kube']['scheduler']['args'] = scheduler_args_value  
+
+  
+# kubernetes nodes
 default['kube']['kubelet']['machines'] = []
 default['kube']['kubelet']['bind-address'] = '0.0.0.0'
 default['kube']['kubelet']['bind-port'] = '10250'
-default['kube']['kubelet']['args'] = ''
-default['kube']['proxy']['args'] = ''
-
+  
+kubelet_args_value = ''
+if node.kubernetes.has_key?("kubelet_args")
+  kubelet_args = JSON.parse(node.kubernetes.kubelet_args)
+  kubelet_args.each_pair do |k,v|
+    Chef::Log.info("setting kubelet arg: --#{k}=#{v}")
+    kubelet_args_value += " --#{k}=#{v}"
+  end
+end
+node.set['kube']['kubelet']['args'] = kubelet_args_value
+  
+proxy_args_value = ''
+if node.kubernetes.has_key?("proxy_args")
+  proxy_args = JSON.parse(node.kubernetes.proxy_args)
+  proxy_args.each_pair do |k,v|
+    Chef::Log.info("setting proxy arg: --#{k}=#{v}")
+    proxy_args_value += " --#{k}=#{v}"
+  end
+end
+node.set['kube']['proxy']['args'] = proxy_args_value  
+  
+  
 default['kube']['interface'] = 'eth0'
 
-mirror = "https://github.com/GoogleCloudPlatform"
-cloud_name = node.workorder.cloud.ciName
-if node.workorder.services.has_key?("mirror") &&
-   node.workorder.services.mirror[cloud_name]['ciAttributes']['mirrors'].include?('kubernetes')
-  
-  mirrors = JSON.parse(node.workorder.services.mirror[cloud_name]['ciAttributes']['mirrors'])
-  if mirrors.has_key?("kubernetes")
-    mirror = mirrors['kubernetes']    
-    Chef::Log.info("using mirrors payload: #{mirror}")
-  end
-  
-end
-default['kube']['package'] = mirror+"/kubernetes/releases/download/v#{node.workorder.rfcCi.ciAttributes.version}/kubernetes.tar.gz"
 
 # related packages
 default['kube']['go']['package'] = 'golang'

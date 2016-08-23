@@ -21,19 +21,11 @@ module AzureStorage
       c=Azure::Core.config()
       c.storage_access_key = access_key
       c.storage_account_name = storage_account_name
-
       service = Azure::Blob::BlobService.new()
 
       container = "vhds"
       # Delete a Blob
       begin
-        if lock_state == 1
-          lease_time_left = service.break_lease(container, blobname)
-          OOLog.info("Waiting for the lease time on #{blobname} to expire")
-          if lease_time_left < 10
-            sleep lease_time_left+10
-          end
-        end
         delete_result = "success"
         retry_count = 20
         begin
@@ -47,7 +39,7 @@ module AzureStorage
           OOLog.debug("Error in deleting the data disk (page blob):#{blobname}")
         end
       rescue Exception => e
-        OOLog.debug(e.message)
+        OOLog.fatal("Failed to delete the disk: #{e.inspect}")
       end
       OOLog.info("Successfully deleted the Datadisk(page blob):#{blobname}")
     end
@@ -55,9 +47,9 @@ module AzureStorage
     def self.detach_disk_from_vm(instance_name, subscription_id,rg_name,credentials,device_maps)
       client = Azure::ARM::Compute::ComputeManagementClient.new(credentials)
       client.subscription_id = subscription_id
-      i=2
+      i=1
       vm = nil
-      vm = get_vm_info(instance_name,client,rg_name)  
+      vm = get_vm_info(instance_name,client,rg_name)
       device_maps.each do |dev_vol|
         slice_size = dev_vol.split(":")[3]
         dev_id = dev_vol.split(":")[4]
@@ -68,19 +60,19 @@ module AzureStorage
         diskname = "#{component_name}-datadisk-#{dev_name}"
         #Detach a data disk
         flag = false
-        (vm.properties.storage_profile.data_disks).each do |disk|        
-          if disk.name == diskname  
+        (vm.properties.storage_profile.data_disks).each do |disk|
+          if disk.name == diskname
             OOLog.info("deleting disk at lun:"+(disk.lun).to_s + " dev:#{dev_name} ")
-            vm.properties.storage_profile.data_disks.delete_at(1)
-          end  
-         end 
+            vm.properties.storage_profile.data_disks.delete_at(i-1)
+          end
+         end
          end
          if vm != nil
            OOLog.info("updating VM with these properties" + vm.inspect())
-           update_vm_properties(instance_name,client,rg_name,vm)   
+           update_vm_properties(instance_name,client,rg_name,vm)
          end
     end
-    
+
     #detach disk from the VM
 
     def self.update_vm_properties(instance_name,client,rg_name,vm)
@@ -110,7 +102,7 @@ module AzureStorage
       OOLog.info("data_disk lun:"+data_disk2.lun.to_s)
       data_disk2
     end
-    
+
       # Get the information about the VM
     def self.get_vm_info(instance_name,client,rg_name)
       promise = client.virtual_machines.get(rg_name, instance_name)

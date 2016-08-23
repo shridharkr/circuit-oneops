@@ -17,25 +17,6 @@ include_recipe 'kubernetes::firewall'
 include_recipe 'kubernetes::go'
 include_recipe 'kubernetes::install'
 
-kubelet_args_value = ''
-if node.kubernetes.has_key?("kubelet_args")
-  kubelet_args = JSON.parse(node.kubernetes.kubelet_args)
-  kubelet_args.each_pair do |k,v|
-    Chef::Log.info("setting kubelet arg: --#{k}=#{v}")
-    kubelet_args_value += " --#{k}=#{v}"
-  end
-end
-node.set['kube']['kubelet']['args'] = kubelet_args_value
-  
-proxy_args_value = ''
-if node.kubernetes.has_key?("proxy_args")
-  proxy_args = JSON.parse(node.kubernetes.proxy_args)
-  proxy_args.each_pair do |k,v|
-    Chef::Log.info("setting proxy arg: --#{k}=#{v}")
-    proxy_args_value += " --#{k}=#{v}"
-  end
-end
-node.set['kube']['proxy']['args'] = proxy_args_value  
 
 # generate kubernetes config file
 %w(config kubelet proxy).each do |file|
@@ -50,13 +31,22 @@ node.set['kube']['proxy']['args'] = proxy_args_value
 end
 
 # generate systemd file
-%w(kubelet.service kube-proxy.service).each do |service|
+%w(kube-proxy.service).each do |service|
   cookbook_file "/usr/lib/systemd/system/#{service}" do
     source service
     mode 00644
     action :create
   end
 end
+
+%w(kubelet.service).each do |service|
+  template "/usr/lib/systemd/system/#{service}" do
+    source service
+    mode 00644
+    action :create
+  end
+end
+
 
 # define kubernetes master services
 %w(kubelet kube-proxy).each do |service|
