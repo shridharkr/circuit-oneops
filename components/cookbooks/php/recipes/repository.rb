@@ -16,7 +16,7 @@ if node.php.version == "5.5.30"
     raise e
   end
 
-  php_source = mirrors['php'].split(",")
+  php_source = mirrors['php']
   if php_source.nil?
     msg = "php source repository has not beed defined in cloud mirror service"
     Chef::Log.error(msg)
