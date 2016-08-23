@@ -56,8 +56,6 @@ cleanup_servicegroups.each do |sg|
   n.run_action(:delete)
 end
 
-include_recipe "netscaler::add_monitor"
-
 
 # cleanup different servicetype for other clouds' in same dc
 if node.workorder.rfcCi.has_key?("ciBaseAttributes") &&
@@ -240,7 +238,10 @@ lbs.each do |lb|
 
   end
 
+  
+  include_recipe "netscaler::add_monitor"  
 
+  # bind monitors
   node.monitors.each do |mon|
     next if mon[:iport] != lb[:iport]
     
