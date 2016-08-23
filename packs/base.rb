@@ -706,9 +706,7 @@ resource "sensuclient",
     :attributes    => { "flex" => false, "converge" => true, "min" => 1, "max" => 1 }
 end
 
-[ { :from => 'os',          :to => 'compute' },
-  { :from => 'hostname',    :to => 'compute'},
-  { :from => 'hostname',    :to => 'os' },
+[ { :from => 'hostname',    :to => 'os' },
   { :from => 'user',        :to => 'os' },
   { :from => 'job',         :to => 'os' },
   { :from => 'volume',      :to => 'os' },
@@ -745,13 +743,13 @@ end
     :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
 end
 
-# propagation rule for replace
-[ 'hostname' ].each do |from|
+# propagation rule for replace and updating /etc/profile.d/oneops.sh
+[ 'hostname','os' ].each do |from|
   relation "#{from}::depends_on::compute",
     :relation_name => 'DependsOn',
     :from_resource => from,
     :to_resource   => 'compute',
-    :attributes    => { "propagate_to" => 'from', "flex" => false, "min" => 1, "max" => 1 }
+    :attributes    => { 'propagate_to' => 'from' }
 end
 
 # managed_via
