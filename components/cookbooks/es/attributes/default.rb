@@ -15,7 +15,7 @@ node.normal[:elasticsearch]    = DeepMerge.merge(node.normal[:elasticsearch].to_
 
 # === VERSION AND LOCATION
 #
-default.elasticsearch[:version]       = "1.1.1"
+default.elasticsearch[:version]       = "1.7.1"
 default.elasticsearch[:host]          = "https://download.elastic.co"
 default.elasticsearch[:repository]    = "/elasticsearch/"
 default.elasticsearch[:filename]      = "elasticsearch-#{node.elasticsearch[:version]}.tar.gz"
@@ -43,7 +43,7 @@ default.elasticsearch[:pid_file]  = "#{node.elasticsearch[:pid_path]}/#{node.ela
 # Maximum amount of memory to use is automatically computed as one half of total available memory on the machine.
 # You may choose to set it in your node/role configuration instead.
 #
-allocated_memory = "#{(node.memory.total.to_i * 0.6 ).floor / 1024}m"
+allocated_memory = "#{(node.memory.total.to_i * 0.5 ).floor / 1024}m"
 default.elasticsearch[:allocated_memory] = allocated_memory
 
 # === GARBAGE COLLECTION SETTINGS
