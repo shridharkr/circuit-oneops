@@ -5,12 +5,24 @@ description  'ElasticSearch With LB'
 type         'Platform'
 category     'Search Engine'
 
+platform :attributes => {'autoreplace' => 'false'}
+
 # Overriding the default compute
 resource 'compute',
          :attributes => {
            'ostype' => 'default-cloud',
            'size' => 'M'
          }
+
+
+resource "lb",
+  :except => [ 'single' ],
+  :design => true,
+  :cookbook => "oneops.1.lb",
+  :requires => { "constraint" => "1..1", "services" => "compute,lb,dns" },
+  :attributes => {
+    "listeners" => '["http 9200 http 9200"]',
+}
 
 resource 'user-app',
          :cookbook => 'oneops.1.user',
@@ -50,7 +62,7 @@ resource 'elasticsearch',
          :design => true,
          :requires => {'constraint' => '1..*', 'services' => 'mirror'},
          :attributes => {
-             'version' => '1.1.1'
+             'version' => '1.7.1'
          },
          :monitors => {
              'Log' => {:description => 'Log',
