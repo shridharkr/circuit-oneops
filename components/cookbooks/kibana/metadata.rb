@@ -22,13 +22,13 @@ attribute 'src_url',
 attribute 'version',
           :description => 'Version',
           :required => 'required',
-          :default => '4.1.0',
+          :default => '4.1.2',
           :format => {
 		:important => true,
               	:help => 'Version of ElasticSearch',
               	:category => '2.Global',
               	:order => 1,
-              	:form => { 'field' => 'select', 'options_for_select' => [['4.1.2', '4.1.2'], ['4.2.2', '4.2.2'], ['4.5.1', '4.5.1'], ['4.3.2', '4.3.2']] }
+              	:form => { 'field' => 'select', 'options_for_select' => [['4.1.2', '4.1.2'], ['4.2.2', '4.2.2'], ['4.3.2', '4.3.2']] }
           }
 
 attribute 'install_path',
