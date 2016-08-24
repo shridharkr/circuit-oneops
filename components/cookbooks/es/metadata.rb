@@ -24,7 +24,7 @@ attribute 'mirrors',
 attribute 'version',
           :description => 'Version',
           :required => 'required',
-          :default => '2.3.2',
+          :default => '1.7.1',
           :format => {
               :important => true,
               :help => 'Version of ElasticSearch',
