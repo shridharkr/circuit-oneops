@@ -199,11 +199,11 @@ class Chef
             last_slot = parts_details.length - 1
             last_slot_byte_end = parts_details[last_slot]['end']
 
-            if parts_details[last_slot]['end'] < content_length
-            	byte_start = last_slot_byte_end + 1
-            	size = content_length - byte_start
-            	parts_details.push({'slot' => last_slot + 1, 'start' => byte_start, 'end' => '', size => size})
-            end
+			if parts_details[last_slot]['end'] != '' &&  parts_details[last_slot]['end'] < content_length
+				byte_start = last_slot_byte_end + 1
+				size = content_length - byte_start
+				parts_details.push({'slot' => last_slot + 1, 'start' => byte_start, 'end' => '', size => size})
+			end
 
 			return parts_details
 		end
