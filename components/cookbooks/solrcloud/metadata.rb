@@ -172,7 +172,7 @@ attribute 'solr_min_heap',
 attribute 'zk_select',
   :description => 'Internal/External',
   :required => 'required',
-  :default => 'External',
+  :default => 'ExternalEnsemble',
   :format => {
       :help => 'Internal/External',
       :category => '3.Zookeeper',
