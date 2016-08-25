@@ -21,11 +21,10 @@ end
 
 if ("#{solr_version}".start_with? "5.") || ("#{solr_version}".start_with? "6.")
 	execute "solr#{solrmajorversion} start" do
-	  command "service solr#{solrmajorversion} start"
+	  command "service solr#{solrmajorversion} restart"
 	  user "root"
 	  action :run
 	  only_if { ::File.exists?("/etc/init.d/solr#{solrmajorversion}")}
 	end
 end
-
 

@@ -16,7 +16,17 @@ module SolrCloud
 
     def downloadconfig(solrversion,zkHost,configname)
       begin
-        if ("#{solrversion}".start_with? "4.") || ("#{solrversion}".start_with? "5.") || ("#{solrversion}".start_with? "6.")
+        if "#{solrversion}".start_with? "4."
+          Chef::Log.info("java -classpath .:#{node['user']['dir']}/solr-war-lib/* org.apache.solr.cloud.ZkCLI -cmd downconfig -zkhost #{zkHost} -confdir #{node['user']['dir']}/solr-config/#{configname} -confname #{configname}")
+          bash 'download_config' do
+            code <<-EOH
+              java -classpath .:#{node['user']['dir']}/solr-war-lib/* org.apache.solr.cloud.ZkCLI -cmd downconfig -zkhost #{zkHost} -confdir #{node['user']['dir']}/solr-config/#{configname} -confname #{configname}
+            EOH
+            not_if { "#{configname}".empty? }
+            ignore_failure true
+          end
+        end
+        if ("#{solrversion}".start_with? "5.") || ("#{solrversion}".start_with? "6.")
           Chef::Log.info("java -classpath .:#{node['user']['dir']}/solr-war-lib/* org.apache.solr.cloud.ZkCLI -cmd downconfig -zkhost #{zkHost} -confdir #{node['user']['dir']}/solr-config/#{configname} -confname #{configname}")
           bash 'download_config' do
             code <<-EOH
