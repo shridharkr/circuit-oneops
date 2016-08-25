@@ -22,112 +22,118 @@ class AddressManager
   end
 
   # This function handles updating the firewall device
-  def update(addresses, tag_name)
-    #  convert address hash to an array of Address objects.
-    # do this for easier comparison of the existing addresses in the firewall
-    deploy_addresses = []
-    addresses['entries'].each do |deploy_addr|
-      deploy_addresses.push(Address.new(deploy_addr['name'], 'IP_NETMASK', deploy_addr['ip_address'], tag_name))
-    end
-    
-    address = AddressRequest.new(@url, @key)
-    
-    # get the existing addresses from the firewall
-    # this is an array of Address objects
-    existing_addresses = address.get_all_for_tag(tag_name)
-    
-    # array holders for actions to be taken later
-    delete_address = []
-    create_address = []
-    update_address = []
-    
-    Chef::Log.info("Existing addresses: #{existing_addresses}")
-    Chef::Log.info("Deployment addresses: #{deploy_addresses}")
-    
-    # compare with my hash of addresses from the deployment
-    existing_addresses.each do |addr|
-      if !deploy_addresses.include?(addr)
-        # address from firewall is not in deployment, delete it
-        delete_address.push(addr)
+  def update(addresses, tag_name, device_groups)
+    device_groups.each do |device_group|
+      #  convert address hash to an array of Address objects.
+      # do this for easier comparison of the existing addresses in the firewall
+      deploy_addresses = []
+      addresses['entries'].each do |deploy_addr|
+        deploy_addresses.push(Address.new(deploy_addr['name'], 'IP_NETMASK', deploy_addr['ip_address'], tag_name))
+      end
+
+      address = AddressRequest.new(@url, @key)
+
+      # get the existing addresses from the firewall
+      # this is an array of Address objects
+      existing_addresses = address.get_all_for_tag(tag_name, device_group)
+
+      # array holders for actions to be taken later
+      delete_address = []
+      create_address = []
+      update_address = []
+
+      Chef::Log.info("Existing addresses: #{existing_addresses}")
+      Chef::Log.info("Deployment addresses: #{deploy_addresses}")
+
+      # compare with my hash of addresses from the deployment
+      existing_addresses.each do |addr|
+        if !deploy_addresses.include?(addr)
+          # address from firewall is not in deployment, delete it
+          delete_address.push(addr)
+        end
+      end
+
+      # these are the addresses passed into the method, the new or updated addresses.
+      deploy_addresses.each do |dep_addr|
+        if existing_addresses.include?(dep_addr)
+          # both arrays have the address, add it to the update array
+          update_address.push(dep_addr)
+        else
+          # if the deployment address is not found on the firewall
+          # we need to create it
+          create_address.push(dep_addr)
+        end
+      end
+
+      # delete the addresses the firewall has that the deployment doesn't
+      Chef::Log.info("Delete address are: #{delete_address}")
+      if delete_address.size > 0
+        delete_address.each do |del_addr|
+          address.delete(del_addr.name, device_group)
+        end
+      end
+
+      # add the addresses the deployment has the firewall doesn't
+      Chef::Log.info("Create address are: #{create_address}")
+      if create_address.size > 0
+        create_address.each do |create_addr|
+          address.create(create_addr.name, create_addr.address, create_addr.tags, device_group)
+        end
+      end
+
+      # update the addresses that both have
+      Chef::Log.info("Update address are: #{update_address}")
+      if update_address.size > 0
+        update_address.each do |update_addr|
+          address.update(update_addr, device_group)
+        end
       end
     end
-    
-    # these are the addresses passed into the method, the new or updated addresses.
-    deploy_addresses.each do |dep_addr|
-      if existing_addresses.include?(dep_addr)
-        # both arrays have the address, add it to the update array
-        update_address.push(dep_addr)
-      else
-        # if the deployment address is not found on the firewall
-        # we need to create it
-        create_address.push(dep_addr)
-      end
-    end
-    
-    # delete the addresses the firewall has that the deployment doesn't
-    Chef::Log.info("Delete address are: #{delete_address}")
-    if delete_address.size > 0
-      delete_address.each do |del_addr|
-        address.delete(del_addr.name)
-      end
-    end
-    
-    # add the addresses the deployment has the firewall doesn't
-    Chef::Log.info("Create address are: #{create_address}")
-    if create_address.size > 0
-      create_address.each do |create_addr|
-        address.create(create_addr.name, create_addr.address, create_addr.tags)
-      end
-    end
-    
-    # update the addresses that both have
-    Chef::Log.info("Update address are: #{update_address}")
-    if update_address.size > 0
-      update_address.each do |update_addr|
-        address.update(update_addr)
-      end
-    end
-    
-    commit_and_check_status()
+
+    # commit_and_check_status()
   end
 
   # this function creates the tag, addresses and dynamic address group
-  def create_dag_with_addresses(address_group_name, addresses, tag)
-    # create the tag that will be used
-    tag_request = TagRequest.new(@url, @key)
-    tag_request.create(tag)
+  def create_dag_with_addresses(address_group_name, addresses, tag, device_groups)
+    device_groups.each do |device_group|
+      # create the tag that will be used
+      tag_request = TagRequest.new(@url, @key)
+      tag_request.create(tag, device_group)
 
-    # create a DAG
-    dag_request = AddressGroupRequest.new(@url, @key)
-    dag_request.create_dynamic(address_group_name, tag)
+      # create a DAG
+      dag_request = AddressGroupRequest.new(@url, @key)
+      dag_request.create_dynamic(address_group_name, tag, device_group)
 
-    # create the address
-    address_request = AddressRequest.new(@url, @key)
-    addresses['entries'].each do |address|
-      Chef::Log.info("Address is: #{address}")
-      Chef::Log.info("NAME is: #{address['name']}")
-      Chef::Log.info("IP Address is: #{address['ip_address']}")
-      address_request.create(address['name'], address['ip_address'], tag)
+      # create the address
+      address_request = AddressRequest.new(@url, @key)
+      addresses['entries'].each do |address|
+        Chef::Log.info("Address is: #{address}")
+        Chef::Log.info("NAME is: #{address['name']}")
+        Chef::Log.info("IP Address is: #{address['ip_address']}")
+        address_request.create(address['name'], address['ip_address'], tag, device_group)
+      end
     end
 
-    commit_and_check_status()
+    # commit_and_check_status()
   end
 
   # this function deletes the addresses and address group from the firewall
-  def delete_addresses_and_dag(address_group_name, addresses)
-    # delete the addresses
-    address_request = AddressRequest.new(@url, @key)
-    addresses['entries'].each do |address|
-      Chef::Log.info("Address is: #{address}")
-      Chef::Log.info("NAME is: #{address['name']}")
-      address_request.delete(address['name'])
+  def delete_addresses_and_dag(address_group_name, addresses, device_groups)
+    device_groups.each do |device_group|
+      # delete the addresses
+      address_request = AddressRequest.new(@url, @key)
+      addresses['entries'].each do |address|
+        Chef::Log.info("Address is: #{address}")
+        Chef::Log.info("NAME is: #{address['name']}")
+        address_request.delete(address['name'], device_group)
+      end
+
+      # delete the dag
+      dag_request = AddressGroupRequest.new(@url, @key)
+      dag_request.delete(address_group_name, device_group)
     end
 
-    # delete the dag
-    dag_request = AddressGroupRequest.new(@url, @key)
-    dag_request.delete(address_group_name)
-
-    commit_and_check_status()
+    # commit_and_check_status()
   end
 
   private
@@ -147,7 +153,7 @@ class AddressManager
         Chef::Log.info("job, #{job.id} still in progress")
         sleep(5)
       end
-  
+
       Chef::Log.info("Job, #{job.id} complete!")
     end
   end

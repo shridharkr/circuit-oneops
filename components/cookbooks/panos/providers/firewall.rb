@@ -10,7 +10,7 @@ action :update do
       raise Exception.new("Tag is required") if @new_resource.tag.nil?
       raise Exception.new("Address hash is required") if @new_resource.addresses.nil?
 
-      address_manager.update(@new_resource.addresses, @new_resource.tag)
+      address_manager.update(@new_resource.addresses, @new_resource.tag, @new_resource.devicegroups)
     end
 
     @new_resource.updated_by_last_action(true)
@@ -30,7 +30,7 @@ action :add do
       raise Exception.new("Tag is required") if @new_resource.tag.nil?
       raise Exception.new("Address hash is required") if @new_resource.addresses.nil?
 
-      address_manager.create_dag_with_addresses(@new_resource.address_group_name, @new_resource.addresses, @new_resource.tag)
+      address_manager.create_dag_with_addresses(@new_resource.address_group_name, @new_resource.addresses, @new_resource.tag, @new_resource.devicegroups)
     end
 
     @new_resource.updated_by_last_action(true)
@@ -49,7 +49,7 @@ action :delete do
       raise Exception.new("AddressGroupName is required") if @new_resource.address_group_name.nil?
       raise Exception.new("Address hash is required") if @new_resource.addresses.nil?
 
-      address_manager.delete_addresses_and_dag(@new_resource.address_group_name, @new_resource.addresses)
+      address_manager.delete_addresses_and_dag(@new_resource.address_group_name, @new_resource.addresses, @new_resource.devicegroups)
     end
 
     @new_resource.updated_by_last_action(true)

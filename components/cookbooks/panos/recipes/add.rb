@@ -23,6 +23,7 @@ panos_firewall 'Add Panos Firewall' do
   url_endpoint service[:url_endpoint]
   username service[:username]
   password service[:password]
+  devicegroups service[:devicegroups]
   address_group_name address_group_name
   addresses addresses
   tag tag

@@ -13,7 +13,7 @@ class AddressGroupRequest
     @key = key
   end
 
-  def create_dynamic(name, filter)
+  def create_dynamic(name, filter, device_group)
     begin
     	set_ag_response = RestClient::Request.execute(
     		:method => :post,
@@ -24,7 +24,7 @@ class AddressGroupRequest
     				:key => @key.value,
     				:type => 'config',
     				:action => 'set',
-    				:xpath => "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/address-group",
+    				:xpath => "/config/devices/entry[@name='localhost.localdomain']/device-group/entry[@name='#{device_group}']/address-group",
     				:element => "<entry name='#{name}'><dynamic><filter>'#{filter}'</filter></dynamic></entry>"
     			}
     		}
@@ -37,7 +37,7 @@ class AddressGroupRequest
     end
   end
 
-  def delete(name)
+  def delete(name, device_group)
     begin
     	delete_ag_response = RestClient::Request.execute(
     		:method => :post,
@@ -48,7 +48,7 @@ class AddressGroupRequest
     				:key => @key.value,
     				:type => 'config',
     				:action => 'delete',
-            :xpath => "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/address-group/entry[@name='#{name}']"
+            :xpath => "/config/devices/entry[@name='localhost.localdomain']/device-group/entry[@name='#{device_group}']/address-group/entry[@name='#{name}']"
     			}
     		}
     	)

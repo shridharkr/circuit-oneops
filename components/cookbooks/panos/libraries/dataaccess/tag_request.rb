@@ -11,7 +11,7 @@ class TagRequest
     @key = key
   end
 
-  def create(tag_name)
+  def create(tag_name, device_group)
     begin
     	tag_response = RestClient::Request.execute(
     		:method => :post,
@@ -22,7 +22,7 @@ class TagRequest
     				:key => @key.value,
     				:type => 'config',
     				:action => 'set',
-    				:xpath => "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/tag",
+    				:xpath => "/config/devices/entry[@name='localhost.localdomain']/device-group/entry[@name='#{device_group}']/tag",
     				:element => "<entry name='#{tag_name}'/>"
     			}
     		}

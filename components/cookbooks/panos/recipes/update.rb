@@ -23,6 +23,7 @@ panos_firewall 'Update Panos Firewall' do
   url_endpoint service[:url_endpoint]
   username service[:username]
   password service[:password]
+  devicegroups service[:devicegroups]
   tag tag
   addresses addresses
   action :update

@@ -20,7 +20,7 @@ class AddressRequest
   # TODO need to add logic for the different types of address.
   # Update will update the address in the firewall device
   # right now it just updates the IP address
-  def update(address)
+  def update(address, device_group)
     fail ArgumentError, 'address must be of type Address' if !address.is_a? Address
 
     begin
@@ -33,7 +33,7 @@ class AddressRequest
     				:key => @key.value,
     				:type => 'config',
     				:action => 'edit',
-    				:xpath => "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/address/entry[@name='#{address.name}']/ip-netmask",
+    				:xpath => "/config/devices/entry[@name='localhost.localdomain']/device-group/entry[@name='#{device_group}']/address/entry[@name='#{address.name}']/ip-netmask",
     				:element => "<ip-netmask>#{address.address}</ip-netmask>"
     			}
     		}
@@ -48,7 +48,7 @@ class AddressRequest
   end
 
   # get returns the Address from the name of the address given.
-  def get(name)
+  def get(name, device_group)
     begin
     	get_response = RestClient::Request.execute(
     		:method => :get,
@@ -59,7 +59,7 @@ class AddressRequest
     				:key => @key.value,
     				:type => 'config',
     				:action => 'get',
-    				:xpath => "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/address/entry[@name='#{name}']"
+    				:xpath => "/config/devices/entry[@name='localhost.localdomain']/device-group/entry[@name='#{device_group}']/address/entry[@name='#{name}']"
     			}
     		}
     	)
@@ -83,13 +83,13 @@ class AddressRequest
     end
   end
 
-  def exists?(name)
+  def exists?(name, device_group)
     address = get(name)
     bool = !address.nil? ? true : false
     return bool
   end
 
-  def create(name, ip, tag)
+  def create(name, ip, tag, device_group)
     begin
     	set_address_response = RestClient::Request.execute(
     		:method => :post,
@@ -100,7 +100,7 @@ class AddressRequest
     				:key => @key.value,
     				:type => 'config',
     				:action => 'set',
-    				:xpath => "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/address",
+    				:xpath => "/config/devices/entry[@name='localhost.localdomain']/device-group/entry[@name='#{device_group}']/address",
     				:element => "<entry name='#{name}'><ip-netmask>#{ip}</ip-netmask><tag><member>#{tag}</member></tag></entry>"
     			}
     		}
@@ -113,7 +113,7 @@ class AddressRequest
     end
   end
 
-  def delete(name)
+  def delete(name, device_group)
     begin
     	delete_address_response = RestClient::Request.execute(
     		:method => :post,
@@ -124,7 +124,7 @@ class AddressRequest
     				:key => @key.value,
     				:type => 'config',
     				:action => 'delete',
-            :xpath => "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/address/entry[@name='#{name}']"
+            :xpath => "/config/devices/entry[@name='localhost.localdomain']/device-group/entry[@name='#{device_group}']/address/entry[@name='#{name}']"
     			}
     		}
     	)
@@ -135,8 +135,8 @@ class AddressRequest
       raise Exception.new("Exception Deleting address: #{e}")
     end
   end
-  
-  def get_all_for_tag(tag_name)
+
+  def get_all_for_tag(tag_name, device_group)
     address_array = []
     begin
       get_response = RestClient::Request.execute(
@@ -148,7 +148,7 @@ class AddressRequest
             :key => @key.value,
             :type => 'config',
             :action => 'get',
-            :xpath => "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/address"
+            :xpath => "/config/devices/entry[@name='localhost.localdomain']/device-group/entry[@name='#{device_group}']/address"
           }
         }
       )
