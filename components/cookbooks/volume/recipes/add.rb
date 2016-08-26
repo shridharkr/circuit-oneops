@@ -264,7 +264,6 @@ ruby_block 'create-iscsi-volume-ruby-block' do
           dev_list += dev_id+" "
           i+=1
         end
-	newDevicesAttached = dev_list
 
         # wait until all are attached
         fin = false
@@ -297,7 +296,7 @@ ruby_block 'create-iscsi-volume-ruby-block' do
         end
 
       end
-
+      newDevicesAttached = dev_list
       if node.workorder.rfcCi.ciAttributes.has_key?("mode")
         mode = node.workorder.rfcCi.ciAttributes["mode"]
       end
