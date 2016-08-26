@@ -56,6 +56,13 @@ else {
   #$chocoRepo = "http://chocodev.cloud.wal-mart.com/api/v2/package/chocolatey/0.9.10.3"
 }
 
+if( $gemRepo -eq $null or $gemRepo -eq "" ) {
+  $gemRepo = "http://rubygems.org"
+}
+Set-Content c:\cygwin64\opt\oneops\rubygems_proxy $gemRepo
+
+
+
 Write-Output "using choco repo: $chocoRepo "
 
 $chocoTempDir = "c:\chocotemp\"
@@ -128,6 +135,9 @@ New-Item C:\cygwin64\opt\admin\workorder\ -ItemType directory
 
 Add-Content C:\cygwin64\home\oneops\.bash_profile 'export PATH=$PATH:/cygdrive/c/tools/ruby23/bin:/cygdrive/c/tools/DevKit2'
 New-Item -ItemType Directory -Force -Path C:\cygwin64\opt\oneops\workorder\
+
+Add-Content C:\cygwin64\home\oneops\.bash_profile "alias='gem=gem.cmd'"
+Add-Content C:\cygwin64\home\oneops\.bash_profile "alias='bundle=bundle.bat'"
 
 Set-Location "C:\"
 Write-Output "End of windows install_base script"
