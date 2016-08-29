@@ -81,7 +81,7 @@ else
 	
 	# seperate rubygems - rackspace 14.04 needs it, aws doesn't
 	set +e
-	apt-get -y -q install rubygems
+	apt-get -y -q install rubygems-integration
 	rm -fr /etc/apache2/conf.d/nagios3.conf
 	set -e
 fi

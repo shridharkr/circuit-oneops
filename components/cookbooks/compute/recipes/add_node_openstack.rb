@@ -168,13 +168,14 @@ ruby_block 'setup security groups' do
           rescue Excon::Errors::Error =>e
              msg=""
              case e.response[:body]
-             when /\"code\": 400/
+             when /\"code\": \d{3}+/
               msg = JSON.parse(e.response[:body])['badRequest']['message']
               Chef::Log.error("error response body :: #{msg}")
               puts "***FAULT:FATAL=OpenStack API error: #{msg}"
               raise Excon::Errors::BadRequest, msg
              else
-              msg = e.message
+              msg = JSON.parse(e.response[:body])
+              Chef::Log.error("error response body :: #{msg}")
               puts "***FAULT:FATAL=OpenStack API error: #{msg}"
               raise Excon::Errors::Error, msg
              end

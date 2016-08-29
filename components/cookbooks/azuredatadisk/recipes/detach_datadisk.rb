@@ -56,6 +56,7 @@ storage_client = StorageManagementClient.new(node.azureCredentials)
 storage_client.subscription_id = subscription
 
 storage_account_keys= storage_client.storage_accounts.list_keys(storage.master_rg,storage[storage_acct]).value!
+
 OOLog.info('  storage_account_keys : ' +   storage_account_keys.body.inspect)
 key1 = storage_account_keys.body.key1
 key2 = storage_account_keys.body.key2

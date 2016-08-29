@@ -3,7 +3,7 @@ require 'fog'
 class VirtualMachineManager
   USER = 'root'
   PASSWORD = ''
-  EPHEMERAL_MOUNT = '/mnt/resources'
+  EPHEMERAL_MOUNT = '/mnt/resource'
   def initialize(compute_provider, public_key, instance_id = nil)
     fail ArgumentError, 'compute_provider is invalid' if compute_provider.nil?
     fail ArgumentError, 'public_key is invalid' if public_key.nil?
@@ -156,11 +156,15 @@ class VirtualMachineManager
     time_to_live = 180
     start_time = Time.now
     ip_address = nil
-    Chef::Log.info("Get ip address")
+    Chef::Log.info("getting ip address")
     loop do
       response = @compute_provider.get_virtual_machine(@instance_id)
       ip_address = response['ipaddress']
       if !ip_address.nil?
+        Chef::Log.info("Assigned ip address is " + ip_address)
+        puts "***RESULT:private_ip=" + ip_address
+        puts "***RESULT:public_ip=" + ip_address
+        puts "***RESULT:dns_record=" + ip_address
         break
       else
         Chef::Log.info("waiting for ip address 10sec; TTL is " + time_to_live.to_s + " seconds")
@@ -205,6 +209,8 @@ class VirtualMachineManager
       new_vm = @compute_provider.vm_clone(vm_attributes)
       @instance_id = new_vm['new_vm']['id']
       Chef::Log.debug('instance_id: ' + @instance_id.to_s)
+      puts "***RESULT:instance_id=" + @instance_id
+      # puts "***RESULT:hypervisor="+virtual_machine_manager.hypervisor
       is_power_on = power_on(initial_boot = true)
       raise 'Failed to power on instance' if is_power_on == false
     rescue => e
