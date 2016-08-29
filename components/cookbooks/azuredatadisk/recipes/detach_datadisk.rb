@@ -19,12 +19,25 @@ require File.expand_path('../../../azure_base/libraries/utils.rb', __FILE__)
 include_recipe 'azure::get_platform_rg_and_as'
 
 Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+
+#determine which storage acct to use (prm or std)
+size = node[:workorder][:payLoad][:RequiresComputes][0][:ciAttributes][:size]
+storage_type = nil
+if Utils.is_prm(size)
+	storage_acct = 'storage_account_prm'
+else
+	storage_acct = 'storage_account_std'
+end
+
+Chef::Log.info("Choosing #{storage_acct}")
+
 cloud_name = node['workorder']['cloud']['ciName']
 tenant_id = node['workorder']['services']['storage'][cloud_name]['ciAttributes']['tenant_id']
 client_id = node['workorder']['services']['storage'][cloud_name]['ciAttributes']['client_id']
 client_secret = node['workorder']['services']['storage'][cloud_name]['ciAttributes']['client_secret']
 subscription = node['workorder']['services']['storage'][cloud_name]['ciAttributes']['subscription']
-storage_account_name = node['workorder']['services']['storage'][cloud_name]['ciAttributes']['storage_account']
+storage_account_name = node['workorder']['services']['storage'][cloud_name]['ciAttributes'][storage_acct]
+
 instance_name = nil
 if node.workorder.payLoad.has_key?("DependsOn")
  instance_name = node.workorder.payLoad.DependsOn[0]["ciAttributes"]["instance_name"]
@@ -42,7 +55,8 @@ storage = storage_service["ciAttributes"]
 storage_client = StorageManagementClient.new(node.azureCredentials)
 storage_client.subscription_id = subscription
 
-storage_account_keys= storage_client.storage_accounts.list_keys(storage.master_rg,storage.storage_account).value!
+storage_account_keys= storage_client.storage_accounts.list_keys(storage.master_rg,storage[storage_acct]).value!
+
 OOLog.info('  storage_account_keys : ' +   storage_account_keys.body.inspect)
 key1 = storage_account_keys.body.key1
 key2 = storage_account_keys.body.key2
@@ -60,6 +74,6 @@ dev_map.split(" ").each do |dev|
   storage_account_name = dev.split(":")[1]
   component_name = dev.split(":")[2]
   dev_name = dev_id.split("/").last
-  blobname = "#{storage.storage_account}-#{component_name}-datadisk-#{dev_name}.vhd"
+  blobname = "#{storage[storage_acct]}-#{component_name}-datadisk-#{dev_name}.vhd"
   AzureStorage::AzureDatadisk.delete_disk(storage_account_name,key1,blobname,1)
 end
