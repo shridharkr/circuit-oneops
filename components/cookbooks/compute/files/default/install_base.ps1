@@ -56,13 +56,6 @@ else {
   #$chocoRepo = "http://chocodev.cloud.wal-mart.com/api/v2/package/chocolatey/0.9.10.3"
 }
 
-
-if( $gemRepo -eq $null or $gemRepo -eq "" ) {
-  $gemRepo = "http://rubygems.org"
-}
-New-Item C:\cygwin64\opt\oneops\rubygems_proxy -type file -force
-Set-Content C:\cygwin64\opt\oneops\rubygems_proxy $gemRepo
-
 Write-Output "using choco repo: $chocoRepo "
 
 $chocoTempDir = "c:\chocotemp\"
@@ -130,13 +123,14 @@ gem install json --version 1.8.2 --no-ri --no-rdoc
 #Write-Output "Installing Bundler ..."
 #gem install bundler --version 1.10.5 --no-ri --no-rdoc
 
-#Add-Content C:\cygwin64\home\admin\.bash_profile 'export PATH=$PATH:/cygdrive/c/tools/ruby23/bin/'
-#New-Item C:\cygwin64\opt\admin\workorder\ -ItemType directory
+Add-Content C:\cygwin64\home\admin\.bash_profile 'export PATH=$PATH:/cygdrive/c/tools/ruby23/bin/'
+New-Item C:\cygwin64\opt\admin\workorder\ -ItemType directory
 
 Add-Content C:\cygwin64\home\oneops\.bash_profile 'export PATH=$PATH:/cygdrive/c/tools/ruby23/bin:/cygdrive/c/tools/DevKit2'
-# Create directory for work orders
 New-Item -ItemType Directory -Force -Path C:\cygwin64\opt\oneops\workorder\
 
+New-Item C:\cygwin64\opt\oneops\rubygems_proxy -type file -force
+Set-Content C:\cygwin64\opt\oneops\rubygems_proxy $gemRepo
 
 Set-Location "C:\"
 Write-Output "End of windows install_base script"
