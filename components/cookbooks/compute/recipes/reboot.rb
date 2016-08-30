@@ -27,7 +27,7 @@ if provider =~ /azure/
   end
     Chef::Log.info("server ready")
 elsif provider =~ /vsphere/
-  include_recipe "vsphere::reboot_node"
+  include_recipe "vsphere::powercycle_node"
 else
 
   instance_id = node.workorder.ci[:ciAttributes][:instance_id]

@@ -74,12 +74,13 @@ ruby_block 'ssh cmds' do
     node.set[:ssh_interactive_cmd] = "ssh -t -t -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
     node.set[:scp_cmd] = "scp -ri #{ssh_key_file} #{ssh_options} SOURCE #{user}@#{ip}:DEST "
     node.set[:rsync_cmd] = "rsync -az --exclude=*.md --exclude=*.png -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
-    node.set[:rsync_cmd] = "rsync #{bwlimit} -az --exclude=*.md --exclude=*.png -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
+    # node.set[:rsync_cmd] = "rsync #{bwlimit} -az --exclude=*.md --exclude=*.png -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
 
     os_type = node.ostype
     if os_type =~ /windows/
+      #Need to change command. Windows cygwin does not like "-t -t" parameters
       node.set[:ssh_interactive_cmd] = "ssh -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
-      node.set[:rsync_cmd_windows] = "rsync -az --exclude=*.md --exclude=*.png --exclude='simple_iptables' --exclude='artifact' -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
+      # node.set[:rsync_cmd_windows] = "rsync -az --exclude=*.md --exclude=*.png --exclude='simple_iptables' --exclude='artifact' -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
     end
 
   end

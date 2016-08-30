@@ -61,23 +61,29 @@ end
 if node.workorder.rfcCi.has_key?("ciBaseAttributes") &&
    node.workorder.rfcCi.ciBaseAttributes.has_key?("listeners")
 
-  old_servicetypes = []
+  old_svc_port = {}
   JSON.parse(node.workorder.rfcCi.ciBaseAttributes.listeners).each do |listener|
     servicetype = listener.split(" ")[2].upcase
     servicetype = "SSL" if servicetype == "HTTPS"
-    old_servicetypes.push(servicetype)
+    vservicetype = listener.split(" ")[0].upcase
+    vservicetype = "SSL" if vservicetype == "HTTPS"
+    vsvc_vport = vservicetype+"_"+listener.split(" ")[1]
+    old_svc_port["#{vsvc_vport}"] = servicetype
   end
   
   # filter out new types 
   JSON.parse(node.workorder.rfcCi.ciAttributes.listeners).each do |listener|
     servicetype = listener.split(" ")[2].upcase
     servicetype = "SSL" if servicetype == "HTTPS"
-    old_servicetypes.delete(servicetype)
+    vservicetype = listener.split(" ")[0].upcase
+    vservicetype = "SSL" if vservicetype == "HTTPS"
+    vsvc_vport = vservicetype+"_"+listener.split(" ")[1]
+    old_svc_port.delete("#{vsvc_vport}") if old_svc_port["#{vsvc_vport}"] == servicetype
   end
   
-  Chef::Log.info("old servicetypes: #{old_servicetypes.inspect}")  
+  Chef::Log.info("old services port: #{old_svc_port.inspect}")
   # servicegroup servicetype changed
-  if old_servicetypes.size > 0
+  if !old_svc_port.empty?
    
     node.dcloadbalancers.each do |lb|
       lb_name = lb[:name]
@@ -97,7 +103,11 @@ if node.workorder.rfcCi.has_key?("ciBaseAttributes") &&
         
         sg = resp_obj["servicegroup"][0]
         
-        next if !old_servicetypes.include?(sg["servicetype"])
+        old_svc_port.each do |vsvc_vport, stype|
+          if lb_name.include?(vsvc_vport)
+            next if !stype.include?(sg["servicetype"])
+          end
+        end
     
         binding = { :name => lb_name, :servicegroupname => old_sg_name }
         req = 'object={"params":{"action": "unbind"}, "lbvserver_servicegroup_binding" : ' + JSON.dump(binding) + '}'
