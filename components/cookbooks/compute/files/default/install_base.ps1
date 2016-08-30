@@ -120,14 +120,25 @@ gem source --add $gemRepo
 Write-Output "Installing json ..."
 gem install json --version 1.8.2 --no-ri --no-rdoc
 
-Write-Output "Installing Bundler ..."
-gem install bundler --version 1.10.5 --no-ri --no-rdoc
+#Write-Output "Installing Bundler ..."
+#gem install bundler --version 1.10.5 --no-ri --no-rdoc
 
 Add-Content C:\cygwin64\home\admin\.bash_profile 'export PATH=$PATH:/cygdrive/c/tools/ruby23/bin/'
 New-Item C:\cygwin64\opt\admin\workorder\ -ItemType directory
 
 Add-Content C:\cygwin64\home\oneops\.bash_profile 'export PATH=$PATH:/cygdrive/c/tools/ruby23/bin:/cygdrive/c/tools/DevKit2'
 New-Item -ItemType Directory -Force -Path C:\cygwin64\opt\oneops\workorder\
+
+New-Item C:\cygwin64\opt\oneops\rubygems_proxy -type file -force
+Set-Content C:\cygwin64\opt\oneops\rubygems_proxy $gemRepo
+
+Add-Content C:\cygwin64\home\oneops\.bash_profile "alias ll='ls -lrt'"
+
+#Add-Content C:\cygwin64\home\oneops\.bash_profile "alias bundle='/cygdrive/c/opscode/chef/embedded/bin/bundle'"
+#Add-Content C:\cygwin64\home\oneops\.bash_profile "alias gem='/cygdrive/c/opscode/chef/embedded/bin/gem'"
+
+#Add-Content C:\cygwin64\home\oneops\.bashrc "alias bundle='/cygdrive/c/opscode/chef/embedded/bin/bundle'"
+#Add-Content C:\cygwin64\home\oneops\.bashrc "alias gem='/cygdrive/c/opscode/chef/embedded/bin/gem'"
 
 Set-Location "C:\"
 Write-Output "End of windows install_base script"

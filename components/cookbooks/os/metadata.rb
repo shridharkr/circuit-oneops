@@ -5,6 +5,7 @@ maintainer_email "support@oneops.com"
 license "Apache License, Version 2.0"
 depends "shared"
 depends "simple_iptables"
+depends "windowsos"
 
 grouping 'default',
          :access   => "global",
