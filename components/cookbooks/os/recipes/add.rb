@@ -21,10 +21,10 @@ provider = node[:workorder][:services][:compute][cloud_name][:ciClassName].gsub(
 
 Chef::Log.info("provider: #{provider} ..")
 os_type = node[:workorder][:rfcCi][:ciAttributes][:ostype]
-Chef::Log.info("node[os_type: #{os_type} ..")
+Chef::Log.info("node[os_type]: #{os_type} ...")
 
 if os_type =~ /windows/
-  Chef::Log.info("os type is windows !.")
+  Chef::Log.info("os type is windows !")
   include_recipe "windowsos::add"
   return true
 end

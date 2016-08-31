@@ -1,9 +1,24 @@
 # timezone
 
-if node.platform =~ /windows/
+ostype = ''
+puts "RUBY_PLATFORM IS: #{RUBY_PLATFORM}"
+case RUBY_PLATFORM
+  when /mingw32|windows/
+    ostype = 'windows'
+    puts 'Setting ostype to windows'
+  when /linux/
+    ostype = 'linux'
+    puts 'Setting ostype to linux'
+  else
+    puts 'leaving ostype as nil'
+end
+
+Chef::Log.info("*** OS TIME PLATFORM => #{ostype} ***")
+if ostype =~ /windows/
     include_recipe "windowsos::time"
     return true
 end
+
 execute "rm -f /etc/localtime"
 execute "ln -s /usr/share/zoneinfo/#{node.workorder.rfcCi.ciAttributes.timezone} /etc/localtime"
 
