@@ -20,7 +20,7 @@ attribute 'version',
     :help => 'PHP Version',
     :category => '1.Source',
     :order => 1,
-    :form => {'field' => 'select', 'options_for_select' => [['5.3.3', '5.3.3'], ['5.5.30', '5.5.30']]}
+    :form => {'field' => 'select', 'options_for_select' => [['default', 'default'], ['5.5.30', '5.5.30'], ['5.5.37', '5.5.37'], ['5.5.38', '5.5.38']]}
     }
 
 attribute 'install_type',
