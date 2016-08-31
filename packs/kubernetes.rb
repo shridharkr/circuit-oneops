@@ -349,7 +349,41 @@ resource 'kubernetes-master',
            }
          ]
       }'
-    }          
+    },
+    'lb' => {
+      'description' => 'lb',
+      'definition' => '{
+         "returnObject": false,
+         "returnRelation": false,
+         "relationName": "base.RealizedAs",
+         "direction": "to",
+         "targetClassName": "manifest.oneops.1.Kubernetes",
+         "relations": [
+           { "returnObject": false,
+             "returnRelation": false,
+             "relationName": "manifest.Requires",
+             "direction": "to",
+             "targetClassName": "manifest.Platform",
+             "relations": [
+               { "returnObject": false,
+                 "returnRelation": false,
+                 "relationName": "manifest.Requires",
+                 "direction": "from",
+                 "targetClassName": "manifest.oneops.1.Lb",
+                 "relations": [
+                   { "returnObject": true,
+                     "returnRelation": false,
+                     "relationName": "base.RealizedAs",
+                     "direction": "from",
+                     "targetClassName": "bom.oneops.1.Lb"    
+                   }
+                 ]      
+               }
+             ]
+           }
+         ]
+      }'
+    }           
   },
 :monitors => {
     'nodes' =>  { :description => 'Nodes',
