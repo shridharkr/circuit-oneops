@@ -1,5 +1,5 @@
 
-if node.php.version == "5.5.30"
+if node.php.version != "default"
   package "php-common" do
     action :remove
   end
@@ -8,22 +8,11 @@ if node.php.version == "5.5.30"
   if node[:workorder][:services].has_key? "mirror"
     mirrors = JSON.parse(node[:workorder][:services][:mirror][cloud_name][:ciAttributes][:mirrors])
   else
-    msg = "Cloud Mirror Service has not been defined"
-    Chef::Log.error(msg)
-    puts "***FAULT:FATAL= #{msg}"
-    e = Exception.new("no backtrace")
-    e.set_backtrace("")
-    raise e
+    exit_with_error "Cloud Mirror Service has not been defined"
   end
-
   php_source = mirrors['php']
   if php_source.nil?
-    msg = "php source repository has not beed defined in cloud mirror service"
-    Chef::Log.error(msg)
-    puts "***FAULT:FATAL= #{msg}"
-    e = Exception.new("no backtrace")
-    e.set_backtrace("")
-    raise e
+    exit_with_error "php source repository has not beed defined in cloud mirror service"
   else
     Chef::Log.info("php source repository has been defined in cloud mirror service #{php_source}")
   end
@@ -34,7 +23,8 @@ if node.php.version == "5.5.30"
     group "root"
     mode "0644"
     variables({
-      :php_source => php_source
+      :php_source => php_source,
+      :php_version => node.php.version
     })
   end
 
@@ -44,8 +34,7 @@ if node.php.version == "5.5.30"
       action :install
     end
   end
-
-elsif node.php.version == "5.3.3"
+else
   pkgs = value_for_platform(
     [ "centos", "redhat", "fedora" ] => {
       "default" => %w{ php php-devel wget php-cli php-pear spawn-fcgi}
