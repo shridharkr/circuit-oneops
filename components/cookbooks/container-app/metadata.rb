@@ -12,7 +12,8 @@ grouping 'default',
 grouping 'bom',
   :access => "global",
   :packages => [ 'bom' ]
- 
+
+     
 attribute 'deployment_yaml',
   :description => "Deployment YAML",
   :data_type => "text",
@@ -22,6 +23,15 @@ attribute 'deployment_yaml',
     :order => 1
   }
 
+attribute 'variables',
+  :description => "Variables in yaml",
+  :data_type => "hash",
+  :format => {
+    :help => 'map of variable/string to replace (key) with value',
+    :category => '1.Content',
+    :order => 2
+  }    
+  
 attribute 'app_url',
   :description => "Deployment URL",
   :grouping => 'bom',

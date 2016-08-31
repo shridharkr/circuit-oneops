@@ -208,7 +208,7 @@ node[:entries].each do |entry|
       # ok - non formated response
     end
 
-    if infoblox_resp_obj.class.to_s != "String" && infoblox_resp_obj.body.has_key?("Error")
+    if infoblox_resp_obj.class.to_s != "String" && infoblox_resp_obj.has_key?("Error") 
       msg = infoblox_resp_obj.inspect
       puts "***FAULT:FATAL=#{msg}"
       e = Exception.new("no backtrace")
