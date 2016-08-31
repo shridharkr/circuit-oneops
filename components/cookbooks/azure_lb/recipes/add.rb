@@ -363,7 +363,7 @@ if xpress_route_enabled
     OOLog.fatal("VNET '#{vnet_name}' does not have subnets")
   end
 
-  subnets = vnet.properties.subnets
+  subnets = vnet.body.properties.subnets
   subnet = get_subnet_with_available_ips(subnets, xpress_route_enabled)
 
 else
