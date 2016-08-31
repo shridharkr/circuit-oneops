@@ -21,7 +21,7 @@ grouping 'service',
 # attrs for cloud service
 attribute 'endpoint',
   :grouping => 'service',
-  :description => "endpoint",
+  :description => "Endpoint",
   :required => "required",
   :format => {
     :important => true,
@@ -32,7 +32,7 @@ attribute 'endpoint',
 
 attribute 'namespace',
   :grouping => 'service',
-  :description => "namespace",
+  :description => "Namespace",
   :default => "default",
   :required => "required",
   :format => {
@@ -44,7 +44,7 @@ attribute 'namespace',
 
 attribute 'username',
   :grouping => 'service',
-  :description => "username",
+  :description => "Username",
   :required => "required",
   :format => {
     :important => true,
@@ -55,16 +55,35 @@ attribute 'username',
 
 attribute 'password',
   :grouping => 'service',
-  :description => "password",
+  :description => "Password",
   :encrypted => true, 
-  :required => "required",
   :format => {
     :help => 'Password',
     :category => '1.General',
     :order => 4
   }      
-        
-        
+
+attribute 'key',
+  :grouping => 'service',
+  :description => "Client Key",
+  :encrypted => true, 
+  :format => {
+    :help => 'Value passed to kubectl set-credentials --client-key',
+    :category => '1.General',
+    :order => 5
+  }    
+  
+  attribute 'cert',
+  :grouping => 'service',
+  :description => "Client Certificate",
+  :encrypted => false, 
+  :format => {
+    :help => 'Value passed to kubectl set-credentials --client-certificate',
+    :category => '1.General',
+    :order => 6
+  }
+  
+          
 # attrs for cluster
 attribute 'version',
   :grouping => 'cluster',
@@ -150,6 +169,18 @@ attribute 'scheduler_args',
     :category => '1.Master',
     :order => 7
   }
+
+attribute 'api_args',
+  :grouping => 'cluster',
+  :description => "API Args",
+  :data_type => "hash",
+  :default => '{}',
+  :required => "required",
+  :format => {
+    :help => 'API Args',
+    :category => '1.Master',
+    :order => 8
+  }    
     
 attribute 'cluster_cloud_map',
   :grouping => 'cluster',
@@ -160,7 +191,7 @@ attribute 'cluster_cloud_map',
   :format => {
     :help => 'Map of Clouds to Clusters',
     :category => '1.Master',
-    :order => 8
+    :order => 9
   }
     
 attribute 'kubelet_port',
