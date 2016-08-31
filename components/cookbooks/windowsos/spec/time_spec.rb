@@ -8,7 +8,7 @@ describe 'windowsos::time' do
       node.set[:workorder][:services] = "{\"ntp\": {
         \"dev-ndc1\": {
           \"ciAttributes\": {
-            \"servers\": \"[ \"ndc-time1.walmart.com\", \"ndc-time2.walmart.com\" ]\"
+            \"servers\": \"[ \"time.windows.com\" ]\"
           }\",
           \"ciName\": \"ntp-ndc\"}"
       

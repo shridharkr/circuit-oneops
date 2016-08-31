@@ -18,7 +18,7 @@ platform :attributes => {
 resource "compute",
   :cookbook => "oneops.1.compute",
   :design => true,
-  :requires => { "constraint" => "1..1", "services" => "compute,dns,mirror" },
+  :requires => { "constraint" => "1..1", "services" => "compute,dns,*mirror" },
   :attributes => { "size"    => "S"
                  },
   :monitors => {

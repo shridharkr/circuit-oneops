@@ -176,32 +176,23 @@ Set-Owner-Admin-Folder -Path C:\cygwin64\home\admin -Recurse -Account $user_acco
 Write-Host "Adding oneops user to windows"
 
 $Computername = $env:COMPUTERNAME
-
 $ADSIComp = [adsi]"WinNT://$Computername"
-
 $Username = 'oneops'
-
 $NewUser = $ADSIComp.Create('User',$Username)
-
 $NewUser
 
 #Create password
-
 $Password = "0penStack16#" | ConvertTo-SecureString -AsPlainText -Force
-
 $BSTR = [system.runtime.interopservices.marshal]::SecureStringToBSTR($Password)
-
 $_password = [system.runtime.interopservices.marshal]::PtrToStringAuto($BSTR)
-
 #Set password on account
-
 $NewUser.SetPassword(($_password))
 
 $NewUser.SetInfo()
-#################################################
+
 $group = [ADSI]("WinNT://"+$env:COMPUTERNAME+"/administrators,group")
 $group.add("WinNT://$env:USERDOMAIN/oneops,user")
-
+#################################################
 Write-Host "Adding oneops user to cygwin"
 C:\cygwin64\bin\mkpasswd.exe -u oneops -l
 
@@ -217,3 +208,5 @@ $user_account = $domain[0] + "\oneops"
 Write-Host $user_account
 
 Set-Owner-Admin-Folder -Path C:\cygwin64\home\oneops -Recurse -Account $user_account
+
+## TODO: Cleanup
