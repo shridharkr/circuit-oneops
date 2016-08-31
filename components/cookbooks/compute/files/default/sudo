@@ -2,8 +2,6 @@
 
 PATH=$PATH:/cygdrive/c/tools/ruby23/bin/:/cygdrive/c/tools/DevKit2/bin
 
-chmod 777 /home/oneops/shared/exec-order.rb
-
 uuid=`uuidgen.exe`
 filename="temp_command_$uuid"
 
