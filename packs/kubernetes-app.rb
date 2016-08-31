@@ -10,5 +10,5 @@ entrypoint "app"
 resource "app",
 	:cookbook => "oneops.1.container-app",
 	:design	=> true,
-	:requires => {"constraint" => "1..1", "services" => "kubernetes" }
+	:requires => {"constraint" => "1..*", "services" => "kubernetes" }
 
