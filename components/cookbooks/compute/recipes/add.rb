@@ -54,6 +54,8 @@ if node.workorder.rfcCi.has_key?(:ciState) && node.workorder.rfcCi.ciState == "r
   case provider_service
   when /infoblox/
     provider = "infoblox"
+  when /azuredns/
+    provider = "azuredns"
   when /designate/
     provider = "designate"
   end
@@ -69,6 +71,10 @@ if provider == "ec2"
   end
 elsif provider == "docker"
   sleep_time = 1
+end
+
+if node[:ostype] =~ /windows/
+  sleep_time = 60
 end
 
 ruby_block "wait for boot" do

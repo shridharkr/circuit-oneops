@@ -50,6 +50,9 @@ ruby_block 'ssh cmds' do
       ip = node.ip
     end
 
+
+    node.set[:oneops_user] = user
+
     bwlimit = ''
     if (node[:provider_class] == 'vsphere')
       cloud_name = node[:workorder][:cloud][:ciName]
@@ -71,6 +74,12 @@ ruby_block 'ssh cmds' do
     node.set[:ssh_interactive_cmd] = "ssh -t -t -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
     node.set[:scp_cmd] = "scp -ri #{ssh_key_file} #{ssh_options} SOURCE #{user}@#{ip}:DEST "
     node.set[:rsync_cmd] = "rsync #{bwlimit} -az --exclude=*.md --exclude=*.png -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
+
+    os_type = node.ostype
+    if os_type =~ /windows/
+      #Need to change command. Windows cygwin does not like "-t -t" parameters
+      node.set[:ssh_interactive_cmd] = "ssh -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
+    end
 
   end
 end
