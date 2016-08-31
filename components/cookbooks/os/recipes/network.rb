@@ -278,21 +278,20 @@ ruby_block 'setup bind and dhclient' do
         end
     end
 
+    dhclient_cmdline = "/sbin/dhclient"
+  
+    # try to use options that its running with
+    dhclient_ps = `ps auxwww|grep -v grep|grep dhclient`
+    if dhclient_ps.to_s =~ /.*:\d{2} (.*dhclient.*)/
+        dhclient_cmdline = $1
+    end    
+    
     # always kill
    `pkill -f dhclient`
 
     # but restart (and leave running) if dhclient is choice selected. and leave it down otherwise
     if attrs[:dhclient] == 'true'
-
-        dhclient_cmdline = "/sbin/dhclient"
-
-        # try to use options that its running with
-        dhclient_ps = `ps auxwww|grep -v grep|grep dhclient`
-        if dhclient_ps.to_s =~ /.*:\d{2} (.*dhclient.*)/
-            dhclient_cmdline = $1
-        end
-
-        Chef::Log.info("starting: #{dhclient_cmdline}")
+      Chef::Log.info("starting: #{dhclient_cmdline}")
       `#{dhclient_cmdline}`
     else
        Chef::Log.info("will not start dhclient because dhclient not desired")
