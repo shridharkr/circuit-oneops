@@ -80,6 +80,16 @@ module AzureCompute
         OOLog.info("No need to create Storage Account: #{storage_account_name}")
       end
 
+      i = 0
+      until storage_account_created?(storage_account_name) do 
+        if(i >= 10) 
+          OOLog.fatal("***FAULT:FATAL=Could not find storage account #{storage_account_name}")
+        end
+        i += 1
+        sleep 30
+      end
+        
+
       OOLog.info("ImageID: #{node['image_id']}")
 
       # image_id is expected to be in this format; Publisher:Offer:Sku:Version (ie: OpenLogic:CentOS:6.6:latest)
@@ -183,6 +193,7 @@ private
             @storage_client.storage_accounts.check_name_availability(params)
          response = promise.value!
          result = response.body
+         storage_account_created?(storage_account_name)
          OOLog.info("Storage Name Available: #{result.name_available}")
          return result.name_available
        rescue  MsRestAzure::AzureOperationError => e
@@ -191,6 +202,22 @@ private
          return nil
        rescue => ex
          OOLog.fatal("Error checking availability of #{storage_account_name}: #{ex.message}")
+       end
+    end
+
+    def storage_account_created?(storage_account_name)
+      begin
+         promise =
+            @storage_client.storage_accounts.get_properties(@resource_group_name, storage_account_name)
+         response = promise.value!
+         result = response.body
+         OOLog.info("#{result.inspect}")
+         return true
+       rescue  MsRestAzure::AzureOperationError => e
+         OOLog.info("#ERROR Body: #{e.body}")
+         return false
+       rescue => ex
+         OOLog.fatal("Error getting properties of #{storage_account_name}: #{ex.message}")
        end
     end
 
