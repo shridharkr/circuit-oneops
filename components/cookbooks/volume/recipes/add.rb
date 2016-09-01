@@ -465,6 +465,11 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
         device_prefix = "/dev/vd"
         device_set = ["b"]
         Chef::Log.info("using openstack vdb")
+
+      when /vsphere/
+        device_prefix = "/dev/sd"
+        device_set = ["b"]
+        Chef::Log.info("using vsphere sdb")
     end
 
     df_out = `df -k`.to_s
