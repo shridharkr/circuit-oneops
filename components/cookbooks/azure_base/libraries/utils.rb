@@ -109,9 +109,8 @@ module Utils
     return abbr
   end
 
-  def is_prm(size)
+  def is_prm(size, undeployment)
     az_size = ''
-
     # Method that maps sizes
     case size
       when 'XS'
@@ -162,11 +161,30 @@ module Utils
         az_size = 'Standard_DS13'
       when '11XL-MEM'
         az_size = 'Standard_DS14'
+      #old mappings - this part is used to deprovision only
+      when 'S-IO'
+        if(undeployment)
+          az_size = 'Standard_DS1'
+        else 
+          OOLog.fatal("Azure size map, '#{size}' not found in Mappings List")
+        end
+      when 'M-IO'
+        if(undeployment)
+          az_size = 'Standard_DS2'
+        else 
+          OOLog.fatal("Azure size map, '#{size}' not found in Mappings List")
+        end
+      when 'L-IO'
+        if(undeployment)
+          az_size = 'Standard_DS3'
+        else 
+          OOLog.fatal("Azure size map, '#{size}' not found in Mappings List")
+        end
       else
         OOLog.fatal("Azure size map, '#{size}' not found in Mappings List")
     end
 
-    if az_size.count('S') == 2
+    if az_size =~ /(.*)GS(.*)|(.*)DS(.*)/
       return true
     else
       return false
