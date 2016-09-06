@@ -28,7 +28,7 @@ attribute 'version',
               	:help => 'Version of ElasticSearch',
               	:category => '2.Global',
               	:order => 1,
-              	:form => { 'field' => 'select', 'options_for_select' => [['4.1.2', '4.1.2'], ['4.2.2', '4.2.2'], ['4.3.2', '4.3.2']] }
+              	:form => { 'field' => 'select', 'options_for_select' => [['4.1.2', '4.1.2'], ['4.2.2', '4.2.2'], ['4.3.2', '4.3.2'], ['4.5.1', '4.5.1']] }
           }
 
 attribute 'install_path',
