@@ -41,7 +41,11 @@ ruby_block 'ssh cmds' do
        !node.initial_user.nil? && node.initial_user != "unset"
       user = node.initial_user
     end
-
+    os = node.workorder.payLoad.os.first
+    if os['ciAttributes']['ostype'] =~ /win/
+      user = 'oneops'
+    end
+    
     ssh_options = "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
     if node.ip.nil? || node.ip.empty?
