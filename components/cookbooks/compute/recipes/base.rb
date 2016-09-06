@@ -44,8 +44,8 @@ ruby_block 'install base' do
     end
 
     # add repo_list from compute
-    if node.workorder.rfcCi.has_key?("repo_list") &&
-       node.workorder.rfcCi.ciAttributes.repo_list.include?("[")
+    if node.has_key?("repo_list") &&
+       node.repo_list.include?("[")
 
       Chef::Log.info("adding compute-level repo_list: #{node.repo_list}")
       repo_cmds += JSON.parse(node.repo_list)
