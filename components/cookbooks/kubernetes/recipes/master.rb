@@ -100,10 +100,10 @@ cookbook_file '/opt/nagios/libexec/check_pods.rb' do
 end
 
 # master vip
-if node.workorder.payLoad.has_key?('lb')  
+if node.workorder.payLoad.has_key?('lbmaster')  
   lb_map = {}
 
-  node.workorder.payLoad.lb.each do |lb|
+  node.workorder.payLoad.lbmaster.each do |lb|
     next unless lb['ciName'].include?('lb-master')
     ci_name_parts = lb['ciName'].split('-')  
     ci_name_parts.pop
