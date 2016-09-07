@@ -350,7 +350,7 @@ resource 'kubernetes-master',
          ]
       }'
     },
-    'lb' => {
+    'lbmaster' => {
       'description' => 'lb',
       'definition' => '{
          "returnObject": false,
@@ -1030,7 +1030,7 @@ resource 'daemon-proxy',
     :relation_name => 'DependsOn',
     :from_resource => from,
     :to_resource   => 'compute-master',
-    :attributes    => { "propagate_to" => 'both', "flex" => true, "current" =>3, "min" => 1, "max" => 5}
+    :attributes    => { "propagate_to" => 'both', "flex" => true, "current" =>3, "min" => 1, "max" => 9}
 end
 
 # -d name due to pack sync logic uses a map keyed by that name - it doesnt get put into cms
