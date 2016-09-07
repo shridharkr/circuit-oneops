@@ -75,8 +75,25 @@ else
 
 end
 
+
 # configure etcd flags
 include_recipe 'etcd::configure'
+
+# Setting the member ID
+ruby_block 'replace old member_id' do
+  block do
+    if node.workorder.rfcCi.rfcAction == 'replace' && node.has_key?("peer_endpoints") && node.peer_endpoints.size >0
+      if node.etcd.has_key?('member_id')
+        cmd = "etcdctl --endpoints=#{node.peer_endpoints.join(',')} member remove #{node.etcd.member_id}"
+        Chef::Log.info(cmd)      
+        Chef::Log.info(`#{cmd}`)
+      end
+      cmd = "etcdctl --endpoints=#{node.peer_endpoints.join(',')} member add #{node.member_name} #{node.member_endpoint}"
+      Chef::Log.info(cmd) 
+      Chef::Log.info(`#{cmd}`)
+    end
+  end
+end
 
 # writing etcd systemd file
 template node.etcd.systemd_file do
