@@ -44,7 +44,7 @@ ruby_block 'install base' do
     end
 
     # add repo_list from os
-    if node.has_key?("repo_list") && node.repo_list.size > 0
+    if node.has_key?("repo_list") && !node.repo_list.nil? && node.repo_list.include?('[')
       Chef::Log.info("adding compute-level repo_list: #{node.repo_list}")
       repo_cmds += JSON.parse(node.repo_list)
     end

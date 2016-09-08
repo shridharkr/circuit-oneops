@@ -73,8 +73,9 @@ elsif provider == "docker"
   sleep_time = 1
 end
 
+# need to sleep a long time for windows to be ready
 if node[:ostype] =~ /windows/
-  sleep_time = 60
+  sleep_time = 150
 end
 
 ruby_block "wait for boot" do
