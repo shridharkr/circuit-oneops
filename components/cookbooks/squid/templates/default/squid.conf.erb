@@ -20,7 +20,7 @@ http_access deny <%= deny_flag %>
 http_port <%= node['squid']['port'] %>
 
 #Cache Peers
-<% 
+<%
     computes = node.workorder.payLoad.has_key?('RequiresComputes')? node.workorder.payLoad.RequiresComputes : {}
     currCloudId = node.workorder.cloud.ciId
     currCloudName = node.workorder.cloud.ciName
@@ -34,7 +34,7 @@ http_port <%= node['squid']['port'] %>
                 cachePeerNodes.push(peerIp)
             end
     end
-%> 
+%>
 
 <% cachePeerNodes.each do |cache_peer_ip| %>
 acl siblings src <%= cache_peer_ip %>/32
@@ -69,15 +69,15 @@ nameservers.each_line do |line|
   dnsServers += "  " + serverIp.chop
 end
 print "dnsServers:#{dnsServers}\n"
-if dnsServers == "" 
+if dnsServers == ""
     dnsServers = "localhost"
 end
 print "dnsServers:#{dnsServers}\n"
 %>
 dns_nameservers <%= dnsServers%>
+maximum_object_size <%= node['squid']['maximum_object_size'] %> MB
 cache_dir ufs <%= node['squid']['cache_dir'] %> <%= node['squid']['cache_size'] %> 16 256
 coredump_dir <%= node['squid']['coredump_dir'] %>
-maximum_object_size <%= node['squid']['maximum_object_size'] %> MB
 cache_mem <%= node['squid']['cache_mem'] %> MB
 cache_replacement_policy heap LFUDA
 memory_pools off
