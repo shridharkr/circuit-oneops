@@ -41,6 +41,15 @@ if node.kubernetes.has_key?("scheduler_args")
 end
 node.set['kube']['scheduler']['args'] = scheduler_args_value  
 
+api_args_value = ''
+if node.kubernetes.has_key?("api_args")
+  args = JSON.parse(node.kubernetes.api_args)
+  args.each_pair do |k,v|
+    Chef::Log.info("setting api arg: --#{k}=#{v}")
+    api_args_value += " --#{k}=#{v}"
+  end
+end
+node.set['kube']['api']['args'] = api_args_value    
   
 # kubernetes nodes
 default['kube']['kubelet']['machines'] = []

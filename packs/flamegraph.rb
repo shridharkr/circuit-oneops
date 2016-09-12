@@ -105,7 +105,10 @@ resource "flamegraph" ,
 resource "tomcat",
          :cookbook => "oneops.1.tomcat",
          :design => true,
-         :requires => {"constraint" => "1..1"},
+         :requires => {
+			 :constraint => "1..1",
+			 :services => "mirror"
+			 },
          :attributes => {
              'install_type' => 'binary',
 	     :services=> "mirror",

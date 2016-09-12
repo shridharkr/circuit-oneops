@@ -32,7 +32,7 @@ attribute 'message_enterprise',
               :help => 'Important Message',
               :category => '1.Global',
               :order => 2,
-              :filter => {'all' => {'visible' => 'version:neq:community_3.0.1'}},
+              :filter => {'all' => {'visible' => 'edition:neq:community'}},
               :editable => false,
           }
 
@@ -44,7 +44,7 @@ attribute 'message_community',
               :help => 'Important Message',
               :category => '1.Global',
               :order => 2,
-              :filter => {'all' => {'visible' => 'version:eq:community_3.0.1'}},
+              :filter => {'all' => {'visible' => 'edition:eq:community'}},
               :editable => false,
           }
 
@@ -58,19 +58,19 @@ attribute 'distributionurl',
           }
 
 attribute 'edition',
-        :description => "Deprecated Edition",
+        :description => "Edition",
         :required => "required",
         :default => "community",
         :format => {
-            :help => 'Edition. By default it uses Community edition.',
+            :help => 'Edition. By default it uses Community edition. For Enterprise, please contact www.couchbase.com',
             :category => '1.Global',
             :order => 4,
             :editable => true,
-            :filter => {'all' => {'visible' => 'false'}},
-            :form => {'field' => 'select', 'options_for_select' => [['Enterprise', 'enterprise'], ['Community', 'community']]}
+#            :filter => {'all' => {'visible' => 'false'}},
+            :form => {'field' => 'select', 'options_for_select' => [['Community', 'community']]}
         }
 
-# Enterprise version keys retained for backwards compatibility. New entries should follow the format 'enterprise_<Version Number>'
+# New entries should follow the format 'community_<Version Number>'
 attribute 'version',
           :description => 'Version',
           :required => 'required',
@@ -81,7 +81,7 @@ attribute 'version',
             :order => 5,
             :filter => {'all' => {'visible' => 'true'}},
             :form => {'field' => 'select', 'options_for_select' => [
-                ['Enterprise 3.0.3', '3.0.3'], ['Enterprise 2.5.2', '2.5.2'], ['Enterprise 2.2.0', '2.2.0'], ['Community 3.0.1', 'community_3.0.1']
+                ['Community 3.0.1', 'community_3.0.1']
               ]
             }
           }

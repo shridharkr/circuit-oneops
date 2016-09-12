@@ -26,7 +26,7 @@ ruby_block 'install base' do
   block do
 
     Chef::Resource::RubyBlock.send(:include, Chef::Mixin::ShellOut)
-    shell_timeout = 3600
+    shell_timeout = 36000
 
     # install os package repos - repo_map keyed by os
     os_type = node.ostype
@@ -43,10 +43,8 @@ ruby_block 'install base' do
       Chef::Log.info("no key in repo_map for os: " + os_type);
     end
 
-    # add repo_list from compute
-    if !node["repo_list"].nil? &&
-       node.repo_list.include?("[")
-      
+    # add repo_list from os
+    if node.has_key?("repo_list") && !node.repo_list.nil? && node.repo_list.include?('[')
       Chef::Log.info("adding compute-level repo_list: #{node.repo_list}")
       repo_cmds += JSON.parse(node.repo_list)
     end
@@ -97,12 +95,24 @@ ruby_block 'install base' do
     Chef::Log.debug("#{cmd} returned: #{result.stdout}")
     result.error!
 
+
     # install base: oneops user, ruby, chef, nagios
     env_vars = JSON.parse(node.workorder.services.compute[cloud_name][:ciAttributes][:env_vars])
     Chef::Log.info("env_vars: #{env_vars.inspect}")
     args = ""
+    proxy = ''
+    gem_repo = ''
+    choco_repo = ''
+
     env_vars.each_pair do |k,v|
       args += "#{k}:#{v} "
+      if k =~ /apiproxy/
+        proxy = v
+      elsif k =~ /chocorepo/
+        choco_repo = v
+      elsif k =~ /rubygems/
+        gem_repo = v
+      end
     end
 
     sudo = ""
@@ -110,12 +120,66 @@ ruby_block 'install base' do
       sudo = "sudo "
     end
 
-    install_base = "components/cookbooks/compute/files/default/install_base.sh"
     Chef::Log.info("Installing base sw for oneops ...")
-    cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + "\"#{sudo}#{sub_circuit_dir}/#{install_base} #{args}\""
-    result = shell_out(cmd, :timeout => shell_timeout)
-    Chef::Log.debug("#{cmd} returned: #{result.stdout}")
-    result.error!
+
+    if os_type !~ /windows/
+      install_base = "components/cookbooks/compute/files/default/install_base.sh"
+      cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + "\"#{sudo}#{sub_circuit_dir}/#{install_base} #{args}\""
+
+      Chef::Log.info("Executing Command: #{cmd}")
+      result = shell_out(cmd)
+
+      Chef::Log.debug("#{cmd} returned: #{result.stdout}")
+      result.error!
+
+    else
+      # install base: oneops user, ruby, chef, nagios
+
+      if node.workorder.services.has_key?("mirror") &&
+         node.workorder.services["mirror"][cloud_name][:ciAttributes].has_key?("mirrors")
+
+         mirror_vars = JSON.parse( node.workorder.services["mirror"][cloud_name][:ciAttributes][:mirrors] )
+         mirror_vars.each_pair do |k,v|
+           if k =~ /chocorepo/
+             choco_repo = v
+           end
+         end
+      else
+        Chef::Log.info("Compute does not have mirror service included")
+      end
+
+      install_base = "components/cookbooks/compute/files/default/install_base.ps1"
+      install_cmd = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File #{sub_circuit_dir}/#{install_base} -proxy '#{proxy}' -chocoRepo '#{choco_repo}' -gemRepo '#{gem_repo}' "
+      cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + install_cmd
+
+      Chef::Log.info("Executing Command: #{cmd}")
+      result = shell_out(cmd)
+
+      Chef::Log.debug("#{cmd} returned: #{result.stdout}")
+      result.error!
+
+
+      user = node.oneops_user
+      sudo_file = "/home/#{user}/circuit-oneops-1/components/cookbooks/compute/files/default/sudo"
+      sudo_cmd = "cp #{sudo_file} /usr/bin "
+
+      cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + sudo_cmd
+      Chef::Log.info("Executing Command: #{cmd}")
+      result = shell_out(cmd)
+
+      Chef::Log.debug("#{cmd} returned: #{result.stdout}")
+      result.error!
+
+
+      sudo_cmd = "chmod +x /usr/bin/sudo"
+      cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + sudo_cmd
+      Chef::Log.info("Executing Command: #{cmd}")
+      result = shell_out(cmd)
+
+      Chef::Log.debug("#{cmd} returned: #{result.stdout}")
+      result.error!
+
+    end
 
     cmd = node.ssh_cmd.gsub("IP",node.ip) + "\"grep processor /proc/cpuinfo | wc -l\""
     result = shell_out(cmd, :timeout => shell_timeout)
@@ -128,6 +192,6 @@ ruby_block 'install base' do
     ram = result.stdout.gsub("\n","")
     puts "***RESULT:ram=#{ram}"
 
-
   end
+
 end

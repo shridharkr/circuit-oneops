@@ -87,69 +87,6 @@ class VirtualMachineManager
   end
   private :throttle_yum
 
-  def sfdisk_device
-    options = vm_execute_options
-    options['command'] = '/usr/bin/echo'
-    options['args'] = " ';' | sfdisk /dev/sdb"
-    return options
-  end
-  private :sfdisk_device
-
-  def format_device
-    options = vm_execute_options
-    options['command'] = '/sbin/mkfs.ext4'
-    options['args'] = '/dev/sdb1'
-    return options
-  end
-  private :format_device
-
-  def make_device_directory
-    options = vm_execute_options
-    options['command'] = '/bin/mkdir'
-    options['args'] = EPHEMERAL_MOUNT
-    return options
-  end
-  private :make_device_directory
-
-  def mount_device
-    options = vm_execute_options
-    options['command'] = '/bin/mount'
-    options['args'] = "/dev/sdb1 #{EPHEMERAL_MOUNT}"
-    return options
-  end
-  private :mount_device
-
-  def fstab_device
-    options = vm_execute_options
-    options['command'] = '/usr/bin/echo'
-    options['args'] = "/dev/sdb1 #{EPHEMERAL_MOUNT} ext4  defaults 1 2 >> /etc/fstab"
-    return options
-  end
-  private :fstab_device
-
-  def create_ephemeral_mount
-    is_ephemeral_mount_created = false
-    Chef::Log.info("creating secondary device mount")
-    begin
-      Chef::Log.info("partitioning device")
-      @compute_provider.vm_execute(sfdisk_device)
-      Chef::Log.info("formatting device")
-      @compute_provider.vm_execute(format_device)
-      sleep(10)
-      Chef::Log.info("making device directory")
-      @compute_provider.vm_execute(make_device_directory)
-      Chef::Log.info("mounting device")
-      @compute_provider.vm_execute(mount_device)
-      Chef::Log.info("setting device fstab entry")
-      @compute_provider.vm_execute(fstab_device)
-      is_ephemeral_mount_created = true
-    rescue
-      Chef::Log.error("failed to create secondary mount")
-    end
-    return is_ephemeral_mount_created
-  end
-  private :create_ephemeral_mount
-
   def get_ip_address
     fail ArgumentError, 'instance_id is invalid' if @instance_id.nil? || @instance_id.empty?
 
@@ -189,13 +126,11 @@ class VirtualMachineManager
     if initial_boot == true
       is_public_key_injected = inject_public_Key
       is_yum_throttled = throttle_yum(@bandwidth_throttle_rate) if !@bandwidth_throttle_rate.empty?
-      is_ephemeral_mount_created = create_ephemeral_mount
     end
     ip_address = get_ip_address
 
     if initial_boot == true
-      is_power_on = true if (is_public_key_injected == true) && (is_yum_throttled == true) &&
-                            (is_ephemeral_mount_created == true) && (!ip_address.nil?)
+      is_power_on = true if (is_public_key_injected == true) && (is_yum_throttled == true) && (!ip_address.nil?)
     elsif initial_boot == false
       is_power_on = true if !ip_address.nil?
     end
@@ -210,7 +145,6 @@ class VirtualMachineManager
       @instance_id = new_vm['new_vm']['id']
       Chef::Log.debug('instance_id: ' + @instance_id.to_s)
       puts "***RESULT:instance_id=" + @instance_id
-      # puts "***RESULT:hypervisor="+virtual_machine_manager.hypervisor
       is_power_on = power_on(initial_boot = true)
       raise 'Failed to power on instance' if is_power_on == false
     rescue => e

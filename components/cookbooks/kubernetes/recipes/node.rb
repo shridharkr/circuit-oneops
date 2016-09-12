@@ -47,9 +47,10 @@ end
   end
 end
 
+execute "systemctl daemon-reload"
 
 # define kubernetes master services
-%w(kubelet kube-proxy).each do |service|
+%w(kubelet kube-proxy).each do |service| 
   service service do
     action [:enable, :restart]
   end

@@ -35,6 +35,7 @@ end
 Chef::Log.info("rfcAction: #{node.workorder.rfcCi.rfcAction}")
 
 etcd_cluster = Array.new
+peer_endpoints = Array.new
 # Get etcd members
 
 if primary_cloud == true
@@ -56,6 +57,8 @@ if primary_cloud == true
       computes = primary_computes
     end
   end
+  
+  managed_via_compute = node.workorder.payLoad.ManagedVia.first
 
   computes.each do |c, index|
     if c.ciAttributes.has_key?("private_ip") && c.ciAttributes.private_ip != nil
@@ -63,14 +66,22 @@ if primary_cloud == true
         full_hostname = get_full_hostname(c.ciAttributes.private_ip)
         etcd_cluster.push("#{c.ciName}=http://#{full_hostname}:2380")
       else
-        etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")
+        etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")        
+      end
+      if c.ciAttributes.private_ip != managed_via_compute['ciAttributes']['private_ip']
+        peer_endpoints.push("http://#{c.ciAttributes.private_ip}:2379")        
+      else
+        node.set['member_name'] = c.ciName
+        node.set['member_endpoint'] = "http://#{c.ciAttributes.private_ip}:2380"
       end
     end
   end
+  node.set['peer_endpoints'] = peer_endpoints
+    
 else
 
 # Assume that the nodes from secondary clouds will form a new Etcd cluster, which is
-# independet of the Etcd cluster in primary clouds.
+# independent of the Etcd cluster in primary clouds.
 
 # The goal of the following method is to identify which IPs belong to secondary clouds.
 # It assumes:

@@ -37,10 +37,6 @@ resource 'secgroup-master',
       :constraint => '1..1',
       :services => 'compute'
   }
-
-resource 'os',
-   :attributes => { 'sysctl' => '{"net.core.somaxconn":"2048","net.ipv6.conf.all.forwarding":"1"}'
-                  }
   
 resource 'compute-master',
   :cookbook => "oneops.1.compute",
@@ -84,7 +80,10 @@ resource 'compute-master',
   }
 
 resource 'os',
-  :attributes => {:ostype => 'centos-7.2'}
+  :attributes => {
+    :ostype => 'centos-7.2',
+    :sysctl => '{"net.core.somaxconn":"2048","net.ipv6.conf.all.forwarding":"1"}'      
+  }
     
 resource 'os-master',
   :cookbook => 'oneops.1.os',
@@ -350,7 +349,41 @@ resource 'kubernetes-master',
            }
          ]
       }'
-    }          
+    },
+    'lbmaster' => {
+      'description' => 'lb',
+      'definition' => '{
+         "returnObject": false,
+         "returnRelation": false,
+         "relationName": "base.RealizedAs",
+         "direction": "to",
+         "targetClassName": "manifest.oneops.1.Kubernetes",
+         "relations": [
+           { "returnObject": false,
+             "returnRelation": false,
+             "relationName": "manifest.Requires",
+             "direction": "to",
+             "targetClassName": "manifest.Platform",
+             "relations": [
+               { "returnObject": false,
+                 "returnRelation": false,
+                 "relationName": "manifest.Requires",
+                 "direction": "from",
+                 "targetClassName": "manifest.oneops.1.Lb",
+                 "relations": [
+                   { "returnObject": true,
+                     "returnRelation": false,
+                     "relationName": "base.RealizedAs",
+                     "direction": "from",
+                     "targetClassName": "bom.oneops.1.Lb"    
+                   }
+                 ]      
+               }
+             ]
+           }
+         ]
+      }'
+    }           
   },
 :monitors => {
     'nodes' =>  { :description => 'Nodes',
@@ -997,7 +1030,7 @@ resource 'daemon-proxy',
     :relation_name => 'DependsOn',
     :from_resource => from,
     :to_resource   => 'compute-master',
-    :attributes    => { "propagate_to" => 'both', "flex" => true, "current" =>3, "min" => 1, "max" => 5}
+    :attributes    => { "propagate_to" => 'both', "flex" => true, "current" =>3, "min" => 1, "max" => 9}
 end
 
 # -d name due to pack sync logic uses a map keyed by that name - it doesnt get put into cms

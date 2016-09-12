@@ -86,7 +86,12 @@ network_interface = get_network_interface(compute_provider, service_compute)
 Chef::Log.info("configuring virtual machine")
 vm_attributes = get_virtual_machine_attributes(service_compute, cpu_size, memory_size, volumes, network_interface)
 
-instance_id = node[:compute][:instance_id]
+instance_id = nil
+# keep instance_id nil for replace
+if node.workorder.rfcCi.rfcAction != 'replace'
+  instance_id = node[:compute][:instance_id]
+end
+  
 if !instance_id.nil?
   Chef::Log.info("Updating VM ..... " + node[:server_name].to_s)
   virtual_machine_manager = VirtualMachineManager.new(compute_provider, public_key, instance_id)
