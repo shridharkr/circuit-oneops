@@ -1,3 +1,5 @@
+require File.expand_path('../../libraries/logger.rb', __FILE__)
+
 module Utils
 
   # method to get credentials in order to call Azure
@@ -109,7 +111,7 @@ module Utils
     return abbr
   end
 
-  def is_prm(size, undeployment)
+  def is_prm(size, isUndeployment)
     az_size = ''
     # Method that maps sizes
     case size
@@ -120,6 +122,7 @@ module Utils
       when 'M'
         az_size = 'Standard_A2'
       when 'L'
+        OOLog.info("L: Standard_A3") #just testing
         az_size = 'Standard_A3'
       when 'XL'
         az_size = 'Standard_A4'
@@ -163,19 +166,19 @@ module Utils
         az_size = 'Standard_DS14'
       #old mappings - this part is used to deprovision only
       when 'S-IO'
-        if(undeployment)
+        if(isUndeployment)
           az_size = 'Standard_DS1'
         else 
           OOLog.fatal("Azure size map, '#{size}' not found in Mappings List")
         end
       when 'M-IO'
-        if(undeployment)
+        if(isUndeployment)
           az_size = 'Standard_DS2'
         else 
           OOLog.fatal("Azure size map, '#{size}' not found in Mappings List")
         end
       when 'L-IO'
-        if(undeployment)
+        if(isUndeployment)
           az_size = 'Standard_DS3'
         else 
           OOLog.fatal("Azure size map, '#{size}' not found in Mappings List")
