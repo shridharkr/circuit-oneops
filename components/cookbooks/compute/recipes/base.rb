@@ -26,7 +26,7 @@ ruby_block 'install base' do
   block do
 
     Chef::Resource::RubyBlock.send(:include, Chef::Mixin::ShellOut)
-    shell_timeout = 3600
+    shell_timeout = 36000
 
     # install os package repos - repo_map keyed by os
     os_type = node.ostype
