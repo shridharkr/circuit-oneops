@@ -193,7 +193,13 @@ class Chef
 			unless(content_remainder == 0)
 				byte_start = byte_end + 1
 				byte_size = content_length - byte_start
-				parts_details.push({'slot' => chunk_parts, 'start' => byte_start, 'end' => '', 'size' => byte_size})
+
+				if byte_start == content_length
+					parts_details[parts_details.length-1]['end'] = ''
+					parts_details[parts_details.length-1]['size'] = parts_details[parts_details.length-1]['size'] + 1
+				else
+					parts_details.push({'slot' => chunk_parts, 'start' => byte_start, 'end' => '', 'size' => byte_size})
+				end
 			end
 
             last_slot = parts_details.length - 1
@@ -202,7 +208,13 @@ class Chef
 			if parts_details[last_slot]['end'] != '' &&  parts_details[last_slot]['end'] < content_length
 				byte_start = last_slot_byte_end + 1
 				size = content_length - byte_start
-				parts_details.push({'slot' => last_slot + 1, 'start' => byte_start, 'end' => '', size => size})
+
+				if byte_start == content_length
+					parts_details[last_slot-1]['end'] = ''
+					parts_details[last_slot-1]['size'] = parts_details[last_slot-1]['size'] + 1
+				else
+					parts_details.push({'slot' => last_slot + 1, 'start' => byte_start, 'end' => '', size => size})
+				end
 			end
 
 			return parts_details
