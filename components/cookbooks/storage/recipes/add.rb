@@ -172,7 +172,7 @@ Array(1..slice_count).each do |i|
         storage = storage_service["ciAttributes"]
         size = node[:workorder][:payLoad][:RequiresComputes][0][:ciAttributes][:size]
         
-        if Utils.is_prm(size)
+        if Utils.is_prm(size, false)
           volume = storage.master_rg+":"+storage.storage_account_prm+":"+(node.workorder.rfcCi.ciId).to_s+":"+slice_size.to_s
           Chef::Log.info("Choosing Premium Storage Account: #{storage.storage_account_prm}") 
         else
