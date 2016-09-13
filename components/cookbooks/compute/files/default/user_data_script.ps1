@@ -1,7 +1,7 @@
 #ps1_sysnative
 
 Function Set-Owner-Admin-Folder {
-   
+
     [cmdletbinding(
         SupportsShouldProcess = $True
     )]
@@ -128,12 +128,12 @@ Function Set-Owner-Admin-Folder {
                         }
                     }
                 } Else {
-                    If ($PSCmdlet.ShouldProcess($Item, 'Set Directory Owner')) {                        
+                    If ($PSCmdlet.ShouldProcess($Item, 'Set Directory Owner')) {
                         Try {
                             $Item.SetAccessControl($DirOwner)
                         } Catch {
                             Write-Warning "Couldn't take ownership of $($Item.FullName)! Taking FullControl of $($Item.Parent.FullName)"
-                            $Item.Parent.SetAccessControl($DirAdminAcl) 
+                            $Item.Parent.SetAccessControl($DirAdminAcl)
                             $Item.SetAccessControl($DirOwner)
                         }
                     }
@@ -147,30 +147,13 @@ Function Set-Owner-Admin-Folder {
             }
         }
     }
-    End {  
+    End {
         #Remove priviledges that had been granted
-        [void][TokenAdjuster]::RemovePrivilege("SeRestorePrivilege") 
-        [void][TokenAdjuster]::RemovePrivilege("SeBackupPrivilege") 
-        [void][TokenAdjuster]::RemovePrivilege("SeTakeOwnershipPrivilege")     
+        [void][TokenAdjuster]::RemovePrivilege("SeRestorePrivilege")
+        [void][TokenAdjuster]::RemovePrivilege("SeBackupPrivilege")
+        [void][TokenAdjuster]::RemovePrivilege("SeTakeOwnershipPrivilege")
     }
 }
-
-#################################################
-Write-Host “Adding admin user to cygwin”
-C:\cygwin64\bin\mkpasswd.exe -u admin -l
-
-Copy-Item C:\cygwin64\home\oneops_usr C:\cygwin64\home\admin -recurse -force
-Copy-Item C:\Users\admin\.ssh\authorized_keys C:\cygwin64\home\admin\.ssh\authorized_keys
-
-$user_account = whoami
-
-$domain = $user_account.Split("\")
-
-$user_account = $domain[0] + "\admin"
-
-Write-Host $user_account
-
-Set-Owner-Admin-Folder -Path C:\cygwin64\home\admin -Recurse -Account $user_account
 
 #################################################
 Write-Host "Adding oneops user to windows"
@@ -196,7 +179,7 @@ $group.add("WinNT://$env:USERDOMAIN/oneops,user")
 Write-Host "Adding oneops user to cygwin"
 C:\cygwin64\bin\mkpasswd.exe -u oneops -l
 
-Copy-Item C:\cygwin64\home\oneops_usr C:\cygwin64\home\oneops -recurse -force
+New-Item C:\cygwin64\home\oneops\.ssh\ -ItemType directory
 Copy-Item C:\Users\admin\.ssh\authorized_keys C:\cygwin64\home\oneops\.ssh\authorized_keys
 
 $user_account = whoami
