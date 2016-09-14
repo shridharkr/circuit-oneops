@@ -34,26 +34,17 @@ attribute 'apikey',
 
 attribute 'datacenter',
   :description => "Datacenter",
-  :default => "",
+  :default => "dal10",
   :format => {
     :help => 'Datacenter Name',
     :category => '2.Placement',
     :order => 1
   }
 
-attribute 'privateVlan',
-  :description => "Private VLAN",
-  :default => "",
-  :format => {
-    :help => 'Private VLAN is optional for compute instances',
-    :category => '2.Placement',
-    :order => 2
-  }
-
 attribute 'sizemap',
   :description => "Sizes Map",
   :data_type => "hash",
-  :default => '{ "XS":"2","S":"3","M":"4","L":"5","XL":"6" }',
+  :default => '{ "XS":"m1.tiny","S":"m1.small","M":"m1.medium","L":"m1.large","XL":"m1.xlarge" }',
   :format => {
     :help => 'Map of generic compute sizes to provider specific',
     :category => '3.Mappings',
