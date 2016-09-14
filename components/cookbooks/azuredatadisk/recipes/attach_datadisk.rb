@@ -22,7 +22,6 @@ node.workorder.payLoad[:DependsOn].each do |dep|
   end
 end
 
-
 if storage != nil
   attr = storage[:ciAttributes]
   OOLog.info("attr"+attr.inspect())

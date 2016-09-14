@@ -24,6 +24,8 @@
 #
 
 # PGPDBAAS 2613 & 3322
+require File.expand_path('../../../azure_base/libraries/utils.rb', __FILE__)
+
 include_recipe 'shared::set_provider'
 require 'json'
 provider = node['provider_class']
@@ -168,7 +170,15 @@ Array(1..slice_count).each do |i|
         cloud_name = node[:workorder][:cloud][:ciName]
         storage_service = node[:workorder][:services][:storage][cloud_name]
         storage = storage_service["ciAttributes"]
-        volume = storage.master_rg+":"+storage.storage_account+":"+(node.workorder.rfcCi.ciId).to_s+":"+slice_size.to_s
+        size = node[:workorder][:payLoad][:RequiresComputes][0][:ciAttributes][:size]
+        
+        if Utils.is_prm(size, false)
+          volume = storage.master_rg+":"+storage.storage_account_prm+":"+(node.workorder.rfcCi.ciId).to_s+":"+slice_size.to_s
+          Chef::Log.info("Choosing Premium Storage Account: #{storage.storage_account_prm}") 
+        else
+          volume = storage.master_rg+":"+storage.storage_account_std+":"+(node.workorder.rfcCi.ciId).to_s+":"+slice_size.to_s
+          Chef::Log.info("Choosing Standard Storage Account: #{storage.storage_account_std}") 
+        end
       end
 
     else
@@ -182,7 +192,6 @@ Array(1..slice_count).each do |i|
       end
     end
     volume = node.storage_provider.volumes.new :device => dev, :size => slice_size, :availability_zone => avail_zone
-    volume.save
   end
 
   if node.storage_provider_class =~ /azure/

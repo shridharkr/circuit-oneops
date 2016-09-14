@@ -31,12 +31,11 @@ when 'flannel'
     network_cidr = docker['ciAttributes']['network_cidr']
   end
       
-  #execute "etcdctl mk /atomic.io/network/config '{\"Network\": \"#{network_cidr}\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\", \"VNI\": 1}}'"
   # returns 4 when already done
-  execute "etcdctl mk /atomic.io/network/config '{\"Network\":\"#{network_cidr}\"}'" do
-    returns [0,4]
+  flannel_conf = "{\"Network\": \"#{network_cidr}\", \"Backend\": {\"Type\": \"vxlan\", \"VNI\": 1}}"
+  execute "etcdctl mk /docker-flannel/network/config '#{flannel_conf}'" do
+      returns [0,4]
   end
-
   
 
   service 'flanneld' do
@@ -79,9 +78,47 @@ end
   end
 end
 
+execute "systemctl daemon-reload"
+
 # define kubernetes master services
 %w(kube-apiserver kube-controller-manager kube-scheduler).each do |service|
   service service do
     action [:enable, :restart]
   end
+end
+
+cookbook_file '/opt/nagios/libexec/check_nodes.rb' do
+  source 'check_nodes.rb'
+  mode 00755
+  action :create
+end
+
+cookbook_file '/opt/nagios/libexec/check_pods.rb' do
+  source 'check_pods.rb'
+  mode 00755
+  action :create
+end
+
+# master vip
+if node.workorder.payLoad.has_key?('lbmaster')  
+  lb_map = {}
+
+  node.workorder.payLoad.lbmaster.each do |lb|
+    next unless lb['ciName'].include?('lb-master')
+    ci_name_parts = lb['ciName'].split('-')  
+    ci_name_parts.pop
+    cloud_id = ci_name_parts.pop
+    lb_map[cloud_id] = lb['ciAttributes']['dns_record']
+  end
+  
+  execute "etcdctl mk /kubernetes/contrib/vip_map '#{JSON.dump(lb_map)}'" do
+    returns [0,4]
+  end
+
+  first_key = lb_map.keys.first
+  master_vip = lb_map[first_key]
+  execute "etcdctl mk /kubernetes/contrib/master_vip '#{master_vip}'" do
+    returns [0,4]
+  end    
+  
 end

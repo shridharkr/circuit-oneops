@@ -19,6 +19,7 @@ end
 
 service 'perf-agent' do
   action :stop
+  only_if {File.exists?("/etc/init.d/perf-agent") || File.exists?("/usr/lib/systemd/system/perf-agent.service")}
 end
 
 destination="#{node.workorder.cloud.ciName}.collector.#{node.mgmt_domain.strip}:5000"

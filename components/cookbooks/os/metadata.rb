@@ -5,6 +5,7 @@ maintainer_email "support@oneops.com"
 license "Apache License, Version 2.0"
 depends "shared"
 depends "simple_iptables"
+depends "windowsos"
 
 grouping 'default',
          :access   => "global",
@@ -43,19 +44,21 @@ attribute 'tags',
 
 
 attribute 'ostype',
-          :description => "OS Type",
-          :required    => "required",
-          :default     => "centos-7.0",
-          :format      => {
-            :important => true,
-            :help      => 'OS types are mapped to the correct cloud provider OS images - see cloud ostype when this value is default-cloud',
-            :category  => '3.Operating System',
-            :order     => 1,
-            :form      => {'field' => 'select', 'options_for_select' => [
-              ['Ubuntu 14.04', 'ubuntu-14.04'],
-              ['CentOS 7.0', 'centos-7.0'],
-              ['CentOS 7.2', 'centos-7.2']]}
-          }
+  :description => "OS Type",
+  :required => "required",
+  :default => "centos-7.0",
+  :format => {
+    :important => true,
+    :help => 'OS types are mapped to the correct cloud provider OS images - see cloud ostype when this value is default-cloud',
+    :category => '3.Operating System',
+    :order => 1,
+    :form => { 'field' => 'select', 'options_for_select' => [
+      ['Ubuntu 14.04','ubuntu-14.04'],
+      ['CentOS 7.0','centos-7.0'],
+      ['CentOS 7.2','centos-7.2'],
+      ['Windows 2012 R2','windows_2012_r2']] }
+  }
+
 
 attribute 'image_id',
           :description => "OS Image",
@@ -282,40 +285,21 @@ recipe "upgrade-os-package",
          }
        }
 
-# recipe 'upgrade-security-compliace',
-#        :description => 'upgrade to security requirements configued by cloud compliance',
-#        :args        => {
-#          'compliance' => {
-#            :name => 'Compliance Name',
-#            :description => 'Compliance name to apply, use "*" to apply all compliances.',
-#            :defaultValue => '*',
-#            :required => true,
-#            :dataType => 'string'
-#          },
-#          'version' => {
-#            :name => 'Compliance Version',
-#            :description => 'Compliance version to upgrade to, use "0" to upgrade latest versions.',
-#            :defaultValue => '0',
-#            :required => false,
-#            :dataType => 'string'
-#          }
-#        }
-#
-# recipe 'downgrade-security-compliace',
-#        :description => 'downgrade/remove security requirements configued by cloud compliance',
-#        :args        => {
-#          'compliance' => {
-#            :name => 'Name',
-#            :description => 'Compliance name to downgrade, use "*" to downgrade all compliances.',
-#            :defaultValue => '*',
-#            :required => true,
-#            :dataType => 'string'
-#          },
-#          'version' => {
-#            :name => 'Version',
-#            :description => 'Compliance version to downgrade to, use "0" to completely remove compliance.',
-#            :defaultValue => '0',
-#            :required => false,
-#            :dataType => 'string'
-#          }
-#        }
+recipe 'apply-security-compliance',
+       :description => 'apply security requirements configured by cloud compliance',
+       :args        => {
+         'compliance' => {
+           :name => 'name',
+           :description => 'Compliance name to apply, use "*" to apply all compliances, use "," to apply multiple compliances',
+           :defaultValue => '*',
+           :required => true,
+           :dataType => 'string'
+         },
+         'version' => {
+           :name => 'version',
+           :description => 'Compliance version to apply, use "LATEST" to apply latest versions.',
+           :defaultValue => 'LATEST',
+           :required => false,
+           :dataType => 'string'
+         }
+       }

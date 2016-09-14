@@ -30,7 +30,6 @@ default['nodejs']['checksum_linux_x64'] = '0b5191748a91b1c49947fef6b143f3e5e5633
 default['nodejs']['checksum_linux_x86'] = '7ff9fb6aa19a5269a5a2f7a770040b8cd3c3b528a9c7c07da5da31c0d6dfde4d'
 default['nodejs']['dir'] = '/usr/local'
 default['nodejs']['npm'] = '1.3.5'
-default['nodejs']['src_url'] = "http://nodejs.org/dist"
 default['nodejs']['make_threads'] = node['cpu'] ? node['cpu']['total'].to_i : 2
 default['nodejs']['check_sha'] = true
 
