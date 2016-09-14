@@ -18,7 +18,7 @@ attribute 'username',
   :format => {
     :help => 'API Username',
     :category => '1.Authentication',
-    :order => 2
+    :order => 1
   }
 
 attribute 'apikey',
@@ -29,7 +29,7 @@ attribute 'apikey',
   :format => {
     :help => 'API Key',
     :category => '1.Authentication',
-    :order => 3
+    :order => 2
   }
 
 attribute 'datacenter',
@@ -83,7 +83,7 @@ attribute 'repo_map',
   :format => {
     :help => 'Map of repositories by OS Type containing add commands - ex) yum-config-manager --add-repo repository_url or deb http://us.archive.ubuntu.com/ubuntu/ hardy main restricted ',
     :category => '4.Operating System',
-    :order => 2
+    :order => 1
   }
 
 attribute 'env_vars',
@@ -104,7 +104,7 @@ attribute 'ostype',
   :format => {
     :help => 'OS types are mapped to the correct cloud provider OS images - see provider documentation for details',
     :category => '4.Operating System',
-    :order => 4,
+    :order => 3,
     :form => { 'field' => 'select', 'options_for_select' => [
       ['Ubuntu 14.04 (trusty)','ubuntu-14.04'],
       ['RedHat 7.0','redhat-7.0'],

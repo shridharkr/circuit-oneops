@@ -3,6 +3,9 @@ description "SoftLayer"
 auth "softlayersecretkey"
 is_location "true"
 
+size_map = '{
+}'
+
 image_map = '{
 }'
 
@@ -18,6 +21,9 @@ service "softlayer",
   :provides => { :service => 'compute' },
   :attributes => {
     :username => "",
+    :apikey => "",
+    :datacenter => "dal10",
+    :sizemap => size_map,
     :imagemap => image_map,
     :repo_map => repo_map
   }
