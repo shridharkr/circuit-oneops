@@ -22,6 +22,7 @@ resource "lb",
   :requires => { "constraint" => "1..1", "services" => "compute,lb,dns" },
   :attributes => {
     "listeners" => '["http 9200 http 9200"]',
+    "ecv_map"   => "{\"9200\":\"GET /\"}"
 }
 
 resource 'user-app',
@@ -506,7 +507,9 @@ resource "master-lb",
          :cookbook => "oneops.1.lb",
          :requires => { "constraint" => "0..1", "services" => "compute,lb,dns" },
          :attributes => {
-             "stickiness"    => ""
+             "stickiness"    => "",
+             "listeners" => '["http 9200 http 9200"]',
+             "ecv_map"   => "{\"9200\":\"GET /\"}"
          },
          :payloads => {
              'primaryactiveclouds' => {
