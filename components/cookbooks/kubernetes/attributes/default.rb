@@ -18,7 +18,9 @@
 default['kube']['api']['host'] = ''
 default['kube']['api']['bind-address'] = '0.0.0.0'
 default['kube']['api']['bind-port'] = node.kubernetes.api_port
-default['kube']['service']['addresses'] = node.kubernetes.service_addresses
+default['kube']['api']['bind-port-secure'] = node.kubernetes.api_port_secure
+
+  default['kube']['service']['addresses'] = node.kubernetes.service_addresses
 default['kube']['scheduler']['args'] = ''
 
 controller_manager_args_value = ''

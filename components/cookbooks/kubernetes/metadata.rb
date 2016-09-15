@@ -121,6 +121,18 @@ attribute 'api_port',
     :order => 3
   }
 
+attribute 'api_port',
+  :grouping => 'cluster',
+  :description => "api port",
+  :default => "8080",
+  :required => "required",
+  :format => {
+    :important => true,
+    :help => 'API Port',
+    :category => '1.Master',
+    :order => 3
+  }  
+  
 attribute 'log_level',
   :grouping => 'cluster',
   :description => "log_level",
@@ -181,7 +193,7 @@ attribute 'api_args',
     :category => '1.Master',
     :order => 8
   }    
-    
+
 attribute 'cluster_cloud_map',
   :grouping => 'cluster',
   :description => "Map of Clouds to Clusters",
@@ -191,8 +203,81 @@ attribute 'cluster_cloud_map',
   :format => {
     :help => 'Map of Clouds to Clusters',
     :category => '1.Master',
-    :order => 9
+    :order => 10
   }
+    
+  
+attribute 'security_enabled',
+  :description => 'Enable SSL/TLS',
+  :default => 'false',
+  :format => {
+      :help => 'Enable SSL/TLS',
+      :category => '2.Authentication',
+      :form => {:field => 'checkbox'},
+      :order => 1
+  }
+
+attribute 'security_certificate',
+  :description => 'Server Certificate',
+  :data_type => 'text',
+  :default => '',
+  :format => {
+      :help => 'Enter the certificate content to be used (Note: usually this is the content of the *.crt file).',
+      :category => '2.Authentication',
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
+      :order => 2
+  }
+
+attribute 'security_key',
+  :description => 'Server Key',
+  :data_type => 'text',
+  :default => '',
+  :format => {
+      :help => 'Enter the certificate key content (Note: usually this is the content of the *.key file).',
+      :category => '2.Authentication',
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
+      :order => 3
+  }
+
+attribute 'security_ca_certificate',
+  :description => 'CA Certificate',
+  :data_type => 'text',
+  :default => '',
+  :format => {
+      :help => 'Enter the CA certificate keys to be used to be used to trust certs signed only by this CA.',
+      :category => '2.Authentication',
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
+      :order => 4
+  }
+
+attribute 'security_path',
+  :description => 'Directory Path',
+  :default => '/etc/kubernetes/ssl',
+  :format => {
+      :help => 'Directory path where the security files should be saved',
+      :category => '2.Authentication',
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
+      :order => 5
+  }
+
+attribute 'auth_user',
+  :description => 'Auth User',
+  :format => {
+      :help => 'Kubernetes auth user file content.',
+      :category => '2.Authentication',
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
+      :order => 5
+  }
+    
+attribute 'auth_policy',
+  :description => 'Auth Policy',
+  :format => {
+      :help => 'Kubernetes auth file content.',
+      :category => '2.Authentication',
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
+      :order => 5
+  }
+        
     
 attribute 'kubelet_port',
   :grouping => 'cluster',

@@ -10,10 +10,11 @@
 KUBE_API_ADDRESS="--address=<%= node['kube']['api']['bind-address'] %>"
 
 # The port on the local server to listen on.
-KUBE_API_PORT="--port=<%= node['kube']['api']['bind-port'] %>"
+KUBE_API_PORT="--insecure-port=<%= node['kube']['api']['bind-port'] %>"
+KUBE_API_SECURE_PORT="--secure-port=<%= node['kube']['api']['bind-port-secure'] %>"
 
 # How the replication controller and scheduler find the kube-apiserver
-KUBE_MASTER="--master=<%= node['kube']['api']['host'] %>:<%= node['kube']['api']['bind-port'] %>"
+KUBE_MASTER="--master=localhost:<%= node['kube']['api']['bind-port'] %>"
 
 # Port minions listen on
 KUBELET_PORT="--kubelet_port=<%= node['kube']['kubelet']['bind-port'] %>"
@@ -23,3 +24,4 @@ KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range=<%= node['kube']['service']['
 
 # Add you own!
 KUBE_API_ARGS="<%= node['kube']['api']['args'] %>"
+
