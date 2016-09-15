@@ -30,7 +30,7 @@ server=nil
 conn = Fog::Compute.new(:provider: => "softlayer",
  :softlayer_username => token[:username],
  :softlayer_api_key => token[:apikey]
-})
+)
 
 rfcCi = node["workorder"]["rfcCi"]
 
