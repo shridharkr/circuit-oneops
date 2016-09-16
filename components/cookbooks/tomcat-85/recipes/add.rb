@@ -65,8 +65,13 @@ end
 #=3=#
 Chef::Log.info(" protocol  #{node['tomcat']['connector']['protocol']} - connector config #{node['tomcat']['connector']['advanced_connector_config']} ssl_configured : #{node['tomcat']['connector']['ssl_configured']}")
 #=4=#
-tomcat_version_name = 'tomcat'+node.workorder.rfcCi.ciAttributes.version[0, 1]
+tomcat_version_name = node.workorder.rfcCi.ciAttributes.version
+#tomcat_version_name = node.workorder.rfcCi.ciBaseAttributes.version
+#tomcat_version_name = get_attribute_value('version')
 node.set['tomcat']['tomcat_version_name'] = tomcat_version_name
+#Chef::Log.warn("tomcat_version_name = #{tomcat_version_name} ")
+Chef::Log.warn("tomcat_version_name = #{node['tomcat']['tomcat_version_name']} ")
+#Chef::Log.warn("tomcat_version_name is also #{get_attribute_value('version')}")
 #=5=#
 node.set['tomcat']['max_threads'] = node['tomcat']['max_threads']
 node.set['tomcat']['min_spare_threads'] = node['tomcat']['min_spare_threads']

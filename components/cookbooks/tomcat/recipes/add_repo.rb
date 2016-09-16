@@ -34,7 +34,7 @@ tomcat_pkgs.each do |pkg|
   # debian workaround for parallel dpkg/apt-get calls
   if node.platform !~ /fedora|redhat|centos/
     ruby_block 'Check for dpkg lock' do
-      block do   
+      block do
         sleep rand(10)
         retry_count = 0
         while system('lsof /var/lib/dpkg/lock') && retry_count < 20
@@ -46,11 +46,12 @@ tomcat_pkgs.each do |pkg|
     end
   end
   package pkg do
+    Chef::Log.warn("We are installing #{pkg}")
     action :install
   end
 end
 
-package "#{tomcat_version_name}-admin-webapps" do  
+package "#{tomcat_version_name}-admin-webapps" do
   only_if { ["redhat","centos"].include?(node.platform) }
 end
 
@@ -74,7 +75,7 @@ template "/etc/#{tomcat_version_name}/Catalina/localhost/manager.xml" do
   source "manager.xml.erb"
   owner "root"
   group "root"
-  mode "0644"  
+  mode "0644"
 end
 
 
