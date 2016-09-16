@@ -70,11 +70,11 @@
     <!-- A "Connector" using the shared thread pool-->
     <Connector executor="<%= node['tomcat']['executor']['executor_name'] %>"
                port="<%= node['tomcat']['port'] %>"
-               protocol="<%=node['tomcat']['connector']['protocol'] %>"
+               protocol="org.apache.coyote.http11.Http11NioProtocol"
                redirectPort="<%= node['tomcat']['ssl_port'] %>"
-               server="<%= node['tomcat']['server_header_attribute'] %>"
+               server="42"
                allowTrace="<%= node['tomcat']['enable_method_trace'] %>"
-            <% JSON.parse(node['tomcat']['connector']['advanced_NIO_connector_config']).each{ |k, v|%>
+            <% JSON.parse(node['tomcat']['advanced_NIO_connector_config']).each{ |k, v|%>
              <%=k%>="<%=v%>"
               <% } %>
                />
@@ -91,24 +91,26 @@ if node['tomcat']['https_NIO_connector_enabled'] == nil || node['tomcat']['https
      described in the APR documentation -->
 <!-- opted in to ssl activation w/ keystore -->
     <Connector port="<%= node['tomcat']['ssl_port'] %>"
-               protocol="<%=node['tomcat']['protocol'] %>" SSLEnabled="true"
-               maxThreads="<%= node['tomcat']['executor']['max_threads'] %>"
-               server="<%= node['tomcat']['server_header_attribute'] %>"
+               protocol="org.apache.coyote.http11.Http11NioProtocol" SSLEnabled="true"
+               maxThreads="<%= node['tomcat']['max_threads'] %>"
+               server="42"
                allowTrace="<%= node['tomcat']['enable_method_trace'] %>"
                keystoreFile="<%= node['tomcat']['keystore_path'] %>"
                keystorePass="<%= node['tomcat']['keystore_pass'] %>"
                scheme="https" secure="true"
                clientAuth="false"  sslProtocol="TLS"
-               sslEnabledProtocols="<%=node['tomcat']['connector']['ssl_configured_protocols'] %>"
-               ciphers="<%=node['tomcat']['connector']['ssl_configured_ciphers'] %>"
-            <% JSON.parse(node['tomcat']['connector']['advanced_NIO_connector_config']).each{ |k, v|%>
+               sslEnabledProtocols="TLSv1.2,TLSv1.1"
+               ciphers="<%=node['tomcat']['ssl_configured_ciphers'] %>"
+               <% Chef::Log.warn("advanced_NIO_connector_config = #{node['tomcat']['advanced_NIO_connector_config']}")%>
+            <% JSON.parse(node['tomcat']['advanced_NIO_connector_config']).each{ |k, v| %>
+
                <%=k%>="<%=v%>"
             <% } %>
     />
 <%
 else
 %>
-<!--HTTP Connector was disabled-->
+<!--HTTPS Connector was disabled-->
 <%
 end
 %>
@@ -171,11 +173,10 @@ end
 
 			<Valve
 			    className="org.apache.catalina.valves.AccessLogValve"
-			    directory="<%= node["tomcat"]["access_log_dir"] %>"
-			    prefix="<%= node["tomcat"]["access_log_prefix"] %>"
-			    fileDateFormat="<%= node["tomcat"]["access_log_file_date_format"] %>"
-			    suffix="<%= node["tomcat"]["access_log_suffix"] %>"
-			    pattern="<%= node["tomcat"]["access_log_pattern"] %>"
+			    directory="<%= node['tomcat']['logfiles_path'] %>"
+			    prefix="localhost_access_log."
+			    suffix=".log"
+			    pattern="<%= node['tomcat']['access_log_pattern'] %>"
 			   />
 
       <Valve className="org.apache.catalina.valves.ErrorReportValve" showReport="false" showServerInfo="false" />

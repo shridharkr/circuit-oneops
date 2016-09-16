@@ -33,6 +33,17 @@ if node['tomcat'].key?('tomcat_group') && !node['tomcat']['tomcat_group'].empty?
   node.set['tomcat_group'] = node['tomcat']['tomcat_group']
 end
 
+group "#{node.tomcat_group}" do
+  action :create
+end
+
+user "#{node.tomcat_user}" do
+  home "/home/#{node.tomcat_user}"
+  group "#{node.tomcat_group}"
+  system true
+  action :create
+end
+
 ###############################################################################
 # Setup server.xml variables
 #   1 - Set the protocol type to org.apache.coyote.http11.Http11Protocol
@@ -129,7 +140,6 @@ end
 # Run Install Cookbook for Tomcat Binaries
 ###############################################################################
 include_recipe 'tomcat-85::add_repo'
-
 ###############################################################################
 # Setup Log Rotation
 #   The logrotate.d script and these cron jobs will clean out Tomcat logs
@@ -159,7 +169,6 @@ end
 ###############################################################################
 # Setup for webapps Directory
 ###############################################################################
-
 %w(webapp_install_dir logfiles_path work_dir context_dir).each do |dir|
   dir_name = node['tomcat'][dir]
   directory dir_name do
@@ -180,14 +189,14 @@ end
 #   6 - init.d script
 ###############################################################################
 #=1=#
-template '/etc/#{tomcat_version_name}/server.xml' do
+template "#{node['tomcat']['instance_dir']}/conf/server.xml" do
   source 'server.xml.erb'
   owner 'root'
   group 'root'
   mode '0644'
 end
 #=2=#
-template '/etc/#{tomcat_version_name}/tomcat-users.xml' do
+template "#{node['tomcat']['instance_dir']}/conf/tomcat-users.xml" do
   source 'tomcat-users.xml.erb'
   owner 'root'
   group 'root'
@@ -201,13 +210,13 @@ end
 #  mode '0644'
 #end
 #=4=#
-directory '/etc/#{tomcat_version_name}/policy.d' do
+directory "#{node['tomcat']['instance_dir']}/conf/policy.d" do
   action :create
   owner 'root'
   group 'root'
 end
 #=5=#
-template '/etc/#{tomcat_version_name}/policy.d/50local.policy' do
+template "#{node['tomcat']['instance_dir']}/conf/policy.d/50local.policy" do
   source '50local.policy.erb'
   owner 'root'
   group 'root'

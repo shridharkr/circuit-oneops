@@ -111,14 +111,15 @@ shared_download_http source_list do
   action :create
   #checksum build_version_checksum["#{build_version}"]   # ~FC002
 end
-=begin
+
 Chef::Log.error("Download complete. Beginning un-TAR.")
 
 tar_flags = "--exclude webapps/ROOT"
 execute "tar #{tar_flags} -zxf #{dest_file}" do
   cwd node['tomcat']['config_dir']
 end
-=end
+
+execute "chown -R #{node.tomcat_user}:#{node.tomcat_group} #{node['tomcat']['instance_dir']}"
 =begin
 execute "rm -fr tomcat#{major_version}" do
   cwd node['tomcat']['config_dir']
