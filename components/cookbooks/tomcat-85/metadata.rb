@@ -51,6 +51,7 @@ attribute 'tomcat_group',
               :order => 4
           }
 
+=begin
 attribute 'webapp_install_dir',
           :description => "Webapps Directory",
           :default => "/opt/tomcat/webapps",
@@ -59,6 +60,7 @@ attribute 'webapp_install_dir',
               :category => "1.Global",
               :order => 5
           }
+=end
 
 attribute 'environment_settings',
           :description => "Environment Settings",
