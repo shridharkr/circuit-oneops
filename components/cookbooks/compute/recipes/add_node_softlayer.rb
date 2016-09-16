@@ -16,7 +16,7 @@ require 'fog'
 require 'json'
 
 #
-# softlayer compute add
+# SoftLayer Compute
 #
 
 
@@ -33,8 +33,6 @@ conn = Fog::Compute.new(:provider: => "softlayer",
 )
 
 rfcCi = node["workorder"]["rfcCi"]
-
-#security_domain = get_security_domain(rfcCi["nsPath"])
 
 customer_domain = node["customer_domain"]
 
@@ -58,6 +56,8 @@ else
   server = conn.servers.find { |i| i.name == node.server_name }
 end
 
+public_ip = nil
+private_ip = nil
 
 if server.nil?
   Chef::Log.info("creating server")
@@ -67,15 +67,9 @@ if server.nil?
 	
   server.wait_for { ready? }
     
-  private_ip = server.addresses["private"][0]["addr"]
-  ip = nil
-  ips = server.addresses["public"]
-  ips.each do |ip_addr|
-    if ip_addr["version"] == 4
-      ip = ip_addr["addr"]
-    end
-  end
-  Chef::Log.info("server ready - public ip: "+ip)  
+  private_ip = server.private_ip_address
+  public_ip = server.public_ip_address
+  Chef::Log.info("server ready - public ip: " + public_ip)  
   
   # wait for ssh to be open
   require 'socket'
@@ -106,63 +100,11 @@ if server.nil?
 
 # else server is populated
 else
-  private_ip = server.addresses["private"][0]["addr"]
+  public_ip = server.public_ip_address
+  private_ip = server.private_ip_address
 end
-
     
-o =  [('a'..'z'),('A'..'Z'),('0'..'9')].map{|i| i.to_a}.flatten
-new_pass  =  (0...10).map{ o[rand(o.length)] }.join  
-# Chef::Log.info("new password: #{new_pass}")
-
-setting_sshkey = true
-retry_count = 0
-# rackspace 
-max_retry_count = 20
-while setting_sshkey && retry_count < max_retry_count do
-  begin
-    # needs this or else throws: ArgumentError: non-absolute home
-    ENV['HOME']="/home/oneops"
-
-    # need to get a server by id - the one from .create doesn't .setup properly 
-    server_id = server.id
-    server = conn.servers.get server_id
-
-    Chef::Log.info "setting a new pass"
-    server.change_admin_password new_pass
-    sleep 60
-    
-    # need to set this up - response doesnt populate it
-    # server.public_key = `cat /opt/oneops/inductor/rackspace.us-south/key.pub`.to_s
-    server.public_key = node.workorder.payLoad[:SecuredBy][0][:ciAttributes][:public].to_s
-    server.setup(:password => new_pass)
-
-    Chef::Log.info("done setting up authorized_keys")
-    setting_sshkey = false    
-
-  rescue Exception => e
-    
-    Chef::Log.info("Exception in setting up ssh key: "+e.inspect)        
-    retry_count += 1
-    sleep 60
-  
-  end
-end
-
 Chef::Log.info("server: "+server.inspect.gsub("\n"," ").gsub("<","").gsub(">",""))
 Chef::Log.info("private_ip: "+private_ip)
 
-public_ip = ''
-ips = server.addresses["public"]
-ips.each do |ip_addr|
-  if ip_addr["version"] == 4
-    public_ip = ip_addr["addr"]
-  end
-end
-
-puts "***RESULT:private_ip="+ private_ip    
-puts "***RESULT:public_ip="+ public_ip    
-puts "***RESULT:instance_id="+ server.id.to_s  
-puts "***RESULT:dns_record="+public_ip
-
 node.set["ip"] = public_ip
-
