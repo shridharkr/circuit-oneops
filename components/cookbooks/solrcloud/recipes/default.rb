@@ -64,14 +64,23 @@ node.set["solr_mem_min"] = ci['solr_min_heap']
 if node['solr_version'].start_with? "4."
   	node.set['solr_collection_url'] = "http://#{node['ipaddress']}:8080/solr/admin/collections"
   	node.set['solr_core_url'] = "http://#{node['ipaddress']}:8080/solr/admin/cores"
+  	node_solr_portnum = "8080"
 end
 
 
 if (node['solr_version'].start_with? "6.") || (node['solr_version'].start_with? "5.")
 	node.set['solr_collection_url'] = "http://#{node['ipaddress']}:#{node['port_no']}/solr/admin/collections"
   	node.set['solr_core_url'] = "http://#{node['ipaddress']}:#{node['port_no']}/solr/admin/cores"
+  	node_solr_portnum = ci['port_no']
 end
 
 
 
+nodeip = "#{node['ipaddress']}"
+node_solr_version = ci['solr_version']
+
+
+puts "***RESULT:nodeip="+nodeip
+puts "***RESULT:node_solr_version="+node_solr_version
+puts "***RESULT:node_solr_portnum="+node_solr_portnum
 

@@ -15,57 +15,47 @@ Please note that the actions in the operation phase are not used for the solrclo
 
 ## Supported features in the solrcloud pack
 
+### SolrCloud Pack features:
 
-### Action Phase
-```
-* Create collection.
-* Reload collection.
-* Modify collection
-* Add node as replica to the given shard of a given collection.
-* Start/Stop/Status/Restart solr service.
-* Upload the custom config to zookeeper.
-* Update the clusterstate to the zookeeper --- Remove the dead cores or dead replicas and updates the cluster state to the zookeeper.
-```
+The following are the current features built into the OneOps pack. This will be updated as we release new features in the pack. The documentation is built into the pack.
 
-
-### Deployment Phase ( Design/Transition )
-```
-* Upload the custom config to zookeeper.
-* Allows to set the GC/JVM parameters and to update the zookeeper cluster configuration ( FQDN connection string ).
-* Provided an option in the pack to add the replaced node to the solrcloud cluster for 4.x.x versions.
-```
+  * Collection Actions(create/modify) - These are the 2 actions on collection built into the pack. These actions will be enhanced to provide high availability and distribute replicas across the clouds/availability zones.
+  * Monitoring and Alerting -
+    * Processes - OneOps monitors have been set to track SolrCloud and Zookeeper processes. Alerts are generated if the processes stop running.
+  * Lifecycle Automation-
+    * OneOps integration - The pack leverages OneOps Auto-Repair automatically and Auto-Replace to handle failure scenarios manually by each node. The pack has provided a feature (join the replaced node) to the cluster. Depending on the maxShardsPerNode parameter, this feature chooses the shards which has least no of replicas and adds the replaced node as a replica for the list of collections provided in the pack. User should replace each node at a time and can verify whether the node joined as a replica to the cluster.
+    * OneOps Auto sizing - Currently, the pack can scale up the nodes and installs the solrcloud. User can use the action (addReplica) to join the newly added nodes to the cluster of particular shard.
 
 
 
 # Installation Steps
 
 * Create an Assembly
--- GoTo oneops web link and create assembly .
+  * GoTo oneops web link and create assembly .
 #### Design Phase
  * Add a New Platform.
- * Choose SolrCloud from the pack source. Save and Commit the design.
- * Click on the solrcloud component .
+ * Choose SolrCloud from the pack source.
  * Click on the user-app Component and add the developers ssh keys.
 
    ###### Note
    If you want to deploy solr-4.x.x version then update the required parameters of the"tomcat" component else ignore the tomcat component configuration.
- 
+
+ * Click on the tomcat component.
    ##### Tomcat Component Parameters
    * Java_Options : Add/Update the JVM parameters.
    * Access Log Parameters : Add/Update the access log parameters in this section . You can add the values to enable the access logs and delete the values to disable the access logging.
 
+ * Click on the solrcloud component.
    ##### Solrcloud component parameters
      * Solr Base url : Use the given default value.
      * Solr Binary Distribution package type : Select "solr" always.
      * Solr Binary Distribution format : select "tgz" format always.
      * Solr Binary Distribution version : Choose the required version.
      * default configname  : Update if required.
-     * nexus url of custom solr config - Give the nexus path of config with .jar extension.
+     * url of custom solr config - Give the download path of config with .jar extension.
      * custom configname - Give the custom config name for the custom config jar.
 
-     ###### Note
-      * If you choose any 4.x.x version then it shows an option. (Add all of the replaced nodes to the old collection).
-      * If you choose any 5.x.x/6.x.x version then it asks for a set of additional parameters in the section (SolrCloud stand alone server parameters) to customize the installation/data directory paths.
+     Additional parameters for solr-5.x/solr-6.x version in the section "SolrCloud Standalone server Paramerters".
 
      ##### SolrCloud stand alone server parameters section
       * installation_dir_path
@@ -78,13 +68,13 @@ Please note that the actions in the operation phase are not used for the solrclo
       * solr_min_heap
 
      ##### Zookeeper section
-      There are 2 options : 
+      There are 2 options:
       * External Ensemble - The assumption is that zookeeper is deployed and running.
         Parameters:
-        External ZK hosts : Provide the external zookeeper "fqdn" address
-      * Internal Ensemble : The assumption is that both the solrcloud and zookeeper platforms are added to the design.
-        Parameters :
-        Platform Name : Provide the platform name of the zookeeper which is given in the design phase.
+        External ZK hosts: Provide the external zookeeper "fqdn" address
+      * Internal Ensemble: The assumption is that both the solrcloud and zookeeper platforms are added to the design.
+        Parameters:
+        Platform Name: Provide the platform name of the zookeeper which is given in the design phase
         This feature will auto discover the zookeeper fqdn and both the solrcloud and zookeeper platforms need to be deployed together.
 
  * Commit the design.
@@ -92,21 +82,11 @@ Please note that the actions in the operation phase are not used for the solrclo
 #### Transition Phase
  * Create an environment and pull the design into transition phase .
  * Choose the redundant mode and update the scaling values .
- ##### Note
-  * We can also update the components in the transition phase and then needs to be locked .
- 
- ##### Changes to user-app Component
-  * We can add more ssh keys if required and lock this component to avoid overriding the ssh keys from the design phase when you pull the latest design .
-
- ##### Changes to solrcloud Component
-  * We can update the values provided in the design phase for each environment in the transition phase if required.
-
- ##### Changes to "tomcat" Component
-  * Only if you install solr-4.x.x version.
-  * Deploy the changes in the environment. Go to Operations phase and Verify the installation.
-
- ##### Note:
-  * If you choose higher version (5.x.x/6.x.x) then the solrcloud component stops the tomcat service and creates a service with name solr<major_version_no>.
+ * We can update the components (for ex: solrcloud,tomcat,user-app etc.,) in the transition phase and then needs to be locked .
+ * Changes to "lb" Component
+    * Goto "lb" component and 
+      * update the listener from "http 80 http 8080" to "tcp 8983 tcp 8983" from solr 5.x.x version onwards based on the port you choose to deploy solrcloud.
+      * update the ECV check.
 
 
 #### Operation Phase
@@ -114,23 +94,18 @@ Please note that the actions in the operation phase are not used for the solrclo
 ##### SolrCloud component Action Items
 * createCollection - Creates the collection.
   * Parameters
-    * collectionname - We can create/reload collection and add replica to collection .
-    * numShards - Give the no of shards required to create a collection .
-    * replicationFactor - Give the replcationFactor to create no of replicas in a collection .
-    * maxShardsPerNode - Give the max shards per node required to create a collection .
-* addreplica - Adds replica to the given shard and collection .
+    * collectionname - Give the collection name
+    * numShards - Give the no of shards
+    * replicationFactor - Give the replcationFactor
+    * maxShardsPerNode - Give the max shards per node
+    * configname - Give the config name which is uploaded to zookeeper.
+* addreplica - Adds the selected node as a replica to the given shard of a collection. The pack ADDREPLICA action makes sure that the node hosts single copy of the particular shard of a collection.
   * Parameters:
     * collectionname - Collection name
     * shardname - shard name
-* reloadcollection - Reloads the collection.
-  * Parameters:
-    * collectionname - Reloads collection.
-* deletecollection - Delete a collection.
-  * Parameters:
-    * collectionname - Reloads collection.
-* modifycollection - Modifies a collection.
-* updateclusterstate - Remove the dead cores or dead replicas and updates the cluster state to the zookeeper.
-* uploadsolrconfig - Upload the custom config to zookeeper.
+* modifycollection - Modifies collection.
+* updateclusterstate - Removes dead replicas and updates the cluster state to zookeeper.
+* uploadsolrconfig - Uploads the custom config to zookeeper.
   * Parameters:
     * CustomConfigJar - Custom config jar nexus path.
     * CustomConfigName - Custom config name.
@@ -141,17 +116,8 @@ Please note that the actions in the operation phase are not used for the solrclo
 
 
 
+
 # Update the Installation
-  * Touch any component to update or re-install that component .
-  * Touch the "tomcat" and solrcloud computes to update the solr-4.x.x version  installation. (or) Touch the solrcloud component to update the solr-5.x.x/solr-6.x.x version installation.
-  * Follow the below steps to change the solr version and install new major version of solrcloud
-    * Go to Operations phase and Stop the solr
-    * Go to Transition phase and Update the solr version and other required attributes in the solrcloud component.
-    * Commit and deploy the solrcloud with new version.
-    ##### Note
-        * This is to deploy another major version on the same VM and test the functionality of your use cases/sceanrios and it doesn't upgrade the installation of solr version to higher version.
-  * To reinstall the ssh keys , Touch and update the user-app component .
-  * To add the ssh keys , Go to Transition phase and add the ssh keys to the user-app component and deploy the changes.
 
     ##### solr-4.x.x version
     * To update the zookeeper connection string -  Update the zookeeper fqdn string in the solrcloud component and do touch and deploy both the "tomcat" and "solrcloud" components.
@@ -180,11 +146,6 @@ Please note that the actions in the operation phase are not used for the solrclo
     /{installation_dir_path}/solrdata{solr_major_version}/data/solr.xml
     /{installation_dir_path}/solrdata{solr_major_version}/logs
     ```
-
-# Replace the compute
-  * Go to Operation phase of the platform and select the compute - > Click on the compute and Go to configuration tab - > Select replace option to replace the compute .
-  * Go to Transition phase and Touch any component to re-deploy the pack and install on the replaced computes .
-
 
 
 

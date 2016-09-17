@@ -107,13 +107,6 @@ end
 
 if (node['solr_version'].start_with? "6.") || (node['solr_version'].start_with? "5.")
 
-  execute 'notify-tomcat-stop' do
-    command "service tomcat#{node['tomcatversion']} stop"
-    user "root"
-    action :run
-    only_if { ::File.exists?("/etc/init.d/tomcat#{node['tomcatversion']}") }
-  end
-
   solr_war_lib_dir = node['user']['dir']+"/solr-war-lib"+node['solrmajorversion']
   solr_config_dir = node['user']['dir']+"/solr-config"+node['solrmajorversion']
 

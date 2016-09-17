@@ -29,6 +29,3 @@ if ("#{solr_version}".start_with? "5.") || ("#{solr_version}".start_with? "6.")
 end
 
 
-
-
-

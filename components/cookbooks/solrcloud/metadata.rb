@@ -6,6 +6,12 @@ grouping 'default',
   :access => 'global',
   :packages => ['base', 'mgmt.catalog', 'mgmt.manifest', 'catalog', 'manifest', 'bom']
 
+grouping 'bom',
+  :access => 'global',
+  :packages => ['bom']
+
+
+
 attribute 'solr_url',
   :description => 'Solr binary distribution base url',
   :required => 'required',
@@ -49,14 +55,22 @@ attribute 'solr_version',
     :order => 4
   }
 
-attribute 'replace_nodes',
-  :description => "Add all of the replaced nodes to the old collection",
+attribute 'join_replace_node',
+  :description => "Join replaced node to the cluster",
   :default => "false",
+  :help => 'Depending on the maxShardsPerNode parameter , this feature chooses the shards which has least no of replicas and adds the replaced node as a replica for the given list of collections. User should replace each node at a time and can verify whether the node join as a replica to the cluster.',
   :format => {
     :category => '1.SolrCloud',
-    :filter => {'all' => {'visible' => 'solr_version:eq:4.10.3.2 || solr_version:eq:4.10.3'}},
     :order => 5,
     :form => {'field' => 'checkbox'}
+  }
+
+attribute 'collection_list',
+  :description => "List of collections",
+  :format => {
+    :category => '1.SolrCloud',
+    :filter => {'all' => {'visible' => 'join_replace_node:eq:true'}},
+    :order => 6,
   }
 
 attribute 'config_name',
@@ -200,6 +214,33 @@ attribute 'platform_name',
     :order => 19
   }
 
+attribute 'nodeip',
+  :description => 'Node IPAddress',
+  :grouping => 'bom',
+  :format => {
+      :help => 'Node IPAddress',
+      :category => '4.Other',
+      :order => 21
+  }
+
+attribute 'node_solr_version',
+  :description => 'solr version',
+  :grouping => 'bom',
+  :format => {
+      :help => 'Current solr version',
+      :category => '4.Other',
+      :order => 22
+  }
+
+attribute 'node_solr_portnum',
+  :description => 'solr portno',
+  :grouping => 'bom',
+  :format => {
+      :help => 'solr port number',
+      :category => '4.Other',
+      :order => 23
+  }
+
 
 recipe "addreplica",
   :description => 'Adds Replica To Collection',
@@ -214,18 +255,6 @@ recipe "addreplica",
     "ShardName" => {
       "name" => "ShardName",
       "description" => "Shard of a collection",
-      "defaultValue" => "",
-      "required" => true,
-      "dataType" => "string"
-    }
-  }
-
-recipe "reloadcollection",
-  :description => 'Reloads Collection',
-  :args => {
-    "PhysicalCollectionName" => {
-      "name" => "PhysicalCollectionName",
-      "description" => "Reloads the collection",
       "defaultValue" => "",
       "required" => true,
       "dataType" => "string"
@@ -306,18 +335,6 @@ recipe "modifycollection",
     }
   }
 
-recipe "deletecollection",
-  :description => 'Delete Collection',
-  :args => {
-    "PhysicalCollectionName" => {
-      "name" => "PhysicalCollectionName",
-      "description" => "Delete the collection",
-      "defaultValue" => "",
-      "required" => true,
-      "dataType" => "string"
-    }
-  }
-
 recipe "uploadsolrconfig",
   :description => 'Uploads solr config to zookeeper',
   :args => {
@@ -342,6 +359,5 @@ recipe "status", "Solr Status"
 recipe "start", "Start Solr"
 recipe "stop", "Stop Solr"
 recipe "restart", "Restart Solr"
-recipe "uninstall", "uninstall the solr and deletes all the data"
 recipe "updateclusterstate", "Deletes all the dead/down replicas and update cluster state"
 

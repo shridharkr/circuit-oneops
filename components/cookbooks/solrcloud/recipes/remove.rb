@@ -48,6 +48,11 @@ if node['solr_version'].start_with? "5." || node['solr_version'].start_with? "6.
 	  	end
 	}
 
+	link "node['installation_dir_path']/solr#{node['solrmajorversion']}" do
+	  link_type :symbolic
+	  action :delete
+	end
+
 	file "/etc/init.d/solr#{node['solrmajorversion']}" do
 		action :delete
 	end

@@ -8,6 +8,8 @@ node.set['solr']['user'] = node.workorder.payLoad.DependsOn.select {|c| c[:ciCla
 node.set['user']['dir'] = "/"+node['solr']['user']
 
 node.set['clusterstatus']['uri'] = "solr/admin/collections?action=CLUSTERSTATUS&wt=json";
+node.set['clusterstatus']['uri_v6'] = "solr/admin/zookeeper?detail=true&path=%2Fcollections";
+node.set['aliases_uri_v6'] = "solr/admin/zookeeper?detail=true&path=%2Faliases.json";
 
 result = node.workorder.payLoad.DependsOn.select {|c| c[:ciClassName] =~ /Tomcat/ }
 

@@ -123,20 +123,6 @@ module SolrCloud
       end
     end
 
-    def reloadCollection(coll_url,collection_name)
-      begin
-        if !"#{collection_name}".empty?
-          Chef::Log.info("#{coll_url}?action=RELOAD&name=#{collection_name}")
-          uri = URI("#{coll_url}?action=RELOAD&name=#{collection_name}")
-          output = Net::HTTP.get(uri)          
-        end
-      rescue
-        raise "Failed to reload Collection '#{collection_name}'."
-      ensure
-        puts "End of reload_collection method. "
-      end
-    end
-
     def modifyCollection(coll_url,collection_name,autoAddReplicas,replication_factor,max_shards_per_node)
       begin
         if (!"#{collection_name}".empty?) && (!"#{autoAddReplicas}".empty?) || (!"#{replication_factor}".empty?) || (!"#{max_shards_per_node}".empty?)
@@ -150,20 +136,6 @@ module SolrCloud
         Chef::Log.info("Successfully modified collection")
       ensure
         puts "End of modifying collection."
-      end
-    end
-
-    def deleteCollection(coll_url,collection_name)
-      begin
-        if !"#{collection_name}".empty?
-          Chef::Log.info("#{coll_url}?action=DELETE&name=#{collection_name}")
-          uri = URI("#{coll_url}?action=DELETE&name=#{collection_name}")
-          output = Net::HTTP.get(uri)
-        end
-      rescue
-        Chef::Log.error("Failed to delete Collection '#{collection_name}'.")
-      ensure
-        puts "End of delete_collection method. "
       end
     end
 

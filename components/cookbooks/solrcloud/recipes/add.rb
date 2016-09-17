@@ -7,10 +7,11 @@
 
 include_recipe 'solrcloud::default'
 
-
 include_recipe 'solrcloud::solrcloud'
 include_recipe 'solrcloud::deploy'
 include_recipe 'solrcloud::customconfig'
+
+
 
 
 # Chef::Log.info("Configure Logging")
@@ -29,9 +30,3 @@ include_recipe 'solrcloud::customconfig'
 # end
 
 
-# memberid = "this is some member id value"
-# puts "***RESULT:memberid="+memberid
-# Chef::Log.info("My Member is:#{memberid}")
-
-
-  
