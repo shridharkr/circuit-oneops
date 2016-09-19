@@ -63,7 +63,7 @@ customer_domain = node["customer_domain"]
 owner = node.workorder.payLoad.Assembly[0].ciAttributes["owner"] || "na"
 node.set["max_retry_count_add"] = 30
 ostype = node.workorder.payLoad.os[0].ciAttributes["ostype"]
-if compute_service.has_key?("initial_user") && !compute_service[:initial_user].empty? && ostype =~ /windows*/
+if compute_service.has_key?("initial_user") && !compute_service[:initial_user].empty?
   node.set["use_initial_user"] = true
   initial_user = compute_service[:initial_user]
   # put initial_user on the node for the following recipes

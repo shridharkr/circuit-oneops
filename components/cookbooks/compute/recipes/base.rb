@@ -26,7 +26,7 @@ ruby_block 'install base' do
   block do
 
     Chef::Resource::RubyBlock.send(:include, Chef::Mixin::ShellOut)
-    shell_timeout = 3600
+    shell_timeout = 36000
 
     # install os package repos - repo_map keyed by os
     os_type = node.ostype
@@ -43,15 +43,13 @@ ruby_block 'install base' do
       Chef::Log.info("no key in repo_map for os: " + os_type);
     end
 
-    # add repo_list from compute
-    if node.workorder.rfcCi.has_key?("repo_list") &&
-       node.workorder.rfcCi.ciAttributes.repo_list.include?("[")
-
+    # add repo_list from os
+    if node.has_key?("repo_list") && !node.repo_list.nil? && node.repo_list.include?('[')
       Chef::Log.info("adding compute-level repo_list: #{node.repo_list}")
       repo_cmds += JSON.parse(node.repo_list)
     end
 
-    if repo_cmds.size > 0 && os_type !~ /windows*/
+    if repo_cmds.size > 0
       # todo: set proxy env vars - current use case not required
       cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + '"'+ repo_cmds.join("; ") + '"'
       Chef::Log.info("running setup repos: #{cmd}")

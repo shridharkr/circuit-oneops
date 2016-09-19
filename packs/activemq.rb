@@ -123,7 +123,7 @@ resource 'java',
          :attributes => {
              :install_dir => '/usr/lib/jvm',
              :jrejdk => 'jdk',
-             :version => '7',
+             :version => '8',
              :sysdefault => 'true',
              :flavor => 'openjdk'
          }

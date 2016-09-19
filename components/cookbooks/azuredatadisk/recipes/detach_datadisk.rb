@@ -23,7 +23,7 @@ Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 #determine which storage acct to use (prm or std)
 size = node[:workorder][:payLoad][:RequiresComputes][0][:ciAttributes][:size]
 storage_type = nil
-if Utils.is_prm(size)
+if Utils.is_prm(size, true)
 	storage_acct = 'storage_account_prm'
 else
 	storage_acct = 'storage_account_std'
