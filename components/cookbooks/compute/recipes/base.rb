@@ -101,13 +101,16 @@ ruby_block 'install base' do
     Chef::Log.info("env_vars: #{env_vars.inspect}")
     args = ""
     proxy = ''
-    gem_repo = ''
+    choco_pkg = ''
     choco_repo = ''
+    gem_repo = ''
 
     env_vars.each_pair do |k,v|
       args += "#{k}:#{v} "
       if k =~ /apiproxy/
         proxy = v
+      elsif k =~ /chocopkg/
+        choco_pkg = v
       elsif k =~ /chocorepo/
         choco_repo = v
       elsif k =~ /rubygems/
@@ -140,7 +143,9 @@ ruby_block 'install base' do
 
          mirror_vars = JSON.parse( node.workorder.services["mirror"][cloud_name][:ciAttributes][:mirrors] )
          mirror_vars.each_pair do |k,v|
-           if k =~ /chocorepo/
+           if k =~ /chocopkg/
+             choco_pkg = v
+           elsif k =~ /chocorepo/
              choco_repo = v
            end
          end
@@ -149,7 +154,7 @@ ruby_block 'install base' do
       end
 
       install_base = "components/cookbooks/compute/files/default/install_base.ps1"
-      install_cmd = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File #{sub_circuit_dir}/#{install_base} -proxy '#{proxy}' -chocoRepo '#{choco_repo}' -gemRepo '#{gem_repo}' "
+      install_cmd = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File #{sub_circuit_dir}/#{install_base} -proxy '#{proxy}' -chocoPkg '#{choco_pkg}' -chocoRepo '#{choco_repo}' -gemRepo '#{gem_repo}' "
       cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + install_cmd
 
       Chef::Log.info("Executing Command: #{cmd}")

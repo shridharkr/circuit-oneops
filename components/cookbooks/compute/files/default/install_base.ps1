@@ -1,9 +1,9 @@
 
-param([string]$proxy, [string]$chocoRepo, [string]$gemRepo)
+param([string]$proxy, [string]$chocoPkg, [string]$chocoRepo, [string]$gemRepo)
 
 
 function Download-File {
-  param ( [string]$proxy, [string]$chocoRepo, [string]$dir, [string]$destination )
+  param ( [string]$proxy, [string]$chocoPkg, [string]$dir, [string]$destination )
 
   #Create the directory if it does not exists
   New-Item -ItemType Directory -Force -Path $dir
@@ -11,13 +11,13 @@ function Download-File {
   $start_time = Get-Date
 
   try {
-     Invoke-WebRequest -Uri $chocoRepo -OutFile $destination
+     Invoke-WebRequest -Uri $chocoPkg -OutFile $destination
   }
   catch {
-     Write-Output "Could not download from $chocoRepo "
+     Write-Output "Could not download from $chocoPkg "
      Write-Output " applying proxy ... "
      try {
-        Invoke-WebRequest -Uri $chocoRepo -Proxy $proxy -OutFile $destination
+        Invoke-WebRequest -Uri $chocoPkg -Proxy $proxy -OutFile $destination
      }
      catch {
         Write-Output "Cloud not download chocolatey. Cannot continue. Exiting!!! "
@@ -25,7 +25,13 @@ function Download-File {
      }
   }
   finally {
-     Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
+    if(Test-Path $destination) {
+      Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
+    }
+    else {
+      Write-Output "The downloaded file does not exist. Exiting!"
+      exit
+    }
   }
 }
 
@@ -46,25 +52,20 @@ function Expand-ZIPFile {
 ## =====================================================
 
 Write-Output "install_base param proxy: $proxy "
+Write-Output "install_base param choco pkg: $chocoPkg "
 Write-Output "install_base param choco repo: $chocoRepo "
 Write-Output "install_base param gem repo: $gemRepo "
 
-if( $chocoRepo -eq $null -or $chocoRepo -eq "" ) {
-  $chocoRepo = "https://packages.chocolatey.org/chocolatey.0.9.9.12.nupkg"
-}
-else {
-  #$chocoRepo = "http://chocodev.cloud.wal-mart.com/api/v2/package/chocolatey/0.9.10.3"
+if( $chocoPkg -eq $null -or $chocoPkg -eq "" ) {
+  $chocoPkg = "https://packages.chocolatey.org/chocolatey.0.9.9.12.nupkg"
 }
 
-Write-Output "using choco repo: $chocoRepo "
-
-$chocoTempDir = "c:\chocotemp\"
-$chocoTempFile = "c:\chocotemp\choco.zip"
+$chocoTempDir = "C:\chocotemp\"
+$chocoTempFile = "C:\chocotemp\choco.zip"
 
 
-Write-Output "Downloading chocolatey ..."
-Download-File $proxy $chocoRepo $chocoTempDir $chocoTempFile
-
+Write-Output "Downloading chocolatey..."
+Download-File $proxy $chocoPkg $chocoTempDir $chocoTempFile
 
 Set-Location $chocoTempDir
 
@@ -90,16 +91,16 @@ Remove-Item -Recurse -Force $chocoTempDir
 
 ## =======================================
 
-choco config set proxy $proxy
-#choco source disable --name="chocolatey"
-#choco source add --name='wmrepo' --source=$chocoRepo
+#choco config set proxy $proxy
+choco source disable --name="chocolatey"
+choco source add --name='internal' --source=$chocoRepo
 
 Write-Output "Install ruby ..."
 choco install -y ruby
-$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
 Write-Output "Install ruby DevKit ..."
 choco install -y ruby2.devkit
+
 
 ###########################################
 Set-Location "C:\tools\DevKit2\"
