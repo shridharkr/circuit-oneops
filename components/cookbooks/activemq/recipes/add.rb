@@ -389,6 +389,13 @@ execute "Move API" do
     only_if {node.activemq.restapisupport == 'false' && File.exists?("#{activemq_home}/webapps/api/WEB-INF/web.xml")}
 end
 
+directory "#{node[:activemq][:datapath]}" do
+    mode 00755
+    owner "#{runasuser}"
+    group "#{runasuser}"
+    recursive true
+end
+
 if node.workorder.cloud.ciAttributes.priority == "1"
     service 'activemq' do
         supports :restart => true, :status => true, :stop => true, :start => true
