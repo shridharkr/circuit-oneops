@@ -7,10 +7,9 @@ EnvironmentFile=-/etc/kubernetes/config
 EnvironmentFile=-/etc/kubernetes/apiserver
 EnvironmentFile=-/etc/kubernetes/scheduler
 User=kube
-ExecStart=/usr/bin/kube-scheduler \
+ExecStart=/usr/bin/kube-scheduler ${KUBE_SCHEDULER_ARGS} \
 	    ${KUBE_LOGTOSTDERR} \
-	    ${KUBE_LOG_LEVEL} \
-	    ${KUBE_SCHEDULER_ARGS}
+	    ${KUBE_LOG_LEVEL}
 Restart=on-failure
 
 [Install]

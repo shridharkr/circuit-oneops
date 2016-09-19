@@ -17,6 +17,8 @@
 # unmounts, removes: raid, lv vg and detaches blockstorage
 #
 
+
+
 has_mounted = false
 
 rfcAttrs = node.workorder.rfcCi.ciAttributes

@@ -1,4 +1,22 @@
-# Couchbase
+![Couchbase](Couchbase.png)
+
+# Couchbase Component
+
+
+Retain default values for Admin User (Administrator), Admin Password (password), and Bucket Data Path (/opt/couchbase/data).
+
+Select Enterprise 3.0.3 version
+
+**IMPORTANT**: Select Enterprise 3.0.3 version unless approved by the cache team.
+
+The RAM quota percentage drop down allows you to control the percentage of physical RAM per node that can be allocated to Couchbase. Select 80% 
+
+Set Email Server Host, Sender email, and Email Recipients to receive Couchbase server alerts
+
+![Full Screenshot](couchbase_full_screenshot.png)
+
+
+# Validation Errors
 
 The following errors are displayed in the OneOps logs when there is a problem with the cluster that prevents the action completing.
 

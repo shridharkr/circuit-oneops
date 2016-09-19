@@ -25,6 +25,8 @@ if node[:provider_class] =~ /vagrant|virtualbox|docker/
   include_recipe "compute::del_node_#{node[:provider_class]}"
 elsif node[:provider_class] =~ /azure/
   include_recipe 'azure::del_node'
+elsif node[:provider_class] =~ /vsphere/
+  include_recipe 'vsphere::del_node'
 else
   include_recipe "compute::del_node_fog"
 end

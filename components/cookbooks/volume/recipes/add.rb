@@ -36,7 +36,8 @@ node.workorder.payLoad[:DependsOn].each do |dep|
 end
 
 cloud_name = node[:workorder][:cloud][:ciName]
-
+newDevicesAttached = ""
+mode = "no-raid"
 vol_size =  node.workorder.rfcCi.ciAttributes[:size]
 Chef::Log.info("-------------------------------------------------------------")
 Chef::Log.info("Volume Size : "+vol_size )
@@ -295,17 +296,41 @@ ruby_block 'create-iscsi-volume-ruby-block' do
         end
 
       end
-
-      mode = "raid10"
+      newDevicesAttached = dev_list
       if node.workorder.rfcCi.ciAttributes.has_key?("mode")
         mode = node.workorder.rfcCi.ciAttributes["mode"]
       end
       level = mode.gsub("raid","")
+      msg = ""
+      case mode
+        when "raid0"
+          if vols.size < 2
+            msg = "Minimum of 2 storage slices are required for "+mode
+          end
+        when "raid1"
+          if vols.size < 2 || vols.size%2 != 0
+            msg = "Minimum of 2 storage slices and storage slice count mod 2 are required for "+mode
+          end
+        when "raid5"
+          if vols.size < 3
+            msg = "Minimum of 3 storage slices are required for "+mode
+          end
+        when "raid10"
+          if vols.size < 4 || vols.size%2 != 0
+            msg = "Minimum of 4 storage slices and storage slice count mod 2 are required for "+mode
+          end
+      end
+      unless msg.empty?
+        puts "***FAULT:FATAL=#{msg}"
+        e = Exception.new("no backtrace")
+        e.set_backtrace("")
+        raise e
+      end
       has_created_raid = false
       exec_count = 0
       max_retry = 10
 
-      if vols.size > 1
+      if vols.size > 1 && mode != 'no-raid'
 
         cmd = "yes |mdadm --create -l#{level} -n#{vols.size.to_s} --assume-clean --chunk=256 #{raid_device} #{dev_list} 2>&1"
         until ::File.exists?(raid_device) || has_created_raid || exec_count > max_retry do
@@ -368,7 +393,7 @@ if node[:platform_family] == "rhel" && node[:platform_version].to_i >= 7
   end
 end
 ruby_block 'create-ephemeral-volume-on-azure-vm' do
-  only_if { token_class =~ /azure/ || _fstype != 'tmpfs' }
+  only_if { (storage.nil? && token_class =~ /azure/ && _fstype != 'tmpfs') }
   block do
     initial_mountpoint = '/mnt/resource'
 
@@ -376,7 +401,7 @@ ruby_block 'create-ephemeral-volume-on-azure-vm' do
     `touch /myScript/lvmscript.sh`
 
     Chef::Log.info("unmounting #{initial_mountpoint}")
-    `echo "umount #{initial_mountpoint}" >> /myScript/lvmscript.sh`
+    `echo "umount #{initial_mountpoint}" > /myScript/lvmscript.sh`
 
     ephemeralDevice = '/dev/sdb1'
     `echo "pvcreate -f #{ephemeralDevice}" >> /myScript/lvmscript.sh`
@@ -391,7 +416,12 @@ ruby_block 'create-ephemeral-volume-on-azure-vm' do
     `echo "lvcreate #{l_switch} #{size} -n #{logical_name} #{platform_name}-eph" >> /myScript/lvmscript.sh`
     `echo "if [ ! -d #{_mount_point}/lost+found ]" >> /myScript/lvmscript.sh`
     `echo "then" >> /myScript/lvmscript.sh`
-    `echo "mkfs.#{_fstype} -m 0 /dev/#{platform_name}-eph/#{logical_name}" >> /myScript/lvmscript.sh`
+    if node[:platform_family] == "rhel" && (node[:platform_version]).to_i >= 7
+      # -f switch not valid in latest mkfs
+      `echo "mkfs -t #{_fstype} /dev/#{platform_name}-eph/#{logical_name}" >> /myScript/lvmscript.sh`
+    else
+      `echo "mkfs -t #{_fstype} -f /dev/#{platform_name}-eph/#{logical_name}" >> /myScript/lvmscript.sh`
+    end
     `echo "fi" >> /myScript/lvmscript.sh`
     `echo "mkdir #{_mount_point}" >> /myScript/lvmscript.sh`
     `echo "mount /dev/#{platform_name}-eph/#{logical_name} #{_mount_point}" >> /myScript/lvmscript.sh`
@@ -435,6 +465,11 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
         device_prefix = "/dev/vd"
         device_set = ["b"]
         Chef::Log.info("using openstack vdb")
+
+      when /vsphere/
+        device_prefix = "/dev/sd"
+        device_set = ["b"]
+        Chef::Log.info("using vsphere sdb")
     end
 
     df_out = `df -k`.to_s
@@ -493,28 +528,34 @@ end
 ruby_block 'create-storage-non-ephemeral-volume' do
   only_if { storage != nil && token_class !~ /virtualbox|vagrant/ }
   block do
-
-    raid_device = node.raid_device
-    devices = Array.new
-    if ::File.exists?(raid_device)
-      Chef::Log.info(raid_device+" exists.")
-      devices.push(raid_device)
+    if mode != "no-raid"
+      raid_devices = node.raid_device
     else
-      Chef::Log.info("raid device " +raid_device+" missing.")
-      if node[:storage_provider_class] =~ /azure/
-        Chef::Log.info("Checking for"+ node[:device] + "....")
-        if ::File.exists?(node[:device])
-          Chef::Log.info("device "+node[:device]+" found. Using this device for logical volumes.")
-          devices.push(node[:device])
+      raid_devices = newDevicesAttached
+    end
+    devices = Array.new
+    raid_devices.split(" ").each do |raid_device|
+      if ::File.exists?(raid_device)
+        Chef::Log.info(raid_device+" exists.")
+        devices.push(raid_device)
+      else
+        Chef::Log.info("raid device " +raid_device+" missing.")
+        volume_device = node[:volume][:device]
+        volume_device = node[:device] if volume_device.nil? || volume_device.empty?
+        if node[:storage_provider_class] =~ /azure/
+          Chef::Log.info("Checking for"+ volume_device + "....")
+          if ::File.exists?(volume_device)
+            Chef::Log.info("device " + volume_device + " found. Using this device for logical volumes.")
+            devices.push(volume_device)
+          else
+            Chef::Log.info("No storage device named " + volume_device + " found. Exiting ...")
+            exit 1
+          end
         else
-          Chef::Log.info("No storage device named " +node[:device]+" found. Exiting ...")
           exit 1
         end
-      else
-        exit 1
       end
     end
-
     total_size = 0
     device_list = ""
     existing_dev = `pvdisplay -s`
@@ -570,79 +611,82 @@ package "xfsprogs" do
 end
 
 ruby_block 'filesystem' do
-  not_if { token_class =~ /azure/ || _mount_point == nil || _fstype == "tmpfs" }
+  not_if { _mount_point == nil || _fstype == "tmpfs" }
   block do
+    if ((token_class =~ /azure/) && (storage.nil? || storage.empty?))
+      Chef::Log.info("Not creating the fstab entry for epheremal on azure compute")
+      Chef::Log.info("auto mounting is being handle in rc.local, needs to be revisited.")
+    else
+      block_dev = node.workorder.rfcCi
+      _device = "/dev/#{platform_name}/#{block_dev['ciName']}"
 
-    block_dev = node.workorder.rfcCi
-    _device = "/dev/#{platform_name}/#{block_dev['ciName']}"
-
-    # if ebs/storage exists then use it, else use the -eph ephemeral volume
-    if ! ::File.exists?(_device)
-      _device = "/dev/#{platform_name}-eph/#{block_dev['ciName']}"
-
+      # if ebs/storage exists then use it, else use the -eph ephemeral volume
       if ! ::File.exists?(_device)
-        # micro,tiny and rackspace don't have ephemeral
-        Chef::Log.info("_device #{_device} don't exists")
+        _device = "/dev/#{platform_name}-eph/#{block_dev['ciName']}"
+
+        if ! ::File.exists?(_device)
+          # micro,tiny and rackspace don't have ephemeral
+          Chef::Log.info("_device #{_device} don't exists")
+          next
+        end
+      end
+
+      if _options == nil || _options.empty?
+        _options = "defaults"
+      end
+
+      case _fstype
+        when 'nfs', 'nfs4'
+          include_recipe "volume::nfs"
+      end
+
+      Chef::Log.info("filesystem type: "+_fstype+" device: "+_device +" mount_point: "+_mount_point)
+      # result attr updates cms
+      Chef::Log.info("***RESULT:device="+_device)
+
+      `mountpoint -q #{_mount_point}`
+      if $?.to_i == 0
+        Chef::Log.info("device #{_mount_point} already mounted.")
         next
       end
-    end
 
-    if _options == nil || _options.empty?
-      _options = "defaults"
-    end
+      type = (`file -sL #{_device}`).chop.split(" ")[1]
 
-    case _fstype
-      when 'nfs', 'nfs4'
-        include_recipe "volume::nfs"
-    end
+      Chef::Log.info("-------------------------")
+      Chef::Log.info("Type : = "+type )
+      Chef::Log.info("-------------------------")
 
-    Chef::Log.info("filesystem type: "+_fstype+" device: "+_device +" mount_point: "+_mount_point)
-    # result attr updates cms
-    Chef::Log.info("***RESULT:device="+_device)
+      if type == "data"
+        if node[:platform_family] == "rhel" && (node[:platform_version]).to_i >= 7
+          cmd = "mkfs -t #{_fstype} #{_device}" # -f switch not valid in latest mkfs
+        else
+          cmd = "mkfs -t #{_fstype} -f #{_device}"
+        end
 
-    `mountpoint -q #{_mount_point}`
-    if $?.to_i == 0
-      Chef::Log.info("device #{_mount_point} already mounted.")
-      next
-    end
-
-    type = (`file -sL #{_device}`).chop.split(" ")[1]
-
-    Chef::Log.info("-------------------------")
-    Chef::Log.info("Type : = "+type )
-    Chef::Log.info("-------------------------")
-
-    if type == "data"
-      if node[:platform_family] == "rhel" && (node[:platform_version]).to_i >= 7
-        cmd = "mkfs -t #{_fstype} #{_device}" # -f switch not valid in latest mkfs
-      else
-        cmd = "mkfs -t #{_fstype} -f #{_device}"
+        Chef::Log.info(cmd+" ... "+`#{cmd}`)
       end
 
-      Chef::Log.info(cmd+" ... "+`#{cmd}`)
-    end
+      # in-line because of the ruby_block doesn't allow updated _device value passed to mount resource
+      `mkdir -p #{_mount_point}`
+      cmd = "mount -t #{_fstype} -o #{_options} #{_device} #{_mount_point}"
+      result = `#{cmd}`
+      if result.to_i != 0
+        Chef::Log.error("mount error: #{result.to_s}")
+      end
 
-    # in-line because of the ruby_block doesn't allow updated _device value passed to mount resource
-    `mkdir -p #{_mount_point}`
-    cmd = "mount -t #{_fstype} -o #{_options} #{_device} #{_mount_point}"
-    result = `#{cmd}`
-    if result.to_i != 0
-      Chef::Log.error("mount error: #{result.to_s}")
-    end
+      # clear and add to fstab again to make sure has current attrs on update
+      result = `grep -v #{_device} /etc/fstab > /tmp/fstab`
+      ::File.open("/tmp/fstab","a") do |fstab|
+        fstab.puts("#{_device} #{_mount_point} #{_fstype} #{_options} 1 1")
+        Chef::Log.info("adding to fstab #{_device} #{_mount_point} #{_fstype} #{_options} 1 1")
+      end
+      `mv /tmp/fstab /etc/fstab`
 
-    # clear and add to fstab again to make sure has current attrs on update
-    result = `grep -v #{_device} /etc/fstab > /tmp/fstab`
-    ::File.open("/tmp/fstab","a") do |fstab|
-      fstab.puts("#{_device} #{_mount_point} #{_fstype} #{_options} 1 1")
-      Chef::Log.info("adding to fstab #{_device} #{_mount_point} #{_fstype} #{_options} 1 1")
+      if token_class =~ /azure/
+        `sudo mkdir /opt/oneops/workorder`
+        `sudo chmod 777 /opt/oneops/workorder`
+      end
     end
-    `mv /tmp/fstab /etc/fstab`
-
-    if token_class =~ /azure/
-      `sudo mkdir /opt/oneops/workorder`
-      `sudo chmod 777 /opt/oneops/workorder`
-    end
-
   end
 end
 

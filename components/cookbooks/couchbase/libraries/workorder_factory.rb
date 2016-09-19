@@ -19,6 +19,9 @@ module Couchbase
           elsif action.name.include?("cb_cluster")
               @component=Couchbase::Component::CbClusterComponent.new(@node)
               @component
+          elsif action.name.include?("diagnostic_cache")
+              @component=Couchbase::Component::DiagnosticCacheComponent.new(@node)
+              @component
           end
         }
       end

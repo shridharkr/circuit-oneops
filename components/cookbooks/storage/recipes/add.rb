@@ -15,15 +15,17 @@
 #
 # storage::add
 #
-# adds block storage ... volume component will attach and create raid device and filesystem 
+# adds block storage ... volume component will attach and create raid device and filesystem
 #
 
-  
+
 # TODO: fix fog/aws devices to remove the /dev/[s|vx]d\d+ limitation
 # only 15*8 devices available from sdi1-sdp15 (efgh used for ephemeral)
 #
 
-# PGPDBAAS 2613 & 3322 
+# PGPDBAAS 2613 & 3322
+require File.expand_path('../../../azure_base/libraries/utils.rb', __FILE__)
+
 include_recipe 'shared::set_provider'
 require 'json'
 provider = node['provider_class']
@@ -37,7 +39,7 @@ size = size_config[0..-2].to_i
     Chef::Log.info("Storage Requested : " + size_config)
     Chef::Log.info("----------------------------------------------------------")
 
- if size_config == "-1" 
+ if size_config == "-1"
    Chef::Log.info("Skipping Storage Allocation Due to Size is -1")
    return true
   end
@@ -61,10 +63,10 @@ if slice_count == 1
   slice_size = size.to_i
  else
  slice_size = (size.to_f / slice_count.to_f).ceil * 2
-end 
+end
 
 Chef::Log.info("raid10 - #{slice_count} slices of: #{slice_size}")
-          
+
 # Create the dev/vols and store the map to device_map attr ... volume::add will attach them to the compute
 dev_list = ""
 vols = Array.new
@@ -75,7 +77,7 @@ vols = Array.new
 # openstack+kvm doesn't use explicit device names, just set and order
 openstack_dev_set = ['b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v']
 block_index = ""
-["p","o","n","m","l","k","j","i"].each do |i|      
+["p","o","n","m","l","k","j","i"].each do |i|
   dev = "/dev/vxd#{i}0"
   if !::File.exists?(dev)
     block_index = i
@@ -89,7 +91,7 @@ Array(1..slice_count).each do |i|
   if node.storage_provider_class =~ /cinder/
     dev = "/dev/vd#{openstack_dev_set[i]}"
   elsif node.storage_provider_class =~ /azure/
-    dev = "/dev/sd#{openstack_dev_set[i+1]}"
+    dev = "/dev/sd#{openstack_dev_set[i]}"
   else
     dev = "/dev/xvd#{block_index}#{i.to_s}"
   end
@@ -101,7 +103,7 @@ Array(1..slice_count).each do |i|
   volType = "GENERAL"
   case node.storage_provider_class
   when /cinder/
-    
+
     begin
       vol_name = node["workorder"]["rfcCi"]["ciName"]+"-"+node["workorder"]["rfcCi"]["ciId"].to_s
       if node.workorder.payLoad.has_key?("offerings")
@@ -112,7 +114,7 @@ Array(1..slice_count).each do |i|
       if volType == "GENERAL"
         volType = ""
       end
-      volume = node.storage_provider.volumes.new :device => dev, :size => slice_size, :name => vol_name, 
+      volume = node.storage_provider.volumes.new :device => dev, :size => slice_size, :name => vol_name,
         :description => dev, :display_name => vol_name, :volume_type => volType
       volume.save
     rescue Excon::Errors::RequestEntityTooLarge => e
@@ -130,35 +132,35 @@ Array(1..slice_count).each do |i|
   when /rackspace/
 
     begin
-      vol_name = node["workorder"]["rfcCi"]["ciName"]+"-"+node["workorder"]["rfcCi"]["ciId"].to_s          
+      vol_name = node["workorder"]["rfcCi"]["ciName"]+"-"+node["workorder"]["rfcCi"]["ciId"].to_s
       volume = node.storage_provider.volumes.new :display_name => vol_name, :size => slice_size.to_i
-      volume.save      
+      volume.save
     rescue Exception => e
       Chef::Log.info("exception: "+e.inspect)
     end
-    
+
   when /ibm/
     volume = node.storage_provider.volumes.new({
       :name => node.workorder.rfcCi.ciName,
       :format => "RAW",
-      :location_id => "41", 
+      :location_id => "41",
       :size => "60",
       :offering_id => "20035200"
-    })        
+    })
     volume.save
-    # takes ~5min, lets sleep 1min, then try for 10min to wait for Detached state, 
-    # because volume::add will error if not in Detached state 
+    # takes ~5min, lets sleep 1min, then try for 10min to wait for Detached state,
+    # because volume::add will error if not in Detached state
     sleep 60
     max_retry_count = 10
     retry_count = 0
     vol = node.storage_provider.volumes.get volume.id
     while vol.state != "Detached" && retry_count < max_retry_count
       sleep 60
-      vol = provider.volumes.get volume.id        
+      vol = provider.volumes.get volume.id
       retry_count += 1
       Chef::Log.info("vol state: "+vol.state)
     end
-    
+
     if retry_count >= max_retry_count
       Chef::Log.error("took more than 10minutes for volume: "+volume.id.to_s+" to be ready and still isn't")
     end
@@ -168,7 +170,15 @@ Array(1..slice_count).each do |i|
         cloud_name = node[:workorder][:cloud][:ciName]
         storage_service = node[:workorder][:services][:storage][cloud_name]
         storage = storage_service["ciAttributes"]
-        volume = storage.master_rg+":"+storage.storage_account+":"+(node.workorder.rfcCi.ciId).to_s+":"+slice_size.to_s
+        size = node[:workorder][:payLoad][:RequiresComputes][0][:ciAttributes][:size]
+        
+        if Utils.is_prm(size, false)
+          volume = storage.master_rg+":"+storage.storage_account_prm+":"+(node.workorder.rfcCi.ciId).to_s+":"+slice_size.to_s
+          Chef::Log.info("Choosing Premium Storage Account: #{storage.storage_account_prm}") 
+        else
+          volume = storage.master_rg+":"+storage.storage_account_std+":"+(node.workorder.rfcCi.ciId).to_s+":"+slice_size.to_s
+          Chef::Log.info("Choosing Standard Storage Account: #{storage.storage_account_std}") 
+        end
       end
 
     else
@@ -181,12 +191,11 @@ Array(1..slice_count).each do |i|
         break
       end
     end
-    volume = node.storage_provider.volumes.new :device => dev, :size => slice_size, :availability_zone => avail_zone        
-    volume.save
+    volume = node.storage_provider.volumes.new :device => dev, :size => slice_size, :availability_zone => avail_zone
   end
 
   if node.storage_provider_class =~ /azure/
-    Chef::Log.error("Adding #{dev} to the device list")
+    Chef::Log.info("Adding #{dev} to the device list")
     vols.push(volume.to_s+":"+dev)
   else
     Chef::Log.info("added "+volume.id.to_s)

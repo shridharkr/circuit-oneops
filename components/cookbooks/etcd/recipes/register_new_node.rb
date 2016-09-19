@@ -8,9 +8,14 @@ Chef::Resource::RubyBlock.send(:include, Etcd::Util)
 # https://coreos.com/etcd/docs/latest/runtime-configuration.html#add-a-new-member
 # need to add the member to the cluster first
 
+platform_level_fqdn = false
 etcd_conn = "localhost"
-etcd_conn = get_cloud_fqdn(node[:ipaddress]) if depend_on_fqdn_ptr?
 
+# need to get cloud-level fqdn which will be used as the URL to connect to
+# etcd in the primary or secondary cloud
+etcd_conn = get_fqdn(node[:ipaddress], platform_level_fqdn) if depend_on_hostname_ptr?
+
+# no diff to use use platform-level or cloud-level hostname
 full_hostname = get_full_hostname(node[:ipaddress])
 peerURLs = "http://#{full_hostname}:2380"
 

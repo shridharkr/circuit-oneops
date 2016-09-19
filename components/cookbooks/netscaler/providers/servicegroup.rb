@@ -21,7 +21,7 @@ def delete_by_name(sg_name)
   else
     Chef::Log.info("servicegroup #{sg_name} exists. #{resp_obj.inspect}")
   
-    resp_obj = JSON.parse(node.ns_conn.request(
+    resp_obj = JSON.parse(@new_resource.connection.request(
          :method=>:delete, 
          :path=>"/nitro/v1/config/servicegroup/#{sg_name}").body)
     

@@ -182,10 +182,15 @@ def create_lbvserver
       ip = get_next_ip
     end
 
+    port = @new_resource.port
+    if @new_resource.port == 'all'
+      port = '*'
+    end
+    
     lbvserver_base = {
       :name => lbvserver_name,
       :ipv46 => ip,
-      :port =>  @new_resource.port,
+      :port =>  port,
       :servicetype => @new_resource.servicetype,
       :lbmethod => @new_resource.lbmethod
     }
