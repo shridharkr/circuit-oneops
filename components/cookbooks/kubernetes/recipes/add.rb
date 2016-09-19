@@ -29,8 +29,13 @@ node.set['kube']['kubelet']['api_servers'] = api_servers
 node.set['kube']['kubelet']['machines'] = node_ips
 
 etcd_servers = []
+  
+proto = "http"
+if node.workorder.rfcCi.ciAttribtues.security_enabled == 'true'
+  proto = "https"
+end  
 master_ips.each do |c|
-  etcd_servers << "http://#{c}:2379"
+  etcd_servers << "#{proto}://#{c}:2379"
 end
 node.set['etcd']['servers'] = etcd_servers.join(',')
   

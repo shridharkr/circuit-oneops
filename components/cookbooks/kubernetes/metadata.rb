@@ -111,7 +111,7 @@ attribute 'network',
 
 attribute 'api_port',
   :grouping => 'cluster',
-  :description => "api port",
+  :description => "Insecure API port",
   :default => "8080",
   :required => "required",
   :format => {
@@ -121,10 +121,10 @@ attribute 'api_port',
     :order => 3
   }
 
-attribute 'api_port',
+attribute 'api_port_secure',
   :grouping => 'cluster',
-  :description => "api port",
-  :default => "8080",
+  :description => "Secure API port",
+  :default => "6443",
   :required => "required",
   :format => {
     :important => true,
@@ -230,7 +230,7 @@ attribute 'security_certificate',
 
 attribute 'security_key',
   :description => 'Server Key',
-  :data_type => 'text',
+  :encrypted => true,
   :default => '',
   :format => {
       :help => 'Enter the certificate key content (Note: usually this is the content of the *.key file).',
@@ -260,22 +260,45 @@ attribute 'security_path',
       :order => 5
   }
 
-attribute 'auth_user',
-  :description => 'Auth User',
+attribute 'basic_auth_users',
+  :description => 'Basic Auth Users',
+  :data_type => 'text',
+  :default => '',  
   :format => {
-      :help => 'Kubernetes auth user file content.',
+      :help => 'Kubernetes (basic) auth user file content. format: password,user,uid',
       :category => '2.Authentication',
       :filter => {:all => {:visible => 'security_enabled:eq:true'}},
-      :order => 5
+      :order => 6
   }
-    
+
+attribute 'token_auth_users',
+  :description => 'Token Auth Users',
+  :data_type => 'text',
+  :default => '',  
+  :format => {
+      :help => 'Kubernetes (token) auth user file content. format: token,user,uid,"group1,group2,group3"',
+      :category => '2.Authentication',
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
+      :order => 7
+  }
+      
 attribute 'auth_policy',
   :description => 'Auth Policy',
+  :data_type => 'text',
+  :default => '{"user":"admin"}
+{"user":"kubecfg"}
+{"user":"kubelet"}
+{"user":"kube_proxy"}
+{"user":"system:scheduler"}
+{"user":"system:controller_manager"}
+{"user":"system:logging"}
+{"user":"system:monitoring"}
+{"user":"system:serviceaccount:kube-system:default"}',
   :format => {
       :help => 'Kubernetes auth file content.',
       :category => '2.Authentication',
       :filter => {:all => {:visible => 'security_enabled:eq:true'}},
-      :order => 5
+      :order => 8
   }
         
     

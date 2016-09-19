@@ -9,14 +9,12 @@ User=kube
 ExecStart=/usr/bin/kube-apiserver ${KUBE_API_ARGS} \
 	    ${KUBE_LOGTOSTDERR} \
 	    ${KUBE_LOG_LEVEL} \
-	    ${KUBE_ETCD_CACERT} \
-	    ${KUBE_ETCD_CERT} \
-	    ${KUBE_ETCD_KEY} \
 	    ${KUBE_ETCD_SERVERS} \
 	    ${KUBE_API_ADDRESS} \
 	    ${KUBE_API_PORT} \
 	    ${KUBELET_PORT} \
 	    ${KUBE_ALLOW_PRIV} \
+	    ${KUBE_AUTH_ARGS} \
 	    ${KUBE_SERVICE_ADDRESSES}
 	    
 Restart=on-failure

@@ -11,7 +11,39 @@ KUBE_API_ADDRESS="--address=<%= node['kube']['api']['bind-address'] %>"
 
 # The port on the local server to listen on.
 KUBE_API_PORT="--insecure-port=<%= node['kube']['api']['bind-port'] %>"
-KUBE_API_SECURE_PORT="--secure-port=<%= node['kube']['api']['bind-port-secure'] %>"
+
+# security args
+KUBE_AUTH_ARGS=""
+<% if node.workorder.rfcCi.ciAttributes.has_key?("security_enabled") &&
+      node.workorder.rfcCi.ciAttributes.security_enabled == "true" 
+      
+   etcd_tls_dir = '/var/lib/certs'
+   kubernetes_tls_dir = node.workorder.rfcCi.ciAttributes.security_path
+%>
+
+KUBE_AUTH_ARGS="--secure-port=<%= node['kube']['api']['bind-port-secure'] %>"
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --admission_control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota"
+
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --etcd-cafile=<%= etcd_tls_dir %>/ca.crt"
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --etcd-cerfile=<%= etcd_tls_dir %>/server.crt"
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --etcd-keyfile=<%= etcd_tls_dir %>/server.key"
+
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --client-ca-file=<%= kubernetes_tls_dir %>/ca.crt"
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --tls-cert-file=<%= kubernetes_tls_dir %>/server.crt"
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --tls-private-key-file=<%= kubernetes_tls_dir %>/server.key"
+
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --token_auth_file=/etc/kubernetes/token_auth_users"
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --basic_auth_file=/etc/kubernetes/basic_auth_users"
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --authorization-mode=ABAC"
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --authorization-policy-file=/etc/kubernetes/auth_policy"
+
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --kubelet-certificate-authority=<%= kubernetes_tls_dir %>/ca.crt"
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --kubelet-client-certificate=<%= kubernetes_tls_dir %>/kubelet.crt"
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --kubelet-client-key=<%= kubernetes_tls_dir %>/kubelet.key"
+
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --service-account-key-file=<%= kubernetes_tls_dir %>/server.key"
+
+<% end %>
 
 # How the replication controller and scheduler find the kube-apiserver
 KUBE_MASTER="--master=localhost:<%= node['kube']['api']['bind-port'] %>"
@@ -24,4 +56,3 @@ KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range=<%= node['kube']['service']['
 
 # Add you own!
 KUBE_API_ARGS="<%= node['kube']['api']['args'] %>"
-

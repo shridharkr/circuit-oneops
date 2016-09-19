@@ -12,26 +12,6 @@
 #   kubelet.service
 #   kube-proxy.service
 
-# security args
-KUBE_ETCD_CAFILE=""
-KUBE_ETCD_CERTFILE=""
-KUBE_ETCD_KEYFILE=""
-KUBE_AUTH_ARGS=""
-
-<% if node.workorder.rfcCi.ciAttributes.has_key?("security_enabled") &&
-      node.workorder.rfcCi.ciAttributes.security_enabled == "true" %>
-      
-#      --etcd-cafile="": SSL Certificate Authority file used to secure etcd communication
-#      --etcd-certfile="": SSL certification file used to secure etcd communication
-#      --etcd-keyfile="": SSL key file used to secure etcd communication
-KUBE_ETCD_CAFILE="--etcd-cafile=/var/lib/certs/ca.crt"
-KUBE_ETCD_CERTFILE="--etcd-cerfile=/var/lib/certs/server.crt"
-KUBE_ETCD_KEYFILE="--etcd-keyfile=/var/lib/certs/server.key"
-
-
-KUBE_AUTH_ARGS="--authorization-mode=ABAC --authorization-policy-file=/etc/kubernetes/authorization-policy"
-<% end %>
-
 # Comma seperated list of nodes in the etcd cluster      
 KUBE_ETCD_SERVERS="--etcd-servers=<%= node['etcd']['servers'] %>"
 
