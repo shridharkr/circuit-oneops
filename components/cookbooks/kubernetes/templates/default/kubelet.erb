@@ -10,3 +10,17 @@ KUBELET_ADDRESS="--address=<%= node['kube']['kubelet']['bind-address'] %>"
 KUBELET_PORT="--port=<%= node['kube']['kubelet']['bind-port'] %>"
 
 KUBELET_ARGS="<%= node['kube']['kubelet']['args'].strip %>"
+
+
+# security args
+KUBE_AUTH_ARGS=""
+<% if node.workorder.rfcCi.ciAttributes.has_key?("security_enabled") &&
+      node.workorder.rfcCi.ciAttributes.security_enabled == "true" 
+      
+   kubernetes_tls_dir = node.workorder.rfcCi.ciAttributes.security_path
+%>
+
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --tls-cert-file=<%= kubernetes_tls_dir %>/kubelet.crt"
+KUBE_AUTH_ARGS="$KUBE_AUTH_ARGS --tls-private-key-file=<%= kubernetes_tls_dir %>/kubelet.key"
+  
+<% end %>
