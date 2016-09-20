@@ -51,17 +51,6 @@ attribute 'tomcat_group',
               :order => 4
           }
 
-=begin
-attribute 'webapp_install_dir',
-          :description => "Webapps Directory",
-          :default => "/opt/tomcat/webapps",
-          :format => {
-              :help => "Specify the directory path where Tomcat will look for web applications (webapps).",
-              :category => "1.Global",
-              :order => 5
-          }
-=end
-
 attribute 'environment_settings',
           :description => "Environment Settings",
           :data_type => "hash",
@@ -138,27 +127,27 @@ attribute 'http_NIO_connector_enabled',
                 :order => 4
             }
 attribute 'https_NIO_connector_enabled',
-          :description => "Enable HTTPS Connector",
-          :default => "true",
-          :format => {
-                :help => "Enable the HTTPS Connector (SSL/TLS) Connector.",
-                :filter => {"all" => {"visible" => "override_server_enabled:eq:false"}},
-                :form => {"field" => "checkbox"},
-                :category => "3.Server",
-                :order => 5
-            }
+  :description => "Enable HTTPS Connector",
+  :default => "true",
+  :format => {
+    :help => "Enable the HTTPS Connector (SSL/TLS) Connector.",
+    :filter => {"all" => {"visible" => "override_server_enabled:eq:false"}},
+    :form => {"field" => "checkbox"},
+    :category => "3.Server",
+    :order => 5
+}
 
 attribute 'advanced_NIO_connector_config',
-          :description => "Additional Attributes for Tomcat Connector",
-          :data_type => "hash",
-          :required => "required",
-          :default => '{"connectionTimeout":"20000","maxKeepAliveRequests":"100"}',
-          :format => {
-              :help => 'These additional attributes (ex: attr_name1="value1" attr_name2="value2") will be appended to both HTTP and HTTPS connector elements in server.xml (enabled or not).',
-              :filter => {"all" => {"visible" => "override_server_enabled:eq:false"}},
-              :category => "3.Server",
-              :order => 6
-          }
+  :default => '{"connectionTimeout":"20000","maxKeepAliveRequests":"100"}',
+  :description => 'Additional Attributes for Tomcat Connector',
+  :data_type => 'hash',
+  :required => 'required',
+  :format => {
+    :help => 'These additional attributes (ex: attr_name1="value1" attr_name2="value2") will be appended to both HTTP and HTTPS connector elements in server.xml (enabled or not).',
+    :filter => {"all" => {"visible" => "override_server_enabled:eq:false"}},
+    :category => "3.Server",
+    :order => 6
+}
 
 attribute 'port',
           :description => "HTTP Port",

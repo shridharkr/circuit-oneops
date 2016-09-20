@@ -16,16 +16,6 @@
   limitations under the License.
 -->
 <tomcat-users>
-  <role rolename="manager-script"/>
   <role rolename="admin"/>
-<%
-manager_role = "manager-script"
-if node.tomcat.install_type == "repository"
-  case node.platform
-  when "redhat","centos","fedora"
-    manager_role = "manager"
-  end
-end
-%>
-  <user username="admin" password="8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918" roles="admin,<%= manager_role %>"/>
+  <user username="admin" password="8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918" roles="admin"/>
 </tomcat-users>
