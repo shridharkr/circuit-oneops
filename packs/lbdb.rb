@@ -43,7 +43,7 @@ resource "volume",
 resource "lb",
   :except => [ 'single' ],
   :cookbook => "oneops.1.lb",
-  :design => false,
+  :design => true,
   :requires => { "constraint" => "1..1", "services" => "lb,dns" },
   :attributes => {
     "stickiness"    => ""

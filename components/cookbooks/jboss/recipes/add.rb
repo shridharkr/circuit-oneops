@@ -20,7 +20,8 @@
 jboss_version = node.workorder.rfcCi.ciAttributes.version
 short_jboss_version = jboss_version.gsub(/\.\d+$/,'')
 
-dl_url = "http://download.jboss.org/jbossas/#{short_jboss_version}/jboss-as-#{jboss_version}.Final/jboss-as-#{jboss_version}.Final.tar.gz"
+dl_url = node.workorder.rfcCi.ciBaseAttributes["jboss_url_enabled"] ? node.workorder.rfcCi.ciBaseAttributes["jboss_url"] : "http://download.jboss.org/jbossas/#{short_jboss_version}/jboss-as-#{jboss_version}.Final/jboss-as-#{jboss_version}.Final.tar.gz"
+
 base_name = "jboss-as-#{jboss_version}.Final"
 
 jboss_home = node['jboss']['jboss_home']

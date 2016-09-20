@@ -45,6 +45,15 @@ attribute 'postgresql_conf',
     :order => 2
   }
 
+attribute 'strict_replicators',
+  :description => "Strict Replicators",
+  :default => 'false',
+  :format => {
+    :form => { 'field' => 'checkbox' },
+    :help => 'Strict replicators mode allows only the secondary clouds\' IPs',
+    :category => '2.Server',
+    :order => 3
+  }
 
 recipe "status", "Postgresql Status"
 recipe "start", "Start Postgresql"

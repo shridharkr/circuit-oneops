@@ -2,8 +2,7 @@
 environment = node.workorder.payLoad.Environment[0][:ciAttributes][:availability]
 
 if environment=="single"
-  Chef::Log.error("******** exiting because glusterfs setup works in redundant environment only ********")
-  return
+  exit_with_error "single environment. glusterfs setup works in redundant mode only"
 end
 
 ci = node.workorder.rfcCi
@@ -26,22 +25,12 @@ cloud_name = node[:workorder][:cloud][:ciName]
   if node[:workorder][:services].has_key? "mirror"
     mirrors = JSON.parse(node[:workorder][:services][:mirror][cloud_name][:ciAttributes][:mirrors])
   else
-    msg = "Cloud Mirror Service has not been defined"
-    Chef::Log.error(msg)
-    puts "***FAULT:FATAL= #{msg}"
-    e = Exception.new("no backtrace")
-    e.set_backtrace("")
-    raise e
+    exit_with_error "Cloud Mirror Service has not been defined"
   end
 
 glusterfs_source = mirrors['glusterfs']
 if glusterfs_source.nil?
-  msg = "glusterfs source repository has not beed defined in cloud mirror service"
-  Chef::Log.error(msg)
-  puts "***FAULT:FATAL= #{msg}"
-  e = Exception.new("no backtrace")
-  e.set_backtrace("")
-  raise e
+  exit_with_error "glusterfs source repository has not beed defined in cloud mirror service"
 else
   Chef::Log.info("glusterfs source repository has been defined in cloud mirror service #{glusterfs_source}")
 end
@@ -94,7 +83,7 @@ if last_compute == "compute-#{local_cloud_index}-#{local_compute_index}"
             Chef::Log.info("Maximum retry count is 9. Current retry count is #{retry_count}. Sleeping 20 seconds. ")
             sleep 20
           end
-          Chef::Application.fatal!("#{command} got failed. #{output}") if retry_count == 9
+          exit_with_error "#{command} got failed. #{output}" if retry_count == 9
           retry_count += 1
         end
       end

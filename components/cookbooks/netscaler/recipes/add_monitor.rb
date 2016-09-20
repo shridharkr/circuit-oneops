@@ -60,8 +60,11 @@ rescue Exception => e
   ecv_map = {}
 end
 
+
+
 begin
   ecv_map.keys.each do |port|
+    next if port == 'all'
     port_int = Integer(port)
   end
 rescue Exception => e
@@ -71,7 +74,7 @@ end
 
 
 node.monitors.each do |mon|
-
+  
   if !ecv_map.has_key?(mon[:iport])
     ecv = "GET /"
   end
@@ -87,6 +90,32 @@ node.monitors.each do |mon|
     :respcode => ['200'],
     :httprequest => ecv
   }
+    
+  # cleanup previous az
+  if node.has_key?("ns_conn_prev")
+    
+    resp_obj = JSON.parse(node.ns_conn_prev.request(
+      :method => :get, 
+      :path =>"/nitro/v1/config/lbmonitor/#{monitor_name}").body)        
+    
+    if resp_obj["message"] !~ /No such resource/
+      type = resp_obj['lbmonitor'][0]['type']
+
+      Chef::Log.info("removing monitor: #{monitor_name} from previous az / netscaler.")              
+      resp_obj = JSON.parse(node.ns_conn_prev.request(
+        :method => :delete,
+        :path =>"/nitro/v1/config/lbmonitor/#{monitor_name}?args=type:#{type}").body)
+      
+      if resp_obj["errorcode"] != 0
+        Chef::Log.error( "delete monitor #{monitor_name} resp: #{resp_obj.inspect}")  
+        exit 1
+      else
+        Chef::Log.info( "delete monitor #{monitor_name} resp: #{resp_obj.inspect}")    
+      end
+    else
+      Chef::Log.info("already removed monitor: #{monitor_name} from previous az / netscaler.")
+    end      
+  end  
 
 
   protocol = mon[:protocol]

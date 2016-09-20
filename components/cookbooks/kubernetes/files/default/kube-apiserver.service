@@ -6,7 +6,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 EnvironmentFile=-/etc/kubernetes/config
 EnvironmentFile=-/etc/kubernetes/apiserver
 User=kube
-ExecStart=/usr/bin/kube-apiserver \
+ExecStart=/usr/bin/kube-apiserver ${KUBE_API_ARGS} \
 	    ${KUBE_LOGTOSTDERR} \
 	    ${KUBE_LOG_LEVEL} \
 	    ${KUBE_ETCD_SERVERS} \
@@ -14,8 +14,9 @@ ExecStart=/usr/bin/kube-apiserver \
 	    ${KUBE_API_PORT} \
 	    ${KUBELET_PORT} \
 	    ${KUBE_ALLOW_PRIV} \
-	    ${KUBE_SERVICE_ADDRESSES} \
-	    ${KUBE_API_ARGS}
+	    ${KUBE_AUTH_ARGS} \
+	    ${KUBE_SERVICE_ADDRESSES}
+	    
 Restart=on-failure
 
 [Install]

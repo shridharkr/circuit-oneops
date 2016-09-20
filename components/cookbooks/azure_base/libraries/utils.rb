@@ -1,3 +1,5 @@
+require File.expand_path('../../libraries/logger.rb', __FILE__)
+
 module Utils
 
   # method to get credentials in order to call Azure
@@ -109,11 +111,95 @@ module Utils
     return abbr
   end
 
+  def is_prm(size, isUndeployment)
+    az_size = ''
+    # Method that maps sizes
+    case size
+      when 'XS'
+        az_size = 'Standard_A0'
+      when 'S'
+        az_size = 'Standard_A1'
+      when 'M'
+        az_size = 'Standard_A2'
+      when 'L'
+        OOLog.info("L: Standard_A3") #just testing
+        az_size = 'Standard_A3'
+      when 'XL'
+        az_size = 'Standard_A4'
+      when 'XXL'
+        az_size = 'Standard_A5'
+      when '3XL'
+        az_size = 'Standard_A6'
+      when '4XL'
+        az_size = 'Standard_A7'
+      when 'S-CPU'
+        az_size = 'Standard_D1'
+      when 'M-CPU'
+        az_size = 'Standard_D2'
+      when 'L-CPU'
+        az_size = 'Standard_D3'
+      when 'XL-CPU'
+        az_size = 'Standard_D4'
+      when '8XL-CPU'
+        az_size = 'Standard_D11'
+      when '9XL-CPU'
+        az_size = 'Standard_D12'
+      when '10XL-CPU'
+        az_size = 'Standard_D13'
+      when '11XL-CPU'
+        az_size = 'Standard_D14'
+      when 'S-MEM'
+        az_size = 'Standard_DS1'
+      when 'M-MEM'
+        az_size = 'Standard_DS2'
+      when 'L-MEM'
+        az_size = 'Standard_DS3'
+      when 'XL-MEM'
+        az_size = 'Standard_DS4'
+      when '8XL-MEM'
+        az_size = 'Standard_DS11'
+      when '9XL-MEM'
+        az_size = 'Standard_DS12'
+      when '10XL-MEM'
+        az_size = 'Standard_DS13'
+      when '11XL-MEM'
+        az_size = 'Standard_DS14'
+      #old mappings - this part is used to deprovision only
+      when 'S-IO'
+        if(isUndeployment)
+          az_size = 'Standard_DS1'
+        else 
+          OOLog.fatal("Azure size map, '#{size}' not found in Mappings List")
+        end
+      when 'M-IO'
+        if(isUndeployment)
+          az_size = 'Standard_DS2'
+        else 
+          OOLog.fatal("Azure size map, '#{size}' not found in Mappings List")
+        end
+      when 'L-IO'
+        if(isUndeployment)
+          az_size = 'Standard_DS3'
+        else 
+          OOLog.fatal("Azure size map, '#{size}' not found in Mappings List")
+        end
+      else
+        OOLog.fatal("Azure size map, '#{size}' not found in Mappings List")
+    end
+
+    if az_size =~ /(.*)GS(.*)|(.*)DS(.*)/
+      return true
+    else
+      return false
+    end
+  end
+
   module_function :get_credentials,
                   :set_proxy,
                   :set_proxy_from_env,
                   :get_component_name,
                   :get_dns_domain_label,
-                  :abbreviate_location
+                  :abbreviate_location,
+                  :is_prm
 
 end

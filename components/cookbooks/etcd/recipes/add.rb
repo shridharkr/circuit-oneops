@@ -75,8 +75,33 @@ else
 
 end
 
+secure_command_args = ""
+if node.etcd.security_enabled == 'true'
+  secure_command_args = "--ca-file #{node.etcd.security_path}/ca.crt "
+  secure_command_args += "--cert-file #{node.etcd.security_path}/server.crt "
+  secure_command_args += "--key-file #{node.etcd.security_path}/server.key"      
+end
+
+
 # configure etcd flags
 include_recipe 'etcd::configure'
+
+# Setting the member ID
+ruby_block 'replace old member_id' do
+  block do
+    if node.workorder.rfcCi.rfcAction == 'replace' && node.has_key?("peer_endpoints") && node.peer_endpoints.size >0
+      cmd = "etcdctl #{secure_command_args} --endpoints=#{node.peer_endpoints.join(',')} "
+      cmd += "member remove #{node.etcd.member_id}"
+      Chef::Log.info(cmd)
+      Chef::Log.info(`#{cmd}`)
+
+      cmd = "etcdctl #{secure_command_args} --endpoints=#{node.peer_endpoints.join(',')} "
+      cmd += "member add #{node.member_name} #{node.member_endpoint}"
+      Chef::Log.info(cmd) 
+      Chef::Log.info(`#{cmd}`)
+    end
+  end
+end
 
 # writing etcd systemd file
 template node.etcd.systemd_file do
@@ -85,8 +110,11 @@ template node.etcd.systemd_file do
 end
 
 # enable and start etcd service
+execute 'systemctl daemon-reload'
+
+# enable and start etcd service
 service 'etcd' do
-  action [:enable, :start]
+  action [:enable, :restart]
 end
 
 # Setting the member ID
@@ -94,11 +122,10 @@ ruby_block 'setting etcd member id' do
   block do
 
     retry_count = 1
-    if node.etcd.security_enabled == 'true'
-      command = "etcdctl --ca-file #{node.etcd.security_path}/ca.crt --cert-file #{node.etcd.security_path}/server.crt --key-file #{node.etcd.security_path}/server.key member list | grep $(hostname -i)"
-    elsif node.etcd.security_enabled == 'false'
-      command = 'etcdctl member list | grep $(hostname -i)'
-    end
+
+    cname = node.workorder.payLoad.ManagedVia[0]['ciName']
+    command = "etcdctl #{secure_command_args} member list | grep #{cname}"
+
 
     while retry_count < 10
       result=`#{command}`

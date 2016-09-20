@@ -13,7 +13,6 @@ module Couchbase
       @password = password
       @cli=Couchbase::CouchbaseCLI.new(ip, user, password)
       @rest=Couchbase::CouchbaseREST.new(ip, user, password)
-
       begin
         list_buckets
       rescue Exception => e
@@ -199,6 +198,10 @@ module Couchbase
 
       end
       node_list
+    end
+
+    def list_node(ip_node)
+      list_nodes.select { |node| node.fetch(:ip) == ip_node }
     end
 
     def healthy_nodes

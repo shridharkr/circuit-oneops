@@ -178,7 +178,7 @@
 
         <transportConnectors>
             <% JSON.parse(node[:activemq][:transportconnector]).map{ |k,v| %>
-                <transportConnector name=<%= "'#{k}'" %> uri=<%= "'#{v}?maximumConnections=#{node[:activemq][:maxconnections]}&amp;needClientAuth=#{node[:activemq][:needclientauth]}'" %> />
+                <transportConnector name=<%= "'#{k}'" %> uri=<%= "'#{v}'" %> />
           <%}%>
         </transportConnectors>
 
