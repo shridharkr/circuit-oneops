@@ -19,19 +19,10 @@ default['tomcat']['logfiles_path'] = "#{tomcat['config_dir']}/logs"
 default['tomcat']['keystore_path'] = "#{tomcat['instance_dir']}/ssl/keystore.jks"
 default['tomcat']['keystore_pass'] = "changeit"
 
+Chef::Log.warn("INSPECT NODE #{node.inspect}");
 
-#set['tomcat']['advanced_NIO_connector_config'] = node.workorder.rfcCi.ciAttributes['advanced_NIO_connector_config']
+
 #Chef::Log.warn("default copy of advanced_NIO_connector_config = #{node['tomcat']['advanced_NIO_connector_config']}")
-
-set['tomcat']['advanced_NIO_connector_config2'] = node.workorder.rfcCi.ciAttributes.tomcat.advanced_NIO_connector_config
-Chef::Log.warn("default copy of advanced_NIO_connector_config2 = #{node['tomcat']['advanced_NIO_connector_config2']}")
-
-set['tomcat']['advanced_NIO_connector_config3'] = node.workorder.rfcCi.ciBaseAttributes['advanced_NIO_connector_config']
-Chef::Log.warn("default copy of advanced_NIO_connector_config3 = #{node['tomcat']['advanced_NIO_connector_config3']}")
-
-set['tomcat']['advanced_NIO_connector_config4'] = node.workorder.rfcCi.ciBaseAttributes.advanced_NIO_connector_config
-Chef::Log.warn("default copy of advanced_NIO_connector_config4 = #{node['tomcat']['advanced_NIO_connector_config4']}")
-
 #set['tomcat']['advanced_NIO_connector_config'] = get_attribute_value('advanced_NIO_connector_config')
 =begin
 set['tomcat']['tomcat_install_dir'] = node.workorder.rfcCi.ciBaseAttributes.tomcat_install_dir

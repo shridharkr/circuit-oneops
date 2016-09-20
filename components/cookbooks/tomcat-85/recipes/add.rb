@@ -25,6 +25,9 @@
 #   The tomcat_user and tomcat_group variables will be grabbed from the user
 #     response in the metadata.rb file if different from the default values.
 ###############################################################################
+
+
+
 if node['tomcat'].key?('tomcat_user') && !node['tomcat']['tomcat_user'].empty?
   node.set['tomcat_user'] = node['tomcat']['tomcat_user']
 end
@@ -61,47 +64,35 @@ end
 #       If HTTPS is enabled and the user manually disabled all TLS protocols
 #       from the UI, TLSv1.2 is enabled.
 ###############################################################################
-#=1=#
 node.set['tomcat']['connector']['protocol'] = 'org.apache.coyote.http11.Http11Protocol'
-#=2=#
-if node['tomcat'].key?('advanced_NIO_connector_config')
-  if !node['tomcat']['advanced_NIO_connector_config'].empty?
-    node.set['tomcat']['connector']['advanced_NIO_connector_config'] = node['tomcat']['advanced_NIO_connector_config']
+if node['tomcat'].key?('advanced_nio_connector_config')
+  if !node['tomcat']['advanced_nio_connector_config'].empty?
+    node.set['tomcat']['connector']['advanced_nio_connector_config'] = node.workorder.rfcCi.ciAttributes.advanced_nio_connector_config
   else
-    node.set['tomcat']['connector']['advanced_NIO_connector_config'] = '{"connectionTimeout":"20000","maxKeepAliveRequests":"100"}'
+    node.set['tomcat']['connector']['advanced_nio_connector_config'] = '{"connectionTimeout":"20000","maxKeepAliveRequests":"100"}'
   end
 else
-  node.set['tomcat']['connector']['advanced_NIO_connector_config'] = '{"connectionTimeout":"20000","maxKeepAliveRequests":"100"}'
+  node.set['tomcat']['connector']['advanced_nio_connector_config'] = '{"connectionTimeout":"20000","maxKeepAliveRequests":"100"}'
 end
-#=3=#
 Chef::Log.info(" protocol  #{node['tomcat']['connector']['protocol']} - connector config #{node['tomcat']['connector']['advanced_connector_config']} ssl_configured : #{node['tomcat']['connector']['ssl_configured']}")
-#=4=#
+
 tomcat_version_name = node.workorder.rfcCi.ciAttributes.version
-#tomcat_version_name = node.workorder.rfcCi.ciBaseAttributes.version
-#tomcat_version_name = get_attribute_value('version')
 node.set['tomcat']['tomcat_version_name'] = tomcat_version_name
-#Chef::Log.warn("tomcat_version_name = #{tomcat_version_name} ")
 Chef::Log.warn("tomcat_version_name = #{node['tomcat']['tomcat_version_name']} ")
-#Chef::Log.warn("tomcat_version_name is also #{get_attribute_value('version')}")
-#=5=#
 node.set['tomcat']['max_threads'] = node['tomcat']['max_threads']
 node.set['tomcat']['min_spare_threads'] = node['tomcat']['min_spare_threads']
-#=6=#
 depends_on_keystore = node.workorder.payLoad.DependsOn.reject { |d| d['ciClassName'] !~ /Keystore/ }
-#=7=#
 if !depends_on_keystore.nil? && !depends_on_keystore.empty?
   Chef::Log.info("This does depend on keystore with filename: #{depends_on_keystore[0]['ciAttributes']['keystore_filename']} ")
   node.set['tomcat']['keystore_path'] = depends_on_keystore[0]['ciAttributes']['keystore_filename']
   node.set['tomcat']['keystore_pass'] = depends_on_keystore[0]['ciAttributes']['keystore_password']
   Chef::Log.info("Stashed keystore_path = #{node['tomcat']['keystore_path']}")
 end
-#=8=#
 if node['tomcat']['https_NIO_connector_enabled'].nil? || node['tomcat']['https_NIO_connector_enabled'] == 'false'
   if node['tomcat']['http_NIO_connector_enabled'].nil? || node['tomcat']['http_NIO_connector_enabled'] == 'false'
     Chef::Log.warn('HTTP AND HTTPS ARE DISABLED. This may result in NO COMMUNICATION to the Tomcat instance.')
   end
 end
-#=9=#
 if !node['tomcat']['https_NIO_connector_enabled'].nil? || node['tomcat']['https_NIO_connector_enabled'] == 'true'
   node.set['tomcat']['connector']['ssl_configured_protocols'] = ''
   if node['tomcat']['tlsv11_protocol_enabled'] == 'true'
@@ -188,50 +179,37 @@ end
 #   5 - 50local.policy
 #   6 - init.d script
 ###############################################################################
-#=1=#
+
 template "#{node['tomcat']['instance_dir']}/conf/server.xml" do
   source 'server.xml.erb'
   owner 'root'
   group 'root'
   mode '0644'
 end
-#=2=#
+
 template "#{node['tomcat']['instance_dir']}/conf/tomcat-users.xml" do
   source 'tomcat-users.xml.erb'
   owner 'root'
   group 'root'
   mode '0644'
 end
-#=3=#
-#template '/etc/#{tomcat_version_name}/Catalina/localhost/manager.xml' do
-#  source 'manager.xml.erb'
-#  owner 'root'
-#  group 'root'
-#  mode '0644'
-#end
-#=4=#
+
 directory "#{node['tomcat']['instance_dir']}/conf/policy.d" do
   action :create
   owner 'root'
   group 'root'
 end
-#=5=#
-template "#{node['tomcat']['instance_dir']}/conf/policy.d/50local.policy" do
-  source '50local.policy.erb'
-  owner 'root'
-  group 'root'
-  mode '0644'
-end
-#=6=#
+
+
 template '/etc/init.d/tomcat' do
-  source 'tomcat#{major_version}_initd.erb'
+  source 'initd.erb'
   owner 'root'
   group 'root'
   mode '0755'
 end
 
 ###############################################################################
-# Nagios Stuff
+# Nagios Scripts
 ###############################################################################
 
 template '/opt/nagios/libexec/check_tomcat.rb' do
@@ -264,16 +242,10 @@ end
 ###############################################################################
 # Do Restarts of Tomcat for All Changes Except Deletions
 ###############################################################################
-
-if !depends_on.nil? && !depends_on.empty? && depends_on[0][:rfcAction] != 'delete'
-  include_recipe 'javaservicewrapper::restart'
-else
   service 'tomcat' do
-    service_name tomcat_version_name
+    service_name 'tomcat'
     action [:enable]
   end
-  #include_recipe 'tomcat-85::restart'
-end
 
 ###############################################################################
 # Additional Recipes

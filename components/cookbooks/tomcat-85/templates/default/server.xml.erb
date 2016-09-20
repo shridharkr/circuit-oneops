@@ -74,7 +74,7 @@
                redirectPort="<%= node['tomcat']['ssl_port'] %>"
                server="42"
                allowTrace="<%= node['tomcat']['enable_method_trace'] %>"
-            <% JSON.parse(node['tomcat']['advanced_NIO_connector_config']).each{ |k, v|%>
+            <% JSON.parse(node['tomcat']['connector']['advanced_nio_connector_config']).each{ |k, v|%>
              <%=k%>="<%=v%>"
               <% } %>
                />
@@ -101,12 +101,10 @@ if node['tomcat']['https_NIO_connector_enabled'] == nil || node['tomcat']['https
                clientAuth="false"  sslProtocol="TLS"
                sslEnabledProtocols="TLSv1.2,TLSv1.1"
                ciphers="<%=node['tomcat']['ssl_configured_ciphers'] %>"
-               <% Chef::Log.warn("advanced_NIO_connector_config = #{node['tomcat']['advanced_NIO_connector_config']}")%>
-            <% JSON.parse(node['tomcat']['advanced_NIO_connector_config']).each{ |k, v| %>
-
-               <%=k%>="<%=v%>"
-            <% } %>
-    />
+               <% JSON.parse(node['tomcat']['connector']['advanced_nio_connector_config']).each{ |k, v|%>
+                <%=k%>="<%=v%>"
+                 <% } %>
+                  />
 <%
 else
 %>
