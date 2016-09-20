@@ -139,9 +139,13 @@ if node.etcd.security_enabled == 'true'
   end
 
   security_flags = {
+      'ETCD_PEER_CERT_FILE' => "#{node.etcd.security_path}/server.crt",
+      'ETCD_PEER_KEY_FILE' => "#{node.etcd.security_path}/server.key",
+      'ETCD_PEER_TRUSTED_CA_FILE' => "#{node.etcd.security_path}/ca.crt",
       'ETCD_CERT_FILE' => "#{node.etcd.security_path}/server.crt",
       'ETCD_KEY_FILE' => "#{node.etcd.security_path}/server.key",
       'ETCD_TRUSTED_CA_FILE' => "#{node.etcd.security_path}/ca.crt",
+
       'ETCD_CLIENT_CERT_AUTH' => 'true'
   }.merge(JSON.parse(node.etcd.security_flags))
 

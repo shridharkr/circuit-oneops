@@ -217,6 +217,17 @@ attribute 'security_enabled',
       :order => 1
   }
 
+attribute 'etcd_security_enabled',
+  :description => 'Enable SSL/TLS to etcd',
+  :default => 'false',
+  :format => {
+      :help => 'Enable SSL/TLS',
+      :category => '2.Authentication',
+      :form => {:field => 'checkbox'},
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},      
+      :order => 2
+  }  
+  
 attribute 'security_certificate',
   :description => 'Server Certificate',
   :data_type => 'text',
@@ -225,18 +236,19 @@ attribute 'security_certificate',
       :help => 'Enter the certificate content to be used (Note: usually this is the content of the *.crt file).',
       :category => '2.Authentication',
       :filter => {:all => {:visible => 'security_enabled:eq:true'}},
-      :order => 2
+      :order => 3
   }
 
 attribute 'security_key',
   :description => 'Server Key',
   :encrypted => true,
+  :data_type => 'text',
   :default => '',
   :format => {
       :help => 'Enter the certificate key content (Note: usually this is the content of the *.key file).',
       :category => '2.Authentication',
       :filter => {:all => {:visible => 'security_enabled:eq:true'}},
-      :order => 3
+      :order => 4
   }
 
 attribute 'security_ca_certificate',
@@ -247,7 +259,7 @@ attribute 'security_ca_certificate',
       :help => 'Enter the CA certificate keys to be used to be used to trust certs signed only by this CA.',
       :category => '2.Authentication',
       :filter => {:all => {:visible => 'security_enabled:eq:true'}},
-      :order => 4
+      :order => 5
   }
 
 attribute 'security_path',
@@ -257,29 +269,31 @@ attribute 'security_path',
       :help => 'Directory path where the security files should be saved',
       :category => '2.Authentication',
       :filter => {:all => {:visible => 'security_enabled:eq:true'}},
-      :order => 5
+      :order => 6
   }
 
 attribute 'basic_auth_users',
   :description => 'Basic Auth Users',
   :data_type => 'text',
+  :encrypted => true, 
   :default => '',  
   :format => {
       :help => 'Kubernetes (basic) auth user file content. format: password,user,uid',
       :category => '2.Authentication',
       :filter => {:all => {:visible => 'security_enabled:eq:true'}},
-      :order => 6
+      :order => 7
   }
 
 attribute 'token_auth_users',
   :description => 'Token Auth Users',
   :data_type => 'text',
+  :encrypted => true, 
   :default => '',  
   :format => {
       :help => 'Kubernetes (token) auth user file content. format: token,user,uid,"group1,group2,group3"',
       :category => '2.Authentication',
       :filter => {:all => {:visible => 'security_enabled:eq:true'}},
-      :order => 7
+      :order => 8
   }
       
 attribute 'auth_policy',
@@ -298,7 +312,7 @@ attribute 'auth_policy',
       :help => 'Kubernetes auth file content.',
       :category => '2.Authentication',
       :filter => {:all => {:visible => 'security_enabled:eq:true'}},
-      :order => 8
+      :order => 9
   }
         
     
@@ -317,12 +331,12 @@ attribute 'kubelet_args',
   :grouping => 'cluster',
   :description => "kubelet args",
   :data_type => "hash",
-  :default => '{"cluster_dns":"172.16.48.1",
+  :default => '{"cluster_dns":"172.16.63.254",
                 "cluster_domain":"cluster.local",
                 "pod-infra-container-image":"gcr.io/google_containers/pause:2.0"}',
   :required => "required",
   :format => {
-    :help => 'Minon Args',
+    :help => 'Kubelet Args',
     :category => '1.Worker',
     :order => 1
   }  

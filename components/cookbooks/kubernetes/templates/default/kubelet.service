@@ -13,7 +13,7 @@ ExecStart=/usr/bin/kubelet <%= node['kube']['kubelet']['args'].strip %> \
 	    ${KUBELET_ADDRESS} \
 	    ${KUBELET_PORT} \
 	    ${KUBE_ALLOW_PRIV} \
-	    ${KUBE_AUTH_ARGS} \	    
+	    ${KUBE_AUTH_ARGS} \
 	    ${KUBE_LOG_LEVEL}
 Restart=on-failure
 

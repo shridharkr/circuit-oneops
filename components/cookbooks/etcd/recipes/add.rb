@@ -110,8 +110,11 @@ template node.etcd.systemd_file do
 end
 
 # enable and start etcd service
+execute 'systemctl daemon-reload'
+
+# enable and start etcd service
 service 'etcd' do
-  action [:enable, :start]
+  action [:enable, :restart]
 end
 
 # Setting the member ID

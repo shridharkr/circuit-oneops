@@ -7,9 +7,9 @@ proto = "http"
 if node.docker_engine.flannel_security_enabled == 'true'
   proto = "https" %>
   
-FLANNELD_ETCD_CAFILE="<%= node.docker_engine.flannel_security_cacert}"
-FLANNELD_ETCD_CERTFILE="<%= node.docker_engine.flannel_security_cert}"
-FLANNELD_ETCD_KEYFILE="<%= node.docker_engine.flannel_security_key}"
+FLANNELD_ETCD_CAFILE="<%= node.docker_engine.flannel_security_cacert %>"
+FLANNELD_ETCD_CERTFILE="<%= node.docker_engine.flannel_security_cert %>"
+FLANNELD_ETCD_KEYFILE="<%= node.docker_engine.flannel_security_key %>"
   
 <% end
 
