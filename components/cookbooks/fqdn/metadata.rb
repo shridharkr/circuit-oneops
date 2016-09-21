@@ -6,6 +6,7 @@ maintainer_email "support@oneops.com"
 license          "Copyright OneOps, All rights reserved."
 depends          "netscaler"
 depends          "azuredns"
+depends          "ddns"
 
 grouping 'default',
   :access => "global",
@@ -21,7 +22,7 @@ attribute 'aliases',
   :format => {
     :help => 'List of additional short-name aliases to be configured in the DNS service (Note: the FQDN record of these CNAME aliases will include the environment subdomain)',
     :category => '1.Global',
-    :pattern => '[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])',
+    :pattern => '[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])|.*\$OO_.*',
     :order => 1
   }
 
@@ -31,7 +32,7 @@ attribute 'full_aliases',
   :format => {
     :help => 'List of additional full-domain name aliases to be configured in the DNS service (Note: the FQDN record of these CNAME aliases will *not* include the environment subdomain)',
     :category => '1.Global',
-    :pattern => '([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])',
+    :pattern => '([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])|.*\$OO_.*',
     :order => 2
   }
 
