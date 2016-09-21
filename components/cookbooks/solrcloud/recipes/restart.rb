@@ -1,21 +1,13 @@
 #
 # Cookbook Name :: solrcloud
-# Recipe :: replace.rb
+# Recipe :: restart.rb
 #
-# The recipe sets up the solrcloud on the replaced node.
+# The recipe restarts the solrcloud on the node.
 #
 
-include_recipe 'solrcloud::default'
-
-include_recipe 'solrcloud::solrcloud'
-include_recipe 'solrcloud::deploy'
-include_recipe 'solrcloud::customconfig'
-
-
-ci = node.workorder.rfcCi.ciAttributes;
+ci = node.workorder.ci.ciAttributes;
 solr_version = ci['solr_version']
 solrmajorversion = "#{solr_version}"[0,1]
-
 
 if "#{solr_version}".start_with? "4."
 	service "tomcat#{node['tomcatversion']}" do
@@ -30,8 +22,3 @@ if ("#{solr_version}".start_with? "5.") || ("#{solr_version}".start_with? "6.")
     	action :restart
 	end
 end
-
-
-include_recipe 'solrcloud::replacenode'
-
-
