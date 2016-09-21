@@ -56,6 +56,37 @@ if server != nil
       exit 1
     end
 
+  # To destroy/release a server from Aliyun, first stop it, then destroy/release it
+  when /aliyun/
+    if server['Status'] != "Running"
+      Chef::Log.info("state: "+server['Status'])
+    else
+      Chef::Log.info("Stopping server")
+      conn.stop_server(server['InstanceId'])
+    end
+
+    ok=false
+    attempt=0
+    max_attempts=20
+    while !ok && attempt<max_attempts
+      if (server['Status'] == "Stopped")
+        ok = true
+      else
+        Chef::Log.info("waiting for the server in Stopped state")
+        attempt += 1
+        sleep 5
+        a = conn.servers.get(server['InstanceId'])
+        if !a.nil?
+          server = a
+        end
+      end
+    end
+
+    if !ok
+      Chef::Log.error("server still not in Stopped state. current state: " + server['Status'])
+      exit 1
+    end
+    conn.delete_server(server['InstanceId'])
 
   else
     Chef::Log.info("destroying server: "+rfcCi[:ciAttributes][:instance_id])
@@ -65,7 +96,7 @@ if server != nil
       Chef::Log.info("delete failed: #{e.message}")
     end
     
-   # retry for 2min for server to be deleted
+    # retry for 2min for server to be deleted
     ok=false
     attempt=0
     max_attempts=6
