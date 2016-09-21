@@ -64,7 +64,7 @@ resource "solrcloud",
             :source => '',
             :chart => {'min' => '0', 'max' => '100', 'unit' => 'Percent'},
             :cmd => 'check_solrprocess!:::node.workorder.rfcCi.ciAttributes.port_no:::',
-            :cmd_line => '/opt/nagios/libexec/check_solrprocess.sh "$ARG1$" "$ARG2$"',
+            :cmd_line => '/opt/nagios/libexec/check_solrprocess.sh "$ARG1$"',
             :metrics => {
               'up' => metric(:unit => '%', :description => 'Percent Up'),
             },

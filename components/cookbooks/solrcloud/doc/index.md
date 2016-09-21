@@ -99,7 +99,7 @@ The following are the current features built into the OneOps pack. This will be 
     * replicationFactor - Give the replcationFactor
     * maxShardsPerNode - Give the max shards per node
     * configname - Give the config name which is uploaded to zookeeper.
-* addreplica - Adds the selected node as a replica to the given shard of a collection. The pack ADDREPLICA action makes sure that the node hosts single copy of the particular shard of a collection.
+* addreplica - Adds the selected node as a replica to the given shard of a collection.The ADDREPLICA action in the pack allows to host a replica of one copy for the given shard and collection.
   * Parameters:
     * collectionname - Collection name
     * shardname - shard name
