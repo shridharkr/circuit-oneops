@@ -23,7 +23,7 @@ if (!"#{value}".empty?)
 		parsed["errorMessages"].each do |error|
 			Chef::Log.error(error)
 		end
-		raise "Failed to set #{common_property} on the collection '#{collection_name}'."
+		Chef::Log.error("Failed to set #{common_property} on the collection '#{collection_name}'.")
 	end
 else
 	cmd_login = "curl -X POST -H 'Content-type:application/json' -d '{'unset-property' : {'#{common_property}'}}' 'http://#{node['ipaddress']}:8983/solr/#{collection_name}/config'"
@@ -34,7 +34,7 @@ else
 		parsed["errorMessages"].each do |error|
 			Chef::Log.error(error)
 		end
-		raise "Failed to unset #{common_property} on the collection '#{collection_name}'."
+		Chef::Log.error("Failed to unset #{common_property} on the collection '#{collection_name}'.")
 	end
 end
 

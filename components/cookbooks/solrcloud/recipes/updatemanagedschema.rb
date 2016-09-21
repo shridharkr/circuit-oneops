@@ -57,7 +57,7 @@ if (parsed["errors"] != nil)
 	parsed["errors"].each do |error|
 		Chef::Log.error(error)
 	end
-	raise "Failed to execute #{modify_schema_action} on the collection '#{collection_name}'."
+	Chef::Log.error("Failed to execute #{modify_schema_action} on the collection '#{collection_name}'.")
 end
 
 
