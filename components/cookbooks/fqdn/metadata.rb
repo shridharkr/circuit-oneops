@@ -6,7 +6,6 @@ maintainer_email "support@oneops.com"
 license          "Copyright OneOps, All rights reserved."
 depends          "netscaler"
 depends          "azuredns"
-depends          "ddns"
 
 grouping 'default',
   :access => "global",
