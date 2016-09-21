@@ -448,6 +448,13 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
     if $?.to_i == 0
       has_provider_mount = true
     end
+    if token_class =~ /vsphere/
+      initial_mountpoint = "/mnt/resource"
+      `grep #{initial_mountpoint} /etc/fstab`
+      if $?.to_i == 0
+        has_provider_mount = true
+      end
+    end
 
     if has_provider_mount
       Chef::Log.info("unmounting and clearing fstab for #{initial_mountpoint}")
