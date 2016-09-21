@@ -1,5 +1,5 @@
 default[:zookeeper][:version] = "3.4.5"
-default[:zookeeper][:mirror] = "http://archive.apache.org/dist/zookeeper/zookeeper-#{default[:zookeeper][:version]}.tar.gz"
+default[:zookeeper][:mirror] = "http://archive.apache.org/dist/zookeeper/"
 default[:zookeeper][:checksum] = 'e92b634e99db0414c6642f6014506cc22eefbea42cc912b57d7d0527fb7db132'
 default[:zookeeper][:install_dir] = "/usr/lib/zookeeper"
 default[:zookeeper][:user] = "zookeeper"
