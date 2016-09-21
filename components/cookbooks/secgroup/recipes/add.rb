@@ -23,7 +23,7 @@ case node[:provider_class]
 when /azure/
     include_recipe "azure::add_net_sec_group"
     
-when /ec2|openstack/
+when /ec2|openstack|aliyun/
   include_recipe "secgroup::add_secgroup_"+node[:provider_class]
 
   # need to always return the attrs, updated or not
