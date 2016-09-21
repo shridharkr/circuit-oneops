@@ -127,7 +127,7 @@ ruby_block 'install base' do
       cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + "\"#{sudo}#{sub_circuit_dir}/#{install_base} #{args}\""
 
       Chef::Log.info("Executing Command: #{cmd}")
-      result = shell_out(cmd)
+      result = shell_out(cmd, :timeout => shell_timeout)
 
       Chef::Log.debug("#{cmd} returned: #{result.stdout}")
       result.error!
@@ -153,7 +153,7 @@ ruby_block 'install base' do
       cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + install_cmd
 
       Chef::Log.info("Executing Command: #{cmd}")
-      result = shell_out(cmd)
+      result = shell_out(cmd, :timeout => shell_timeout)
 
       Chef::Log.debug("#{cmd} returned: #{result.stdout}")
       result.error!
@@ -165,7 +165,7 @@ ruby_block 'install base' do
 
       cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + sudo_cmd
       Chef::Log.info("Executing Command: #{cmd}")
-      result = shell_out(cmd)
+      result = shell_out(cmd, :timeout => shell_timeout)
 
       Chef::Log.debug("#{cmd} returned: #{result.stdout}")
       result.error!
@@ -174,7 +174,7 @@ ruby_block 'install base' do
       sudo_cmd = "chmod +x /usr/bin/sudo"
       cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + sudo_cmd
       Chef::Log.info("Executing Command: #{cmd}")
-      result = shell_out(cmd)
+      result = shell_out(cmd, :timeout => shell_timeout)
 
       Chef::Log.debug("#{cmd} returned: #{result.stdout}")
       result.error!
