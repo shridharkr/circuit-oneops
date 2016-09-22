@@ -8,13 +8,13 @@
 ###############################################################################
 #  Check for a Pre-Shutdown Command
 ###############################################################################
-<% if node[:tomcat].key?(:pre_shutdown_command) && !node[:tomcat][:pre_shutdown_command].empty? %>
-PRE_SHUTDOWN_COMMAND="<%= node[:tomcat][:pre_shutdown_command].gsub(/\r\n?/,"\n") %>"
+<% if node['tomcat'].key?('pre_shutdown_command') && !node['tomcat']['pre_shutdown_command'].empty? %>
+PRE_SHUTDOWN_COMMAND="<%= node['tomcat']['pre_shutdown_command'].gsub(/\r\n?/,"\n") %>"
 <% else %>
-PRE_SHUTDOWN_COMMAND=""
+PRE_SHUTDOWN_COMMAND=
 <% end %>
-<% if node[:tomcat].key?(:time_to_wait_before_shutdown) && !node[:tomcat][:time_to_wait_before_shutdown].empty?%>
-TIME_TO_WAIT="<%= node[:tomcat][:time_to_wait_before_shutdown] %>"
+<% if node['tomcat'].key?('time_to_wait_before_shutdown') && !node['tomcat']['time_to_wait_before_shutdown'].empty?%>
+TIME_TO_WAIT="<%= node['tomcat']['time_to_wait_before_shutdown'] %>"
 <% else %>
 TIME_TO_WAIT=
 <% end %>
@@ -22,8 +22,8 @@ TIME_TO_WAIT=
 ###############################################################################
 #  Check for a Post-Shutdown Command
 ###############################################################################
-<% if node[:tomcat].key?(:post_shutdown_command) && !node[:tomcat][:post_shutdown_command].empty? %>
-POST_SHUTDOWN_COMMAND="<%= node[:tomcat][:post_shutdown_command].gsub(/\r\n?/,"\n") %>"
+<% if node['tomcat'].key?('post_shutdown_command') && !node['tomcat']['post_shutdown_command'].empty? %>
+POST_SHUTDOWN_COMMAND="<%= node['tomcat']['post_shutdown_command'].gsub(/\r\n?/,"\n") %>"
 <% else %>
 POST_SHUTDOWN_COMMAND=
 <% end %>
@@ -31,8 +31,8 @@ POST_SHUTDOWN_COMMAND=
 ###############################################################################
 #  Check for a Pre-Startup Command
 ###############################################################################
-<% if node[:tomcat].key?(:pre_startup_command) && !node[:tomcat][:pre_startup_command].empty? %>
-PRE_STARTUP_COMMAND="<%= node[:tomcat][:pre_startup_command].gsub(/\r\n?/,"\n") %>"
+<% if node['tomcat'].key?('pre_startup_command') && !node['tomcat']['pre_startup_command'].empty? %>
+PRE_STARTUP_COMMAND="<%= node['tomcat']['pre_startup_command'].gsub(/\r\n?/,"\n") %>"
 <% else %>
 PRE_STARTUP_COMMAND=
 <% end %>
@@ -40,18 +40,18 @@ PRE_STARTUP_COMMAND=
 ###############################################################################
 #  Check for a Post-Startup Command
 ###############################################################################
-<% if node[:tomcat].key?(:post_startup_command) && !node[:tomcat][:post_startup_command].empty? %>
-POST_STARTUP_COMMAND="<%= node[:tomcat][:post_startup_command].gsub(/\r\n?/,"\n") %>"
+<% if node['tomcat'].key?('post_startup_command') && !node['tomcat']['post_startup_command'].empty? %>
+POST_STARTUP_COMMAND="<%= node['tomcat']['post_startup_command'].gsub(/\r\n?/,"\n") %>"
 <% else %>
 POST_STARTUP_COMMAND=
 <% end %>
-<% if node[:tomcat].key?(:polling_frequency_post_startup_check) && !node[:tomcat][:polling_frequency_post_startup_check].empty? %>
-TIME_BETWEEN_APP_START_CHECK="<%= node[:tomcat][:polling_frequency_post_startup_check] %>"
+<% if node['tomcat'].key?('polling_frequency_post_startup_check') && !node['tomcat']['polling_frequency_post_startup_check'].empty? %>
+TIME_BETWEEN_APP_START_CHECK="<%= node['tomcat']['polling_frequency_post_startup_check'] %>"
 <% else %>
 TIME_BETWEEN_APP_START_CHECK=1
 <% end %>
-<% if node[:tomcat].key?(:max_number_of_retries_for_post_startup_check) && !node[:tomcat][:max_number_of_retries_for_post_startup_check].empty? %>
-NUMBER_OF_TIMES_TO_CHECK_IF_APP_STARTED="<%= node[:tomcat][:max_number_of_retries_for_post_startup_check] %>"
+<% if node['tomcat'].key?('max_number_of_retries_for_post_startup_check') && !node['tomcat']['max_number_of_retries_for_post_startup_check'].empty? %>
+NUMBER_OF_TIMES_TO_CHECK_IF_APP_STARTED="<%= node['tomcat']['max_number_of_retries_for_post_startup_check'] %>"
 <% else %>
 NUMBER_OF_TIMES_TO_CHECK_IF_APP_STARTED=10
 <% end %>
@@ -59,8 +59,8 @@ NUMBER_OF_TIMES_TO_CHECK_IF_APP_STARTED=10
 ###############################################################################
 #  Gather User and Process Info for Commands
 ###############################################################################
-<% if node[:tomcat].key?(:logfiles_path) && !node[:tomcat][:logfiles_path].empty? %>
-LOG_FILES_PATH="<%= node[:tomcat][:logfiles_path] %>"
+<% if node['tomcat'].key?('logfiles_path') && !node['tomcat']['logfiles_path'].empty? %>
+LOG_FILES_PATH="<%= node['tomcat']['logfiles_path'] %>"
 <% else %>
 LOG_FILES_PATH="/opt/tomcat/logs"
 <% end %>
@@ -68,9 +68,9 @@ LOG_FILES_PATH="/opt/tomcat/logs"
 TOMCAT_SERVICE_NAME="tomcat"
 SU="sudo -u"
 TOMCAT_USER="<%= node.tomcat_user %>"
-TOMCAT_BASE_DIR="<%= node['tomcat']['config_dir'] %>"
-CATALINA_PID="<%= node['tomcat']['config_dir'] %>/tomcat.pid"
-STOP_TIMEOUT="<%= node[:tomcat][:stop_time] %>"
+TOMCAT_BASE_DIR="<%= node['tomcat']['instance_dir'] %>"
+CATALINA_PID="<%= node['tomcat']['instance_dir'] %>/tomcat.pid"
+STOP_TIMEOUT="<%= node['tomcat']['stop_time'] %>"
 SHUTDOWN_COMMAND="$SU $TOMCAT_USER $TOMCAT_BASE_DIR/bin/shutdown.sh"
 START_COMMAND="$SU $TOMCAT_USER $TOMCAT_BASE_DIR/bin/startup.sh"
 
