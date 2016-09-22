@@ -60,6 +60,7 @@ attribute 'security_certificate',
 attribute 'security_key',
           :description => 'Server Key',
           :data_type => 'text',
+          :encrypted => true,
           :default => '',
           :format => {
               :help => 'Enter the certificate key content (Note: usually this is the content of the *.key file).',

@@ -58,7 +58,7 @@ end
 include_recipe 'kubernetes::install'
 
 # generate kubernetes config files
-%w(apiserver config controller-manager scheduler).each do |file|
+%w(apiserver config controller-manager scheduler auth_policy token_auth_users basic_auth_users ).each do |file|
   template "/etc/kubernetes/#{file}" do
     cookbook 'kubernetes'
     source "#{file}.erb"
