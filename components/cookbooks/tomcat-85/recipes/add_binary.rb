@@ -61,7 +61,7 @@ end
 
 # create context root of repo path
 #tarball = "tomcat/tomcat-8/v#{node['tomcat']['global']['version']}/bin/apache-tomcat-#{node['tomcat']['global']['version']}.tar.gz"
-Chef::Log.debug("context root of repo path is: #{tarball}")
+Chef::Log.debug("context root of repo path is: #{node['tomcat']['tarball']}")
 
 # create parent dir (keep ownership as root) if doesnt exist
 Chef::Log.debug("making #{node['tomcat']['config_dir']} directory")
@@ -106,7 +106,7 @@ end
 =end
 #Ignore foodcritic(FC002) warning here.  We need the string interpolation magic to get the correct build version
 source_url="http://repos.walmart.com/mirrored-assets/apache.mirrors.pair.com"
-source_list="#{source_url}/#{tarball}"
+source_list="#{source_url}/#{node['tomcat']['tarball']}"
 shared_download_http source_list do
   path "#{node['tomcat']['download_destination']}"
   action :create

@@ -94,7 +94,7 @@ set['tomcat']['startup_shutdown']['max_number_of_retries_for_post_startup_check'
 # Tomcat variables not in metadata.rb
 ###############################################################################
 default['tomcat']['config_dir'] = '/opt/tomcat'
-default['tomcat']['instance_dir'] = "#{node['tomcat']['config_dir']}/apache-tomcat-#{node['tomcat']['tomcat_version_name']}"
+default['tomcat']['instance_dir'] = "#{node['tomcat']['config_dir']}/apache-tomcat-#{node['tomcat']['global']['version']}"
 default['tomcat']['tarball'] = "tomcat/tomcat-8/v#{node['tomcat']['global']['version']}/bin/apache-tomcat-#{node['tomcat']['global']['version']}.tar.gz"
 default['tomcat']['download_destination'] = "#{node['tomcat']['config_dir']}/apache-tomcat-#{node['tomcat']['global']['version']}.tar.gz"
 default['tomcat']['webapp_install_dir'] = "#{tomcat['instance_dir']}/webapps"
