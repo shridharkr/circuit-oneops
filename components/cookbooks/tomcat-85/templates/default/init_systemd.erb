@@ -7,16 +7,15 @@ After=syslog.target network.target
 [Service]
 Type=simple
 
-<% @env_vars.each do |h| -%>
-  <% h.each_pair do |k,v| -%>
-Environment="<%= k -%>=<%= v %>"
-  <% end -%>
-<% end -%>
-
-ExecStart=<%= @instance_dir %>/bin/catalina.sh run
-ExecStop=<%= @instance_dir %>/bin/catalina.sh stop
+ExecStartPre="<%= node['tomcat']['pre_startup_command'].gsub(/\r\n?/,"\n") %>"
+ExecStart=<%= @instance_dir %>/bin/startup.sh
+ExecStartPost="<%= node['tomcat']['post_startup_command'].gsub(/\r\n?/,"\n") %>"
+ExecStop="<%= node['tomcat']['pre_shutdown_command'].gsub(/\r\n?/,"\n") %>"
+ExecStop=<%= @instance_dir %>/bin/shutdown.sh
+ExecStopPost="<%= node['tomcat']['post_shutdown_command'].gsub(/\r\n?/,"\n") %>"
 Restart=on-failure
 RestartSec=2
+TimeoutSec=
 
 User=<%= @user %>
 Group=<%= @group %>

@@ -25,24 +25,16 @@
 #   The tomcat_user and tomcat_group variables will be grabbed from the user
 #     response in the metadata.rb file if different from the default values.
 ###############################################################################
+include_recipe 'tomcat-85::default'
+include_recipe 'tomcat-85::dump_attributes'
 
-
-
-if node['tomcat'].key?('tomcat_user') && !node['tomcat']['tomcat_user'].empty?
-  node.set['tomcat_user'] = node['tomcat']['tomcat_user']
-end
-
-if node['tomcat'].key?('tomcat_group') && !node['tomcat']['tomcat_group'].empty?
-  node.set['tomcat_group'] = node['tomcat']['tomcat_group']
-end
-
-group "#{node.tomcat_group}" do
+group "#{node['tomcat']['global']['tomcat_group']}" do
   action :create
 end
 
-user "#{node.tomcat_user}" do
-  home "/home/#{node.tomcat_user}"
-  group "#{node.tomcat_group}"
+user "#{node['tomcat']['global']['tomcat_user']}" do
+  home "/home/#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
   system true
   action :create
 end
@@ -64,23 +56,6 @@ end
 #       If HTTPS is enabled and the user manually disabled all TLS protocols
 #       from the UI, TLSv1.2 is enabled.
 ###############################################################################
-node.set['tomcat']['connector']['protocol'] = 'org.apache.coyote.http11.Http11Protocol'
-if node['tomcat'].key?('advanced_nio_connector_config')
-  if !node['tomcat']['advanced_nio_connector_config'].empty?
-    node.set['tomcat']['connector']['advanced_nio_connector_config'] = node.workorder.rfcCi.ciAttributes.advanced_nio_connector_config
-  else
-    node.set['tomcat']['connector']['advanced_nio_connector_config'] = '{"connectionTimeout":"20000","maxKeepAliveRequests":"100"}'
-  end
-else
-  node.set['tomcat']['connector']['advanced_nio_connector_config'] = '{"connectionTimeout":"20000","maxKeepAliveRequests":"100"}'
-end
-Chef::Log.info(" protocol  #{node['tomcat']['connector']['protocol']} - connector config #{node['tomcat']['connector']['advanced_connector_config']} ssl_configured : #{node['tomcat']['connector']['ssl_configured']}")
-
-tomcat_version_name = node.workorder.rfcCi.ciAttributes.version
-node.set['tomcat']['tomcat_version_name'] = tomcat_version_name
-Chef::Log.warn("tomcat_version_name = #{node['tomcat']['tomcat_version_name']} ")
-node.set['tomcat']['max_threads'] = node['tomcat']['max_threads']
-node.set['tomcat']['min_spare_threads'] = node['tomcat']['min_spare_threads']
 depends_on_keystore = node.workorder.payLoad.DependsOn.reject { |d| d['ciClassName'] !~ /Keystore/ }
 if !depends_on_keystore.nil? && !depends_on_keystore.empty?
   Chef::Log.info("This does depend on keystore with filename: #{depends_on_keystore[0]['ciAttributes']['keystore_filename']} ")
@@ -88,17 +63,17 @@ if !depends_on_keystore.nil? && !depends_on_keystore.empty?
   node.set['tomcat']['keystore_pass'] = depends_on_keystore[0]['ciAttributes']['keystore_password']
   Chef::Log.info("Stashed keystore_path = #{node['tomcat']['keystore_path']}")
 end
-if node['tomcat']['https_NIO_connector_enabled'].nil? || node['tomcat']['https_NIO_connector_enabled'] == 'false'
-  if node['tomcat']['http_NIO_connector_enabled'].nil? || node['tomcat']['http_NIO_connector_enabled'] == 'false'
+
+if node['tomcat']['server']['https_nio_connector_enabled'] == 'false' && node['tomcat']['server']['http_nio_connector_enabled'] == 'false'
     Chef::Log.warn('HTTP AND HTTPS ARE DISABLED. This may result in NO COMMUNICATION to the Tomcat instance.')
-  end
 end
-if !node['tomcat']['https_NIO_connector_enabled'].nil? || node['tomcat']['https_NIO_connector_enabled'] == 'true'
+
+if node['tomcat']['server']['https_nio_connector_enabled'] == 'true'
   node.set['tomcat']['connector']['ssl_configured_protocols'] = ''
-  if node['tomcat']['tlsv11_protocol_enabled'] == 'true'
+  if node['tomcat']['server']['tlsv11_protocol_enabled'] == 'true'
     node['tomcat']['connector']['ssl_configured_protocols'].concat('TLSv1.1,')
   end
-  if node['tomcat']['tlsv12_protocol_enabled'] == 'true'
+  if node['tomcat']['server']['tlsv12_protocol_enabled'] == 'true'
     node['tomcat']['connector']['ssl_configured_protocols'].concat('TLSv1.2,')
   end
   node['tomcat']['connector']['ssl_configured_protocols'].chomp!(',')
@@ -114,15 +89,15 @@ end
 #   when the server is restarted.
 ###############################################################################
 service 'tomcat' do
-  only_if { File.exist?('/etc/init.d/' + tomcat_version_name) }
-  service_name tomcat_version_name
+  only_if { File.exist?('/etc/init.d/' + node['tomcat']['global']['version']) }
+  service_name node['tomcat']['global']['version']
   supports restart: true, reload: true, status: true
 end
 
 depends_on = node.workorder.payLoad.DependsOn.reject{ |d| d['ciClassName'] !~ /Javaservicewrapper/ }
-if (!depends_on.nil? && !depends_on.empty? && File.exist?('/etc/init.d/' + tomcat_version_name))
+if (!depends_on.nil? && !depends_on.empty? && File.exist?('/etc/init.d/' + node['tomcat']['global']['version']))
   # Delete the tomcat init.d daemon
-  file '/etc/init.d/' + tomcat_version_name do
+  file '/etc/init.d/' + node['tomcat']['global']['version'] do
     action :delete
   end
 end
@@ -130,7 +105,7 @@ end
 ###############################################################################
 # Run Install Cookbook for Tomcat Binaries
 ###############################################################################
-include_recipe 'tomcat-85::add_repo'
+include_recipe 'tomcat-85::add_binary'
 ###############################################################################
 # Setup Log Rotation
 #   The logrotate.d script and these cron jobs will clean out Tomcat logs
@@ -138,14 +113,14 @@ include_recipe 'tomcat-85::add_repo'
 ###############################################################################
 template '/etc/logrotate.d/tomcat' do
   source 'logrotate.erb'
-  owner 'root'
-  group 'root'
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
   mode '0755'
 end
 
 cron 'logrotatecleanup' do
   minute '0'
-  command "ls -t1 #{node.tomcat.logfiles_path}/access_log*|tail -n +7|xargs rm -r"
+  command "ls -t1 #{node['tomcat']['logs']['logfiles_path']}/access_log*|tail -n +7|xargs rm -r"
   mailto '/dev/null'
   action :create
 end
@@ -160,15 +135,22 @@ end
 ###############################################################################
 # Setup for webapps Directory
 ###############################################################################
-%w(webapp_install_dir logfiles_path work_dir context_dir).each do |dir|
+%w(webapp_install_dir work_dir context_dir).each do |dir|
   dir_name = node['tomcat'][dir]
   directory dir_name do
     action :create
     recursive true
     not_if "test -d #{dir_name}"
   end
-  execute "chown -R #{node.tomcat_user}:#{node.tomcat_group} #{dir_name}"
+  execute "chown -R #{node['tomcat']['global']['tomcat_user']}:#{node['tomcat']['global']['tomcat_group']} #{dir_name}"
 end
+
+directory "#{node['tomcat']['logs']['logfiles_path']}" do
+  action :create
+  recursive true
+  not_if "test -d #{node['tomcat']['logs']['logfiles_path']}"
+end
+execute "chown -R #{node['tomcat']['global']['tomcat_user']}:#{node['tomcat']['global']['tomcat_group']} #{node['tomcat']['logs']['logfiles_path']}"
 
 ###############################################################################
 #   Create Config Files From Templates
@@ -182,22 +164,29 @@ end
 
 template "#{node['tomcat']['instance_dir']}/conf/server.xml" do
   source 'server.xml.erb'
-  owner 'root'
-  group 'root'
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  mode '0644'
+end
+
+template "#{node['tomcat']['instance_dir']}/conf/context.xml" do
+  source 'context.xml.erb'
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
   mode '0644'
 end
 
 template "#{node['tomcat']['instance_dir']}/conf/tomcat-users.xml" do
   source 'tomcat-users.xml.erb'
-  owner 'root'
-  group 'root'
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
   mode '0644'
 end
 
 directory "#{node['tomcat']['instance_dir']}/conf/policy.d" do
   action :create
-  owner 'root'
-  group 'root'
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
 end
 
 
@@ -251,6 +240,5 @@ end
 # Additional Recipes
 #   These recipes will be called after the rest of the add.rb file is run.
 ###############################################################################
-include_recipe 'tomcat-85::default'
 #include_recipe 'tomcat-85::start'
 #include_recipe 'tomcat-85::stop'

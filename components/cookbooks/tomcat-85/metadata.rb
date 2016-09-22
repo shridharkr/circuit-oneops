@@ -398,7 +398,7 @@ attribute 'stop_time',
 attribute 'pre_shutdown_command',
           :default => '',
           :description => 'Pre-Shutdown Command',
-          :data_type => 'text',
+#          :data_type => 'text',
           :format => {
               :help => 'Specify the command to be executed before catalina stop is invoked. (Ex: It can be used to post request (using curl), which can trigger an ecv failure(response code 503). This will allow the load balancer to take the instance out of traffic.)',
               :category => '7.Startup_Shutdown',
