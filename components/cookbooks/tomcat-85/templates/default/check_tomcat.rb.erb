@@ -7,7 +7,7 @@ require 'net/http'
 require 'rubygems'
 require 'xmlsimple'
 
-port = <%= node.tomcat.port %>
+port = <%= node['tomcat']['server']['port']  %>
 
 stats = XmlSimple.xml_in(`curl -s --user admin:admin "http://127.0.0.1:#{port}/manager/status?XML=true"`,{ 'KeyAttr' => 'name', 'ForceArray' => false })
 
@@ -15,7 +15,7 @@ arg = ARGV[0]
 perf = nil
 
 <%
-connector_name = "http-nio-#{node.tomcat.port}"
+connector_name = "http-nio-#{node['tomcat']['server']['port']}"
 %>
 
 if arg == "RequestInfo"

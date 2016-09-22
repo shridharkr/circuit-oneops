@@ -9,10 +9,10 @@
 # 	TOMCAT_USER			The user id that Tomcat will run as
 # 	Default 				tomcat
 ###############################################################################
-TOMCAT_USER=<%= node['tomcat']['tomcat_user'] %>
+TOMCAT_USER=<%= node['tomcat']['global']['tomcat_user'] %>
 
 ###############################################################################
 # 	TOMCAT_GROUP		The group id that Tomcat will run as
 # 	Default 				tomcat
 ###############################################################################
-TOMCAT_GROUP=<%= node['tomcat']['tomcat_group'] %>
+TOMCAT_GROUP=<%= node['tomcat']['global']['tomcat_group'] %>
