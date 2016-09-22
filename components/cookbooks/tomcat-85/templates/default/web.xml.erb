@@ -26,36 +26,36 @@
      vulnarability. If the user chooses to enable all methods from the UI, the
      xml block is omitted.
    -->
-<% if node['tomcat']['enable_method_put'] == 'false' || node['tomcat']['enable_method_put'] == 'false'
-  || node['tomcat']['enable_method_post'] == 'false' || node['tomcat']['enable_method_delete'] == 'false'
-  || node['tomcat']['enable_method_options'] == 'false' || node['tomcat']['enable_method_connect'] == 'false'
-  || node['tomcat']['enable_method_head'] == 'false' || node['tomcat']['enable_method_trace'] == 'false' %>
+<% if node['tomcat']['server']['enable_method_put'] == 'false' || node['tomcat']['server']['enable_method_put'] == 'false'
+  || node['tomcat']['server']['enable_method_post'] == 'false' || node['tomcat']['server']['enable_method_delete'] == 'false'
+  || node['tomcat']['server']['enable_method_options'] == 'false' || node['tomcat']['server']['enable_method_connect'] == 'false'
+  || node['tomcat']['server']['enable_method_head'] == 'false' || node['tomcat']['server']['enable_method_trace'] == 'false' %>
    <security-constraint>
           <web-resource-collection>
                   <web-resource-name>restricted methods</web-resource-name>
                   <url-pattern>/*</url-pattern>
-                  <% if node['tomcat']['enable_method_get'] == 'false' %>
+                  <% if node['tomcat']['server']['enable_method_get'] == 'false' %>
                   <http-method>GET</http-method>
                   <% end %>
-                  <% if node['tomcat']['enable_method_put'] == 'false' %>
+                  <% if node['tomcat']['server']['enable_method_put'] == 'false' %>
                   <http-method>PUT</http-method>
                   <% end %>
-                  <% if node['tomcat']['enable_method_post'] == 'false' %>
+                  <% if node['tomcat']['server']['enable_method_post'] == 'false' %>
                   <http-method>POST</http-method>
                   <% end %>
-                  <% if node['tomcat']['enable_method_delete'] == 'false' %>
+                  <% if node['tomcat']['server']['enable_method_delete'] == 'false' %>
                   <http-method>DELETE</http-method>
                   <% end %>
-                  <% if node['tomcat']['enable_method_connect'] == 'false' %>
+                  <% if node['tomcat']['server']['enable_method_connect'] == 'false' %>
                   <http-method>CONNECT</http-method>
                   <% end %>
-                  <% if node['tomcat']['enable_method_options'] == 'false' %>
+                  <% if node['tomcat']['server']['enable_method_options'] == 'false' %>
                   <http-method>OPTIONS</http-method>
                   <% end %>
-                  <% if node['tomcat']['enable_method_head'] == 'false' %>
+                  <% if node['tomcat']['server']['enable_method_head'] == 'false' %>
                   <http-method>HEAD</http-method>
                   <% end %>
-                  <% if node['tomcat']['enable_method_trace'] == 'false' %>
+                  <% if node['tomcat']['server']['enable_method_trace'] == 'false' %>
                   <http-method>TRACE</http-method>
                   <% end %>
           </web-resource-collection>

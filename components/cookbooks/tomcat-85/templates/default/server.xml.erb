@@ -1,3 +1,6 @@
+<% if node['tomcat']['server']['override_server_enabled'] == 'true' && !node['tomcat']['server']['server_tomcat'].empty?-%>
+<%= node['tomcat']['server']['server_tomcat'].gsub(/\r\n?/,"\n") %>
+<% else -%>
 <?xml version='1.0' encoding='utf-8'?>
 <!-- ssl port will enable conditionally -->
 <!--
@@ -21,7 +24,7 @@
      Documentation at /docs/config/server.html
  -->
 
-<Server port="<%= node["tomcat"]["server_port"] %>" shutdown="<%= (0...25).map { ('a'..'z').to_a[rand(26)] }.join %>">
+<Server port="<%= node['tomcat']['server']['port'] %>" shutdown="<%= (0...25).map { ('a'..'z').to_a[rand(26)] }.join %>">
   <!-- Security listener. Documentation at /docs/config/listeners.html
   <Listener className="org.apache.catalina.security.SecurityListener" />
   -->
@@ -66,15 +69,14 @@
          APR (HTTP/AJP) Connector: /docs/apr.html
          Define a non-SSL HTTP/1.1 Connector on port 8080 -->
 
-<% if node['tomcat']['http_NIO_connector_enabled'] != nil || node['tomcat']['http_NIO_connector_enabled']=='true' %>
+<% if node['tomcat']['server']['http_nio_connector_enabled'] == 'true' %>
     <!-- A "Connector" using the shared thread pool-->
-    <Connector executor="<%= node['tomcat']['executor']['executor_name'] %>"
-               port="<%= node['tomcat']['port'] %>"
+    <Connector port="<%= node['tomcat']['server']['port'] %>"
                protocol="org.apache.coyote.http11.Http11NioProtocol"
-               redirectPort="<%= node['tomcat']['ssl_port'] %>"
+               redirectPort="<%= node['tomcat']['server']['ssl_port'] %>"
                server="42"
-               allowTrace="<%= node['tomcat']['enable_method_trace'] %>"
-            <% JSON.parse(node['tomcat']['connector']['advanced_nio_connector_config']).each{ |k, v|%>
+               allowTrace="<%= node['tomcat']['server']['enable_method_trace'] %>"
+            <% JSON.parse(node['tomcat']['server']['advanced_nio_connector_config']).each{ |k, v|%>
              <%=k%>="<%=v%>"
               <% } %>
                />
@@ -83,7 +85,7 @@
  <% end %>
 
 <%
-if node['tomcat']['https_NIO_connector_enabled'] == nil || node['tomcat']['https_NIO_connector_enabled']=='true'
+if node['tomcat']['server']['https_nio_connector_enabled'] == 'true'
 %>
 <!-- Define a SSL HTTP/1.1 Connector on port 8443
      This connector uses the JSSE configuration, when using APR, the
@@ -92,16 +94,16 @@ if node['tomcat']['https_NIO_connector_enabled'] == nil || node['tomcat']['https
 <!-- opted in to ssl activation w/ keystore -->
     <Connector port="<%= node['tomcat']['ssl_port'] %>"
                protocol="org.apache.coyote.http11.Http11NioProtocol" SSLEnabled="true"
-               maxThreads="<%= node['tomcat']['max_threads'] %>"
+               maxThreads="<%= node['tomcat']['server']['max_threads'] %>"
                server="42"
-               allowTrace="<%= node['tomcat']['enable_method_trace'] %>"
+               allowTrace="<%= node['tomcat']['server']['enable_method_trace'] %>"
                keystoreFile="<%= node['tomcat']['keystore_path'] %>"
                keystorePass="<%= node['tomcat']['keystore_pass'] %>"
                scheme="https" secure="true"
                clientAuth="false"  sslProtocol="TLS"
-               sslEnabledProtocols="TLSv1.2,TLSv1.1"
+               sslEnabledProtocols="<%= node['tomcat']['connector']['ssl_configured_protocols'] %>"
                ciphers="<%=node['tomcat']['ssl_configured_ciphers'] %>"
-               <% JSON.parse(node['tomcat']['connector']['advanced_nio_connector_config']).each{ |k, v|%>
+               <% JSON.parse(node['tomcat']['server']['advanced_nio_connector_config']).each{ |k, v|%>
                 <%=k%>="<%=v%>"
                  <% } %>
                   />
@@ -113,9 +115,9 @@ else
 end
 %>
 
-        <!-- Define an AJP 1.3 Connector on port 8009 -->
+    <!-- Define an AJP 1.3 Connector on port 8009
     <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
-
+    -->
     <!-- An Engine represents the entry point (within Catalina) that processes
          every request.  The Engine implementation for Tomcat stand alone
          analyzes the HTTP headers included with the request, and passes them
@@ -144,20 +146,9 @@ end
         <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
                resourceName="UserDatabase" digest="sha-256"/>
       </Realm>
-      <%
-      if node["tomcat"].key?("autodeploy_enabled")  && !node["tomcat"]["autodeploy_enabled"].empty?
-      %>
-      <Host name="localhost"  appBase="webapps"
-      unpackWARs="true" autoDeploy="<%=node["tomcat"]["autodeploy_enabled"]%>" >
-      <%
-      else
-      %>
-      <Host name="localhost"  appBase="webapps"
-            unpackWARs="true" autoDeploy="false" >
-      <%
-      end
-      %>
 
+      <Host name="localhost"  appBase="webapps"
+      unpackWARs="true" autoDeploy="<%=node['tomcat']['server']['autodeploy_enabled']%>" >
 
         <!-- SingleSignOn valve, share authentication between web applications
              Documentation at: /docs/config/valve.html -->
@@ -171,10 +162,10 @@ end
 
 			<Valve
 			    className="org.apache.catalina.valves.AccessLogValve"
-			    directory="<%= node['tomcat']['logfiles_path'] %>"
+			    directory="<%= node['tomcat']['logs']['logfiles_path'] %>"
 			    prefix="localhost_access_log."
 			    suffix=".log"
-			    pattern="<%= node['tomcat']['access_log_pattern'] %>"
+			    pattern="<%= node['tomcat']['logs']['access_log_pattern'] %>"
 			   />
 
       <Valve className="org.apache.catalina.valves.ErrorReportValve" showReport="false" showServerInfo="false" />
@@ -183,3 +174,5 @@ end
     </Engine>
   </Service>
 </Server>
+
+<% end -%>

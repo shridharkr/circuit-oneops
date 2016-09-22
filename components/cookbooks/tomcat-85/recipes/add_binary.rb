@@ -25,15 +25,16 @@
 #   In the '#{node.tomcat.base}/#{dir}' directory, each of these objects is
 #     created recursively.
 ###############################################################################
+=begin
 %w(run source software build).each do |dir|
-  Chef::Log.warn("creating #{node.tomcat.base}/#{dir}")
-  directory "#{node.tomcat.base}/#{dir}" do
+  Chef::Log.warn("creating #{node['tomcat']['global']['tomcat_install_dir']}/#{dir}")
+  directory "#{node['tomcat']['global']['tomcat_install_dir']}/#{dir}" do
     mode 0775
     action :create
     recursive true
   end
 end
-
+=end
 ###############################################################################
 # Tomcat Download
 #   This installed the Tomcat binaries from the repo specified in the cloud's
@@ -54,30 +55,30 @@ if platform_family?('rhel')
 end
 
 package "tomcat-8" do
-  version "v#{node['tomcat']['tomcat_version_name']}"
+  version "v#{node['tomcat']['global']['version']}"
 end
 =end
 
 # create context root of repo path
-tarball = "tomcat/tomcat-8/v#{node['tomcat']['tomcat_version_name']}/bin/apache-tomcat-#{node['tomcat']['tomcat_version_name']}.tar.gz"
-Chef::Log.warn("context root of repo path is: #{tarball}")
+#tarball = "tomcat/tomcat-8/v#{node['tomcat']['global']['version']}/bin/apache-tomcat-#{node['tomcat']['global']['version']}.tar.gz"
+Chef::Log.debug("context root of repo path is: #{tarball}")
 
 # create parent dir (keep ownership as root) if doesnt exist
-Chef::Log.warn("making #{node['tomcat']['config_dir']} directory")
+Chef::Log.debug("making #{node['tomcat']['config_dir']} directory")
 directory node['tomcat']['config_dir'] do
   action :create
   not_if "test -d #{node['tomcat']['config_dir']}"
 end
-dest_file = "#{node['tomcat']['config_dir']}/apache-tomcat-#{node['tomcat']['tomcat_version_name']}.tar.gz"
+#dest_file = "#{node['tomcat']['config_dir']}/apache-tomcat-#{node['tomcat']['global']['version']}.tar.gz"
 
 #source_list = JSON.parse(node.tomcat.mirrors).map! { |mirror| "#{mirror}/#{tarball}" }
 
 ##Get apache mirror configured for the cloud, if no mirror is defined for component.
 #if source_list.empty?
-  cloud_name = node[:workorder][:cloud][:ciName]
-  services = node[:workorder][:cloud][:services]
-  Chef::Log.error("Cloud name: #{cloud_name}")
-  Chef::Log.error("Services in #{cloud_name}: #{services}")
+#  cloud_name = node[:workorder][:cloud][:ciName]
+#  services = node[:workorder][:cloud][:services]
+#  Chef::Log.error("Cloud name: #{cloud_name}")
+#  Chef::Log.error("Services in #{cloud_name}: #{services}")
 
 =begin
   services.each do |service|
@@ -107,25 +108,20 @@ dest_file = "#{node['tomcat']['config_dir']}/apache-tomcat-#{node['tomcat']['tom
 source_url="http://repos.walmart.com/mirrored-assets/apache.mirrors.pair.com"
 source_list="#{source_url}/#{tarball}"
 shared_download_http source_list do
-  path dest_file
+  path "#{node['tomcat']['download_destination']}"
   action :create
   #checksum build_version_checksum["#{build_version}"]   # ~FC002
 end
 
-Chef::Log.error("Download complete. Beginning un-TAR.")
-
-tar_flags = "--exclude webapps/ROOT"
-execute "tar #{tar_flags} -zxf #{dest_file}" do
+#tar_flags = "--exclude webapps/ROOT"
+execute "tar --exclude webapps/ROOT -zxf #{node['tomcat']['download_destination']}" do
   cwd node['tomcat']['config_dir']
 end
 
-execute "chown -R #{node.tomcat_user}:#{node.tomcat_group} #{node['tomcat']['instance_dir']}"
+execute "chown -R #{node['tomcat']['global']['tomcat_user']}:#{node['tomcat']['global']['tomcat_group']} #{node['tomcat']['instance_dir']}"
+execute "rm -fr #{node['tomcat']['download_destination']}"
+
 =begin
-execute "rm -fr tomcat#{major_version}" do
-  cwd node['tomcat']['config_dir']
-end
-
-
 link "#{node.tomcat.tomcat_install_dir}/tomcat#{major_version}" do
   to "#{node.tomcat.tomcat_install_dir}/apache-tomcat-#{full_version}"
 end

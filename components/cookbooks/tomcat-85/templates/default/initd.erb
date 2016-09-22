@@ -67,7 +67,7 @@ LOG_FILES_PATH="/opt/tomcat/logs"
 
 TOMCAT_SERVICE_NAME="tomcat"
 SU="sudo -u"
-TOMCAT_USER="<%= node.tomcat_user %>"
+TOMCAT_USER="<%= node['tomcat']['global']['tomcat_user'] %>"
 TOMCAT_BASE_DIR="<%= node['tomcat']['config_dir'] %>"
 CATALINA_PID="<%= node['tomcat']['config_dir'] %>/tomcat.pid"
 STOP_TIMEOUT="<%= node[:tomcat][:stop_time] %>"
