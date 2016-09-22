@@ -28,6 +28,22 @@ attribute 'device',
     :order => 2
   }
 
+attribute 'mode',
+  :description => "Mode",
+  :required => "optional",
+  :default => "no-raid",
+  :format => {
+    :help => 'Select this option to enable external raid functionality',
+    :category => '1.Global',
+    :form => { 'field' => 'select', 'options_for_select' => [
+      ["RAID0", "raid0"],
+      ["RAID1", "raid1"],
+      ["RAID5", "raid5"],
+      ["RAID10", "raid10"],
+      ["NO-RAID", "no-raid"]] },
+    :order => 3
+  }
+
 attribute 'fstype',
   :description => "Filesystem Type",
   :default => 'ext3',
@@ -40,7 +56,7 @@ attribute 'fstype',
   }
 
 attribute 'mount_point',
-  :description => "Mount Point",
+  :description => "Mount Point. (For Windows specify the the drive letter)",
   :required => 'required',
   :default => '/volume',
   :format => {

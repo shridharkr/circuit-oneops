@@ -21,7 +21,7 @@ grouping 'service',
 # attrs for cloud service
 attribute 'endpoint',
   :grouping => 'service',
-  :description => "endpoint",
+  :description => "Endpoint",
   :required => "required",
   :format => {
     :important => true,
@@ -32,7 +32,7 @@ attribute 'endpoint',
 
 attribute 'namespace',
   :grouping => 'service',
-  :description => "namespace",
+  :description => "Namespace",
   :default => "default",
   :required => "required",
   :format => {
@@ -44,7 +44,7 @@ attribute 'namespace',
 
 attribute 'username',
   :grouping => 'service',
-  :description => "username",
+  :description => "Username",
   :required => "required",
   :format => {
     :important => true,
@@ -55,16 +55,35 @@ attribute 'username',
 
 attribute 'password',
   :grouping => 'service',
-  :description => "password",
+  :description => "Password",
   :encrypted => true, 
-  :required => "required",
   :format => {
     :help => 'Password',
     :category => '1.General',
     :order => 4
   }      
-        
-        
+
+attribute 'key',
+  :grouping => 'service',
+  :description => "Client Key",
+  :encrypted => true, 
+  :format => {
+    :help => 'Value passed to kubectl set-credentials --client-key',
+    :category => '1.General',
+    :order => 5
+  }    
+  
+  attribute 'cert',
+  :grouping => 'service',
+  :description => "Client Certificate",
+  :encrypted => false, 
+  :format => {
+    :help => 'Value passed to kubectl set-credentials --client-certificate',
+    :category => '1.General',
+    :order => 6
+  }
+  
+          
 # attrs for cluster
 attribute 'version',
   :grouping => 'cluster',
@@ -92,7 +111,7 @@ attribute 'network',
 
 attribute 'api_port',
   :grouping => 'cluster',
-  :description => "api port",
+  :description => "Insecure API port",
   :default => "8080",
   :required => "required",
   :format => {
@@ -102,6 +121,18 @@ attribute 'api_port',
     :order => 3
   }
 
+attribute 'api_port_secure',
+  :grouping => 'cluster',
+  :description => "Secure API port",
+  :default => "6443",
+  :required => "required",
+  :format => {
+    :important => true,
+    :help => 'API Port',
+    :category => '1.Master',
+    :order => 3
+  }  
+  
 attribute 'log_level',
   :grouping => 'cluster',
   :description => "log_level",
@@ -150,7 +181,19 @@ attribute 'scheduler_args',
     :category => '1.Master',
     :order => 7
   }
-    
+
+attribute 'api_args',
+  :grouping => 'cluster',
+  :description => "API Args",
+  :data_type => "hash",
+  :default => '{}',
+  :required => "required",
+  :format => {
+    :help => 'API Args',
+    :category => '1.Master',
+    :order => 8
+  }    
+
 attribute 'cluster_cloud_map',
   :grouping => 'cluster',
   :description => "Map of Clouds to Clusters",
@@ -160,8 +203,118 @@ attribute 'cluster_cloud_map',
   :format => {
     :help => 'Map of Clouds to Clusters',
     :category => '1.Master',
-    :order => 8
+    :order => 10
   }
+    
+  
+attribute 'security_enabled',
+  :description => 'Enable SSL/TLS',
+  :default => 'false',
+  :format => {
+      :help => 'Enable SSL/TLS',
+      :category => '2.Authentication',
+      :form => {:field => 'checkbox'},
+      :order => 1
+  }
+
+attribute 'etcd_security_enabled',
+  :description => 'Enable SSL/TLS to etcd',
+  :default => 'false',
+  :format => {
+      :help => 'Enable SSL/TLS',
+      :category => '2.Authentication',
+      :form => {:field => 'checkbox'},
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},      
+      :order => 2
+  }  
+  
+attribute 'security_certificate',
+  :description => 'Server Certificate',
+  :data_type => 'text',
+  :default => '',
+  :format => {
+      :help => 'Enter the certificate content to be used (Note: usually this is the content of the *.crt file).',
+      :category => '2.Authentication',
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
+      :order => 3
+  }
+
+attribute 'security_key',
+  :description => 'Server Key',
+  :encrypted => true,
+  :data_type => 'text',
+  :default => '',
+  :format => {
+      :help => 'Enter the certificate key content (Note: usually this is the content of the *.key file).',
+      :category => '2.Authentication',
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
+      :order => 4
+  }
+
+attribute 'security_ca_certificate',
+  :description => 'CA Certificate',
+  :data_type => 'text',
+  :default => '',
+  :format => {
+      :help => 'Enter the CA certificate keys to be used to be used to trust certs signed only by this CA.',
+      :category => '2.Authentication',
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
+      :order => 5
+  }
+
+attribute 'security_path',
+  :description => 'Directory Path',
+  :default => '/etc/kubernetes/ssl',
+  :format => {
+      :help => 'Directory path where the security files should be saved',
+      :category => '2.Authentication',
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
+      :order => 6
+  }
+
+attribute 'basic_auth_users',
+  :description => 'Basic Auth Users',
+  :data_type => 'text',
+  :encrypted => true, 
+  :default => '',  
+  :format => {
+      :help => 'Kubernetes (basic) auth user file content. format: password,user,uid',
+      :category => '2.Authentication',
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
+      :order => 7
+  }
+
+attribute 'token_auth_users',
+  :description => 'Token Auth Users',
+  :data_type => 'text',
+  :encrypted => true, 
+  :default => '',  
+  :format => {
+      :help => 'Kubernetes (token) auth user file content. format: token,user,uid,"group1,group2,group3"',
+      :category => '2.Authentication',
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
+      :order => 8
+  }
+      
+attribute 'auth_policy',
+  :description => 'Auth Policy',
+  :data_type => 'text',
+  :default => '{"user":"admin"}
+{"user":"kubecfg"}
+{"user":"kubelet"}
+{"user":"kube_proxy"}
+{"user":"system:scheduler"}
+{"user":"system:controller_manager"}
+{"user":"system:logging"}
+{"user":"system:monitoring"}
+{"user":"system:serviceaccount:kube-system:default"}',
+  :format => {
+      :help => 'Kubernetes auth file content.',
+      :category => '2.Authentication',
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
+      :order => 9
+  }
+        
     
 attribute 'kubelet_port',
   :grouping => 'cluster',
@@ -178,12 +331,12 @@ attribute 'kubelet_args',
   :grouping => 'cluster',
   :description => "kubelet args",
   :data_type => "hash",
-  :default => '{"cluster_dns":"172.16.48.1",
+  :default => '{"cluster_dns":"172.16.63.254",
                 "cluster_domain":"cluster.local",
                 "pod-infra-container-image":"gcr.io/google_containers/pause:2.0"}',
   :required => "required",
   :format => {
-    :help => 'Minon Args',
+    :help => 'Kubelet Args',
     :category => '1.Worker',
     :order => 1
   }  

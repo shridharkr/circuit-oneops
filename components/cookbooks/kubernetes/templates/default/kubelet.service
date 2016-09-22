@@ -1,0 +1,21 @@
+[Unit]
+Description=Kubernetes Kubelet Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=docker.socket cadvisor.service
+Requires=docker.socket
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/config
+EnvironmentFile=-/etc/kubernetes/kubelet
+# moving args to be inside here. for some reason kubelet + systemd doesnt work with args from the env var
+ExecStart=/usr/bin/kubelet <%= node['kube']['kubelet']['args'].strip %> \
+	    ${KUBELET_API_SERVERS} \
+	    ${KUBELET_ADDRESS} \
+	    ${KUBELET_PORT} \
+	    ${KUBE_ALLOW_PRIV} \
+	    ${KUBE_AUTH_ARGS} \
+	    ${KUBE_LOG_LEVEL}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -118,7 +118,7 @@ end
 # Enable & Start docker engine.
 service docker_svc do
   supports :status => true, :restart => true
-  action [:enable, :start]
+  action [:enable, :restart]
 end
 
 ruby_block 'verify-docker' do

@@ -39,7 +39,7 @@ def get_probes_from_wo
   ecvs_raw = JSON.parse(ci[:ciAttributes][:ecv_map])
   if ecvs_raw && listeners
     if ecvs_raw.length != listeners.count
-      raise("LB Listeners and ECVs are not the same length. Bad LB configuration!")
+      OOLog.fatal("LB Listeners and ECVs are not the same length. Bad LB configuration!")
     end
 
     index = 0
@@ -257,6 +257,41 @@ def get_nic_name(raw_nic_id)
   return nic_name
 end
 
+def get_subnet_with_available_ips(subnets, express_route_enabled)
+
+  subnets.each do |subnet|
+    Chef::Log.info('checking for ip availability in ' + subnet.name)
+    address_prefix = subnet.properties.address_prefix
+
+    if express_route_enabled == true
+      total_num_of_ips_possible = (2 ** (32 - (address_prefix.split('/').last.to_i)))-5 #Broadcast(1)+Gateway(1)+azure express routes(3) = 5
+    else
+      total_num_of_ips_possible = (2 ** (32 - (address_prefix.split('/').last.to_i)))-2 #Broadcast(1)+Gateway(1)
+    end
+    Chef::Log.info("Total number of ips possible is: #{total_num_of_ips_possible.to_s}")
+
+    if subnet.properties.ip_configurations.nil?
+      no_ips_inuse = 0
+    else
+      no_ips_inuse = subnet.properties.ip_configurations.length
+    end
+    Chef::Log.info("Num of ips in use: #{no_ips_inuse.to_s}")
+
+    remaining_ips = total_num_of_ips_possible - (no_ips_inuse)
+    if remaining_ips == 0
+      Chef::Log.info("No IP address remaining in the Subnet '#{subnet.name}'")
+      Chef::Log.info("Total number of subnets(subnet_name_list.count) = #{(subnets.count).to_s}")
+      Chef::Log.info('checking the next subnet')
+      next #check the next subnet
+    else
+      return subnet
+    end
+  end
+
+  Chef::Log.error('***FAULT:FATAL=- No IP address available in any of the Subnets allocated. limit exceeded')
+  exit 1
+end
+
 # ==============================================================
 #Variables
 
@@ -328,8 +363,8 @@ if xpress_route_enabled
     OOLog.fatal("VNET '#{vnet_name}' does not have subnets")
   end
 
-  #NOTE: for simplicity, we are going to grab the first subnet. This might change
-  subnet = vnet.body.properties.subnets[0]
+  subnets = vnet.body.properties.subnets
+  subnet = get_subnet_with_available_ips(subnets, xpress_route_enabled)
 
 else
   # Public IP Config

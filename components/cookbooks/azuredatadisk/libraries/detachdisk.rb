@@ -26,13 +26,6 @@ module AzureStorage
       container = "vhds"
       # Delete a Blob
       begin
-        if lock_state == 1
-          lease_time_left = service.break_lease(container, blobname)
-          OOLog.info("Waiting for the lease time on #{blobname} to expire")
-          if lease_time_left < 10
-            sleep lease_time_left+10
-          end
-        end
         delete_result = "success"
         retry_count = 20
         begin
@@ -46,8 +39,7 @@ module AzureStorage
           OOLog.debug("Error in deleting the data disk (page blob):#{blobname}")
         end
       rescue Exception => e
-        OOLog.debug(e.message.inspect)
-        OOLog.debug(e.message)
+        OOLog.fatal("Failed to delete the disk: #{e.inspect}")
       end
       OOLog.info("Successfully deleted the Datadisk(page blob):#{blobname}")
     end

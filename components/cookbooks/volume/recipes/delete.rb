@@ -17,6 +17,11 @@
 # unmounts, removes: raid, lv vg and detaches blockstorage
 #
 
+if node.platform =~ /windows/
+  include_recipe "volume::windows_vol_delete"
+  return
+end
+
 has_mounted = false
 
 rfcAttrs = node.workorder.rfcCi.ciAttributes
