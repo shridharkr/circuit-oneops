@@ -50,30 +50,23 @@ CATALINA_PID=<%= node['tomcat']['home'] %>/tomcat.pid
 #                   "debug" command is executed. (ex: heap size and GC logging)
 #   Default         -Djava.awt.headless=true
 ###############################################################################
-CATALINA_OPTS="<%= node['tomcat']['java_options'] %>"
+CATALINA_OPTS="<%= node['tomcat']['java']['java_options'] %>"
 
-<% if node['tomcat']['system_properties'] != nil &&
-   JSON.parse(node['tomcat']['system_properties']).keys.size > 0
+CATALINA_OPTS="${CATALINA_OPTS} <%= JSON.parse(node['tomcat']['java']['system_properties']).each{ |k,v| "-D#{k}=#{v} " }  %>"
+
+<% if node['tomcat']['java']['mem_max'] != nil && !node['tomcat']['java']['mem_max'].empty?
 %>
-<% opts = JSON.parse(node['tomcat']['system_properties']).map{ |k,v| "-D#{k}=#{v} " } %>
-
-CATALINA_OPTS="${CATALINA_OPTS} <%= opts %>"
-
+CATALINA_OPTS="${CATALINA_OPTS} -Xmx<%= node['tomcat']['java']['mem_max'] %>"
 <% end %>
 
-<% if node['tomcat']['mem_max'] != nil && !node['tomcat']['mem_max'].empty?
+<% if node['tomcat']['java']['mem_start'] != nil && !node['tomcat']['java']['mem_start'].empty?
 %>
-CATALINA_OPTS="${CATALINA_OPTS} -Xmx<%= node['tomcat']['mem_max'] %>"
-<% end %>
-
-<% if node['tomcat']['mem_start'] != nil && !node['tomcat']['mem_start'].empty?
-%>
-CATALINA_OPTS="${CATALINA_OPTS} -Xms<%= node['tomcat']['mem_start'] %>"
+CATALINA_OPTS="${CATALINA_OPTS} -Xms<%= node['tomcat']['java']['mem_start'] %>"
 <% end %>
 
 CATALINA_OPTS="${CATALINA_OPTS} -d64 "
 
-<% opts = JSON.parse(node['tomcat']['startup_params']).map{ |v| "-XX:#{v} " } %>
+<% opts = JSON.parse(node['tomcat']['java']['startup_params']).map{ |v| "-XX:#{v} " } %>
 CATALINA_OPTS="${CATALINA_OPTS} <%= opts %>"
 
 ###############################################################################
@@ -81,17 +74,17 @@ CATALINA_OPTS="${CATALINA_OPTS} <%= opts %>"
 #                   redirected.
 #   Default         $CATALINA_BASE/logs/catalina.out
 ###############################################################################
-CATALINA_OUT="<%= node['tomcat']['logfiles_path'] %>/catalina.out"
+CATALINA_OUT="<%= node['tomcat']['logs']['logfiles_path'] %>/catalina.out"
 
 ###############################################################################
 # 	JAVA_OPTS				JVM start parameters for Java.
 # 	Default 				-Djava.awt.headless=true
 #                   -Djavax.net.ssl.trustStore="/opt/tomcat/ssl/trust.jks"
 ###############################################################################
-JAVA_OPTS="<%= node['tomcat']["java_options"] %>"
-JAVA_OPTS="${JAVA_OPTS} <%= node['tomcat']["system_properties"].map{ |k,v| "-D#{k}=#{v} " } %>"
-JAVA_OPTS="${JAVA_OPTS} -Xmx<%= node['tomcat']["mem_max"] %> -Xms<%= node['tomcat']["mem_start"] %>"
-JAVA_OPTS="${JAVA_OPTS} <%= node['tomcat']["startup_params"].map{ |v| "-XX:#{v} " } %>"
+JAVA_OPTS="<%= node['tomcat']['java']['java_options'] %>"
+JAVA_OPTS="${JAVA_OPTS} <%= node['tomcat']['java']['system_properties'].map{ |k,v| "-D#{k}=#{v} " } %>"
+JAVA_OPTS="${JAVA_OPTS} -Xmx<%= node['tomcat']['java']['mem_max'] %> -Xms<%= node['tomcat']['java']['mem_start'] %>"
+JAVA_OPTS="${JAVA_OPTS} <%= node['tomcat']['java']['startup_params'].map{ |v| "-XX:#{v} " } %>"
 
 ###############################################################################
 # 	JVM_TMP				  Location of the JVM temporary directory. WARNING: This
@@ -105,9 +98,9 @@ JVM_TMP=<%= node['tomcat']["tmp_dir"] %>
 #     Any variables set in the node['tomcat']['environment_settings'] option
 #     will be exported to the system for use.
 ###############################################################################
-<% if !node['tomcat']['environment_settings'].nil? && JSON.parse(node['tomcat']['environment_settings']).keys.size > 0
+<% if !node['tomcat']['global']['environment_settings'].nil? && JSON.parse(node['tomcat']['global']['environment_settings']).keys.size > 0
 %>
-<% JSON.parse(node['tomcat']['environment_settings']).each{ |k, v|%>
+<% JSON.parse(node['tomcat']['global']['environment_settings']).each{ |k, v|%>
 export <%=k%>="<%=v%>"
 <% } %>
 <% end %>

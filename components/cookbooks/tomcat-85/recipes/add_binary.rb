@@ -30,31 +30,38 @@
 #     Package will install on fedora|redhat|centos and on other OSs once lock
 #       is gone.
 ###############################################################################
+
 # create context root of repo path
-tarball = "tomcat/tomcat-8/v#{node['tomcat']['tomcat_version_name']}/bin/apache-tomcat-#{node['tomcat']['tomcat_version_name']}.tar.gz"
-Chef::Log.warn("context root of repo path is: #{tarball}")
+#tarball = "tomcat/tomcat-8/v#{node['tomcat']['global']['version']}/bin/apache-tomcat-#{node['tomcat']['global']['version']}.tar.gz"
+Chef::Log.debug("context root of repo path is: #{node['tomcat']['tarball']}")
 
 # create parent dir (keep ownership as root) if doesnt exist
-Chef::Log.warn("making #{node['tomcat']['config_dir']} directory")
+Chef::Log.debug("making #{node['tomcat']['config_dir']} directory")
 directory node['tomcat']['config_dir'] do
   action :create
   not_if "test -d #{node['tomcat']['config_dir']}"
 end
-dest_file = "#{node['tomcat']['config_dir']}/apache-tomcat-#{node['tomcat']['tomcat_version_name']}.tar.gz"
 
 source_url="http://repos.walmart.com/mirrored-assets/apache.mirrors.pair.com"
-source_list="#{source_url}/#{tarball}"
+source_list="#{source_url}/#{node['tomcat']['tarball']}"
 shared_download_http source_list do
-  path dest_file
+  path "#{node['tomcat']['download_destination']}"
   action :create
 end
 
-tar_flags = "--exclude webapps/ROOT"
-execute "tar #{tar_flags} -zxf #{dest_file}" do
+#tar_flags = "--exclude webapps/ROOT"
+execute "tar --exclude webapps/ROOT -zxf #{node['tomcat']['download_destination']}" do
   cwd node['tomcat']['config_dir']
 end
 
-execute "chown -R #{node.tomcat_user}:#{node.tomcat_group} #{node['tomcat']['instance_dir']}"
+execute "chown -R #{node['tomcat']['global']['tomcat_user']}:#{node['tomcat']['global']['tomcat_group']} #{node['tomcat']['instance_dir']}"
+execute "rm -fr #{node['tomcat']['download_destination']}"
+
+=begin
+link "#{node.tomcat.tomcat_install_dir}/tomcat#{major_version}" do
+  to "#{node.tomcat.tomcat_install_dir}/apache-tomcat-#{full_version}"
+end
+=end
 ###############################################################################
 # End of add_repo.rb
 ###############################################################################

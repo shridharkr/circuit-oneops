@@ -1,5 +1,5 @@
-<% if node['tomcat']['override_context_enabled'] == 'true' -%>
-<%= node['tomcat']['context_tomcat'].gsub(/\r\n?/,"\n") %>
+<% if node['tomcat']['context']['override_context_enabled'] == 'true' && !node['tomcat']['context']['context_tomcat'].empty?-%>
+<%= node['tomcat']['context']['context_tomcat'].gsub(/\r\n?/,"\n") %>
 <% else -%>
 <?xml version='1.0' encoding='utf-8'?>
    <!-- The contents of this file will be loaded for each web application -->

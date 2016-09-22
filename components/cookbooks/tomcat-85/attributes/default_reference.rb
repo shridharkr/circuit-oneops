@@ -72,9 +72,6 @@ set['tomcat']['java']['mem_start'] = node.workorder.rfcCi.ciAttributes.mem_start
 # Logs Variables from metadata.rb
 ###############################################################################
 set['tomcat']['logs']['logfiles_path'] = node.workorder.rfcCi.ciAttributes.logfiles_path
-if !node['tomcat']['logs']['logfiles_path'].match('^/')
-  set['tomcat']['logs']['logfiles_path'] = "/#{node['tomcat']['logs']['logfiles_path']}"
-end
 set['tomcat']['logs']['access_log_pattern'] = node.workorder.rfcCi.ciAttributes.access_log_pattern
 
 ###############################################################################
@@ -88,41 +85,3 @@ set['tomcat']['startup_shutdown']['pre_startup_command'] = node.workorder.rfcCi.
 set['tomcat']['startup_shutdown']['post_startup_command'] = node.workorder.rfcCi.ciAttributes.post_startup_command
 set['tomcat']['startup_shutdown']['polling_frequency_post_startup_check'] = node.workorder.rfcCi.ciAttributes.polling_frequency_post_startup_check
 set['tomcat']['startup_shutdown']['max_number_of_retries_for_post_startup_check'] = node.workorder.rfcCi.ciAttributes.max_number_of_retries_for_post_startup_check
-
-
-###############################################################################
-# Tomcat variables not in metadata.rb
-###############################################################################
-default['tomcat']['config_dir'] = '/opt/tomcat'
-default['tomcat']['instance_dir'] = "#{node['tomcat']['config_dir']}/apache-tomcat-#{node['tomcat']['global']['version']}"
-default['tomcat']['tarball'] = "tomcat/tomcat-8/v#{node['tomcat']['global']['version']}/bin/apache-tomcat-#{node['tomcat']['global']['version']}.tar.gz"
-default['tomcat']['download_destination'] = "#{node['tomcat']['config_dir']}/apache-tomcat-#{node['tomcat']['global']['version']}.tar.gz"
-default['tomcat']['webapp_install_dir'] = "#{tomcat['instance_dir']}/webapps"
-default['tomcat']['tmp_dir'] = "#{tomcat['config_dir']}/temp"
-default['tomcat']['work_dir'] = "#{tomcat['config_dir']}/work"
-default['tomcat']['context_dir'] = "#{tomcat['config_dir']}/Catalina/localhost"
-default['tomcat']['keystore_path'] = "#{tomcat['instance_dir']}/ssl/keystore.jks"
-default['tomcat']['keystore_pass'] = "changeit"
-default['tomcat']['server_port'] = 8005
-default['tomcat']['use_security_manager'] = false
-default['tomcat']['ssl_configured_ciphers'] = 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,TLS_DHE_RSA_WITH_AES_256_CBC_SHA,TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_RSA_WITH_CAMELLIA_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_CAMELLIA_128_CBC_SHA,TLS_DHE_RSA_WITH_SEED_CBC_SHA,TLS_RSA_WITH_SEED_CBC_SHA'
-default['java']['java_home'] = '/usr'
-default['tomcat']['home'] = '/usr/share/tomcat'
-default['tomcat']['base'] = '/usr/share/tomcat'
-
-#default['tomcat']['version'] = '8.5.2'
-#default['tomcat']['port'] = 8080
-#default['tomcat']['ssl_port'] = 8443
-#default['tomcat']['java_options'] = '-Djava.awt.headless=true -Djavax.net.ssl.trustStore="/opt/tomcat/ssl/trust.jks"'
-#default['tomcat']['stop_time'] = 45
-#default['tomcat']['max_threads'] = 50
-#default['tomcat']['min_spare_threads'] = 25
-#default['tomcat']['logfiles_path'] = "#{tomcat['config_dir']}/logs"
-#set['tomcat']['config_dir'] = '/opt/tomcat'
-#if !node['tomcat']['logfiles_path'].match('^/')
-#  node.set['tomcat']['logfiles_path'] = "/node['tomcat']['logfiles_path']"
-#end
-
-###############################################################################
-# End of default.rb
-###############################################################################
