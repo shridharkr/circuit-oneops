@@ -29,11 +29,24 @@ node.set['kube']['kubelet']['api_servers'] = api_servers
 node.set['kube']['kubelet']['machines'] = node_ips
 
 etcd_servers = []
+  
+proto = "http"
+if node.workorder.rfcCi.ciAttributes.etcd_security_enabled == 'true'
+  proto = "https"
+end
 master_ips.each do |c|
-  etcd_servers << "http://#{c}:2379"
+  etcd_servers << "#{proto}://#{c}:2379"
 end
 node.set['etcd']['servers'] = etcd_servers.join(',')
   
+if node.workorder.rfcCi.ciAttributes.security_enabled == 'true'
+  `mkdir -p #{node.kubernetes.security_path}`
+  File.open(node.kubernetes.security_path+'/ca.crt', 'w') { |file| file.write(node.kubernetes.security_ca_certificate) }
+  File.open(node.kubernetes.security_path+'/server.crt', 'w') { |file| file.write(node.kubernetes.security_certificate) }
+  File.open(node.kubernetes.security_path+'/server.key', 'w') { |file| file.write(node.kubernetes.security_key) }
+  File.open(node.kubernetes.security_path+'/kubelet.crt', 'w') { |file| file.write(node.kubernetes.security_certificate) }
+  File.open(node.kubernetes.security_path+'/kubelet.key', 'w') { |file| file.write(node.kubernetes.security_key) }    
+end
 
 if node.workorder.rfcCi.ciName.include?("-master")
   include_recipe "kubernetes::master"

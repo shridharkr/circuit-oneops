@@ -21,6 +21,10 @@
 # create a volume group vgcreate with the name of the platform
 # create a logical volume lvcreate with the name of the resource /dev/<resource>
 # use storage dep to gen a raid and lvm ontop
+if node.platform =~ /windows/
+  include_recipe "volume::windows_vol_add"
+  return
+end
 
 package "lvm2"
 package "mdadm"
@@ -443,6 +447,13 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
     `grep /mnt /etc/fstab | grep cloudconfig`
     if $?.to_i == 0
       has_provider_mount = true
+    end
+    if token_class =~ /vsphere/
+      initial_mountpoint = "/mnt/resource"
+      `grep #{initial_mountpoint} /etc/fstab`
+      if $?.to_i == 0
+        has_provider_mount = true
+      end
     end
 
     if has_provider_mount

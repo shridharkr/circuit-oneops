@@ -28,5 +28,8 @@ Chef::Log.info("No Update Operation Supported for Stoarge depandent Volums .. ")
 Chef::Log.info("------------------------------------------------------------------")
 #  include_recipe "volume::delete"
 else
+  if node.platform =~ /windows/
+    include_recipe "volume::delete"
+  end
 include_recipe "volume::add"
 end
