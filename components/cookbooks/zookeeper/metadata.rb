@@ -12,7 +12,7 @@ grouping 'default',
 attribute 'mirror',
   :description          => 'Location of mirror',
   :required => "required",
-  :default               => 'http://apache.mirrors.pair.com/zookeeper/zookeeper-3.4.5/zookeeper-3.4.5.tar.gz',
+  :default               => 'http://apache.mirrors.pair.com/zookeeper/',
   :format => {
     :category => '1.Global',
     :help => 'Mirror location',

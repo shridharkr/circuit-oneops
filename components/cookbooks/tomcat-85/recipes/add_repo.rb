@@ -20,21 +20,6 @@
 ###############################################################################
 
 ###############################################################################
-# Setup Base Directory
-#   '%w' creates an array with "run, source, software, and build"
-#   In the '#{node.tomcat.base}/#{dir}' directory, each of these objects is
-#     created recursively.
-###############################################################################
-%w(run source software build).each do |dir|
-  Chef::Log.warn("creating #{node.tomcat.base}/#{dir}")
-  directory "#{node.tomcat.base}/#{dir}" do
-    mode 0775
-    action :create
-    recursive true
-  end
-end
-
-###############################################################################
 # Tomcat Download
 #   This installed the Tomcat binaries from the repo specified in the cloud's
 #   Mirror.
@@ -45,19 +30,6 @@ end
 #     Package will install on fedora|redhat|centos and on other OSs once lock
 #       is gone.
 ###############################################################################
-=begin
-if platform_family?('rhel')
-  execute 'yum clean metadata' do
-    user 'root'
-    group 'root'
-  end
-end
-
-package "tomcat-8" do
-  version "v#{node['tomcat']['tomcat_version_name']}"
-end
-=end
-
 # create context root of repo path
 tarball = "tomcat/tomcat-8/v#{node['tomcat']['tomcat_version_name']}/bin/apache-tomcat-#{node['tomcat']['tomcat_version_name']}.tar.gz"
 Chef::Log.warn("context root of repo path is: #{tarball}")
@@ -70,49 +42,12 @@ directory node['tomcat']['config_dir'] do
 end
 dest_file = "#{node['tomcat']['config_dir']}/apache-tomcat-#{node['tomcat']['tomcat_version_name']}.tar.gz"
 
-#source_list = JSON.parse(node.tomcat.mirrors).map! { |mirror| "#{mirror}/#{tarball}" }
-
-##Get apache mirror configured for the cloud, if no mirror is defined for component.
-#if source_list.empty?
-  cloud_name = node[:workorder][:cloud][:ciName]
-  services = node[:workorder][:cloud][:services]
-  Chef::Log.error("Cloud name: #{cloud_name}")
-  Chef::Log.error("Services in #{cloud_name}: #{services}")
-
-=begin
-  services.each do |service|
-    Chef::Log.warn("#{service}")
-  end
-
-  if services.nil?
-    Chef::Log.error("there are no services")
-  end
-  if !services.has_key?(:mirror)
-    Chef::Log.error("no mirror key")
-  end
-  if services.nil? || !services.has_key?(:mirror)
-    Chef::Log.error("Msg 1: Please make sure  cloud '#{cloud_name}' has mirror service with 'apache' eg {apache=>http://archive.apache.org/dist}")
-    exit 1
-  end
-  mirrors = JSON.parse(services[:mirror][cloud_name][:ciAttributes][:mirrors])
-  if mirrors.nil? || !mirrors.has_key?('apache')
-    Chef::Log.error("Msg 2: Please make sure  cloud '#{cloud_name}' has mirror service with 'apache' eg {apache=>http://archive.apache.org/dist}")
-    exit 1
-  end
-  mirrors = JSON.parse(node[:workorder][:services][:mirror][cloud_name][:ciAttributes][:mirrors])
-  source_list = mirrors['apache'].split(",").map { |mirror| "#{mirror}/#{tarball}" }
-#end
-=end
-#Ignore foodcritic(FC002) warning here.  We need the string interpolation magic to get the correct build version
 source_url="http://repos.walmart.com/mirrored-assets/apache.mirrors.pair.com"
 source_list="#{source_url}/#{tarball}"
 shared_download_http source_list do
   path dest_file
   action :create
-  #checksum build_version_checksum["#{build_version}"]   # ~FC002
 end
-
-Chef::Log.error("Download complete. Beginning un-TAR.")
 
 tar_flags = "--exclude webapps/ROOT"
 execute "tar #{tar_flags} -zxf #{dest_file}" do
@@ -120,16 +55,6 @@ execute "tar #{tar_flags} -zxf #{dest_file}" do
 end
 
 execute "chown -R #{node.tomcat_user}:#{node.tomcat_group} #{node['tomcat']['instance_dir']}"
-=begin
-execute "rm -fr tomcat#{major_version}" do
-  cwd node['tomcat']['config_dir']
-end
-
-
-link "#{node.tomcat.tomcat_install_dir}/tomcat#{major_version}" do
-  to "#{node.tomcat.tomcat_install_dir}/apache-tomcat-#{full_version}"
-end
-=end
 ###############################################################################
 # End of add_repo.rb
 ###############################################################################
