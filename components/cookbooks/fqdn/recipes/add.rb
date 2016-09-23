@@ -36,6 +36,8 @@ when /azuredns/
   provider = "azuredns"
 when /designate/
   provider = "designate"
+else
+  provider = provider_service
 end
 
 Chef::Log.info("Cloud name is: #{cloud_name}")

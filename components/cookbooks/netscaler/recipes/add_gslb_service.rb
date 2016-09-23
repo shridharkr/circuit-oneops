@@ -23,6 +23,8 @@ cloud_name = node.workorder.cloud.ciName
 local_cloud_service = node[:workorder][:services][:gdns][cloud_name]
 gdns = node[:workorder][:services][:gdns][cloud_name][:ciAttributes]
 
+node.set["gslb_has_changes"] = false
+
 
 # this could be a compute/server or lb
 ci = node.workorder.payLoad.DependsOn[0]
@@ -136,7 +138,7 @@ remote_sites.each do |cloud_service|
     connection conn  
     action :nothing    
   end
-  n.run_action(:default)
+  n.run_action(:default) if node.gslb_has_changes
 
 end
 
@@ -190,7 +192,7 @@ authoritative_servers.each do |dns_server|
     connection conn  
     action :nothing    
   end
-  n.run_action(:default)
+  n.run_action(:default) if node.gslb_has_changes
   
 
 end
