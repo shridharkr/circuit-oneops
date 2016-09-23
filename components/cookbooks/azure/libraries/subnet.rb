@@ -1,4 +1,5 @@
 # module to contain classes for dealing with the Azure Network features.
+require 'azure_mgmt_network'
 module AzureNetwork
 
   # thie class has all the methods in it to handle Azure's subnet.
