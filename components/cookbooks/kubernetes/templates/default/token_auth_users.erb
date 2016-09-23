@@ -1,1 +1,1 @@
-<%= node.kubernetes.token_auth_users %>
+<%= node.kubernetes.token_auth_users if node.kubernetes.has_key?('token_auth_users') %>

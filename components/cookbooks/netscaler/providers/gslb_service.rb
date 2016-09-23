@@ -28,7 +28,7 @@ def delete_gslb_service_by_name(gslb_service_name)
     else
       Chef::Log.info( "delete #{gslb_service_name} resp: #{resp_obj.inspect}")
     end
-    
+    node.set["gslb_has_changes"] = true  
     
   else 
     Chef::Log.info( "#{gslb_service_name} by platofrm already deleted.")
@@ -51,6 +51,7 @@ def delete_gslb_service_by_name(gslb_service_name)
         exit 1
       else
         Chef::Log.info( "delete monitor #{mon_bind['monitor_name']} resp: #{res_mon.inspect}")
+	node.set["gslb_has_changes"] = true
       end
     end
   end
@@ -150,6 +151,7 @@ def create_gslb_service
         return
       end
       Chef::Log.info("post #{gslb_service_name} resp: #{resp_obj.inspect}")
+      node.set["gslb_has_changes"] = true
     end   
     
   else 
@@ -223,6 +225,7 @@ def create_gslb_service
       exit 1      
     else
       Chef::Log.info( "post bind #{gslb_service_name} resp: #{resp_obj.inspect}")
+      node.set["gslb_has_changes"] = true
     end
     
   else 
@@ -291,6 +294,7 @@ def create_gslb_service
       monitor[:httprequest] = "GET /"
     end
     req = URI::encode('object= { "lbmonitor":'+JSON.dump(monitor)+'}')
+    node.set["gslb_has_changes"] = true
   else
     existing_monitor = resp_obj["lbmonitor"][0]
     Chef::Log.info("existing monitor: #{existing_monitor.inspect}")
@@ -335,6 +339,7 @@ def create_gslb_service
         monitor[:httprequest] = "GET /"
       end
       req = URI::encode('object= { "lbmonitor":'+JSON.dump(monitor)+'}')
+      node.set["gslb_has_changes"] = true
     else
       # update
       Chef::Log.info( "monitor #{monitor_name} exists.")
@@ -391,7 +396,7 @@ def create_gslb_service
   Chef::Log.info("gslbservice_lbmonitor_binding "+resp_obj.inspect)
   binding = Array.new
   if !resp_obj["gslbservice_lbmonitor_binding"].nil?
-    binding = resp_obj["gslbservice_lbmonitor_binding"].select{|v| v["servicename"] == gslb_service_name }
+    binding = resp_obj["gslbservice_lbmonitor_binding"].select{|v| v["servicename"] == gslb_service_name && v["monitor_name"] == monitor_name }
   end
 
   if binding.size == 0
@@ -404,6 +409,7 @@ def create_gslb_service
       exit 1
     else
       Chef::Log.info( "monitor post bind resp: #{resp_obj.inspect}")
+      node.set["gslb_has_changes"] = true
     end
   else
     Chef::Log.info( "**** monitor bind exists ****")
@@ -412,6 +418,33 @@ def create_gslb_service
 
   # End GSLB Health Monitors
 
+
+
+  # unbind the Old Monitors which were with naming convention :4501043-5432-gmon
+  resp_obj = JSON.parse(conn.request(
+    :method=>:get,
+    :path=>"/nitro/v1/config/gslbservice_lbmonitor_binding/#{gslb_service_name}").body)
+
+  if resp_obj["errorcode"] == 0 && !resp_obj["gslbservice_lbmonitor_binding"][0].nil?
+    #if !resp_obj["gslbservice_lbmonitor_binding"][0]["monitor_name"].include?dc_name
+    resp_obj["gslbservice_lbmonitor_binding"].find_all{ |v| !v['monitor_name'].include?dc_name }.each do |old_mon|
+        #binding = { :monitor_name => resp_obj["gslbservice_lbmonitor_binding"][0]["monitor_name"], :servicename => gslb_service_name }
+        binding = { :monitor_name => old_mon["monitor_name"], :servicename => gslb_service_name }
+        Chef::Log.info("binding being deleted: #{binding.inspect}")
+        req = URI::encode('object={"params":{"action": "unbind"}, "gslbservice_lbmonitor_binding" : ' + JSON.dump(binding) + '}')
+        resp_obj = JSON.parse(conn.request(
+            :method=> :post,
+            :path=>"/nitro/v1/config/gslbservice_lbmonitor_binding/#{gslb_service_name}",
+            :body => req).body)
+        if ![0,258].include?(resp_obj["errorcode"])
+            Chef::Log.error( "delete bind #{binding.inspect} resp: #{resp_obj.inspect}")
+            exit 1
+        else
+            Chef::Log.info( "delete bind  #{binding.inspect} resp: #{resp_obj.inspect}")
+	    node.set["gslb_has_changes"] = true
+        end
+    end
+  end
 end
 
 
