@@ -178,6 +178,30 @@ def create_lbvserver
       Chef::Log.info("clearing ip")
       ip = nil
     end
+
+    #Re-Use IP from Nitro Netscaler API
+    lbparts = lbvserver_name.split("-")
+    lbparts.pop #Remove lb
+    lbparts.pop #Remove ciid
+    lbparts.pop #Remove proto-port
+    domain = lbparts.join("-")
+    (node.loadbalancers+node.dcloadbalancers).each do |lb_vs|
+      Chef::Log.debug("Entered Re-Use IP Logic")
+      Chef::Log.debug("LB_VS: #{lb_vs.inspect}")
+      Chef::Log.debug("DOMAIN: #{domain.inspect}")
+      if lb_vs[:name].include?(domain)
+        Chef::Log.debug("lbvserver match found")
+        exist_resp_obj = JSON.parse(node.ns_conn.request(
+        :method => :get, 
+        :path => "/nitro/v1/config/lbvserver/#{lb_vs[:name]}").body)
+        if exist_resp_obj["message"] !~ /No such resource/
+          ip = exist_resp_obj["lbvserver"][0]["ipv46"]
+          Chef::Log.debug("Reuse IP Found #{ip.inspect}, and Breaking")
+          break
+        end
+      end
+    end
+
     if ip.nil? || ip.empty?
       ip = get_next_ip
     end

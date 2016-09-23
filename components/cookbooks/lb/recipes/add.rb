@@ -97,25 +97,11 @@ when /rackspace/
   
 when /haproxy/
 
-  lb_dns_name = "haproxy."+node.customer_domain;
-  
-  # gen /opt/oneops/pool_#{lb_ci_id} with: 
-  # server #{ciName} #{compute_ip}:#{port} cookie #{ciName} weight 1 check inter 2000 rise 2 fall 5
-  # the vservice will put them together
-
-  pool_rows = ""
-  depends_on.each do |instance|
-    ip = instance["ciAttributes"]["private_ip"]
-    ciName = instance["ciName"]
-    # iport will get eval'd by the vservice
-    pool_rows += "server #{ciName} #{ip}:"+'#{iport} '+"cookie #{ciName} weight 1 check inter 2000 rise 2 fall 5\n"
-  end
-  
-  #
-  pool_file = "/opt/oneops/pool_#{lb_name}"      
-  File.open(pool_file, 'w') {|f| f.write(pool_rows) }
+  include_recipe "haproxy::add_lb"
+  lb_dns_name = node.lb_dns_name
 
 when /neutron/
+
   include_recipe "neutron::add_lb"
   lb_dns_name = node.lb_dns_name
       
