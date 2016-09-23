@@ -3,7 +3,7 @@ param([string]$proxy, [string]$chocoPkg, [string]$chocoRepo, [string]$gemRepo)
 
 
 function Download-File {
-  param ( [string]$proxy, [string]$chocoPkg, [string]$dir, [string]$destination )
+  param ( [string]$proxy, [string]$uri, [string]$dir, [string]$destination )
 
   #Create the directory if it does not exists
   New-Item -ItemType Directory -Force -Path $dir
@@ -11,13 +11,13 @@ function Download-File {
   $start_time = Get-Date
 
   try {
-     Invoke-WebRequest -Uri $chocoPkg -OutFile $destination
+     Invoke-WebRequest -Uri $uri -OutFile $destination
   }
   catch {
-     Write-Output "Could not download from $chocoPkg "
+     Write-Output "Could not download from $uri "
      Write-Output " applying proxy ... "
      try {
-        Invoke-WebRequest -Uri $chocoPkg -Proxy $proxy -OutFile $destination
+        Invoke-WebRequest -Uri $uri -Proxy $proxy -OutFile $destination
      }
      catch {
         Write-Output "Cloud not download chocolatey. Cannot continue. Exiting!!! "
@@ -25,13 +25,7 @@ function Download-File {
      }
   }
   finally {
-    if(Test-Path $destination) {
-      Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
-    }
-    else {
-      Write-Output "The downloaded file does not exist. Exiting!"
-      exit
-    }
+     Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
   }
 }
 
@@ -60,12 +54,13 @@ if( $chocoPkg -eq $null -or $chocoPkg -eq "" ) {
   $chocoPkg = "https://packages.chocolatey.org/chocolatey.0.9.9.12.nupkg"
 }
 
-$chocoTempDir = "C:\chocotemp\"
-$chocoTempFile = "C:\chocotemp\choco.zip"
+$chocoTempDir = "c:\chocotemp\"
+$chocoTempFile = "c:\chocotemp\choco.zip"
 
 
-Write-Output "Downloading chocolatey..."
+Write-Output "Downloading chocolatey ..."
 Download-File $proxy $chocoPkg $chocoTempDir $chocoTempFile
+
 
 Set-Location $chocoTempDir
 
@@ -81,26 +76,28 @@ $toolsFolder = Join-Path $chocoDir "tools"
 
 $chocoInstallPS = Join-Path $toolsFolder "chocolateyInstall.ps1"
 
-
 Write-Output "Installing Chocolatey ..."
 & $chocoInstallPS
 
 Set-Location "C:\"
 Remove-Item -Recurse -Force $chocoTempDir
 
-
 ## =======================================
+#if ( proxy -ne "http://www.google.com" ) { #$proxy -ne "" -and $proxy -ne $null -and $proxy -eq
+# choco config set proxy $proxy
+#}
 
-#choco config set proxy $proxy
-choco source disable --name="chocolatey"
-choco source add --name='internal' --source=$chocoRepo
+if ( $chocoRepo -ne "" -and $chocoRepo -ne $null ) {
+  #choco source disable -y --name="chocolatey"
+  choco source add -y --name='internal' --source=$chocoRepo --priority=1
+}
 
 Write-Output "Install ruby ..."
 choco install -y ruby
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
 Write-Output "Install ruby DevKit ..."
 choco install -y ruby2.devkit
-
 
 ###########################################
 Set-Location "C:\tools\DevKit2\"

@@ -143,9 +143,7 @@ ruby_block 'install base' do
 
          mirror_vars = JSON.parse( node.workorder.services["mirror"][cloud_name][:ciAttributes][:mirrors] )
          mirror_vars.each_pair do |k,v|
-           if k =~ /chocopkg/
-             choco_pkg = v
-           elsif k =~ /chocorepo/
+           if k =~ /chocorepo/
              choco_repo = v
            end
          end
