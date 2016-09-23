@@ -8,17 +8,18 @@ license             "Copyright OneOps, All rights reserved."
 grouping 'default',
          :access => "global",
          :packages => ["base", "mgmt.catalog", "mgmt.manifest", "catalog", "manifest", "bom"]
-
+##################################################################################################
 # Attributes for Tomcat 8.5 Binary Install
-attribute 'tomcat_install_dir',
-          :description => "Tomcat Installation Directory",
-          :required => "required",
-          :default => "/opt",
-          :format => {
-              :help => "Specify the directory where your Tomcat will be installed.",
-              :category => "1.Global",
-              :order => 1
-          }
+#attribute 'tomcat_install_dir',
+#          :description => "Tomcat Installation Directory",
+#          :required => "required",
+#          :default => "/opt",
+#          :format => {
+#              :help => "Specify the directory where your Tomcat will be installed.",
+#              :category => "1.Global",
+#              :order => 1
+#          }
+##################################################################################################
 
 attribute 'version',
           :description => "Tomcat Version",
@@ -30,7 +31,7 @@ attribute 'version',
               :form => {"field" => "select", "options_for_select" => [["8.5.2", "8.5.2"]]},
               :pattern => "[0-9\.]+",
               :category => "1.Global",
-              :order => 2
+              :order => 1
           }
 
 attribute 'tomcat_user',
@@ -39,7 +40,7 @@ attribute 'tomcat_user',
           :format => {
               :help => "Specify the userid that the Tomcat process will run under.",
               :category => "1.Global",
-              :order => 3
+              :order => 2
           }
 
 attribute 'tomcat_group',
@@ -48,7 +49,7 @@ attribute 'tomcat_group',
           :format => {
               :help => "Specify the groupid that the tomcat process will run under.",
               :category => "1.Global",
-              :order => 4
+              :order => 3
           }
 
 attribute 'environment_settings',
@@ -58,10 +59,13 @@ attribute 'environment_settings',
           :format => {
               :help => "Specify any environment settings that need to be placed in the .profile of the Tomcat User (ex: TZ=UTC).",
               :category => "1.Global",
-              :order => 6
+              :order => 4
           }
 
+##################################################################################################
 # Attributes for context.xml Configuration
+##################################################################################################
+
 attribute 'override_context_enabled',
           :description => "Enable Override of context.xml File",
           :default => "false",
@@ -83,7 +87,10 @@ attribute 'context_tomcat',
               :order => 2
           }
 
+##################################################################################################
 # Attributes for server.xml Configuration
+##################################################################################################
+
 attribute 'override_server_enabled',
           :description => "Enable Override of server.xml File",
           :default => "false",
@@ -105,17 +112,6 @@ attribute 'server_tomcat',
               :order => 2
           }
 
-attribute 'autodeploy_enabled',
-	        :description => "WAR File autoDeploy",
-	        :default => "false",
-          :format => {
-              :help => "Enable autoDeploy",
-              :filter => {"all" => {"visible" => "override_server_enabled:eq:false"}},
-              :form => {"field" => "checkbox"},
-              :category => "3.Server",
-              :order => 3
-          }
-
 attribute 'http_NIO_connector_enabled',
           :description => "Enable HTTP Connector",
           :default => "false",
@@ -126,39 +122,28 @@ attribute 'http_NIO_connector_enabled',
                 :category => "3.Server",
                 :order => 4
             }
+
+  attribute 'port',
+            :description => "HTTP Port",
+            :required => "required",
+            :default => "8080",
+            :format => {
+                :help => "Specify the port that Tomcat will listen on for incoming HTTP (Non-SSL) requests",
+                :filter => {"all" => {"visible" => "override_server_enabled:eq:false && http_nio_connector_enabled:eq:true"}},
+                :pattern => "[0-9]+",
+                :category => "3.Server",
+                :order => 7
+            }
+
 attribute 'https_NIO_connector_enabled',
-  :description => "Enable HTTPS Connector",
-  :default => "true",
-  :format => {
-    :help => "Enable the HTTPS Connector (SSL/TLS) Connector.",
-    :filter => {"all" => {"visible" => "override_server_enabled:eq:false"}},
-    :form => {"field" => "checkbox"},
-    :category => "3.Server",
-    :order => 5
-}
-
-attribute 'advanced_NIO_connector_config',
-  :default => '{"connectionTimeout":"20000","maxKeepAliveRequests":"100"}',
-  :description => 'Additional Attributes for Tomcat Connector',
-  :data_type => 'hash',
-  :required => 'required',
-  :format => {
-    :help => 'These additional attributes (ex: attr_name1="value1" attr_name2="value2") will be appended to both HTTP and HTTPS connector elements in server.xml (enabled or not).',
-    :filter => {"all" => {"visible" => "override_server_enabled:eq:false"}},
-    :category => "3.Server",
-    :order => 6
-}
-
-attribute 'port',
-          :description => "HTTP Port",
-          :required => "required",
-          :default => "8080",
+          :description => "Enable HTTPS Connector",
+          :default => "true",
           :format => {
-              :help => "Specify the port that Tomcat will listen on for incoming HTTP (Non-SSL) requests",
-              :filter => {"all" => {"visible" => "http_connector_enabled:eq:true && override_server_enabled:eq:false"}},
-              :pattern => "[0-9]+",
-              :category => "3.Server",
-              :order => 7
+                :help => "Enable the HTTPS Connector (SSL/TLS) Connector.",
+                :filter => {"all" => {"visible" => "override_server_enabled:eq:false"}},
+                :form => {"field" => "checkbox"},
+                :category => "3.Server",
+                :order => 5
           }
 
 attribute 'ssl_port',
@@ -167,9 +152,22 @@ attribute 'ssl_port',
           :default => "8443",
           :format => {
               :help => "Specify the port that Tomcat will listen on for incoming HTTPS (SSL) requests",
+              :filter => {"all" => {"visible" => "override_server_enabled:eq:false && https_nio_connector_enabled:eq:true"}},
               :pattern => "[0-9]+",
               :category => "3.Server",
               :order => 8
+          }
+
+attribute 'max_threads',
+          :description => 'Max Number of Threads',
+          :required => 'required',
+          :default => '50',
+          :format => {
+              :help => "Specify the max number of active threads in Tomcat's threadpool.",
+              :filter => {"all" => {"visible" => "override_server_enabled:eq:false && https_nio_connector_enabled:eq:true"}},
+              :pattern => '[0-9]+',
+              :category => "3.Server",
+              :order => 20
           }
 
 attribute 'advanced_security_options',
@@ -187,7 +185,7 @@ attribute 'tlsv11_protocol_enabled',
           :default => "false",
           :format => {
               :help => "If TLS is enabled by adding a certificate and keystore, this attribute determines if the TLSv1.1 protocol and ciphers are enabled.",
-              :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
+              :filter => {"all" => {"visible" => "override_server_enabled:eq:false && https_nio_connector_enabled:eq:true && advanced_security_options:eq:true"}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
               :order => 10
@@ -198,7 +196,7 @@ attribute 'tlsv12_protocol_enabled',
           :default => "true",
           :format => {
               :help => "If SSL/TLS is enabled by adding a certificate and keystore, this attribute determines if the TLSv1.2 protocol and ciphers are enabled.",
-              :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
+              :filter => {"all" => {"visible" => "override_server_enabled:eq:false && https_nio_connector_enabled:eq:true && advanced_security_options:eq:true"}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
               :order => 11
@@ -292,29 +290,44 @@ attribute 'enable_method_trace',
               :order => 17
           }
 
-attribute 'max_threads',
-          :description => 'Max Number of Threads',
+attribute 'advanced_NIO_connector_config',
+          :default => '{"connectionTimeout":"20000","maxKeepAliveRequests":"100"}',
+          :description => 'Additional Attributes for Tomcat Connector',
+          :data_type => 'hash',
           :required => 'required',
-          :default => '50',
           :format => {
-              :help => "Specify the max number of active threads in Tomcat's threadpool.",
-              :pattern => '[0-9]+',
-              :category => "3.Server",
-              :order => 20
+                :help => 'These additional attributes (ex: attr_name1="value1" attr_name2="value2") will be appended to both HTTP and HTTPS connector elements in server.xml (enabled or not).',
+                :filter => {"all" => {"visible" => "override_server_enabled:eq:false && (http_nio_connector_enabled:eq:true || https_nio_connector_enabled:eq:true)"}},
+                :category => "3.Server",
+                :order => 6
           }
 
-attribute 'min_spare_threads',
-          :description => 'Min Number of Spare Threads',
-          :required => 'required',
-          :default => '25',
+attribute 'autodeploy_enabled',
+	        :description => "WAR File autoDeploy",
+	        :default => "false",
           :format => {
-              :help => 'Specify the minimum number of threads always kept alive in the threadpool.',
-              :pattern => '[0-9]+',
+              :help => "Enable autoDeploy",
+              :filter => {"all" => {"visible" => "override_server_enabled:eq:false"}},
+              :form => {"field" => "checkbox"},
               :category => "3.Server",
-              :order => 21
+              :order => 3
           }
 
+#attribute 'min_spare_threads',
+#          :description => 'Min Number of Spare Threads',
+#          :required => 'required',
+#          :default => '25',
+#          :format => {
+#              :help => 'Specify the minimum number of threads always kept alive in the threadpool.',
+#              :pattern => '[0-9]+',
+#              :category => "3.Server",
+#              :order => 21
+#          }
+
+##################################################################################################
 # Attributes set in the setenv.sh script
+##################################################################################################
+
 attribute 'java_options',
           :description => "Java Options",
           :default => '-Djava.awt.headless=true',
@@ -465,7 +478,10 @@ attribute 'max_number_of_retries_for_post_startup_check',
               :order => 8
           }
 
+##################################################################################################
 # Included Recipes that you can run as an action from the Operations phase
+##################################################################################################
+
 recipe 'status', 'Tomcat Status'
 recipe 'start', 'Start Tomcat'
 recipe 'stop', 'Stop Tomcat'
