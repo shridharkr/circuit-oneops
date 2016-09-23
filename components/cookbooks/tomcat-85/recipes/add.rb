@@ -83,25 +83,13 @@ if node['tomcat']['server']['https_nio_connector_enabled'] == 'true'
   end
 end
 
-###############################################################################
-# Auto Startup Script
-#   The script in init.d allows the Tomcat instance to automcatically startup
-#   when the server is restarted.
-###############################################################################
-service 'tomcat' do
-  only_if { File.exist?('/etc/init.d/' + node['tomcat']['global']['version']) }
-  service_name node['tomcat']['global']['version']
-  supports restart: true, reload: true, status: true
+template "/etc/systemd/system/tomcat.service" do
+      source 'init_systemd.erb'
+      cookbook 'tomcat-85'
+      owner 'root'
+      group 'root'
+      mode '0644'
 end
-
-depends_on = node.workorder.payLoad.DependsOn.reject{ |d| d['ciClassName'] !~ /Javaservicewrapper/ }
-if (!depends_on.nil? && !depends_on.empty? && File.exist?('/etc/init.d/' + node['tomcat']['global']['version']))
-  # Delete the tomcat init.d daemon
-  file '/etc/init.d/' + node['tomcat']['global']['version'] do
-    action :delete
-  end
-end
-
 ###############################################################################
 # Run Install Cookbook for Tomcat Binaries
 ###############################################################################
