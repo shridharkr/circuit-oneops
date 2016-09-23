@@ -69,17 +69,17 @@ if node['tomcat']['server']['https_nio_connector_enabled'] == 'false' && node['t
 end
 
 if node['tomcat']['server']['https_nio_connector_enabled'] == 'true'
-  node.set['tomcat']['connector']['ssl_configured_protocols'] = ''
+  node.set['tomcat']['ssl_configured_protocols'] = ''
   if node['tomcat']['server']['tlsv11_protocol_enabled'] == 'true'
-    node['tomcat']['connector']['ssl_configured_protocols'].concat('TLSv1.1,')
+    node['tomcat']['ssl_configured_protocols'].concat('TLSv1.1,')
   end
   if node['tomcat']['server']['tlsv12_protocol_enabled'] == 'true'
-    node['tomcat']['connector']['ssl_configured_protocols'].concat('TLSv1.2,')
+    node['tomcat']['ssl_configured_protocols'].concat('TLSv1.2,')
   end
-  node['tomcat']['connector']['ssl_configured_protocols'].chomp!(',')
-  if node['tomcat']['connector']['ssl_configured_protocols'] == ''
+  node['tomcat']['ssl_configured_protocols'].chomp!(',')
+  if node['tomcat']['ssl_configured_protocols'] == ''
     Chef::Log.warn('HTTPS is enabled, but all TLS protocols were disabled. Defaulting to TLSv1.2 only.')
-    node.set['tomcat']['connector']['ssl_configured_protocols'] = 'TLSv1.2'
+    node.set['tomcat']['ssl_configured_protocols'] = 'TLSv1.2'
   end
 end
 
