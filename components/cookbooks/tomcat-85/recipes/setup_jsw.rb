@@ -21,7 +21,7 @@
 
 ###############################################################################
 ###############################################################################
-jsw_install_root_dir = node['tomcat']['global']['tomcat_install_dir']
+jsw_install_root_dir = node['tomcat']['tomcat_install_dir']
 jsw_server_user = node['tomcat']['global']['tomcat_user']
 jsw_server_group = node['tomcat']['global']['tomcat_group']
 

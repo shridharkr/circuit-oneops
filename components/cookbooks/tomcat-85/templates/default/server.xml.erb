@@ -92,7 +92,7 @@ if node['tomcat']['server']['https_nio_connector_enabled'] == 'true'
      connector should be using the OpenSSL style configuration
      described in the APR documentation -->
 <!-- opted in to ssl activation w/ keystore -->
-    <Connector port="<%= node['tomcat']['ssl_port'] %>"
+    <Connector port="<%= node['tomcat']['server']['ssl_port'] %>"
                protocol="org.apache.coyote.http11.Http11NioProtocol" SSLEnabled="true"
                maxThreads="<%= node['tomcat']['server']['max_threads'] %>"
                server="42"
@@ -101,7 +101,7 @@ if node['tomcat']['server']['https_nio_connector_enabled'] == 'true'
                keystorePass="<%= node['tomcat']['keystore_pass'] %>"
                scheme="https" secure="true"
                clientAuth="false"  sslProtocol="TLS"
-               sslEnabledProtocols="<%= node['tomcat']['connector']['ssl_configured_protocols'] %>"
+               sslEnabledProtocols="<%= node['tomcat']['ssl_configured_protocols'] %>"
                ciphers="<%=node['tomcat']['ssl_configured_ciphers'] %>"
                <% JSON.parse(node['tomcat']['server']['advanced_nio_connector_config']).each{ |k, v|%>
                 <%=k%>="<%=v%>"

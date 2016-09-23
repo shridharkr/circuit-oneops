@@ -10,7 +10,6 @@
 ###############################################################################
 # Global Variables from metadata.rb
 ###############################################################################
-set['tomcat']['global']['tomcat_install_dir'] = node.workorder.rfcCi.ciAttributes.tomcat_install_dir
 set['tomcat']['global']['version'] = node.workorder.rfcCi.ciAttributes.version
 
 set['tomcat']['global']['tomcat_user'] = node.workorder.rfcCi.ciAttributes.tomcat_user
@@ -38,16 +37,15 @@ set['tomcat']['context']['context_tomcat'] = node.workorder.rfcCi.ciAttributes.c
 ###############################################################################
 set['tomcat']['server']['override_server_enabled'] = node.workorder.rfcCi.ciAttributes.override_server_enabled
 set['tomcat']['server']['server_tomcat'] = node.workorder.rfcCi.ciAttributes.server_tomcat
-set['tomcat']['server']['autodeploy_enabled'] = node.workorder.rfcCi.ciAttributes.autodeploy_enabled
 set['tomcat']['server']['http_nio_connector_enabled'] = node.workorder.rfcCi.ciAttributes.http_nio_connector_enabled
-set['tomcat']['server']['https_nio_connector_enabled'] = node.workorder.rfcCi.ciAttributes.https_nio_connector_enabled
-set['tomcat']['server']['advanced_nio_connector_config'] = node.workorder.rfcCi.ciAttributes.advanced_nio_connector_config
-
 set['tomcat']['server']['port'] = node.workorder.rfcCi.ciAttributes.port
+set['tomcat']['server']['https_nio_connector_enabled'] = node.workorder.rfcCi.ciAttributes.https_nio_connector_enabled
 set['tomcat']['server']['ssl_port'] = node.workorder.rfcCi.ciAttributes.ssl_port
+set['tomcat']['server']['max_threads'] = node.workorder.rfcCi.ciAttributes.max_threads
 set['tomcat']['server']['advanced_security_options'] = node.workorder.rfcCi.ciAttributes.advanced_security_options
 set['tomcat']['server']['tlsv11_protocol_enabled'] = node.workorder.rfcCi.ciAttributes.tlsv11_protocol_enabled
 set['tomcat']['server']['tlsv12_protocol_enabled'] = node.workorder.rfcCi.ciAttributes.tlsv12_protocol_enabled
+set['tomcat']['server']['enable_method_trace'] = node.workorder.rfcCi.ciAttributes.enable_method_trace
 set['tomcat']['server']['enable_method_get'] = node.workorder.rfcCi.ciAttributes.enable_method_get
 set['tomcat']['server']['enable_method_put'] = node.workorder.rfcCi.ciAttributes.enable_method_put
 set['tomcat']['server']['enable_method_post'] = node.workorder.rfcCi.ciAttributes.enable_method_post
@@ -55,9 +53,11 @@ set['tomcat']['server']['enable_method_delete'] = node.workorder.rfcCi.ciAttribu
 set['tomcat']['server']['enable_method_connect'] = node.workorder.rfcCi.ciAttributes.enable_method_connect
 set['tomcat']['server']['enable_method_options'] = node.workorder.rfcCi.ciAttributes.enable_method_options
 set['tomcat']['server']['enable_method_head'] = node.workorder.rfcCi.ciAttributes.enable_method_head
-set['tomcat']['server']['enable_method_trace'] = node.workorder.rfcCi.ciAttributes.enable_method_trace
-set['tomcat']['server']['max_threads'] = node.workorder.rfcCi.ciAttributes.max_threads
-set['tomcat']['server']['min_spare_threads'] = node.workorder.rfcCi.ciAttributes.min_spare_threads
+set['tomcat']['server']['advanced_nio_connector_config'] = node.workorder.rfcCi.ciAttributes.advanced_nio_connector_config
+
+
+set['tomcat']['server']['autodeploy_enabled'] = node.workorder.rfcCi.ciAttributes.autodeploy_enabled
+#set['tomcat']['server']['min_spare_threads'] = node.workorder.rfcCi.ciAttributes.min_spare_threads
 
 ###############################################################################
 # Java Variables from metadata.rb
@@ -93,6 +93,7 @@ set['tomcat']['startup_shutdown']['max_number_of_retries_for_post_startup_check'
 ###############################################################################
 # Tomcat variables not in metadata.rb
 ###############################################################################
+default['tomcat']['tomcat_install_dir'] = '/opt'
 default['tomcat']['config_dir'] = '/opt/tomcat'
 default['tomcat']['instance_dir'] = "#{node['tomcat']['config_dir']}/apache-tomcat-#{node['tomcat']['global']['version']}"
 default['tomcat']['tarball'] = "tomcat/tomcat-8/v#{node['tomcat']['global']['version']}/bin/apache-tomcat-#{node['tomcat']['global']['version']}.tar.gz"
