@@ -10,15 +10,6 @@ grouping 'default',
          :packages => ["base", "mgmt.catalog", "mgmt.manifest", "catalog", "manifest", "bom"]
 ##################################################################################################
 # Attributes for Tomcat 8.5 Binary Install
-#attribute 'tomcat_install_dir',
-#          :description => "Tomcat Installation Directory",
-#          :required => "required",
-#          :default => "/opt",
-#          :format => {
-#              :help => "Specify the directory where your Tomcat will be installed.",
-#              :category => "1.Global",
-#              :order => 1
-#          }
 ##################################################################################################
 
 attribute 'version',
@@ -120,7 +111,7 @@ attribute 'http_NIO_connector_enabled',
                 :filter => {"all" => {"visible" => "override_server_enabled:eq:false"}},
                 :form => {"field" => "checkbox"},
                 :category => "3.Server",
-                :order => 4
+                :order => 3
             }
 
   attribute 'port',
@@ -132,7 +123,7 @@ attribute 'http_NIO_connector_enabled',
                 :filter => {"all" => {"visible" => "override_server_enabled:eq:false && http_nio_connector_enabled:eq:true"}},
                 :pattern => "[0-9]+",
                 :category => "3.Server",
-                :order => 7
+                :order => 4
             }
 
 attribute 'https_NIO_connector_enabled',
@@ -155,7 +146,7 @@ attribute 'ssl_port',
               :filter => {"all" => {"visible" => "override_server_enabled:eq:false && https_nio_connector_enabled:eq:true"}},
               :pattern => "[0-9]+",
               :category => "3.Server",
-              :order => 8
+              :order => 6
           }
 
 attribute 'max_threads',
@@ -167,7 +158,7 @@ attribute 'max_threads',
               :filter => {"all" => {"visible" => "override_server_enabled:eq:false && https_nio_connector_enabled:eq:true"}},
               :pattern => '[0-9]+',
               :category => "3.Server",
-              :order => 20
+              :order => 7
           }
 
 attribute 'advanced_security_options',
@@ -177,7 +168,7 @@ attribute 'advanced_security_options',
               :help => "Display advanced security options (Note: Hiding the options does not disable or default any settings changed by the user.)",
               :form => { "field" => "checkbox" },
               :category => "3.Server",
-              :order => 9
+              :order => 8
           }
 
 attribute 'tlsv11_protocol_enabled',
@@ -188,7 +179,7 @@ attribute 'tlsv11_protocol_enabled',
               :filter => {"all" => {"visible" => "override_server_enabled:eq:false && https_nio_connector_enabled:eq:true && advanced_security_options:eq:true"}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
-              :order => 10
+              :order => 9
           }
 
 attribute 'tlsv12_protocol_enabled',
@@ -199,7 +190,7 @@ attribute 'tlsv12_protocol_enabled',
               :filter => {"all" => {"visible" => "override_server_enabled:eq:false && https_nio_connector_enabled:eq:true && advanced_security_options:eq:true"}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
-              :order => 11
+              :order => 10
           }
 
 attribute 'enable_method_get',
@@ -210,7 +201,7 @@ attribute 'enable_method_get',
               :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
-              :order => 12
+              :order => 11
           }
 
 attribute 'enable_method_put',
@@ -221,7 +212,7 @@ attribute 'enable_method_put',
               :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
-              :order => 13
+              :order => 12
           }
 
 attribute 'enable_method_post',
@@ -232,7 +223,7 @@ attribute 'enable_method_post',
               :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
-              :order => 14
+              :order => 13
           }
 
 attribute 'enable_method_delete',
@@ -243,7 +234,7 @@ attribute 'enable_method_delete',
               :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
-              :order => 13
+              :order => 14
           }
 
 attribute 'enable_method_connect',
@@ -254,7 +245,7 @@ attribute 'enable_method_connect',
               :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
-              :order => 14
+              :order => 15
           }
 
 attribute 'enable_method_options',
@@ -265,7 +256,7 @@ attribute 'enable_method_options',
               :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
-              :order => 15
+              :order => 16
           }
 
 attribute 'enable_method_head',
@@ -276,7 +267,7 @@ attribute 'enable_method_head',
               :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
-              :order => 16
+              :order => 17
           }
 
 attribute 'enable_method_trace',
@@ -287,7 +278,7 @@ attribute 'enable_method_trace',
               :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
-              :order => 17
+              :order => 18
           }
 
 attribute 'advanced_NIO_connector_config',
@@ -299,7 +290,7 @@ attribute 'advanced_NIO_connector_config',
                 :help => 'These additional attributes (ex: attr_name1="value1" attr_name2="value2") will be appended to both HTTP and HTTPS connector elements in server.xml (enabled or not).',
                 :filter => {"all" => {"visible" => "override_server_enabled:eq:false && (http_nio_connector_enabled:eq:true || https_nio_connector_enabled:eq:true)"}},
                 :category => "3.Server",
-                :order => 6
+                :order => 19
           }
 
 attribute 'autodeploy_enabled',
@@ -310,19 +301,8 @@ attribute 'autodeploy_enabled',
               :filter => {"all" => {"visible" => "override_server_enabled:eq:false"}},
               :form => {"field" => "checkbox"},
               :category => "3.Server",
-              :order => 3
+              :order => 20
           }
-
-#attribute 'min_spare_threads',
-#          :description => 'Min Number of Spare Threads',
-#          :required => 'required',
-#          :default => '25',
-#          :format => {
-#              :help => 'Specify the minimum number of threads always kept alive in the threadpool.',
-#              :pattern => '[0-9]+',
-#              :category => "3.Server",
-#              :order => 21
-#          }
 
 ##################################################################################################
 # Attributes set in the setenv.sh script

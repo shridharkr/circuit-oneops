@@ -1,6 +1,6 @@
 include_pack  "genericlb"
 name          "Tomcat-85"
-description   "Tomcat 8_5 Version 6"
+description   "Tomcat 8_5 Version 7"
 type          "Platform"
 category      "Web Application"
 
