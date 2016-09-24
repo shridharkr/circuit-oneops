@@ -39,8 +39,8 @@ bash 'install passenger' do
     RUBY_BIN=`which ruby | tail -1`
     gem install passenger --version=#{passenger_version} --no-ri --no-rdoc
     $GEM_DIR/bin/passenger-install-apache2-module -a
-    echo "LoadModule passenger_module $GEM_DIR/buildout/apache2/mod_passenger.so" > #{conf_file}
-    echo "PassengerRoot $GEM_DIR" >> #{conf_file}
+    echo "LoadModule passenger_module /usr/local/share/gems/gems/passenger-#{passenger_version}/buildout/apache2/mod_passenger.so" > #{conf_file}
+    echo "PassengerRoot /usr/local/share/gems/gems/passenger-#{passenger_version}" >> #{conf_file}
     echo "PassengerRuby $RUBY_BIN" >> #{conf_file}
   EOH
 
