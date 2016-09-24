@@ -38,7 +38,7 @@ else
 end
 
 if node[:ruby].has_key?(:binary) && !node[:ruby][:binary].empty?
-  ruby_binary = node[:ruby][:binary]
+  ruby_binary = "#{node[:ruby][:binary]}/#{version}/ruby-#{version}.tar.bz2"
 else
   case node[:platform]
   when "centos","redhat"
@@ -98,6 +98,8 @@ bash "#{gem}" do
 source /etc/profile.d/rvm.sh
 rvm use #{version}
 gem install #{gem} #{opts} --no-rdoc --no-ri
+gem install rubygems-update --no-rdoc --no-ri
+update_rubygems --no-rdoc --no-ri
 EOH
   end
 end
