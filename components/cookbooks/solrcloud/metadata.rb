@@ -218,6 +218,7 @@ attribute 'nodeip',
   :description => 'Node IPAddress',
   :grouping => 'bom',
   :format => {
+      :important => true,
       :help => 'Node IPAddress',
       :category => '4.Other',
       :order => 21
@@ -227,6 +228,7 @@ attribute 'node_solr_version',
   :description => 'solr version',
   :grouping => 'bom',
   :format => {
+      :important => true,
       :help => 'Current solr version',
       :category => '4.Other',
       :order => 22
@@ -236,6 +238,7 @@ attribute 'node_solr_portnum',
   :description => 'solr portno',
   :grouping => 'bom',
   :format => {
+      :important => true,
       :help => 'solr port number',
       :category => '4.Other',
       :order => 23
