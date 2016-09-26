@@ -109,13 +109,13 @@ The following are the current features built into the OneOps pack. This will be 
   * Parameters:
     * CustomConfigJar - Custom config jar nexus path.
     * CustomConfigName - Custom config name.
-* updatemanagedschema - Updates managed schema and uploads to Zookeeper. It returns immediately if the timeout parameter is not set and the remaining cores get the latest schema asynchronously. This action reloads the core automatically and uses the latest schema from the next request onwards.
+* dynamicschemaupdate - Updates managed schema and uploads to Zookeeper. It returns immediately if the timeout parameter is not set and the remaining cores get the latest schema asynchronously. This action reloads the core automatically and uses the latest schema from the next request onwards.
   * Parameters:
     * collectionname - Collection name.
     * modify_schema_action - Action to add/replace/delete field/field-type/dynamic-fields/copy-fields on the managed schema.
     * payload - payload of the action.
     * updateTimeoutSecs - Timeout for the request to wait and make sure that all the replicas/cores retrieves the changes of the managed schema.
-* updatesolrconfig - Updates the solr-config and uploads to Zookeeper.
+* configupdate - Updates the solr-config and uploads to Zookeeper.
   * Parameters:
     * collectionname - Collection name.
     * common_property - Basic property to set the value.

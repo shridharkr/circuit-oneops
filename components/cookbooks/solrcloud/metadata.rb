@@ -357,7 +357,7 @@ recipe "uploadsolrconfig",
     }
   }
 
-recipe "updatemanagedschema",
+recipe "dynamicschemaupdate",
   :description => 'This action updates managed schema and uploads to Zookeeper.',
   :args => {
     "collection_name" => {
@@ -385,7 +385,7 @@ recipe "updatemanagedschema",
     }
   }
 
-recipe "updatesolrconfig",
+recipe "configupdate",
   :description => 'This action updates the solr-config and uploads to Zookeeper.',
   :args => {
     "collection_name" => {
