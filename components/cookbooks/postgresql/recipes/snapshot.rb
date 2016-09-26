@@ -54,7 +54,7 @@ Chef::Log.info("tar to: "+data_tar)
 # default timeout of 3600 too small for prod
 execute "tar -zcf #{data_tar} --exclude='archivedir' --exclude='postmaster.pid' --exclude='pg_xlog' *" do
   returns [0,1]
-  timeout 7200
+  timeout 10800
   cwd data_dir
 end
 
