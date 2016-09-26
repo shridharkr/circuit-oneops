@@ -73,5 +73,9 @@ when /rackspace/
 when /elb/
 
   include_recipe "elb::delete_lb"
-  
+
+when /haproxy/  
+
+  include_recipe "haproxy::delete_lb"
+    
 end
