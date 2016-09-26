@@ -22,6 +22,8 @@ module AzureBase
         service_name = 'dns'
       when /lb/
         service_name = 'lb'
+      when /storage/
+        service_name = 'storage'
       end
       OOLog.info("Service name is: #{service_name}")
 

@@ -47,6 +47,7 @@ module AzureStorage
     def self.attach_disk_to_vm(instance_name,client,rg_name,vm)
       begin
         start_time = Time.now.to_i
+        OOLog.info("Attaching Storage disk ....")
         vm_promise = client.virtual_machines.create_or_update(rg_name, instance_name, vm)
         my_vm = vm_promise.value!
         end_time = Time.now.to_i

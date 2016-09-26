@@ -24,6 +24,10 @@ end
 
 has_mounted = false
 
+cloud_name = node[:workorder][:cloud][:ciName]
+provider_class = node[:workorder][:services][:compute][cloud_name][:ciClassName].split(".").last.downcase
+Chef::Log.info("provider: #{provider_class}")
+
 rfcAttrs = node.workorder.rfcCi.ciAttributes
 if rfcAttrs.has_key?("mount_point") &&
    !rfcAttrs["mount_point"].empty?
@@ -45,11 +49,11 @@ if rfcAttrs.has_key?("mount_point") &&
   when "centos","redhat","fedora","suse"
     package "lsof"
   end
-
+if provider_class !~ /azure/
   execute "lsof #{mount_point} | awk '{print $2}' | grep -v PID | uniq | xargs kill -9; umount #{mount_point}" do
     only_if { has_mounted }
   end
-
+end
   cloud_name = node[:workorder][:cloud][:ciName]
   provider_class = node[:workorder][:services][:compute][cloud_name][:ciClassName].split(".").last.downcase
 
@@ -69,7 +73,6 @@ ruby_block 'lvremove ephemeral' do
 
     platform_name = node.workorder.box.ciName
     if ::File.exists?("/dev/#{platform_name}-eph/#{node.workorder.rfcCi.ciName}")
-
       cmd = "lvremove -f #{platform_name}-eph/#{node.workorder.rfcCi.ciName}"
       Chef::Log.info("running: #{cmd} ...")
       out = `#{cmd}`
@@ -78,15 +81,12 @@ ruby_block 'lvremove ephemeral' do
         exit 1
       end
     end
-
   end
 end
 
 supported = true
 
-cloud_name = node[:workorder][:cloud][:ciName]
-provider_class = node[:workorder][:services][:compute][cloud_name][:ciClassName].split(".").last.downcase
-Chef::Log.info("provider: #{provider_class}")
+
 if provider_class =~ /virtualbox|vagrant|docker/
   Chef::Log.info(" virtail box vegrant and docker don't support iscsi/ebs via api yet - skipping")
   supported = false
@@ -101,6 +101,26 @@ node.workorder.payLoad.DependsOn.each do |dep|
 end
 if storage == nil
   Chef::Log.info("no DependsOn Storage.")
+end
+
+if provider_class =~ /azure/ && !storage.nil?
+   platform_name = node.workorder.box.ciName
+   logical_name = node.workorder.rfcCi.ciName
+   mount_point = node.workorder.rfcCi.ciAttributes.mount_point
+   out= `lsof #{mount_point} | awk '{print $2}' | grep -v PID | uniq | xargs kill -9; umount #{mount_point}`
+   Chef::Log.info("out: #{out}")
+   Chef::Log.info("running: lvremove -f /dev/#{platform_name}/#{logical_name}...")
+   out=`lvremove -f /dev/#{platform_name}/#{logical_name}`
+   Chef::Log.info("out: #{out}")
+   Chef::Log.info("running: lvdisplay /dev/#{platform_name}/* ...")
+   out=`lvdisplay /dev/#{platform_name}/*`
+   Chef::Log.info("out: #{out}")
+   if $? != 0 #No more volumes, disk can be detached.
+    Chef::Log.info("There is no more volumes on the disk, so disk can be detached.")
+    include_recipe "azuredatadisk::detach_datadisk"
+    out=`fsck`
+   end 
+   return true
 end
 
 include_recipe "shared::set_provider"

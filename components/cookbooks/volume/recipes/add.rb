@@ -73,7 +73,20 @@ include_recipe "shared::set_provider"
 storage_provider = node.storage_provider_class
 
 if node[:storage_provider_class] =~ /azure/ && !storage.nil?
-  include_recipe "azuredatadisk::attach_datadisk"
+     dev_id=nil
+     device_maps = storage['ciAttributes']['device_map'].split(" ")
+     node.set[:device_maps] = device_maps
+     device_maps.each do |dev_vol|
+          dev_id = dev_vol.split(":")[4]
+        end
+     Chef::Log.info("executing lsblk #{dev_id}")
+     `lsblk #{dev_id}`
+     if $?.to_i != 0
+       Chef::Log.info("Device NOT attached, attaching the disk now ...")
+       include_recipe "azuredatadisk::attach_datadisk"
+     else
+       Chef::Log.info("Device is already attached")
+     end
 end
 
 # need ruby block so package resource above run first
@@ -520,6 +533,7 @@ ruby_block 'create-ephemeral-volume-ruby-block' do
         Chef::Log.info("running: #{cmd} ..."+`#{cmd}`)
         if $? != 0
           Chef::Log.error("error in lvcreate")
+           puts "***FAULT:FATAL=error in lvcreate"      
           exit 1
         end
       end
@@ -589,9 +603,15 @@ ruby_block 'create-storage-non-ephemeral-volume' do
     if $?.to_i != 0
       # pipe yes to agree to clear filesystem signature
       cmd = "yes | lvcreate #{l_switch} #{size} -n #{logical_name} #{platform_name}"
-      Chef::Log.info("running: #{cmd} ..."+`#{cmd}`)
+      Chef::Log.info("running: #{cmd} ...")
+      out = `#{cmd}`
+      Chef::Log.info("out:#{out}")     
       if $? != 0
         Chef::Log.error("error in lvcreate")
+        puts "***FAULT:FATAL=error in lvcreate, Check whether sufficient space is available on the storage device to create volume"
+        e = Exception.new("no backtrace")
+        e.set_backtrace("")
+        raise e
         exit 1
       end
     end
@@ -673,6 +693,7 @@ ruby_block 'filesystem' do
       # in-line because of the ruby_block doesn't allow updated _device value passed to mount resource
       `mkdir -p #{_mount_point}`
       cmd = "mount -t #{_fstype} -o #{_options} #{_device} #{_mount_point}"
+      Chef::Log.info("running #{cmd} ..." )
       result = `#{cmd}`
       if result.to_i != 0
         Chef::Log.error("mount error: #{result.to_s}")
@@ -684,7 +705,7 @@ ruby_block 'filesystem' do
         fstab.puts("#{_device} #{_mount_point} #{_fstype} #{_options} 1 1")
         Chef::Log.info("adding to fstab #{_device} #{_mount_point} #{_fstype} #{_options} 1 1")
       end
-      `mv /tmp/fstab /etc/fstab`
+      `mv /tmp/fstab /etc/fstab` 
 
       if token_class =~ /azure/
         `sudo mkdir /opt/oneops/workorder`

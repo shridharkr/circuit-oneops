@@ -20,27 +20,15 @@ include_recipe 'azure::get_platform_rg_and_as'
 
 Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
-#determine which storage acct to use (prm or std)
-size = node[:workorder][:payLoad][:RequiresComputes][0][:ciAttributes][:size]
-storage_type = nil
-if Utils.is_prm(size, true)
-	storage_acct = 'storage_account_prm'
-else
-	storage_acct = 'storage_account_std'
-end
-
-Chef::Log.info("Choosing #{storage_acct}")
-
 cloud_name = node['workorder']['cloud']['ciName']
-tenant_id = node['workorder']['services']['storage'][cloud_name]['ciAttributes']['tenant_id']
-client_id = node['workorder']['services']['storage'][cloud_name]['ciAttributes']['client_id']
-client_secret = node['workorder']['services']['storage'][cloud_name]['ciAttributes']['client_secret']
-subscription = node['workorder']['services']['storage'][cloud_name]['ciAttributes']['subscription']
-storage_account_name = node['workorder']['services']['storage'][cloud_name]['ciAttributes'][storage_acct]
+tenant_id = node['workorder']['services']['compute'][cloud_name]['ciAttributes']['tenant_id']
+client_id = node['workorder']['services']['compute'][cloud_name]['ciAttributes']['client_id']
+client_secret = node['workorder']['services']['compute'][cloud_name]['ciAttributes']['client_secret']
+subscription = node['workorder']['services']['compute'][cloud_name]['ciAttributes']['subscription']
 
 instance_name = nil
-if node.workorder.payLoad.has_key?("DependsOn")
- instance_name = node.workorder.payLoad.DependsOn[0]["ciAttributes"]["instance_name"]
+if node.workorder.payLoad.has_key?("ManagedVia")
+ instance_name = node.workorder.payLoad.ManagedVia[0]["ciAttributes"]["instance_name"]
  if instance_name != nil
    OOLog.info('instance_name:'+instance_name)
  end
@@ -48,32 +36,36 @@ end
 
 node.set["azureCredentials"] = AzureStorage::AzureDatadisk.get_credentials(tenant_id,client_id,client_secret)
 
-cloud_name = node[:workorder][:cloud][:ciName]
-storage_service = node[:workorder][:services][:storage][cloud_name]
-storage = storage_service["ciAttributes"]
+storage = nil
+node.workorder.payLoad.DependsOn.each do |dep|
+  if dep["ciClassName"] =~ /Storage/
+    storage = dep
+    break
+  end
+end
+
+rgname=nil
+storage_account_name=nil
+
+storage.ciAttributes.device_map.split(" ").each do |dev|
+  rgname = dev.split(":")[0]
+  storage_account_name = dev.split(":")[1]
+end
 
 storage_client = StorageManagementClient.new(node.azureCredentials)
 storage_client.subscription_id = subscription
 
-storage_account_keys= storage_client.storage_accounts.list_keys(storage.master_rg,storage[storage_acct]).value!
+storage_account_keys= storage_client.storage_accounts.list_keys(rgname,storage_account_name).value!
 
 OOLog.info('  storage_account_keys : ' +   storage_account_keys.body.inspect)
 key1 = storage_account_keys.body.key1
 key2 = storage_account_keys.body.key2
-dev_map = node.workorder.rfcCi.ciAttributes["device_map"]
 
-if instance_name != nil
+OOLog.info("storage_account_name : #{storage_account_name}, rgname : #{rgname}")
+
+if instance_name != nil && rgname != nil && storage_account_name != nil
  OOLog.info('Detaching disk from VM')
  rgname = node['platform-resource-group']
- device_maps = node.workorder.rfcCi.ciAttributes["device_map"].split(" ")
+ device_maps = storage.ciAttributes["device_map"].split(" ")
  AzureStorage::AzureDatadisk.detach_disk_from_vm(instance_name,subscription,rgname,node['azureCredentials'],device_maps)
-end
-
-dev_map.split(" ").each do |dev|
-  dev_id = dev.split(":")[4]
-  storage_account_name = dev.split(":")[1]
-  component_name = dev.split(":")[2]
-  dev_name = dev_id.split("/").last
-  blobname = "#{storage[storage_acct]}-#{component_name}-datadisk-#{dev_name}.vhd"
-  AzureStorage::AzureDatadisk.delete_disk(storage_account_name,key1,blobname,1)
 end

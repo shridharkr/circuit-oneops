@@ -4,6 +4,7 @@ maintainer_email 'kowsalya.palaniappan@walmart.com'
 license          'Apache License, Version 2.0'
 description      'Installs/Configures azuredatadisk'
 version          '0.1.0'
+depends          "azure_base"
 
 grouping 'default',
          :access => "global",

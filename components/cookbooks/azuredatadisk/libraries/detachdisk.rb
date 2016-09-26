@@ -16,7 +16,7 @@ module AzureStorage
           OOLog.info("Error acquiring a token from azure")
       end
     end
-
+  
     def self.delete_disk(storage_account_name,access_key,blobname,lock_state)
       c=Azure::Core.config()
       c.storage_access_key = access_key
@@ -30,18 +30,25 @@ module AzureStorage
         retry_count = 20
         begin
           if retry_count > 0
-            OOLog.info("Trying to delete the data disk page (page blob):#{blobname} ....")
+            OOLog.info("Trying to delete the disk page (page blob):#{blobname} ....")
             delete_result = service.delete_blob(container, blobname)
           end
           retry_count = retry_count-1
         end until delete_result == nil
         if delete_result !=nil && retry_count == 0
-          OOLog.debug("Error in deleting the data disk (page blob):#{blobname}")
+          OOLog.debug("Error in deleting the disk (page blob):#{blobname}")
         end
+      rescue Azure::Core::Http::HTTPError => e
+        OOLog.info("error type:#{e.type}")
+        if e.type == "LeaseIdMissing"
+          OOLog.error("Failed to delete the disk because there is currently a lease on the blob. Make sure to delete all volumes on the disk attached before detaching disk from VM")
+          return "DiskUnderLease"
+        end
+        OOLog.error("Failed to delete the disk: #{e.description}")
       rescue Exception => e
-        OOLog.fatal("Failed to delete the disk: #{e.inspect}")
+        OOLog.error("Failed to delete the disk: #{e.inspect}")
       end
-      OOLog.info("Successfully deleted the Datadisk(page blob):#{blobname}")
+      OOLog.info("Successfully deleted the disk(page blob):#{blobname}")
     end
 
     def self.detach_disk_from_vm(instance_name, subscription_id,rg_name,credentials,device_maps)

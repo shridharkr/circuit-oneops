@@ -6,6 +6,9 @@ AzureStorage::AzureDatadisk.delete_disk(node['storage_account'],node['storage_ke
 
 if node['datadisk_uri'] != nil
 data_disk_blobname = (node['datadisk_uri'].split("/").last)
-OOLog.info("Deleting data_disk : #{data_disk_blobname}")
-AzureStorage::AzureDatadisk.delete_disk(node['storage_account'],node['storage_key1'],data_disk_blobname,0)
+
+if data_disk_blobname.include?(node['storage_account'])
+    OOLog.info("Deleting data_disk : #{data_disk_blobname}")
+    AzureStorage::AzureDatadisk.delete_disk(node['storage_account'],node['storage_key1'],data_disk_blobname,0)
+  end
 end

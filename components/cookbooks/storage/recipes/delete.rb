@@ -15,7 +15,8 @@
 #
 # storage::delete
 #
-
+require 'azure'
+require File.expand_path('../../../azuredatadisk/libraries/detachdisk.rb', __FILE__)
 max_retry_count = 5
 cloud_name = node[:workorder][:cloud][:ciName]
 provider_class = node[:workorder][:services][:storage][cloud_name][:ciClassName].downcase
@@ -24,7 +25,8 @@ include_recipe "shared::set_provider"
 
 dev_map = node.workorder.rfcCi.ciAttributes["device_map"]
 if provider_class =~ /azure/
-  include_recipe "azuredatadisk::detach_datadisk"
+  Chef::Log.info("Deleting the data disk ...")
+  include_recipe "azuredatadisk::delete_datadisk"
   return true
 end
 
