@@ -41,7 +41,7 @@ def delete_dns (dns_name, dns_value)
   cmd_content = node.ddns_header + "update delete #{dns_name} #{delete_type.upcase} #{dns_value}\nsend\n"
   cmd_file = node.ddns_key_file + '-cmd'
   File.open(cmd_file, 'w') { |file| file.write(cmd_content) }
-  cmd = "/bin/nsupdate -k #{node.ddns_key_file} #{cmd_file}"
+  cmd = "nsupdate -k #{node.ddns_key_file} #{cmd_file}"
   puts cmd
   result = `#{cmd}`
   
@@ -152,11 +152,11 @@ node[:entries].each do |entry|
       ttl = node.workorder.rfcCi.ciAttributes.ttl.to_i
     end
     
-    
-    cmd_content = node.ddns_header + "update add #{dns_name} #{ttl} #{delete_type.upcase} #{dns_value}\nsend\n"
+    type = get_record_type(dns_name,[dns_value])
+    cmd_content = node.ddns_header + "update add #{dns_name} #{ttl} #{type.upcase} #{dns_value}\nsend\n"
     puts "cmd_content: #{cmd_content}"
     File.open(cmd_file, 'w') { |file| file.write(cmd_content) }
-    cmd = "/bin/nsupdate -k #{node.ddns_key_file} #{cmd_file}"
+    cmd = "nsupdate -k #{node.ddns_key_file} #{cmd_file}"
     puts cmd
     result = `#{cmd}`    
     
@@ -212,5 +212,7 @@ node[:entries].each do |entry|
 
 end
 
-File.remove(node.ddns_key_file)
-File.remove(cmd_file)
+File.delete(node.ddns_key_file)
+if File.exists?(cmd_file)
+  File.delete(cmd_file)  
+end
