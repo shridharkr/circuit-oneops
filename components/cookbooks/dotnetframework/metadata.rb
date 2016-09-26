@@ -7,7 +7,6 @@ long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          '0.1.0'
 
 supports 'windows'
-depends 'chocolatey', '= 0.4.0'
 
 grouping 'default',
   :access   => "global",
@@ -24,12 +23,12 @@ attribute 'chocolatey_package_source',
     :order     => 1
   }
 
-attribute 'dotnet_framework_version',
-  :description => 'Framework version',
-  :default     => '.Net 4.5.2',
+attribute 'dotnet_version_package_name',
+  :description => ".Net Framework version",
+  :data_type   => "hash",
+  :default     => '{ ".Net 4.6":"dotnet4.6" }',
   :format      => {
-  :help        => 'Select the .net framework versions to be installed',
-    :category  => '2.Framework Version',
-    :order     => 1,
-    :form      => { 'field' => 'select', 'options_for_select' => [['.Net 3.5','dotnet3.5'],['.Net 4.5.2','dotnet4.5.2'], ['.Net 4.6','dotnet4.6']] }
+    :help      => 'Add .net framework version. Format: .Net <version> = <chocolatey package name>',
+    :category  => '2.Framework version',
+    :order     => 1
   }

@@ -1,8 +1,8 @@
 #VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure("2") do |config|
-  config.vm.box = 'win2012r2chef'
-  config.vm.box_url = '/Users/spage/Documents/saheb/Work/Boxes/win2012_r2_chef12_11_18.box'
+  config.vm.box = 'win2012r2chef12118'
+  config.vm.box_url = ''
   config.vm.guest = :windows
 
   config.vm.provider "virtualbox" do |v|
@@ -19,7 +19,6 @@ Vagrant.configure("2") do |config|
   config.vm.provision :chef_solo do |chef|
     chef.log_level         = :debug
     chef.cookbooks_path = [".."]
-    chef.add_recipe("chocolatey")
     chef.add_recipe("dotnetframework::add")
 
     chef.json = { "workorder": { "rfcCi": { "ciAttributes": { "dotnet_framework_version": "dotnet4.5.2",  "chocolatey_package_source": "https://chocolatey.org/api/v2/"  } } } }

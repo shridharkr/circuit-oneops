@@ -12,12 +12,11 @@ resource "dotnetframework",
   :cookbook     => "oneops.1.dotnetframework",
   :design       => true,
   :requires     => {
-    :constraint => "1..*",
+    :constraint => "1..1",
     :help       => "Installs .net frameworks"
   },
   :attributes   => {
-    "chocolatey_package_source" => 'https://chocolatey.org/api/v2/',
-    "dotnet_framework_version" => '.Net 4.5.2'
+    "chocolatey_package_source" => 'https://chocolatey.org/api/v2/'
   }
 
 resource "secgroup",
