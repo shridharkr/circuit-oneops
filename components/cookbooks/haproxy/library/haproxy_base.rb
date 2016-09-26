@@ -35,6 +35,7 @@ module Haproxy
       end
             
       # backend
+      lb_name += "-backend"
       response = conn.request(:method => :get, :path => "/backend/#{lb_name}")      
       puts "response: #{response.inspect}"
       if response.status == 200 
