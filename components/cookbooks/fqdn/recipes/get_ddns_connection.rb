@@ -20,11 +20,12 @@
 cloud_name = node[:workorder][:cloud][:ciName]
 service = node[:workorder][:services][:dns][cloud_name][:ciAttributes]
   
-auth_content = "key #{service[:username]} {\n"
-auth_content += "  secret \"#{service[:password]}\";\n"
+auth_content = "key #{service[:keyname]} {\n"
+auth_content += "  secret \"#{service[:secret]}\";\n"
 auth_content += "  algorithm #{service[:algorithm]};\n"
 auth_content += "};\n"  
 
 filename = '/tmp/ddns' + (0..16).to_a.map{|a| rand(16).to_s(16)}.join
 File.open(filename, 'w') { |file| file.write(auth_content) }  
 node.set["ddns_key_file"] = filename
+node.set["ddns_header"] = "server #{node.ns}\nzone #{service[:zone]}\n"
