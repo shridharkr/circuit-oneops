@@ -49,19 +49,14 @@ shared_download_http source_list do
   action :create
 end
 
-#tar_flags = "--exclude webapps/ROOT"
-execute "tar --exclude webapps/ROOT -zxf #{node['tomcat']['download_destination']}" do
+
+execute "tar --exclude webapps/ROOT --exclude='*webapps/examples*' --exclude='*webapps/ROOT*' --exclude='*webapps/docs*' --exclude='*webapps/manager*' --exclude='*webapps/host-manager*' -zxf #{node['tomcat']['download_destination']}" do
   cwd node['tomcat']['config_dir']
 end
 
 execute "chown -R #{node['tomcat']['global']['tomcat_user']}:#{node['tomcat']['global']['tomcat_group']} #{node['tomcat']['instance_dir']}"
 execute "rm -fr #{node['tomcat']['download_destination']}"
 
-=begin
-link "#{node.tomcat.tomcat_install_dir}/tomcat#{major_version}" do
-  to "#{node.tomcat.tomcat_install_dir}/apache-tomcat-#{full_version}"
-end
-=end
 ###############################################################################
 # End of add_repo.rb
 ###############################################################################

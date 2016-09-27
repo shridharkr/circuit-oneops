@@ -7,12 +7,12 @@ After=syslog.target network.target
 [Service]
 Type=simple
 
-ExecStartPre="<%= node['tomcat']['startup_shutdown']['pre_startup_command'].gsub(/\r\n?/,"\n") %>"
-ExecStart="<%= node['tomcat']['instance_dir'] %>/bin/startup.sh"
-ExecStartPost="<%= node['tomcat']['startup_shutdown']['post_startup_command'].gsub(/\r\n?/,"\n") %>"
-ExecStop="<%= node['tomcat']['startup_shutdown']['pre_shutdown_command'].gsub(/\r\n?/,"\n") %>"
-ExecStop="<%= node['tomcat']['instance_dir'] %>/bin/shutdown.sh"
-ExecStopPost="<%= node['tomcat']['startup_shutdown']['post_shutdown_command'].gsub(/\r\n?/,"\n") %>"
+#ExecStartPre=<%= node['tomcat']['startup_shutdown']['pre_startup_command'].gsub(/\r\n?/,"\n") %>
+ExecStart=<%= node['tomcat']['instance_dir'] %>/bin/startup.sh
+#ExecStartPost=<%= node['tomcat']['startup_shutdown']['post_startup_command'].gsub(/\r\n?/,"\n") %>
+#ExecStop=<%= node['tomcat']['startup_shutdown']['pre_shutdown_command'].gsub(/\r\n?/,"\n") %>
+ExecStop=<%= node['tomcat']['instance_dir'] %>/bin/shutdown.sh
+#ExecStopPost=<%= node['tomcat']['startup_shutdown']['post_shutdown_command'].gsub(/\r\n?/,"\n") %>
 Restart=on-failure
 RestartSec=2
 TimeoutSec=<%= node['tomcat']['startup_shutdown']['stop_time'] %>

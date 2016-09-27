@@ -94,7 +94,7 @@ attribute 'override_server_enabled',
 
 attribute 'server_tomcat',
           :description => "Additional Configuration for server.xml",
-          :default => "",
+          :default => " ",
           :data_type => "text",
           :format => {
               :help => "Define the values that you want to override the existing server.xml file.",
