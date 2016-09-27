@@ -221,12 +221,12 @@ end
 ###############################################################################
   service 'tomcat' do
     service_name 'tomcat'
-    action [:enable]
+    action [:reload, :enable]
   end
 
 ###############################################################################
 # Additional Recipes
 #   These recipes will be called after the rest of the add.rb file is run.
 ###############################################################################
-#include_recipe 'tomcat-85::start'
+include_recipe 'tomcat-85::start'
 #include_recipe 'tomcat-85::stop'

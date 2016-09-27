@@ -52,5 +52,5 @@ cmd += "--amq_truststore_location #{inductor[:ciAttributes][:amq_truststore_loca
 # add/update inductor queue
 execute cmd do
   cwd inductor_home
-  user inductor[:ciAttributes][:user]
+  user "ooadmin"
 end

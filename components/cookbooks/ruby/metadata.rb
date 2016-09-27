@@ -23,13 +23,13 @@ attribute 'install_type',
 
 attribute 'version',
   :description => "Version",
-  :default => "1.9.3",
+  :default => "2.2.5",
   :format => {
     :important => true,
     :help => 'Version of Ruby',
     :category => '1.Source',
     :order => 2,
-    :form => { 'field' => 'select', 'options_for_select' => [['1.9.3','1.9.3-p547'],['2.0.0','2.0.0-p576'],['2.1.0','2.1.0'],['2.1.2','2.1.2'],['2.1.3','2.1.3']] },
+    :form => { 'field' => 'select', 'options_for_select' => [['1.9.3','1.9.3-p547'],['2.1.2','2.1.2'],['2.1.3','2.1.3'],['2.2.5','2.2.5'],['2.3.1','2.3.1']] },
     :pattern => "[0-9\.]+",
     :filter => {"all" => {"visible" => "install_type:eq:rvm"}}
   }
