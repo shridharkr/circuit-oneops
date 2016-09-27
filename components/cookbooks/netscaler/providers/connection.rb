@@ -51,8 +51,12 @@ def check_lb_az_ip_availability(cloud_service, manifest_id)
     if resp_obj.has_key?("lbvserver")
       lbs_ips = resp_obj["lbvserver"].map {|l| l['ipv46'].to_s }
     else
-      Chef::Log.error("could not get lbvserver list for ip availability")
-      exit 1
+      if resp_obj.has_key?('errorcode') && resp_obj['errorcode'] == 0
+        Chef::Log.info("no lbvservers configured on this netscaler")
+      else
+        Chef::Log.error("could not get lbvserver list for ip availability")        
+        exit 1
+      end
     end
 
     az_ip_range_map[az].split(",").each do |range|  
