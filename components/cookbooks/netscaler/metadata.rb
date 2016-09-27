@@ -104,6 +104,16 @@ attribute 'az_ip_range_map',
     :order => 10, 
     :help => 'Map of AZ to vip CIDR'
   }
-  
+
+attribute 'active_az_list',
+  :description => "Active AZ List",
+  :data_type => "array",
+  :default => '[]',
+  :required => "required",
+  :format => { 
+    :category => '1.Global', 
+    :order => 11, 
+    :help => 'Active AZ list to schedule new / replaced LB'
+  }    
 
 recipe "status", "Netscaler Status"

@@ -8,6 +8,7 @@ depends          "netscaler"
 depends          "azure_lb"
 depends          "neutron"
 depends          "f5-bigip"
+depends          "haproxy"
 
 grouping 'default',
   :access => "global",
