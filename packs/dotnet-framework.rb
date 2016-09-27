@@ -1,4 +1,4 @@
-include_pack "custom"
+include_pack "genericlb"
 
 name "dotnet-framework"
 description ".Net Framework"
