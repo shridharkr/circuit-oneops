@@ -1,6 +1,5 @@
 
-param([string]$proxy, [string]$chocoPkg, [string]$chocoRepo, [string]$gemRepo)
-
+param([string]$proxy="", [string]$chocoPkg="", [string]$chocoRepo="", [string]$gemRepo="")
 
 function Download-File {
   param ( [string]$proxy, [string]$uri, [string]$dir, [string]$destination )
@@ -83,9 +82,9 @@ Set-Location "C:\"
 Remove-Item -Recurse -Force $chocoTempDir
 
 ## =======================================
-#if ( proxy -ne "http://www.google.com" ) { #$proxy -ne "" -and $proxy -ne $null -and $proxy -eq
-# choco config set proxy $proxy
-#}
+if ( $proxy -ne "" -and $proxy -ne $null) {
+  choco config set proxy $proxy
+}
 
 if ( $chocoRepo -ne "" -and $chocoRepo -ne $null ) {
   #choco source disable -y --name="chocolatey"
@@ -94,7 +93,6 @@ if ( $chocoRepo -ne "" -and $chocoRepo -ne $null ) {
 
 Write-Output "Install ruby ..."
 choco install -y ruby
-$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
 Write-Output "Install ruby DevKit ..."
 choco install -y ruby2.devkit
@@ -106,7 +104,7 @@ Set-Content config.yml "- C:/tools/ruby23"
 ###########################################
 
 # Set the latest path to the current session, so that we get the latest path
-$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+$env:Path = d[System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
 $env:Path += ";C:\cygdrive\c\tools\ruby23\bin;C:\tools\DevKit2\bin"
 
