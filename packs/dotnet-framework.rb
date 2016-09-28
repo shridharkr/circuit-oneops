@@ -13,7 +13,8 @@ resource "dotnetframework",
   :design       => true,
   :requires     => {
     :constraint => "1..1",
-    :help       => "Installs .net frameworks"
+    :help       => "Installs .net frameworks",
+    :services   => 'mirror'
   },
   :attributes   => {
     "chocolatey_package_source" => 'https://chocolatey.org/api/v2/'
