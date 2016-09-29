@@ -535,35 +535,7 @@ resource "volume",
                     'LowDiskInode' => threshold('5m','avg','inode_used',trigger('>',90,5,1),reset('<',90,5,1)),
                   },
                 },
-    },
-  :payloads => { 'region' => {
-    'description' => 'Region',
-    'definition' => '{
-       "returnObject": false,
-       "returnRelation": false,
-       "relationName": "base.DeployedTo",
-       "direction": "from",
-       "targetClassName": "account.provider.Binding",
-       "relations": [
-         { "returnObject": false,
-           "returnRelation": false,
-           "relationName": "base.BindsTo",
-           "direction": "from",
-           "targetClassName": "account.provider.Zone",
-           "relations": [
-             { "returnObject": true,
-               "returnRelation": false,
-               "relationName": "base.Provides",
-               "direction": "to",
-               "targetClassName": "account.provider.Region"
-             }
-           ]
-         }
-       ]
-    }'
-  }
-
-  }
+    }
 
 resource "share",
   :cookbook => "oneops.1.glusterfs",
@@ -636,34 +608,7 @@ resource "sshkeys",
        "relationName": "bom.SecuredBy",
        "direction": "to"
     }'
-    },
-    'region' => {
-    'description' => 'Region',
-    'definition' => '{
-       "returnObject": false,
-       "returnRelation": false,
-       "relationName": "base.DeployedTo",
-       "direction": "from",
-       "targetClassName": "account.provider.Binding",
-       "relations": [
-         { "returnObject": false,
-           "returnRelation": false,
-           "relationName": "base.BindsTo",
-           "direction": "from",
-           "targetClassName": "account.provider.Zone",
-           "relations": [
-             { "returnObject": true,
-               "returnRelation": false,
-               "relationName": "base.Provides",
-               "direction": "to",
-               "targetClassName": "account.provider.Region"
-             }
-           ]
-         }
-       ]
-    }'
-  }
-
+   }
   }
 
 resource "secgroup",
