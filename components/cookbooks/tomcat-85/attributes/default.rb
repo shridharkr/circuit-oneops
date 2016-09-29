@@ -107,23 +107,6 @@ default['tomcat']['keystore_pass'] = "changeit"
 default['tomcat']['server_port'] = 8005
 default['tomcat']['use_security_manager'] = false
 default['tomcat']['ssl_configured_ciphers'] = 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,TLS_DHE_RSA_WITH_AES_256_CBC_SHA,TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_RSA_WITH_CAMELLIA_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_CAMELLIA_128_CBC_SHA,TLS_DHE_RSA_WITH_SEED_CBC_SHA,TLS_RSA_WITH_SEED_CBC_SHA'
-default['java']['java_home'] = '/usr'
-default['tomcat']['home'] = '/usr/share/tomcat'
-default['tomcat']['base'] = '/usr/share/tomcat'
-
-#default['tomcat']['version'] = '8.5.2'
-#default['tomcat']['port'] = 8080
-#default['tomcat']['ssl_port'] = 8443
-#default['tomcat']['java_options'] = '-Djava.awt.headless=true -Djavax.net.ssl.trustStore="/opt/tomcat/ssl/trust.jks"'
-#default['tomcat']['stop_time'] = 45
-#default['tomcat']['max_threads'] = 50
-#default['tomcat']['min_spare_threads'] = 25
-#default['tomcat']['logfiles_path'] = "#{tomcat['config_dir']}/logs"
-#set['tomcat']['config_dir'] = '/opt/tomcat'
-#if !node['tomcat']['logfiles_path'].match('^/')
-#  node.set['tomcat']['logfiles_path'] = "/node['tomcat']['logfiles_path']"
-#end
-
 ###############################################################################
 # End of default.rb
 ###############################################################################

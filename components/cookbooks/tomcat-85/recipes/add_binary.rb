@@ -50,7 +50,7 @@ shared_download_http source_list do
 end
 
 
-execute "tar --exclude webapps/ROOT --exclude='*webapps/examples*' --exclude='*webapps/ROOT*' --exclude='*webapps/docs*' --exclude='*webapps/manager*' --exclude='*webapps/host-manager*' -zxf #{node['tomcat']['download_destination']}" do
+execute "tar --exclude='*webapps/examples*' --exclude='*webapps/ROOT*' --exclude='*webapps/docs*' --exclude='*webapps/manager*' --exclude='*webapps/host-manager*' -zxf #{node['tomcat']['download_destination']}" do
   cwd node['tomcat']['config_dir']
 end
 

@@ -5,7 +5,8 @@ Description=Apache Tomcat Application Container
 After=syslog.target network.target
 
 [Service]
-Type=simple
+Type=forking
+PIDFile=<%= node['tomcat']['logs']['logfiles_path'] %>/tomcat.pid
 
 #ExecStartPre=<%= node['tomcat']['startup_shutdown']['pre_startup_command'].gsub(/\r\n?/,"\n") %>
 ExecStart=<%= node['tomcat']['instance_dir'] %>/bin/startup.sh
@@ -13,8 +14,11 @@ ExecStart=<%= node['tomcat']['instance_dir'] %>/bin/startup.sh
 #ExecStop=<%= node['tomcat']['startup_shutdown']['pre_shutdown_command'].gsub(/\r\n?/,"\n") %>
 ExecStop=<%= node['tomcat']['instance_dir'] %>/bin/shutdown.sh
 #ExecStopPost=<%= node['tomcat']['startup_shutdown']['post_shutdown_command'].gsub(/\r\n?/,"\n") %>
+
 Restart=on-failure
+
 RestartSec=2
+
 TimeoutSec=<%= node['tomcat']['startup_shutdown']['stop_time'] %>
 
 User=<%= node['tomcat']['global']['tomcat_user'] %>
