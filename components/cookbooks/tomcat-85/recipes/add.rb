@@ -213,7 +213,8 @@ end
 
 service 'tomcat' do
   service_name 'tomcat'
-  action [:reload, :enable]
+  supports :status => true, :restart => true, :reload => true,:start => true, :stop => true
+  action [:enable]
 end
 
 ###############################################################################

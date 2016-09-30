@@ -23,7 +23,7 @@ CATALINA_HOME=<%= node['tomcat']['instance_dir'] %>
 #   JRE_HOME        Must point at your Java Runtime installation.
 #   Default         Value of JAVA_HOME
 ###############################################################################
-JRE_HOME=$JAVA_HOME
+JRE_HOME=<%= node['tomcat']['java']['jre_home'] %>
 
 ###############################################################################
 #   CATALINA_BASE   Directory for per-instance configuration files and webapps.
@@ -60,7 +60,7 @@ CATALINA_OPTS="${CATALINA_OPTS} -Xms<%= node['tomcat']['java']['mem_start'] %>"
 CATALINA_OPTS="${CATALINA_OPTS} -d64 "
 
 <% if node['tomcat']['java']['startup_params'] != nil && !node['tomcat']['java']['startup_params'].empty? %>
-CATALINA_OPTS="${CATALINA_OPTS} <%= node['tomcat']['java']['startup_params'].each{ |v| "-XX:#{v} " } %>"
+#CATALINA_OPTS="${CATALINA_OPTS}  node['tomcat']['java']['startup_params'].each{ |v| "-XX:#{v} " }"
 <% end %>
 
 ###############################################################################
@@ -76,9 +76,9 @@ CATALINA_OUT="<%= node['tomcat']['logs']['logfiles_path'] %>/catalina.out"
 #                   -Djavax.net.ssl.trustStore="/opt/tomcat/ssl/trust.jks"
 ###############################################################################
 JAVA_OPTS="<%= node['tomcat']['java']['java_options'] %>"
-JAVA_OPTS="${JAVA_OPTS} <%= JSON.parse(node['tomcat']['java']['system_properties']).each{ |k,v| "-D#{k}=#{v} " } %>"
+#JAVA_OPTS="${JAVA_OPTS} <%= JSON.parse(node['tomcat']['java']['system_properties']).each{ |k,v| "-D#{k}=#{v} " } %>"
 JAVA_OPTS="${JAVA_OPTS} -Xmx<%= node['tomcat']['java']['mem_max'] %> -Xms<%= node['tomcat']['java']['mem_start'] %>"
-JAVA_OPTS="${JAVA_OPTS} <%= JSON.parse(node['tomcat']['java']['startup_params']).each{ |v| "-XX:#{v} " } %>"
+#JAVA_OPTS="${JAVA_OPTS} <%= JSON.parse(node['tomcat']['java']['startup_params']).each{ |v| "-XX:#{v} " } %>"
 
 ###############################################################################
 # 	JVM_TMP				  Location of the JVM temporary directory. WARNING: This

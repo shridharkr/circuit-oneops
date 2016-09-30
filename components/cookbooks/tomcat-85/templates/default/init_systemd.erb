@@ -6,7 +6,6 @@ After=syslog.target network.target
 
 [Service]
 Type=forking
-PIDFile=<%= node['tomcat']['logs']['logfiles_path'] %>/tomcat.pid
 
 #ExecStartPre=<%= node['tomcat']['startup_shutdown']['pre_startup_command'].gsub(/\r\n?/,"\n") %>
 ExecStart=<%= node['tomcat']['instance_dir'] %>/bin/startup.sh
