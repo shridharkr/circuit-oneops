@@ -119,25 +119,45 @@ cron 'logrotate' do
 end
 
 ###############################################################################
-# Setup for webapps Directory
+# Setup Directories
 ###############################################################################
+directory "#{node['tomcat']['webapp_install_dir']}" do
+  action :create
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  recursive true
+  not_if "test -d #{node['tomcat']['webapp_install_dir']}"
+end
 
-%w(webapp_install_dir work_dir context_dir).each do |dir|
-  dir_name = node['tomcat'][dir]
-  directory dir_name do
-    action :create
-    recursive true
-    owner "#{node['tomcat']['global']['tomcat_user']}"
-    group "#{node['tomcat']['global']['tomcat_group']}"
-    not_if "test -d #{dir_name}"
-  end
+directory "#{node['tomcat']['work_dir']}" do
+  action :create
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  recursive true
+  not_if "test -d #{node['tomcat']['work_dir']}"
+end
+
+directory "#{node['tomcat']['catalina_dir']}" do
+  action :create
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  recursive true
+  not_if "test -d #{node['tomcat']['catalina_dir']}"
+end
+
+directory "#{node['tomcat']['context_dir']}" do
+  action :create
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  recursive true
+  not_if "test -d #{node['tomcat']['context_dir']}"
 end
 
 directory "#{node['tomcat']['logs']['logfiles_path']}" do
   action :create
-  recursive true
   owner "#{node['tomcat']['global']['tomcat_user']}"
   group "#{node['tomcat']['global']['tomcat_group']}"
+  recursive true
   not_if "test -d #{node['tomcat']['logs']['logfiles_path']}"
 end
 
