@@ -39,6 +39,8 @@ Chef::Log.debug("context root of repo path is: #{node['tomcat']['tarball']}")
 Chef::Log.debug("making #{node['tomcat']['config_dir']} directory")
 directory node['tomcat']['config_dir'] do
   action :create
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
   not_if "test -d #{node['tomcat']['config_dir']}"
 end
 

@@ -8,10 +8,10 @@ license             "Copyright OneOps, All rights reserved."
 grouping 'default',
          :access => "global",
          :packages => ["base", "mgmt.catalog", "mgmt.manifest", "catalog", "manifest", "bom"]
+
 ##################################################################################################
 # Attributes for Tomcat 8.5 Binary Install
-##################################################################################################
-
+##################################################################################################\
 attribute 'version',
           :description => "Tomcat Version",
           :required => "required",
@@ -56,7 +56,6 @@ attribute 'environment_settings',
 ##################################################################################################
 # Attributes for context.xml Configuration
 ##################################################################################################
-
 attribute 'override_context_enabled',
           :description => "Enable Override of context.xml File",
           :default => "false",
@@ -81,7 +80,6 @@ attribute 'context_tomcat',
 ##################################################################################################
 # Attributes for server.xml Configuration
 ##################################################################################################
-
 attribute 'override_server_enabled',
           :description => "Enable Override of server.xml File",
           :default => "false",
@@ -103,7 +101,7 @@ attribute 'server_tomcat',
               :order => 2
           }
 
-attribute 'http_NIO_connector_enabled',
+attribute 'http_nio_connector_enabled',
           :description => "Enable HTTP Connector",
           :default => "false",
           :format => {
@@ -120,13 +118,13 @@ attribute 'http_NIO_connector_enabled',
             :default => "8080",
             :format => {
                 :help => "Specify the port that Tomcat will listen on for incoming HTTP (Non-SSL) requests",
-                :filter => {"all" => {"visible" => "override_server_enabled:eq:false && http_nio_connector_enabled:eq:true"}},
+                :filter => {"all" => {"visible" => ('override_server_enabled:eq:false && http_nio_connector_enabled:eq:true')}},
                 :pattern => "[0-9]+",
                 :category => "3.Server",
                 :order => 4
             }
 
-attribute 'https_NIO_connector_enabled',
+attribute 'https_nio_connector_enabled',
           :description => "Enable HTTPS Connector",
           :default => "true",
           :format => {
@@ -143,7 +141,7 @@ attribute 'ssl_port',
           :default => "8443",
           :format => {
               :help => "Specify the port that Tomcat will listen on for incoming HTTPS (SSL) requests",
-              :filter => {"all" => {"visible" => "override_server_enabled:eq:false && https_nio_connector_enabled:eq:true"}},
+              :filter => {"all" => {"visible" => ('override_server_enabled:eq:false && https_nio_connector_enabled:eq:true')}},
               :pattern => "[0-9]+",
               :category => "3.Server",
               :order => 6
@@ -155,7 +153,7 @@ attribute 'max_threads',
           :default => '50',
           :format => {
               :help => "Specify the max number of active threads in Tomcat's threadpool.",
-              :filter => {"all" => {"visible" => "override_server_enabled:eq:false && https_nio_connector_enabled:eq:true"}},
+              :filter => {"all" => {"visible" => ('override_server_enabled:eq:false && https_nio_connector_enabled:eq:true')}},
               :pattern => '[0-9]+',
               :category => "3.Server",
               :order => 7
@@ -166,6 +164,7 @@ attribute 'advanced_security_options',
           :default => "false",
           :format => {
               :help => "Display advanced security options (Note: Hiding the options does not disable or default any settings changed by the user.)",
+              :filter => {"all" => {"visible" => ('override_server_enabled:eq:false && https_nio_connector_enabled:eq:true')}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
               :order => 8
@@ -176,7 +175,7 @@ attribute 'tlsv11_protocol_enabled',
           :default => "false",
           :format => {
               :help => "If TLS is enabled by adding a certificate and keystore, this attribute determines if the TLSv1.1 protocol and ciphers are enabled.",
-              :filter => {"all" => {"visible" => "override_server_enabled:eq:false && https_nio_connector_enabled:eq:true && advanced_security_options:eq:true"}},
+              :filter => {"all" => {"visible" => ('override_server_enabled:eq:false && https_nio_connector_enabled:eq:true && advanced_security_options:eq:true')}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
               :order => 9
@@ -187,101 +186,13 @@ attribute 'tlsv12_protocol_enabled',
           :default => "true",
           :format => {
               :help => "If SSL/TLS is enabled by adding a certificate and keystore, this attribute determines if the TLSv1.2 protocol and ciphers are enabled.",
-              :filter => {"all" => {"visible" => "override_server_enabled:eq:false && https_nio_connector_enabled:eq:true && advanced_security_options:eq:true"}},
+              :filter => {"all" => {"visible" => ('override_server_enabled:eq:false && https_nio_connector_enabled:eq:true && advanced_security_options:eq:true')}},
               :form => { "field" => "checkbox" },
               :category => "3.Server",
               :order => 10
           }
 
-attribute 'enable_method_get',
-          :description => "Enable GET HTTP method",
-          :default => "true",
-          :format => {
-              :help => "Enable the GET HTTP method",
-              :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
-              :form => { "field" => "checkbox" },
-              :category => "3.Server",
-              :order => 11
-          }
-
-attribute 'enable_method_put',
-          :description => "Enable PUT HTTP method",
-          :default => "true",
-          :format => {
-              :help => "Enable the PUT HTTP method",
-              :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
-              :form => { "field" => "checkbox" },
-              :category => "3.Server",
-              :order => 12
-          }
-
-attribute 'enable_method_post',
-          :description => "Enable POST HTTP method",
-          :default => "true",
-          :format => {
-              :help => "Enable the POST HTTP method",
-              :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
-              :form => { "field" => "checkbox" },
-              :category => "3.Server",
-              :order => 13
-          }
-
-attribute 'enable_method_delete',
-          :description => 'Enable DELETE HTTP method',
-          :default => 'true',
-          :format => {
-              :help => "Enable the DELETE HTTP method",
-              :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
-              :form => { "field" => "checkbox" },
-              :category => "3.Server",
-              :order => 14
-          }
-
-attribute 'enable_method_connect',
-          :description => 'Enable CONNECT HTTP method',
-          :default => 'false',
-          :format => {
-              :help => "Enable the CONNECT HTTP method",
-              :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
-              :form => { "field" => "checkbox" },
-              :category => "3.Server",
-              :order => 15
-          }
-
-attribute 'enable_method_options',
-          :description => 'Enable OPTIONS HTTP method',
-          :default => 'false',
-          :format => {
-              :help => "Enable the OPTIONS HTTP method",
-              :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
-              :form => { "field" => "checkbox" },
-              :category => "3.Server",
-              :order => 16
-          }
-
-attribute 'enable_method_head',
-          :description => 'Enable HEAD HTTP method',
-          :default => 'true',
-          :format => {
-              :help => "Enable the HEAD HTTP method",
-              :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
-              :form => { "field" => "checkbox" },
-              :category => "3.Server",
-              :order => 17
-          }
-
-attribute 'enable_method_trace',
-          :description => 'Enable TRACE HTTP method',
-          :default => 'false',
-          :format => {
-              :help => "Enable the TRACE HTTP method",
-              :filter => {"all" => {"visible" => "advanced_security_options:eq:true"}},
-              :form => { "field" => "checkbox" },
-              :category => "3.Server",
-              :order => 18
-          }
-
-attribute 'advanced_NIO_connector_config',
+attribute 'advanced_nio_connector_config',
           :default => '{"connectionTimeout":"20000","maxKeepAliveRequests":"100"}',
           :description => 'Additional Attributes for Tomcat Connector',
           :data_type => 'hash',
@@ -290,7 +201,7 @@ attribute 'advanced_NIO_connector_config',
                 :help => 'These additional attributes (ex: attr_name1="value1" attr_name2="value2") will be appended to both HTTP and HTTPS connector elements in server.xml (enabled or not).',
                 :filter => {"all" => {"visible" => "override_server_enabled:eq:false && (http_nio_connector_enabled:eq:true || https_nio_connector_enabled:eq:true)"}},
                 :category => "3.Server",
-                :order => 19
+                :order => 11
           }
 
 attribute 'autodeploy_enabled',
@@ -301,13 +212,110 @@ attribute 'autodeploy_enabled',
               :filter => {"all" => {"visible" => "override_server_enabled:eq:false"}},
               :form => {"field" => "checkbox"},
               :category => "3.Server",
+              :order => 12
+          }
+
+attribute 'http_methods',
+          :description => "Allow enablement of HTTP methods",
+          :default => "false",
+          :format => {
+              :help => "Display HTTP methods (Note: Hiding the options does not disable or default any settings changed by the user.)",
+              :form => { "field" => "checkbox" },
+              :category => "3.Server",
+              :order => 13
+          }
+
+attribute 'enable_method_get',
+          :description => "Enable GET HTTP method",
+          :default => "true",
+          :format => {
+              :help => "Enable the GET HTTP method",
+              :filter => {"all" => {"visible" => ('http_methods:eq:true')}},
+              :form => { "field" => "checkbox" },
+              :category => "3.Server",
+              :order => 14
+          }
+
+attribute 'enable_method_put',
+          :description => "Enable PUT HTTP method",
+          :default => "true",
+          :format => {
+              :help => "Enable the PUT HTTP method",
+              :filter => {"all" => {"visible" => ('http_methods:eq:true')}},
+              :form => { "field" => "checkbox" },
+              :category => "3.Server",
+              :order => 15
+          }
+
+attribute 'enable_method_post',
+          :description => "Enable POST HTTP method",
+          :default => "true",
+          :format => {
+              :help => "Enable the POST HTTP method",
+              :filter => {"all" => {"visible" => ('http_methods:eq:true')}},
+              :form => { "field" => "checkbox" },
+              :category => "3.Server",
+              :order => 16
+          }
+
+attribute 'enable_method_delete',
+          :description => 'Enable DELETE HTTP method',
+          :default => 'true',
+          :format => {
+              :help => "Enable the DELETE HTTP method",
+              :filter => {"all" => {"visible" => ('http_methods:eq:true')}},
+              :form => { "field" => "checkbox" },
+              :category => "3.Server",
+              :order => 17
+          }
+
+attribute 'enable_method_connect',
+          :description => 'Enable CONNECT HTTP method',
+          :default => 'false',
+          :format => {
+              :help => "Enable the CONNECT HTTP method",
+              :filter => {"all" => {"visible" => ('http_methods:eq:true')}},
+              :form => { "field" => "checkbox" },
+              :category => "3.Server",
+              :order => 18
+          }
+
+attribute 'enable_method_options',
+          :description => 'Enable OPTIONS HTTP method',
+          :default => 'false',
+          :format => {
+              :help => "Enable the OPTIONS HTTP method",
+              :filter => {"all" => {"visible" => ('http_methods:eq:true')}},
+              :form => { "field" => "checkbox" },
+              :category => "3.Server",
+              :order => 19
+          }
+
+attribute 'enable_method_head',
+          :description => 'Enable HEAD HTTP method',
+          :default => 'true',
+          :format => {
+              :help => "Enable the HEAD HTTP method",
+              :filter => {"all" => {"visible" => ('http_methods:eq:true')}},
+              :form => { "field" => "checkbox" },
+              :category => "3.Server",
               :order => 20
+          }
+
+attribute 'enable_method_trace',
+          :description => 'Enable TRACE HTTP method',
+          :default => 'false',
+          :format => {
+              :help => "Enable the TRACE HTTP method",
+              :filter => {"all" => {"visible" => ('http_methods:eq:true')}},
+              :form => { "field" => "checkbox" },
+              :category => "3.Server",
+              :order => 21
           }
 
 ##################################################################################################
 # Attributes set in the setenv.sh script
 ##################################################################################################
-
 attribute 'java_options',
           :description => "Java Options",
           :default => '-Djava.awt.headless=true',
@@ -357,7 +365,9 @@ attribute 'mem_start',
               :order => 5
           }
 
+##################################################################################################
 # Attributes to control log settings
+##################################################################################################
 attribute 'logfiles_path',
           :description => "Cantalina and Access Log Directory Path",
           :required => "required",
@@ -377,7 +387,9 @@ attribute 'access_log_pattern',
               :order => 2
           }
 
+##################################################################################################
 # Attributes for Tomcat instance startup and shutdown processes
+##################################################################################################
 attribute 'stop_time',
           :default => '45',
           :description => "Tomcat Shutdown Time Limit (secs)",
@@ -391,7 +403,6 @@ attribute 'stop_time',
 attribute 'pre_shutdown_command',
           :default => '',
           :description => 'Pre-Shutdown Command',
-#          :data_type => 'text',
           :format => {
               :help => 'Specify the command to be executed before catalina stop is invoked. (Ex: It can be used to post request (using curl), which can trigger an ecv failure(response code 503). This will allow the load balancer to take the instance out of traffic.)',
               :category => '7.Startup_Shutdown',
