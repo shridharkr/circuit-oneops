@@ -23,6 +23,8 @@ when /azuredns/
   provider = "azuredns"
 when /designate/
   provider = "designate"
+else
+  provider = provider_service  
 end
 
 # skip deletes if other active clouds for same dc

@@ -92,7 +92,7 @@ attribute 'override_server_enabled',
 
 attribute 'server_tomcat',
           :description => "Additional Configuration for server.xml",
-          :default => "",
+          :default => " ",
           :data_type => "text",
           :format => {
               :help => "Define the values that you want to override the existing server.xml file.",
@@ -339,7 +339,7 @@ attribute 'system_properties',
 attribute 'startup_params',
           :description => "Startup Parameters",
           :data_type => 'array',
-          :default => '["+UseConcMarkSweepGC +PrintGCDetails +PrintGCDateStamps -DisableExplicitGC +UseGCLogFileRotation NumberOfGCLogFiles=5 GCLogFileSize=10M"]',
+          :default => '["+UseConcMarkSweepGC", "+PrintGCDetails", "+PrintGCDateStamps", "-DisableExplicitGC", "+UseGCLogFileRotation", "NumberOfGCLogFiles=5", "GCLogFileSize=10M"]',
           :format => {
               :help => 'Specify any -XX arguments (without the -XX: in the values) needed.',
               :category => '5.Java',
