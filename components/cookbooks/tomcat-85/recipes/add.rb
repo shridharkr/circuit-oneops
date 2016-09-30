@@ -25,7 +25,7 @@
 #   The tomcat_user and tomcat_group variables will be grabbed from the user
 #     response in the metadata.rb file if different from the default values.
 ###############################################################################
-include_recipe 'tomcat-85::default'
+include_recipe 'tomcat-85::generate_variables'
 include_recipe 'tomcat-85::dump_attributes'
 
 group "#{node['tomcat']['global']['tomcat_group']}" do
