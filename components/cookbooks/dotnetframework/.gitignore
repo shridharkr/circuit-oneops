@@ -1,10 +1,10 @@
-Gemfile.lock
-.project
-.idea
-.chef
-.arcconfig
-**/.DS_Store
-.rspec
+*~
+*#
+.#*
+\#*#
+.*.sw[a-z]
+*.un~
+pkg/
 
 # Berkshelf
 .vagrant
@@ -12,6 +12,7 @@ Gemfile.lock
 Berksfile.lock
 
 # Bundler
+Gemfile.lock
 bin/*
 .bundle/*
 

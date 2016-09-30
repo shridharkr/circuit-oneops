@@ -1,11 +1,11 @@
 # rubocop:disable LineLength
 ###############################################################################
 # Cookbook Name:: tomcat_8-5
-# Recipe:: add_repo
+# Recipe:: add
 # Purpose:: This recipe is used to do the initial setup of the Tomcat system
 #     settings before the Tomcat binaries are installed onto the server.
 #
-# Copyright 2010, Opscode, Inc.
+# Copyright 2016, Walmart Stores Incorporated
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,13 +20,14 @@
 # limitations under the License.
 ###############################################################################
 
+include_recipe 'tomcat-85::default'
+include_recipe 'tomcat-85::dump_attributes'
+
 ###############################################################################
 # Setup Tomcat User and Group
 #   The tomcat_user and tomcat_group variables will be grabbed from the user
 #     response in the metadata.rb file if different from the default values.
 ###############################################################################
-include_recipe 'tomcat-85::default'
-include_recipe 'tomcat-85::dump_attributes'
 
 group "#{node['tomcat']['global']['tomcat_group']}" do
   action :create
@@ -56,6 +57,7 @@ end
 #       If HTTPS is enabled and the user manually disabled all TLS protocols
 #       from the UI, TLSv1.2 is enabled.
 ###############################################################################
+
 depends_on_keystore = node.workorder.payLoad.DependsOn.reject { |d| d['ciClassName'] !~ /Keystore/ }
 if !depends_on_keystore.nil? && !depends_on_keystore.empty?
   Chef::Log.info("This does depend on keystore with filename: #{depends_on_keystore[0]['ciAttributes']['keystore_filename']} ")
@@ -83,22 +85,18 @@ if node['tomcat']['server']['https_nio_connector_enabled'] == 'true'
   end
 end
 
-template "/etc/systemd/system/tomcat.service" do
-      source 'init_systemd.erb'
-      cookbook 'tomcat-85'
-      owner 'root'
-      group 'root'
-      mode '0644'
-end
 ###############################################################################
 # Run Install Cookbook for Tomcat Binaries
 ###############################################################################
+
 include_recipe 'tomcat-85::add_binary'
+
 ###############################################################################
 # Setup Log Rotation
 #   The logrotate.d script and these cron jobs will clean out Tomcat logs
 #   older than seven days old.
 ###############################################################################
+
 template '/etc/logrotate.d/tomcat' do
   source 'logrotate.erb'
   owner "#{node['tomcat']['global']['tomcat_user']}"
@@ -166,11 +164,11 @@ end
 ###############################################################################
 #   Create Config Files From Templates
 #   1 - server.xml
-#   2 - tomcat-users.xml
-#   3 - manager.xml
+#   2 - context.xml
+#   3 - tomcat-users.xml
 #   4 - policy.d directory
-#   5 - 50local.policy
-#   6 - init.d script
+#   6 - setenv.sh script
+#   7 - tomcat.service
 ###############################################################################
 
 template "#{node['tomcat']['instance_dir']}/conf/server.xml" do
@@ -200,24 +198,31 @@ directory "#{node['tomcat']['instance_dir']}/conf/policy.d" do
   group "#{node['tomcat']['global']['tomcat_group']}"
 end
 
+template "#{node['tomcat']['instance_dir']}/bin/setenv.sh" do
+  source 'setenv.sh.erb'
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  mode '0644'
+end
 
-template '/etc/init.d/tomcat' do
-  source 'initd.erb'
-  owner 'root'
-  group 'root'
-  mode '0755'
+template "/lib/systemd/system/tomcat.service" do
+      source 'init_systemd.erb'
+      cookbook 'tomcat-85'
+      owner 'root'
+      group 'root'
+      mode '0644'
 end
 
 ###############################################################################
 # Nagios Scripts
 ###############################################################################
 
-template '/opt/nagios/libexec/check_tomcat.rb' do
-  source 'check_tomcat.rb.erb'
-  owner 'oneops'
-  group 'oneops'
-  mode '0755'
-end
+#template '/opt/nagios/libexec/check_tomcat.rb' do
+#  source 'check_tomcat.rb.erb'
+#  owner 'oneops'
+#  group 'oneops'
+#  mode '0755'
+#end
 
 template '/opt/nagios/libexec/check_ecv.rb' do
   source 'check_ecv.rb.erb'
@@ -226,30 +231,15 @@ template '/opt/nagios/libexec/check_ecv.rb' do
   mode '0755'
 end
 
-=begin
-include_recipe 'tomcat-85::versionstatus'
-template '/opt/nagios/libexec/check_tomcat_app_version.sh' do
-  source 'check_tomcat_app_version.sh.erb'
-  variables(
-    versioncheckscript: node['versioncheckscript']
-  )
-  owner 'oneops'
-  group 'oneops'
-  mode '0755'
+service 'tomcat' do
+  service_name 'tomcat'
+  supports :status => true, :restart => true, :reload => true,:start => true, :stop => true
+  action [:enable]
 end
-=end
-
-###############################################################################
-# Do Restarts of Tomcat for All Changes Except Deletions
-###############################################################################
-  service 'tomcat' do
-    service_name 'tomcat'
-    action [:reload, :enable]
-  end
 
 ###############################################################################
 # Additional Recipes
 #   These recipes will be called after the rest of the add.rb file is run.
 ###############################################################################
+
 include_recipe 'tomcat-85::start'
-#include_recipe 'tomcat-85::stop'

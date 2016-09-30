@@ -218,6 +218,7 @@ attribute 'nodeip',
   :description => 'Node IPAddress',
   :grouping => 'bom',
   :format => {
+      :important => true,
       :help => 'Node IPAddress',
       :category => '4.Other',
       :order => 21
@@ -227,6 +228,7 @@ attribute 'node_solr_version',
   :description => 'solr version',
   :grouping => 'bom',
   :format => {
+      :important => true,
       :help => 'Current solr version',
       :category => '4.Other',
       :order => 22
@@ -236,6 +238,7 @@ attribute 'node_solr_portnum',
   :description => 'solr portno',
   :grouping => 'bom',
   :format => {
+      :important => true,
       :help => 'solr port number',
       :category => '4.Other',
       :order => 23
@@ -351,6 +354,56 @@ recipe "uploadsolrconfig",
       "defaultValue" => "",
       "required" => true,
       "dataType" => "string"
+    }
+  }
+
+recipe "dynamicschemaupdate",
+  :description => 'This action updates managed schema and uploads to Zookeeper.',
+  :args => {
+    "collection_name" => {
+      "name" => "collection_name",
+      "description" => "collection name",
+      "required" => true,
+      "defaultValue" => "",
+    },
+    "modify_schema_action" => {
+      "name" => "modify_schema_action",
+      "description" => "schema action ex: ( add-field/replace-field/delete-field/add-dynamic-field/delete-dynamic-field/replace-dynamic-field/add-field-type/delete-field-type/replace-field-type/add-copy-field/delete-copy-field )",
+      "required" => true,
+      "defaultValue" => "",
+    },
+    "payload" => {
+      "name" => "payload",
+      "description" => "payload format ex: {key1:value1,key1:value1},{key2:value2,key2:value2}",
+      "required" => true,
+      "defaultValue" => "",
+    },
+    "updateTimeoutSecs" => {
+      "name" => "updateTimeoutSecs",
+      "description" => "update timeout seconds",
+      "defaultValue" => "",
+    }
+  }
+
+recipe "configupdate",
+  :description => 'This action updates the solr-config and uploads to Zookeeper.',
+  :args => {
+    "collection_name" => {
+      "name" => "collection_name",
+      "description" => "collection name",
+      "required" => true,
+      "defaultValue" => "",
+    },
+    "common_property" => {
+      "name" => "common_property",
+      "description" => "common property ex: ( updateHandler.autoSoftCommit.maxTime )",
+      "required" => true,
+      "defaultValue" => "",
+    },
+    "value" => {
+      "name" => "value",
+      "description" => "property value ex: ( 12000 )",
+      "defaultValue" => "",
     }
   }
 

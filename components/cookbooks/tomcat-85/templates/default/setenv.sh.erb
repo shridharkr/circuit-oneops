@@ -17,33 +17,26 @@ fi
 #                   instances running on the machine.
 #   Default         /usr/share/tomcat
 ###############################################################################
-CATALINA_HOME=<%= node['tomcat']['home'] %>
-
-###############################################################################
-#   JAVA_HOME       Must point at your Java Development Kit installation.
-#                   Required to run the with the "debug" argument.
-#   default         /usr
-###############################################################################
-JAVA_HOME=<%= node['java']['java_home'] %>
+CATALINA_HOME=<%= node['tomcat']['instance_dir'] %>
 
 ###############################################################################
 #   JRE_HOME        Must point at your Java Runtime installation.
 #   Default         Value of JAVA_HOME
 ###############################################################################
-JRE_HOME=$JAVA_HOME
+JRE_HOME=<%= node['tomcat']['java']['jre_home'] %>
 
 ###############################################################################
 #   CATALINA_BASE   Directory for per-instance configuration files and webapps.
 #                   It contains the directories: conf, logs, webapps, work, and
 #   Default         /var/lib/tomcat
 ###############################################################################
-CATALINA_BASE=<%= node['tomcat']['base'] %>
+CATALINA_BASE=<%= node['tomcat']['instance_dir'] %>
 
 ###############################################################################
 #   CATALINA_PID    Path of the file which should contains the pid of the
 #                   catalina startup java process, when start (fork) is used
 ###############################################################################
-CATALINA_PID=<%= node['tomcat']['home'] %>/tomcat.pid
+CATALINA_PID=<%= node['tomcat']['logs']['logfiles_path'] %>/tomcat.pid
 
 ###############################################################################
 #   CATALINA_OPTS   Java runtime options used when the "start", "run" or
@@ -52,22 +45,23 @@ CATALINA_PID=<%= node['tomcat']['home'] %>/tomcat.pid
 ###############################################################################
 CATALINA_OPTS="<%= node['tomcat']['java']['java_options'] %>"
 
+<% if node['tomcat']['java']['system_properties'] != nil && !node['tomcat']['java']['system_properties'].empty? && JSON.parse(node['tomcat']['java']['system_properties']).keys.size > 0 %>
 CATALINA_OPTS="${CATALINA_OPTS} <%= JSON.parse(node['tomcat']['java']['system_properties']).each{ |k,v| "-D#{k}=#{v} " }  %>"
+<% end %>
 
-<% if node['tomcat']['java']['mem_max'] != nil && !node['tomcat']['java']['mem_max'].empty?
-%>
+<% if node['tomcat']['java']['mem_max'] != nil && !node['tomcat']['java']['mem_max'].empty? %>
 CATALINA_OPTS="${CATALINA_OPTS} -Xmx<%= node['tomcat']['java']['mem_max'] %>"
 <% end %>
 
-<% if node['tomcat']['java']['mem_start'] != nil && !node['tomcat']['java']['mem_start'].empty?
-%>
+<% if node['tomcat']['java']['mem_start'] != nil && !node['tomcat']['java']['mem_start'].empty? %>
 CATALINA_OPTS="${CATALINA_OPTS} -Xms<%= node['tomcat']['java']['mem_start'] %>"
 <% end %>
 
 CATALINA_OPTS="${CATALINA_OPTS} -d64 "
 
-<% opts = JSON.parse(node['tomcat']['java']['startup_params']).map{ |v| "-XX:#{v} " } %>
-CATALINA_OPTS="${CATALINA_OPTS} <%= opts %>"
+<% if node['tomcat']['java']['startup_params'] != nil && !node['tomcat']['java']['startup_params'].empty? %>
+#CATALINA_OPTS="${CATALINA_OPTS}  node['tomcat']['java']['startup_params'].each{ |v| "-XX:#{v} " }"
+<% end %>
 
 ###############################################################################
 #   CATALINA_OUT    Full path to a file where stdout and stderr will be
@@ -82,9 +76,9 @@ CATALINA_OUT="<%= node['tomcat']['logs']['logfiles_path'] %>/catalina.out"
 #                   -Djavax.net.ssl.trustStore="/opt/tomcat/ssl/trust.jks"
 ###############################################################################
 JAVA_OPTS="<%= node['tomcat']['java']['java_options'] %>"
-JAVA_OPTS="${JAVA_OPTS} <%= node['tomcat']['java']['system_properties'].map{ |k,v| "-D#{k}=#{v} " } %>"
+#JAVA_OPTS="${JAVA_OPTS} <%= JSON.parse(node['tomcat']['java']['system_properties']).each{ |k,v| "-D#{k}=#{v} " } %>"
 JAVA_OPTS="${JAVA_OPTS} -Xmx<%= node['tomcat']['java']['mem_max'] %> -Xms<%= node['tomcat']['java']['mem_start'] %>"
-JAVA_OPTS="${JAVA_OPTS} <%= node['tomcat']['java']['startup_params'].map{ |v| "-XX:#{v} " } %>"
+#JAVA_OPTS="${JAVA_OPTS} <%= JSON.parse(node['tomcat']['java']['startup_params']).each{ |v| "-XX:#{v} " } %>"
 
 ###############################################################################
 # 	JVM_TMP				  Location of the JVM temporary directory. WARNING: This
@@ -98,8 +92,7 @@ JVM_TMP=<%= node['tomcat']["tmp_dir"] %>
 #     Any variables set in the node['tomcat']['environment_settings'] option
 #     will be exported to the system for use.
 ###############################################################################
-<% if !node['tomcat']['global']['environment_settings'].nil? && JSON.parse(node['tomcat']['global']['environment_settings']).keys.size > 0
-%>
+<% if !node['tomcat']['global']['environment_settings'].nil? && JSON.parse(node['tomcat']['global']['environment_settings']).keys.size > 0 %>
 <% JSON.parse(node['tomcat']['global']['environment_settings']).each{ |k, v|%>
 export <%=k%>="<%=v%>"
 <% } %>
