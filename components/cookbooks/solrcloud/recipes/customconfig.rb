@@ -2,7 +2,7 @@
 # Cookbook Name :: solrcloud
 # Recipe :: customconfig.rb
 #
-# The recipie downloads the custom config from nexus and uploads to Zookeeper
+# The recipe downloads the custom config from nexus and uploads to Zookeeper
 #
 
 include_recipe 'solrcloud::default'

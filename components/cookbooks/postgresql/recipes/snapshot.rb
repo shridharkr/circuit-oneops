@@ -37,7 +37,14 @@ execute "rm -fr #{archive_dir}/*"
 ruby_block 'start-backup' do
   block do    
     Chef::Log.info("starting snapshot with: pg_start_backup('#{label}')")
-    `su postgres -c "psql -c \\";SELECT pg_start_backup('#{label}');\\""`        
+    result = `su postgres -c "psql -c \\";SELECT pg_start_backup('#{label}');\\" 2>&1"`
+    puts result
+    if result =~ /already in progress/
+      puts "check why still running:"
+      cmd = "cat #{data_dir}/backup_label"
+      puts cmd
+      puts `#{cmd}`
+      exit 1
   end
 end
 
@@ -47,7 +54,7 @@ Chef::Log.info("tar to: "+data_tar)
 # default timeout of 3600 too small for prod
 execute "tar -zcf #{data_tar} --exclude='archivedir' --exclude='postmaster.pid' --exclude='pg_xlog' *" do
   returns [0,1]
-  timeout 7200
+  timeout 10800
   cwd data_dir
 end
 
