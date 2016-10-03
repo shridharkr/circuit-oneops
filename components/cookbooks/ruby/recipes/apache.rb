@@ -35,7 +35,7 @@ bash 'install passenger' do
   end
 
   script += <<-EOH
-    GEM_DIR=`gem env gemdir`/gems/passenger-#{passenger_version}
+    GEM_DIR=`sudo gem env gemdir`/gems/passenger-#{passenger_version}
     RUBY_BIN=`which ruby | tail -1`
     gem install passenger --version=#{passenger_version} --no-ri --no-rdoc
     $GEM_DIR/bin/passenger-install-apache2-module -a

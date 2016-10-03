@@ -99,7 +99,7 @@ The following are the current features built into the OneOps pack. This will be 
     * replicationFactor - Give the replcationFactor
     * maxShardsPerNode - Give the max shards per node
     * configname - Give the config name which is uploaded to zookeeper.
-* addreplica - Adds the selected node as a replica to the given shard of a collection. The pack ADDREPLICA action makes sure that the node hosts single copy of the particular shard of a collection.
+* addreplica - Adds the selected node as a replica to the given shard of a collection.The ADDREPLICA action in the pack allows to host a replica of one copy for the given shard and collection.
   * Parameters:
     * collectionname - Collection name
     * shardname - shard name
@@ -109,6 +109,17 @@ The following are the current features built into the OneOps pack. This will be 
   * Parameters:
     * CustomConfigJar - Custom config jar nexus path.
     * CustomConfigName - Custom config name.
+* dynamicschemaupdate - Updates managed schema and uploads to Zookeeper. It returns immediately if the timeout parameter is not set and the remaining cores get the latest schema asynchronously. This action reloads the core automatically and uses the latest schema from the next request onwards.
+  * Parameters:
+    * collectionname - Collection name.
+    * modify_schema_action - Action to add/replace/delete field/field-type/dynamic-fields/copy-fields on the managed schema.
+    * payload - payload of the action.
+    * updateTimeoutSecs - Timeout for the request to wait and make sure that all the replicas/cores retrieves the changes of the managed schema.
+* configupdate - Updates the solr-config and uploads to Zookeeper.
+  * Parameters:
+    * collectionname - Collection name.
+    * common_property - Basic property to set the value.
+    * value - Value of the property.
 * start - Start the solrcloud
 * stop - Stop the solrcloud
 * restart - Restart the solrcloud
