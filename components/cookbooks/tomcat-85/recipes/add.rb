@@ -135,6 +135,14 @@ directory "#{node['tomcat']['work_dir']}" do
   not_if "test -d #{node['tomcat']['work_dir']}"
 end
 
+directory "#{node['tomcat']['scripts_dir']}" do
+  action :create
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  recursive true
+  not_if "test -d #{node['tomcat']['scripts_dir']}"
+end
+
 directory "#{node['tomcat']['catalina_dir']}" do
   action :create
   owner "#{node['tomcat']['global']['tomcat_user']}"
@@ -200,8 +208,41 @@ template "#{node['tomcat']['instance_dir']}/bin/setenv.sh" do
   source 'setenv.sh.erb'
   owner "#{node['tomcat']['global']['tomcat_user']}"
   group "#{node['tomcat']['global']['tomcat_group']}"
-  mode '0644'
+  mode '0744'
 end
+
+template "#{node['tomcat']['scripts_dir']}/prestartup.sh" do
+  source 'prestartup.sh.erb'
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  mode '0744'
+  not_if {node['tomcat']['startup_shutdown']['pre_startup_command'].nil? || node['tomcat']['startup_shutdown']['pre_startup_command'].empty?}
+end
+
+template "#{node['tomcat']['scripts_dir']}/poststartup.sh" do
+  source 'poststartup.sh.erb'
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  mode '0744'
+  not_if {node['tomcat']['startup_shutdown']['post_startup_command'].nil? || node['tomcat']['startup_shutdown']['post_startup_command'].empty?}
+end
+
+template "#{node['tomcat']['scripts_dir']}/preshutdown.sh" do
+  source 'preshutdown.sh.erb'
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  mode '0744'
+  not_if {node['tomcat']['startup_shutdown']['pre_shutdown_command'].nil? || node['tomcat']['startup_shutdown']['pre_shutdown_command'].empty?}
+end
+
+template "#{node['tomcat']['scripts_dir']}/postshutdown.sh" do
+  source 'postshutdown.sh.erb'
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  mode '0744'
+  not_if {node['tomcat']['startup_shutdown']['post_shutdown_command'].nil? || node['tomcat']['startup_shutdown']['post_shutdown_command'].empty?}
+end
+
 
 template "/lib/systemd/system/tomcat.service" do
       source 'init_systemd.erb'
@@ -209,6 +250,12 @@ template "/lib/systemd/system/tomcat.service" do
       owner 'root'
       group 'root'
       mode '0644'
+      notifies :run, 'execute[Load systemd unit file]', :immediately
+end
+
+execute 'Load systemd unit file' do
+  command 'systemctl daemon-reload'
+  action :nothing
 end
 
 ###############################################################################
