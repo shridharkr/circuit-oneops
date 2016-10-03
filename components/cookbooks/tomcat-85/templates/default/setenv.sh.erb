@@ -43,25 +43,28 @@ CATALINA_PID=<%= node['tomcat']['logs']['logfiles_path'] %>/tomcat.pid
 #                   "debug" command is executed. (ex: heap size and GC logging)
 #   Default         -Djava.awt.headless=true
 ###############################################################################
-CATALINA_OPTS="<%= node['tomcat']['java']['java_options'] %>"
-
-<% if node['tomcat']['java']['system_properties'] != nil && !node['tomcat']['java']['system_properties'].empty? && JSON.parse(node['tomcat']['java']['system_properties']).keys.size > 0 %>
-CATALINA_OPTS="${CATALINA_OPTS} <%= JSON.parse(node['tomcat']['java']['system_properties']).each{ |k,v| "-D#{k}=#{v} " }  %>"
+# java_options
+<% if !node['tomcat']['java']['java_options'].empty? %>
+CATALINA_OPTS="<%= node['tomcat']['java']['java_options'] %> "
 <% end %>
-
-<% if node['tomcat']['java']['mem_max'] != nil && !node['tomcat']['java']['mem_max'].empty? %>
-CATALINA_OPTS="${CATALINA_OPTS} -Xmx<%= node['tomcat']['java']['mem_max'] %>"
+# system_properties
+<% if JSON.parse(node['tomcat']['java']['system_properties']).keys.size > 0 %>
+  <% JSON.parse(node['tomcat']['java']['system_properties']).each{ |k, v|%>
+CATALINA_OPTS="${CATALINA_OPTS}-D<%=k%>=<%=v%> "
+  <% } %>
 <% end %>
-
-<% if node['tomcat']['java']['mem_start'] != nil && !node['tomcat']['java']['mem_start'].empty? %>
-CATALINA_OPTS="${CATALINA_OPTS} -Xms<%= node['tomcat']['java']['mem_start'] %>"
+# mem_max
+CATALINA_OPTS="${CATALINA_OPTS}-Xmx<%= node['tomcat']['java']['mem_max'] %> "
+<% if !node['tomcat']['java']['mem_start'].empty? %>
+# mem_start
+CATALINA_OPTS="${CATALINA_OPTS}-Xms<%= node['tomcat']['java']['mem_start'] %> "
 <% end %>
+CATALINA_OPTS="${CATALINA_OPTS}-d64 "
+# startup_params
+<% JSON.parse(node["tomcat"]['java']['startup_params']).each{ |v|%>
+CATALINA_OPTS="${CATALINA_OPTS}-XX:<%=v%> "
+<% } %>
 
-CATALINA_OPTS="${CATALINA_OPTS} -d64 "
-
-<% if node['tomcat']['java']['startup_params'] != nil && !node['tomcat']['java']['startup_params'].empty? %>
-#CATALINA_OPTS="${CATALINA_OPTS}  node['tomcat']['java']['startup_params'].each{ |v| "-XX:#{v} " }"
-<% end %>
 
 ###############################################################################
 #   CATALINA_OUT    Full path to a file where stdout and stderr will be
@@ -75,10 +78,8 @@ CATALINA_OUT="<%= node['tomcat']['logs']['logfiles_path'] %>/catalina.out"
 # 	Default 				-Djava.awt.headless=true
 #                   -Djavax.net.ssl.trustStore="/opt/tomcat/ssl/trust.jks"
 ###############################################################################
-JAVA_OPTS="<%= node['tomcat']['java']['java_options'] %>"
-#JAVA_OPTS="${JAVA_OPTS} <%= JSON.parse(node['tomcat']['java']['system_properties']).each{ |k,v| "-D#{k}=#{v} " } %>"
-JAVA_OPTS="${JAVA_OPTS} -Xmx<%= node['tomcat']['java']['mem_max'] %> -Xms<%= node['tomcat']['java']['mem_start'] %>"
-#JAVA_OPTS="${JAVA_OPTS} <%= JSON.parse(node['tomcat']['java']['startup_params']).each{ |v| "-XX:#{v} " } %>"
+JAVA_OPTS="<%= node['tomcat']['java']['java_options'] %> "
+JAVA_OPTS="${JAVA_OPTS}-Xmx<%= node['tomcat']['java']['mem_max'] %> -Xms<%= node['tomcat']['java']['mem_start'] %>"
 
 ###############################################################################
 # 	JVM_TMP				  Location of the JVM temporary directory. WARNING: This
