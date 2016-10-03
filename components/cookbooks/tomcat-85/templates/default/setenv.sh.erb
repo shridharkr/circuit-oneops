@@ -74,17 +74,17 @@ CATALINA_OPTS="${CATALINA_OPTS}-XX:<%=v%> "
 CATALINA_OUT="<%= node['tomcat']['logs']['logfiles_path'] %>/catalina.out"
 
 ###############################################################################
-# 	JAVA_OPTS				JVM start parameters for Java.
-# 	Default 				-Djava.awt.headless=true
+#   JAVA_OPTS       JVM start parameters for Java.
+#   Default         -Djava.awt.headless=true
 #                   -Djavax.net.ssl.trustStore="/opt/tomcat/ssl/trust.jks"
 ###############################################################################
 JAVA_OPTS="<%= node['tomcat']['java']['java_options'] %> "
 JAVA_OPTS="${JAVA_OPTS}-Xmx<%= node['tomcat']['java']['mem_max'] %> -Xms<%= node['tomcat']['java']['mem_start'] %>"
 
 ###############################################################################
-# 	JVM_TMP				  Location of the JVM temporary directory. WARNING: This
+#   JVM_TMP         Location of the JVM temporary directory. WARNING: This
 #                   directory will be destroyed and recreated at every startup!
-# 	Default 				/var/cache/tomcat/temp
+#   Default         /var/cache/tomcat/temp
 ###############################################################################
 JVM_TMP=<%= node['tomcat']["tmp_dir"] %>
 
@@ -93,7 +93,8 @@ JVM_TMP=<%= node['tomcat']["tmp_dir"] %>
 #     Any variables set in the node['tomcat']['environment_settings'] option
 #     will be exported to the system for use.
 ###############################################################################
-<% if !node['tomcat']['global']['environment_settings'].nil? && JSON.parse(node['tomcat']['global']['environment_settings']).keys.size > 0 %>
+# environment_settings
+<% if JSON.parse(node['tomcat']['global']['environment_settings']).keys.size > 0 %>
 <% JSON.parse(node['tomcat']['global']['environment_settings']).each{ |k, v|%>
 export <%=k%>="<%=v%>"
 <% } %>

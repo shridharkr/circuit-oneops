@@ -13,12 +13,12 @@
 node.set['tomcat']['global']['version'] = node.workorder.rfcCi.ciAttributes.version
 node.set['tomcat']['global']['tomcat_user'] = node.workorder.rfcCi.ciAttributes.tomcat_user
   if node['tomcat']['global']['tomcat_user'].empty?
-    Chef::Log.error("tomcat_user was empty: setting to tomcat")
+    Chef::Log.warn("tomcat_user was empty: setting to tomcat")
     node.set['tomcat']['global']['tomcat_user'] = 'tomcat'
   end
 node.set['tomcat']['global']['tomcat_group'] = node.workorder.rfcCi.ciAttributes.tomcat_group
   if node['tomcat']['global']['tomcat_group'].empty?
-    Chef::Log.error("tomcat_group was empty: setting to tomcat")
+    Chef::Log.warn("tomcat_group was empty: setting to tomcat")
     node.set['tomcat']['global']['tomcat_group'] = 'tomcat'
   end
 node.set['tomcat']['global']['environment_settings'] = node.workorder.rfcCi.ciAttributes.environment_settings
@@ -36,7 +36,6 @@ node.set['tomcat']['server']['override_server_enabled'] = node.workorder.rfcCi.c
 node.set['tomcat']['server']['server_tomcat'] = node.workorder.rfcCi.ciAttributes.server_tomcat
 node.set['tomcat']['server']['http_nio_connector_enabled'] = node.workorder.rfcCi.ciAttributes.http_nio_connector_enabled
 node.set['tomcat']['server']['port'] = node.workorder.rfcCi.ciAttributes.port
-
 node.set['tomcat']['server']['https_nio_connector_enabled'] = node.workorder.rfcCi.ciAttributes.https_nio_connector_enabled
 node.set['tomcat']['server']['ssl_port'] = node.workorder.rfcCi.ciAttributes.ssl_port
 node.set['tomcat']['server']['max_threads'] = node.workorder.rfcCi.ciAttributes.max_threads
@@ -62,7 +61,15 @@ node.set['tomcat']['java']['java_options'] = node.workorder.rfcCi.ciAttributes.j
 node.set['tomcat']['java']['system_properties'] = node.workorder.rfcCi.ciAttributes.system_properties
 node.set['tomcat']['java']['startup_params'] = node.workorder.rfcCi.ciAttributes.startup_params
 node.set['tomcat']['java']['mem_max'] = node.workorder.rfcCi.ciAttributes.mem_max
+  if node['tomcat']['java']['mem_max'].empty?
+    Chef::Log.warn("mem_max was empty: setting to 1024M")
+    node.set['tomcat']['java']['mem_max'] = '1024M'
+  end
 node.set['tomcat']['java']['mem_start'] = node.workorder.rfcCi.ciAttributes.mem_start
+  if node['tomcat']['java']['mem_start'].empty?
+    Chef::Log.warn("mem_start was empty: setting to 512M")
+    node.set['tomcat']['java']['mem_start'] = '512M'
+  end
 
 ##################################################################################################
 # Attributes to control log settings
@@ -72,7 +79,10 @@ node.set['tomcat']['logs']['logfiles_path'] = node.workorder.rfcCi.ciAttributes.
     node.set['tomcat']['logs']['logfiles_path'] = "/#{node['tomcat']['logs']['logfiles_path']}"
   end
 node.set['tomcat']['logs']['access_log_pattern'] = node.workorder.rfcCi.ciAttributes.access_log_pattern
-
+  if node['tomcat']['logs']['access_log_pattern'].empty?
+    Chef::Log.warn("access_log_pattern was empty: setting to '%h %l %u %t &quot;%r&quot; %s %b %D %F'")
+    node.set['tomcat']['logs']['access_log_pattern'] = '%h %l %u %t &quot;%r&quot; %s %b %D %F'
+  end
 ##################################################################################################
 # Attributes for Tomcat instance startup and shutdown processes
 ##################################################################################################
