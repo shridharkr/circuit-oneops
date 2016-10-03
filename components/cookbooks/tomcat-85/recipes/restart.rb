@@ -1,3 +1,6 @@
 service "tomcat" do
-  action :restart
+  action :stop
+end
+service "tomcat" do
+  action :start
 end
