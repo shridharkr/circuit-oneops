@@ -11,7 +11,7 @@ resource "Tomcat-85",
          :cookbook => "1.Tomcat-85",
          :source => Chef::Config[:register],
          :design => true,
-         :requires => {"constraint" => "1..1"},
+         :requires => {"constraint" => "1..1",:services=> "mirror"},
          :attributes => {
              'install_dir' => '/app',
              'install_version' => '8.5.2',
