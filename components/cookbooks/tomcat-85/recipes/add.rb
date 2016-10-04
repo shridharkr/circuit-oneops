@@ -127,6 +127,14 @@ directory "#{node['tomcat']['webapp_install_dir']}" do
   not_if "test -d #{node['tomcat']['webapp_install_dir']}"
 end
 
+link node['tomcat']['webapp_link'] do
+  to node['tomcat']['webapp_install_dir']
+  action :create
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  not_if "test -d #{node['tomcat']['webapp_link']}"
+end
+
 directory "#{node['tomcat']['work_dir']}" do
   action :create
   owner "#{node['tomcat']['global']['tomcat_user']}"

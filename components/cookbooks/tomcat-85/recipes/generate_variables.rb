@@ -116,6 +116,7 @@ node.set['tomcat']['instance_dir'] = "#{node['tomcat']['config_dir']}/apache-tom
 node.set['tomcat']['tarball'] = "tomcat/tomcat-8/v#{node['tomcat']['global']['version']}/bin/apache-tomcat-#{node['tomcat']['global']['version']}.tar.gz"
 node.set['tomcat']['download_destination'] = "#{node['tomcat']['config_dir']}/apache-tomcat-#{node['tomcat']['global']['version']}.tar.gz"
 node.set['tomcat']['webapp_install_dir'] = "#{node['tomcat']['instance_dir']}/webapps"
+node.set['tomcat']['webapp_link'] = "#{node['tomcat']['config_dir'] }/webapps"
 node.set['tomcat']['tmp_dir'] = "#{node['tomcat']['config_dir']}/temp"
 node.set['tomcat']['work_dir'] = "#{node['tomcat']['config_dir']}/work"
 node.set['tomcat']['scripts_dir'] = "#{node['tomcat']['config_dir']}/scripts"
