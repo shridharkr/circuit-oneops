@@ -143,6 +143,14 @@ directory "#{node['tomcat']['work_dir']}" do
   not_if "test -d #{node['tomcat']['work_dir']}"
 end
 
+link node['tomcat']['work_link'] do
+  to node['tomcat']['work_dir']
+  action :create
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  not_if "test -d #{node['tomcat']['work_link']}"
+end
+
 directory "#{node['tomcat']['scripts_dir']}" do
   action :create
   owner "#{node['tomcat']['global']['tomcat_user']}"
@@ -159,6 +167,14 @@ directory "#{node['tomcat']['catalina_dir']}" do
   not_if "test -d #{node['tomcat']['catalina_dir']}"
 end
 
+link node['tomcat']['catalina_link'] do
+  to node['tomcat']['catalina_dir']
+  action :create
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  not_if "test -d #{node['tomcat']['catalina_link']}"
+end
+
 directory "#{node['tomcat']['context_dir']}" do
   action :create
   owner "#{node['tomcat']['global']['tomcat_user']}"
@@ -167,12 +183,44 @@ directory "#{node['tomcat']['context_dir']}" do
   not_if "test -d #{node['tomcat']['context_dir']}"
 end
 
-directory "#{node['tomcat']['logs']['logfiles_path']}" do
+link node['tomcat']['logs']['logfiles_path'] do
+  to node['tomcat']['logfiles_path_dir']
+  action :create
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  not_if "test -d #{node['tomcat']['logs']['logfiles_path']}"
+end
+
+directory "#{node['tomcat']['keystore_dir']}" do
   action :create
   owner "#{node['tomcat']['global']['tomcat_user']}"
   group "#{node['tomcat']['global']['tomcat_group']}"
   recursive true
-  not_if "test -d #{node['tomcat']['logs']['logfiles_path']}"
+  not_if "test -d #{node['tomcat']['keystore_dir']}"
+end
+
+link node['tomcat']['keystore_link'] do
+  to node['tomcat']['keystore_dir']
+  action :create
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  not_if "test -d #{node['tomcat']['keystore_link']}"
+end
+
+directory "#{node['tomcat']['tmp_dir']}" do
+  action :create
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  recursive true
+  not_if "test -d #{node['tomcat']['tmp_dir']}"
+end
+
+link node['tomcat']['tmp_link'] do
+  to node['tomcat']['tmp_dir']
+  action :create
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  not_if "test -d #{node['tomcat']['tmp_link']}"
 end
 
 ###############################################################################
