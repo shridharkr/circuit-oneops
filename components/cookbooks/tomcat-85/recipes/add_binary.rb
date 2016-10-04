@@ -44,8 +44,26 @@ directory node['tomcat']['config_dir'] do
   not_if "test -d #{node['tomcat']['config_dir']}"
 end
 
-source_url="http://repos.walmart.com/mirrored-assets/apache.mirrors.pair.com"
-source_list="#{source_url}/#{node['tomcat']['tarball']}"
+
+cloud = node.workorder.cloud.ciName
+
+#Lets use the apache mirrors for the US when the mirror service is not available for the cloud
+default_base_url="http://www-us.apache.org/dist/"
+mirror_url_key = "apache"
+Chef::Log.info("Getting mirror service for #{mirror_url_key}, cloud: #{cloud}")
+
+mirror_svc = node[:workorder][:services][:mirror]
+mirror = JSON.parse(mirror_svc[cloud][:ciAttributes][:mirrors]) if !mirror_svc.nil?
+source_url = ''
+
+source_url = mirror[mirror_url_key] if !mirror.nil? && mirror.has_key?(mirror_url_key)
+
+if source_url.empty?
+    Chef::Log.info("#{mirror_url_key} mirror is empty for #{cloud}. We are going to use the default path:#{default_base_url}")
+    source_url = default_base_url
+end
+
+source_list="#{source_url}#{node['tomcat']['tarball']}"
 shared_download_http source_list do
   path "#{node['tomcat']['download_destination']}"
   action :create

@@ -7,12 +7,21 @@ After=syslog.target network.target
 [Service]
 Type=forking
 
-#ExecStartPre=<%= node['tomcat']['startup_shutdown']['pre_startup_command'].gsub(/\r\n?/,"\n") %>
+
+<% if(!node['tomcat']['startup_shutdown']['pre_startup_command'].gsub(/\r\n?/,"\n").nil? && !node['tomcat']['startup_shutdown']['pre_startup_command'].gsub(/\r\n?/,"\n").empty?) %>
+ExecStartPre=<%= node['tomcat']['scripts_dir'] %>/prestartup.sh
+<% end %>
 ExecStart=<%= node['tomcat']['instance_dir'] %>/bin/startup.sh
-#ExecStartPost=<%= node['tomcat']['startup_shutdown']['post_startup_command'].gsub(/\r\n?/,"\n") %>
-#ExecStop=<%= node['tomcat']['startup_shutdown']['pre_shutdown_command'].gsub(/\r\n?/,"\n") %>
+<% if(!node['tomcat']['startup_shutdown']['post_startup_command'].gsub(/\r\n?/,"\n").nil? && !node['tomcat']['startup_shutdown']['post_startup_command'].gsub(/\r\n?/,"\n").empty?) %>
+ExecStartPost=<%= node['tomcat']['scripts_dir'] %>/poststartup.sh
+<% end %>
+<% if(!node['tomcat']['startup_shutdown']['pre_shutdown_command'].gsub(/\r\n?/,"\n").nil? && !node['tomcat']['startup_shutdown']['pre_shutdown_command'].gsub(/\r\n?/,"\n").empty?) %>
+ExecStop=<%= node['tomcat']['scripts_dir'] %>/preshutdown.sh
+<% end %>
 ExecStop=<%= node['tomcat']['instance_dir'] %>/bin/shutdown.sh
-#ExecStopPost=<%= node['tomcat']['startup_shutdown']['post_shutdown_command'].gsub(/\r\n?/,"\n") %>
+<% if(!node['tomcat']['startup_shutdown']['post_shutdown_command'].gsub(/\r\n?/,"\n").nil? && !node['tomcat']['startup_shutdown']['post_shutdown_command'].gsub(/\r\n?/,"\n").empty?) %>
+ExecStopPost=<%= node['tomcat']['scripts_dir'] %>/postshutdown.sh
+<% end %>
 
 Restart=on-failure
 

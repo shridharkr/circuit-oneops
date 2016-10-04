@@ -106,6 +106,7 @@ node.set['tomcat']['download_destination'] = "#{node['tomcat']['config_dir']}/ap
 node.set['tomcat']['webapp_install_dir'] = "#{node['tomcat']['instance_dir']}/webapps"
 node.set['tomcat']['tmp_dir'] = "#{node['tomcat']['config_dir']}/temp"
 node.set['tomcat']['work_dir'] = "#{node['tomcat']['config_dir']}/work"
+node.set['tomcat']['scripts_dir'] = "#{node['tomcat']['config_dir']}/scripts"
 node.set['tomcat']['catalina_dir'] = "#{node['tomcat']['config_dir']}/Catalina"
 node.set['tomcat']['context_dir'] = "#{node['tomcat']['catalina_dir']}/localhost"
 node.set['tomcat']['keystore_path'] = "#{node['tomcat']['instance_dir']}/ssl/keystore.jks"
