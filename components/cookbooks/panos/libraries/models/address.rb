@@ -1,3 +1,5 @@
+require 'resolv'
+
 class Address
 
   attr_reader :name, :type, :tags

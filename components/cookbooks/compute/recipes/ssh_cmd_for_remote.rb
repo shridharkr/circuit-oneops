@@ -41,7 +41,11 @@ ruby_block 'ssh cmds' do
        !node.initial_user.nil? && node.initial_user != "unset"
       user = node.initial_user
     end
-
+    os = node.workorder.payLoad.os.first
+    if os['ciAttributes']['ostype'] =~ /win/
+      user = 'oneops'
+    end
+    
     ssh_options = "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
     if node.ip.nil? || node.ip.empty?
@@ -75,9 +79,8 @@ ruby_block 'ssh cmds' do
     node.set[:scp_cmd] = "scp -ri #{ssh_key_file} #{ssh_options} SOURCE #{user}@#{ip}:DEST "
     node.set[:rsync_cmd] = "rsync #{bwlimit} -az --exclude=*.md --exclude=*.png -e \"ssh -i #{ssh_key_file} #{ssh_options}\" SOURCE #{user}@#{ip}:DEST "
 
-    os_type = node.ostype
-    if os_type =~ /windows/
-      #Need to change command. Windows cygwin does not like "-t -t" parameters
+    # override ssh_interactive_cmd due to windows cygwin does not like "-t -t" parameters      
+    if os['ciAttributes']['ostype'] =~ /win/
       node.set[:ssh_interactive_cmd] = "ssh -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
     end
 
