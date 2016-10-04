@@ -269,12 +269,12 @@ end
 # Nagios Scripts
 ###############################################################################
 
-#template '/opt/nagios/libexec/check_tomcat.rb' do
-#  source 'check_tomcat.rb.erb'
-#  owner 'oneops'
-#  group 'oneops'
-#  mode '0755'
-#end
+template '/opt/nagios/libexec/check_tomcat.rb' do
+  source 'check_tomcat.rb.erb'
+  owner 'oneops'
+  group 'oneops'
+  mode '0755'
+end
 
 template '/opt/nagios/libexec/check_ecv.rb' do
   source 'check_ecv.rb.erb'

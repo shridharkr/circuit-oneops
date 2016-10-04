@@ -117,3 +117,4 @@ node.set['tomcat']['ssl_configured_ciphers'] = 'TLS_ECDHE_RSA_WITH_AES_256_GCM_S
 node.set['java']['java_home'] = '/usr'
 node.set['tomcat']['home'] = '/usr/share/tomcat'
 node.set['tomcat']['base'] = '/usr/share/tomcat'
+node.set['tomcat']['manager']['key'] = (0...25).map { ('a'..'z').to_a[rand(26)] }.join

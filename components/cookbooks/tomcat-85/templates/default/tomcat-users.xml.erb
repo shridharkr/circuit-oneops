@@ -16,6 +16,6 @@
   limitations under the License.
 -->
 <tomcat-users>
-  <role rolename="admin"/>
-  <user username="admin" password="8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918" roles="admin"/>
+  <role rolename="manager-script"/>
+  <user username="admin" password="<%= node['tomcat']['manager']['key'] %>" roles="manager-script"/>
 </tomcat-users>
