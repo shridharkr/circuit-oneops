@@ -26,10 +26,6 @@
      vulnarability. If the user chooses to enable all methods from the UI, the
      xml block is omitted.
    -->
-<% if node['tomcat']['server']['enable_method_put'] == 'false' || node['tomcat']['server']['enable_method_put'] == 'false'
-  || node['tomcat']['server']['enable_method_post'] == 'false' || node['tomcat']['server']['enable_method_delete'] == 'false'
-  || node['tomcat']['server']['enable_method_options'] == 'false' || node['tomcat']['server']['enable_method_connect'] == 'false'
-  || node['tomcat']['server']['enable_method_head'] == 'false' || node['tomcat']['server']['enable_method_trace'] == 'false' %>
    <security-constraint>
           <web-resource-collection>
                   <web-resource-name>restricted methods</web-resource-name>
@@ -61,7 +57,6 @@
           </web-resource-collection>
           <auth-constraint />
    </security-constraint>
-<% end %>
 
   <!-- ======================== Introduction ============================== -->
   <!-- This document defines default values for *all* web applications      -->
