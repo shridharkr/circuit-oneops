@@ -191,6 +191,13 @@ template "#{node['tomcat']['instance_dir']}/conf/context.xml" do
   mode '0644'
 end
 
+template "#{node['tomcat']['instance_dir']}/conf/web.xml" do
+  source 'web.xml.erb'
+  owner "#{node['tomcat']['global']['tomcat_user']}"
+  group "#{node['tomcat']['global']['tomcat_group']}"
+  mode '0644'
+end
+
 template "#{node['tomcat']['instance_dir']}/conf/tomcat-users.xml" do
   source 'tomcat-users.xml.erb'
   owner "#{node['tomcat']['global']['tomcat_user']}"
