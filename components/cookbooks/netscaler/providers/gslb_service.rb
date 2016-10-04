@@ -31,30 +31,58 @@ def delete_gslb_service_by_name(gslb_service_name)
     node.set["gslb_has_changes"] = true  
     
   else 
-    Chef::Log.info( "#{gslb_service_name} by platofrm already deleted.")
+    Chef::Log.info( "#{gslb_service_name} by platform already deleted.")
   end  
+
   
-  resp_obj = JSON.parse(conn.request(
+  # delete monitor for gslb service / vip
+  cloud_name = node.workorder.cloud.ciName
+  gdns_cloud_service = node.workorder.services['gdns'][cloud_name]
+  dc_name = gdns_cloud_service[:ciAttributes][:gslb_site_dns_id]
+  vport = get_gslb_port
+  monitor_name = node.workorder.box.ciId.to_s+"-#{vport}-#{dc_name}-gmon"
+    
+  mon_response  = JSON.parse(conn.request(
     :method=>:get,
-    :path=>"/nitro/v1/config/gslbservice_lbmonitor_binding/#{gslb_service_name}").body) #Array of GSLB Service Monitor Bindings will be returned 
-  if !resp_obj['gslbservice_lbmonitor_binding'].nil?
-    resp_obj['gslbservice_lbmonitor_binding'].each do |mon_bind|
-      rr  = JSON.parse(conn.request(
-        :method=>:get,
-        :path=>"/nitro/v1/config/lbmonitor/#{mon_bind['monitor_name']}").body)
-      mon_detail = rr['lbmonitor'].select {|v| v['monitorname'] == mon_bind['monitor_name']}
-      res_mon = JSON.parse(conn.request(
-        :method=>:delete,
-        :path=>"/nitro/v1/config/lbmonitor/#{mon_bind['monitor_name']}?args=type:#{mon_detail['type']}").body)
-      if res_mon['errorcode'] != 2131 && res_mon['errorcode'] != 0
-        Chef::Log.error( "delete monitor #{monitor_name} resp: #{res_mon.inspect}")
-        exit 1
-      else
-        Chef::Log.info( "delete monitor #{mon_bind['monitor_name']} resp: #{res_mon.inspect}")
-	node.set["gslb_has_changes"] = true
-      end
-    end
+    :path=>"/nitro/v1/config/lbmonitor/#{monitor_name}").body)
+    
+  mon_detail = []
+  if mon_response.has_key?('lbmonitor') 
+    mon_detail = mon_response['lbmonitor']
   end
+      
+  if mon_detail.size > 0
+    type = mon_detail[0]['type']
+      
+    res_mon = JSON.parse(conn.request(
+      :method=>:delete,
+      :path=>"/nitro/v1/config/lbmonitor/#{monitor_name}?args=type:#{type}").body)
+    
+    if res_mon['errorcode'] != 2131 && res_mon['errorcode'] != 0
+      Chef::Log.error( "delete monitor #{monitor_name} resp: #{res_mon.inspect}")
+      exit 1
+    else
+      Chef::Log.info( "delete monitor #{monitor_name} resp: #{res_mon.inspect}")
+    	node.set["gslb_has_changes"] = true
+    end
+  else
+    Chef::Log.info( "gslb service monitor #{monitor_name} already deleted.")
+  end
+end
+
+
+def get_gslb_port
+  # default / use 80 if exists
+  gslb_port = 80
+  lb = node.workorder.payLoad.lb.first
+  listeners = JSON.parse( lb[:ciAttributes][:listeners] )
+  listeners.each do |l|
+    lb_attrs = l.split(" ") 
+    gslb_protocol = lb_attrs[0].upcase
+    gslb_port = lb_attrs[1].to_i
+    break if gslb_protocol == "HTTP"
+  end  
+  return gslb_port
 end
 
 
