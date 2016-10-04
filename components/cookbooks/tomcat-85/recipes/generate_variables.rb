@@ -27,13 +27,17 @@ node.set['tomcat']['global']['environment_settings'] = node.workorder.rfcCi.ciAt
 # HANDLED - Attributes for context.xml Configuration
 ##################################################################################################
 node.set['tomcat']['context']['override_context_enabled'] = node.workorder.rfcCi.ciAttributes.override_context_enabled
-node.set['tomcat']['context']['context_tomcat'] = node.workorder.rfcCi.ciAttributes.context_tomcat
+  if node.set['tomcat']['context']['override_context_enabled'] == 'true'
+    node.set['tomcat']['context']['context_tomcat'] = node.workorder.rfcCi.ciAttributes.context_tomcat
+  end
 
 ##################################################################################################
 # HANDLED - Attributes for server.xml Configuration
 ##################################################################################################
 node.set['tomcat']['server']['override_server_enabled'] = node.workorder.rfcCi.ciAttributes.override_server_enabled
-node.set['tomcat']['server']['server_tomcat'] = node.workorder.rfcCi.ciAttributes.server_tomcat
+  if node.set['tomcat']['context']['override_context_enabled'] == 'true'
+    node.set['tomcat']['server']['server_tomcat'] = node.workorder.rfcCi.ciAttributes.server_tomcat
+  end
 node.set['tomcat']['server']['http_nio_connector_enabled'] = node.workorder.rfcCi.ciAttributes.http_nio_connector_enabled
 node.set['tomcat']['server']['port'] = node.workorder.rfcCi.ciAttributes.port
 node.set['tomcat']['server']['https_nio_connector_enabled'] = node.workorder.rfcCi.ciAttributes.https_nio_connector_enabled
@@ -87,11 +91,19 @@ node.set['tomcat']['logs']['access_log_pattern'] = node.workorder.rfcCi.ciAttrib
 # Attributes for Tomcat instance startup and shutdown processes
 ##################################################################################################
 node.set['tomcat']['startup_shutdown']['stop_time'] = node.workorder.rfcCi.ciAttributes.stop_time
-node.set['tomcat']['startup_shutdown']['pre_shutdown_command'] = node.workorder.rfcCi.ciAttributes.pre_shutdown_command
+if node.workorder.rfcCi.ciAttributes.has_key?('pre_shutdown_command')
+  node.set['tomcat']['startup_shutdown']['pre_shutdown_command'] = node.workorder.rfcCi.ciAttributes.pre_shutdown_command
+end
+if node.workorder.rfcCi.ciAttributes.has_key?('post_shutdown_command')
+  node.set['tomcat']['startup_shutdown']['post_shutdown_command'] = node.workorder.rfcCi.ciAttributes.post_shutdown_command
+end
+if node.workorder.rfcCi.ciAttributes.has_key?('pre_startup_command')
+  node.set['tomcat']['startup_shutdown']['pre_startup_command'] = node.workorder.rfcCi.ciAttributes.pre_startup_command
+end
+if node.workorder.rfcCi.ciAttributes.has_key?('post_startup_command')
+  node.set['tomcat']['startup_shutdown']['post_startup_command'] = node.workorder.rfcCi.ciAttributes.post_startup_command
+end
 node.set['tomcat']['startup_shutdown']['time_to_wait_before_shutdown'] = node.workorder.rfcCi.ciAttributes.time_to_wait_before_shutdown
-node.set['tomcat']['startup_shutdown']['post_shutdown_command'] = node.workorder.rfcCi.ciAttributes.post_shutdown_command
-node.set['tomcat']['startup_shutdown']['pre_startup_command'] = node.workorder.rfcCi.ciAttributes.pre_startup_command
-node.set['tomcat']['startup_shutdown']['post_startup_command'] = node.workorder.rfcCi.ciAttributes.post_startup_command
 node.set['tomcat']['startup_shutdown']['polling_frequency_post_startup_check'] = node.workorder.rfcCi.ciAttributes.polling_frequency_post_startup_check
 node.set['tomcat']['startup_shutdown']['max_number_of_retries_for_post_startup_check'] = node.workorder.rfcCi.ciAttributes.max_number_of_retries_for_post_startup_check
 

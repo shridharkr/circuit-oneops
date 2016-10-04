@@ -160,7 +160,7 @@ resource "artifact",
   :design => true,
   :requires => { "constraint" => "0..*" },
   :attributes => {
-
+    :install_dir => '/opt/tomcat/webapps',
   },
   :monitors => {
          'URL' => {:description => 'URL',
