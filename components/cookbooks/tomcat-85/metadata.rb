@@ -473,13 +473,8 @@ attribute 'max_number_of_retries_for_post_startup_check',
 # Included Recipes that you can run as an action from the Operations phase
 ##################################################################################################
 
-recipe 'status', 'Tomcat Status'
 recipe 'start', 'Start Tomcat'
 recipe 'stop', 'Stop Tomcat'
-recipe 'force-stop', 'Skips PreShutDownHook'
-recipe 'force-restart', 'Skips PreShutDownHook'
 recipe 'restart', 'Restart Tomcat'
 recipe 'repair', 'Repair Tomcat'
-recipe 'debug', 'Debug Tomcat'
-recipe 'validateAppVersion', 'Server started after app deployment'
 recipe 'threaddump','Java Thread Dump'

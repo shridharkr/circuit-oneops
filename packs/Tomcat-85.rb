@@ -129,7 +129,7 @@ resource "Tomcat-85-daemon",
              :help => "Restarts Tomcat"
          },
          :attributes => {
-             :service_name => 'Tomcat-85',
+             :service_name => 'tomcat',
              :use_script_status => 'true',
              :pattern => ''
          },
