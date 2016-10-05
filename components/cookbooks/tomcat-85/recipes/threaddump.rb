@@ -27,7 +27,12 @@ tomcatuserid=`ps aux | grep java | grep -v grep | awk '{print $1}'`
 tomcatuserid=tomcatuserid.chomp
 Chef::Log.error("tomcatuserid = #{tomcatuserid}")
 
-thread_dump_cmd="sudo -u  #{tomcatuserid} jstack -l #{proc_id} > /opt/tomcat/logs/theaddump.txt"
+timestamp=`date +%m_%d_%y_%H_%M_%S`
+timestamp=timestamp.chomp
+Chef::Log.error("timestamp = @#{timestamp}@")
+Chef::Log.error("hello")
+
+thread_dump_cmd="sudo -u  #{tomcatuserid} jstack -l #{proc_id} > /opt/tomcat/logs/threaddump-#{timestamp}.txt"
 Chef::Log.error("thread_dump_cmd = #{thread_dump_cmd}")
 
 puts "Command is #{thread_dump_cmd}"
