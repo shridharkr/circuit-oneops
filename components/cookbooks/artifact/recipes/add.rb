@@ -99,7 +99,6 @@ node.set[:data_bag] = {
 
 ciName = node.workorder[:rfcCi][:ciName] if node.workorder[:rfcCi]
 ciName = node.workorder[:ci][:ciName] if node.workorder[:ci]
-ciName = node.artifact.repository if node.platform_family == 'windows'
 
 artifact_deploy ciName do
   version node[:artifact][:version]
