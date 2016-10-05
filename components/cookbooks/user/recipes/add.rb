@@ -1,30 +1,8 @@
 if node[:workorder][:rfcCi][:ciAttributes][:ostype] =~ /windows/
-  #set up ssh_interactive_cmd
-  include_recipe "compute::get_ip_from_ci"
-  unless node.workorder.payLoad.has_key? "SecuredBy"
-    Chef::Log.error("unsupported, missing SecuredBy")
-    return false
-  end
-
-  puuid = (0..32).to_a.map{|a| rand(32).to_s(32)}.join
-  ssh_key_file = "/tmp/"+puuid
-  file ssh_key_file do
-    content node.workorder.payLoad[:SecuredBy][0][:ciAttributes][:private]
-    mode 0600
-  end
-
-  user = 'oneops'
-  ssh_options = "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-  ip = node.ip
-  node.set[:ssh_interactive_cmd] = "ssh -i #{ssh_key_file} #{ssh_options} #{user}@#{ip} "
-  #end
-
   username = node[:user][:username]
   ssh_keys = JSON.parse(node[:user][:authorized_keys])
 
   params = "-userName #{username} "
-
-  puts "ssh keys for user '#{username}': #{ssh_keys}"
   if !ssh_keys.empty?
       params += "-sshKeys #{ssh_keys}"
   end
@@ -41,9 +19,9 @@ if node[:workorder][:rfcCi][:ciAttributes][:ostype] =~ /windows/
     sub_circuit_dir = "circuit-" + class_parts.join("-")
   end
 
-  install_base = "components/cookbooks/user/files/default/create_user.ps1"
+  install_base = "c:\\cygwin64\\home\\oneops\\circuit-oneops-1\\components\\cookbooks\\user\\files\\default\\create_user.ps1"
   install_cmd = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File #{sub_circuit_dir}/#{install_base} #{params} "
-  cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + install_cmd
+  cmd = install_cmd
 
   shell_timeout = 36000
   Chef::Log.info("Executing Command: #{cmd}")

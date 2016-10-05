@@ -96,7 +96,8 @@ choco config set proxy $proxy
 
 Write-Output "Install ruby ..."
 choco install -y ruby
-$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+#$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+refreshenv
 
 Write-Output "Install ruby DevKit ..."
 choco install -y ruby2.devkit
