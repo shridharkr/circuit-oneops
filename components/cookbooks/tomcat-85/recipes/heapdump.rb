@@ -21,19 +21,18 @@
 ###############################################################################
 proc_id=`pgrep -f "org.apache.catalina.startup.Bootstrap"`
 proc_id=proc_id.chomp
-Chef::Log.error("proc_id = #{proc_id}")
+Chef::Log.info("proc_id = #{proc_id}")
 
 tomcatuserid=`ps aux | grep java | grep -v grep | awk '{print $1}'`
 tomcatuserid=tomcatuserid.chomp
-Chef::Log.error("tomcatuserid = #{tomcatuserid}")
+Chef::Log.info("tomcatuserid = #{tomcatuserid}")
 
 timestamp=`date +%m_%d_%y_%H_%M_%S`
 timestamp=timestamp.chomp
-Chef::Log.error("timestamp = @#{timestamp}@")
-Chef::Log.error("hello")
+Chef::Log.info("timestamp = #{timestamp}")
 
 heap_dump_cmd="sudo -u #{tomcatuserid} jmap -dump:file=/opt/tomcat/logs/heapdump-#{timestamp}.hprof #{proc_id}"
-Chef::Log.error("heap_dump_cmd = #{heap_dump_cmd}")
+Chef::Log.info("heap_dump_cmd = #{heap_dump_cmd}")
 
 puts "Command is #{heap_dump_cmd}"
 if !proc_id.empty?
