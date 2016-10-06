@@ -4,7 +4,7 @@
 # Recipe:: add_repo
 # Purpose:: This recipe is used to install the Tomcat binaries onto the server.
 #
-# Copyright 2010, Opscode, Inc.
+# Copyright 2016, Walmart Stores Incorporated
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
