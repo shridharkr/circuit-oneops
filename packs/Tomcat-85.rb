@@ -7,6 +7,34 @@ category      "Web Application"
 environment "single", {}
 environment "redundant", {}
 
+variable "deployContext",
+         :description => 'ROOT is special for Tomcat. The context in which the app needs to be deployed.',
+         :value => 'ROOT'
+
+variable "repositoryURL",
+        :description => 'base URL of the artifact repository',
+        :value => ''
+
+variable "groupId",
+        :description => 'Group Identifier',
+        :value => ''
+
+variable "artifactId",
+        :description => 'Artifact Identifier',
+        :value => ''
+
+variable "appVersion",
+        :description => 'Artifact version',
+        :value => ''
+
+variable "extension",
+        :description => 'Artifact extension',
+        :value => 'war'
+
+variable "repository",
+        :description => 'Repository name',
+        :value => 'snapshots'
+
 resource "Tomcat-85",
          :cookbook => "1.Tomcat-85",
          :source => Chef::Config[:register],
@@ -66,7 +94,7 @@ resource "Tomcat-85",
                        :cmd => 'check_logfiles!logtomcat!#{cmd_options[:logfile]}!#{cmd_options[:warningpattern]}!#{cmd_options[:criticalpattern]}',
                        :cmd_line => '/opt/nagios/libexec/check_logfiles   --noprotocol --tag=$ARG1$ --logfile=$ARG2$ --warningpattern="$ARG3$" --criticalpattern="$ARG4$"',
                        :cmd_options => {
-                           'logfile' => '/log/tomcat/catalina.out',
+                           'logfile' => '/opt/tomcat/logs/catalina.out',
                            'warningpattern' => 'WARNING',
                            'criticalpattern' => 'CRITICAL'
                        },
@@ -79,26 +107,16 @@ resource "Tomcat-85",
                        :thresholds => {
                          'CriticalLogException' => threshold('15m', 'avg', 'logtomcat_criticals', trigger('>=', 1, 15, 1), reset('<', 1, 15, 1)),
                        }
-             },
-            'ResponseCodeInfo' => {:description => 'ResponseCodeInfo',
-                              :source => '',
-                              :chart => {'min' => 0, 'unit' => ''},
-                              :cmd => 'check_es_response',
-                              :cmd_line => '/opt/nagios/libexec/check_es_response.rb /log/tomcat/response_log.txt',
-                              :metrics => {
-                                  'rc200' => metric(:unit => 'min', :description => 'Response code 200', :dstype => 'GAUGE'),
-                                  'rc304' => metric(:unit => 'min', :description => 'Response code 304', :dstype => 'GAUGE'),
-                                  'rc404' => metric(:unit => 'min', :description => 'Response code 404', :dstype => 'GAUGE'),
-                                  'rc500' => metric(:unit => 'min', :description => 'Response code 500', :dstype => 'GAUGE'),
-                                  'rc2xx' => metric(:unit => 'min', :description => 'Response code family 2xx', :dstype => 'GAUGE'),
-                                  'rc3xx' => metric(:unit => 'min', :description => 'Response code family 3xx', :dstype => 'GAUGE'),
-                                  'rc4xx' => metric(:unit => 'min', :description => 'Response code family 4xx', :dstype => 'GAUGE'),
-                                  'rc5xx' => metric(:unit => 'min', :description => 'Response code family 5xx', :dstype => 'GAUGE')
-                              },
-                              :thresholds => {
-                              }
-            }
+             }
          }
+
+restart_artifact_command=  <<-"EOF"
+execute "rm -rf /opt/tomcat/webapps/$OO_LOCAL{deployContext}"
+
+link "/opt/tomcat/webapps/$OO_LOCAL{deployContext}" do
+  to "/home/tomcat/$OO_LOCAL{artifactId}/current"
+end
+EOF
 
 resource "Tomcat-85-daemon",
          :cookbook => "oneops.1.daemon",
@@ -139,7 +157,17 @@ resource "artifact",
   :design => true,
   :requires => { "constraint" => "1..*" },
   :attributes => {
-    :install_dir => '/opt/tomcat/webapps',
+    :url => '$OO_LOCAL{repositoryURL}',
+    :repository => '$OO_LOCAL{repository}',
+    :username => '',
+    :password => '',
+    :location => '$OO_LOCAL{groupId}:$OO_LOCAL{artifactId}:$OO_LOCAL{extension}',
+    :version => '$OO_LOCAL{appVersion}',
+    :install_dir => '/home/tomcat/$OO_LOCAL{artifactId}',
+    :as_user => 'tomcat',
+    :as_group => 'tomcat',
+    :should_expand => 'true',
+    :restart => restart_artifact_command
   },
   :monitors => {
          'URL' => {:description => 'URL',
@@ -224,28 +252,36 @@ resource 'java',
          },
          :attributes => {}
 
+resource "user-tomcat",
+    :cookbook => "oneops.1.user",
+    :design => true,
+    :requires => {"constraint" => "1..1"},
+    :attributes => {
+        "username" => "tomcat",
+        "description" => "App User",
+        "home_directory" => "/home/tomcat",
+        "system_account" => true,
+        "sudoer" => true
+}
 
 # depends_on
-[ { :from => 'Tomcat-85',     :to => 'os' },
-  { :from => 'Tomcat-85',     :to => 'user'  },
-  { :from => 'Tomcat-85-daemon',     :to => 'compute' },
-  { :from => 'Tomcat-85',     :to => 'java'  },
-  { :from => 'Tomcat-85',     :to => 'volume'},
-  { :from => 'Tomcat-85',     :to => 'keystore'},
-  { :from => 'artifact',   :to => 'library' },
-  { :from => 'artifact',   :to => 'Tomcat-85'  },
-  { :from => 'artifact',   :to => 'download'},
-  { :from => 'artifact',   :to => 'build'},
-  { :from => 'artifact',   :to => 'volume'},
-  { :from => 'build',      :to => 'library' },
-  { :from => 'build',      :to => 'Tomcat-85'  },
-  { :from => 'build',      :to => 'download'},
-  { :from => 'Tomcat-85-daemon',     :to => 'artifact' },
-  { :from => 'Tomcat-85-daemon',     :to => 'build' },
-  { :from => 'java',       :to => 'compute' },
-  { :from => 'java',       :to => 'os' },
-  { :from => 'keystore',    :to => 'java'},
-  { :from => 'java',       :to => 'download'} ].each do |link|
+[ { :from => 'Tomcat-85',        :to => 'user-tomcat' },
+  { :from => 'Tomcat-85',        :to => 'java' },
+  { :from => 'Tomcat-85',        :to => 'keystore' },
+  { :from => 'user-tomcat',      :to => 'volume' },
+  { :from => 'artifact',         :to => 'library' },
+  { :from => 'artifact',         :to => 'Tomcat-85' },
+  { :from => 'artifact',         :to => 'download' },
+  { :from => 'artifact',         :to => 'build' },
+  { :from => 'build',            :to => 'library' },
+  { :from => 'build',            :to => 'Tomcat-85' },
+  { :from => 'build',            :to => 'download' },
+  { :from => 'Tomcat-85-daemon', :to => 'Tomcat-85' },
+  { :from => 'Tomcat-85-daemon', :to => 'artifact' },
+  { :from => 'Tomcat-85-daemon', :to => 'build' },
+  { :from => 'java',             :to => 'os' },
+  { :from => 'keystore',         :to => 'java' },
+  { :from => 'java',             :to => 'download' } ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
     :relation_name => 'DependsOn',
     :from_resource => link[:from],
