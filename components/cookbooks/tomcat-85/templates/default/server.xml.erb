@@ -90,7 +90,7 @@ end
 
 			<Valve
 			    className="org.apache.catalina.valves.AccessLogValve"
-			    directory="<%= node['tomcat']['logs']['logfiles_path'] %>"
+			    directory="<%= node['tomcat']['logfiles_path'] %>"
 			    prefix="localhost_access_log"
 			    suffix=".log"
 			    pattern="<%= node['tomcat']['logs']['access_log_pattern'] %>"

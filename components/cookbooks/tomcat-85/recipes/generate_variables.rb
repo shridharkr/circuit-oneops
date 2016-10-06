@@ -78,10 +78,6 @@ node.set['tomcat']['java']['mem_start'] = node.workorder.rfcCi.ciAttributes.mem_
 ##################################################################################################
 # Attributes to control log settings
 ##################################################################################################
-node.set['tomcat']['logs']['logfiles_path'] = node.workorder.rfcCi.ciAttributes.logfiles_path
-  if !node['tomcat']['logs']['logfiles_path'].match('^/')
-    node.set['tomcat']['logs']['logfiles_path'] = "/#{node['tomcat']['logs']['logfiles_path']}"
-  end
 node.set['tomcat']['logs']['access_log_pattern'] = node.workorder.rfcCi.ciAttributes.access_log_pattern
   if node['tomcat']['logs']['access_log_pattern'].empty?
     Chef::Log.warn("access_log_pattern was empty: setting to '%h %l %u %t &quot;%r&quot; %s %b %D %F'")
@@ -115,6 +111,7 @@ node.set['tomcat']['config_dir'] = '/opt/tomcat'
 node.set['tomcat']['instance_dir'] = "#{node['tomcat']['config_dir']}/apache-tomcat-#{node['tomcat']['global']['version']}"
 node.set['tomcat']['tarball'] = "tomcat/tomcat-8/v#{node['tomcat']['global']['version']}/bin/apache-tomcat-#{node['tomcat']['global']['version']}.tar.gz"
 node.set['tomcat']['download_destination'] = "#{node['tomcat']['config_dir']}/apache-tomcat-#{node['tomcat']['global']['version']}.tar.gz"
+node.set['tomcat']['logfiles_path'] = "#{node['tomcat']['config_dir']}/logs"
 node.set['tomcat']['logfiles_path_dir'] = "#{node['tomcat']['instance_dir'] }/logs"
 node.set['tomcat']['webapp_install_dir'] = "#{node['tomcat']['instance_dir']}/webapps"
 node.set['tomcat']['webapp_link'] = "#{node['tomcat']['config_dir'] }/webapps"

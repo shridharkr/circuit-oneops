@@ -7,7 +7,7 @@
  maxage 7
 }
 
-<%= node['tomcat']['logs']['logfiles_path']%>/*.log{
+<%= node['tomcat']['logfiles_path']%>/*.log{
  copytruncate
  daily
  size 128M
@@ -16,7 +16,7 @@
  maxage 7
 }
 
-<%= node['tomcat']['logs']['logfiles_path']%>/access%>*.log{
+<%= node['tomcat']['logfiles_path']%>/access%>*.log{
  copytruncate
  yearly
  size 265M
