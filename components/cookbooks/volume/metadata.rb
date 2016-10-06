@@ -56,7 +56,7 @@ attribute 'fstype',
   }
 
 attribute 'mount_point',
-  :description => "Mount Point",
+  :description => "Mount Point. (For Windows specify the the drive letter)",
   :required => 'required',
   :default => '/volume',
   :format => {

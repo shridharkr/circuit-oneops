@@ -38,6 +38,11 @@ etcd_cluster = Array.new
 peer_endpoints = Array.new
 # Get etcd members
 
+protocol = "http"
+if node.etcd.security_enabled == 'true'
+  protocol = "https"
+end
+
 if primary_cloud == true
   Chef::Log.info("In primary clouds")
   if depend_on_hostname_ptr?
@@ -59,20 +64,20 @@ if primary_cloud == true
   end
   
   managed_via_compute = node.workorder.payLoad.ManagedVia.first
-
+  
   computes.each do |c, index|
     if c.ciAttributes.has_key?("private_ip") && c.ciAttributes.private_ip != nil
       if depend_on_hostname_ptr?
         full_hostname = get_full_hostname(c.ciAttributes.private_ip)
-        etcd_cluster.push("#{c.ciName}=http://#{full_hostname}:2380")
+        etcd_cluster.push("#{c.ciName}=#{protocol}://#{full_hostname}:2380")
       else
-        etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")        
+        etcd_cluster.push("#{c.ciName}=#{protocol}://#{c.ciAttributes.private_ip}:2380")        
       end
       if c.ciAttributes.private_ip != managed_via_compute['ciAttributes']['private_ip']
-        peer_endpoints.push("http://#{c.ciAttributes.private_ip}:2379")        
+        peer_endpoints.push("#{protocol}://#{c.ciAttributes.private_ip}:2379")        
       else
         node.set['member_name'] = c.ciName
-        node.set['member_endpoint'] = "http://#{c.ciAttributes.private_ip}:2380"
+        node.set['member_endpoint'] = "#{protocol}://#{c.ciAttributes.private_ip}:2380"
       end
     end
   end
@@ -102,9 +107,9 @@ else
       Chef::Log.info("c.ciAttributes.private_ip: #{c.ciAttributes.private_ip}")
       if depend_on_hostname_ptr?
         hostname = get_full_hostname(c.ciAttributes.private_ip)
-        etcd_cluster.push("#{c.ciName}=http://#{hostname}:2380")
+        etcd_cluster.push("#{c.ciName}=#{protocol}://#{hostname}:2380")
       else
-        etcd_cluster.push("#{c.ciName}=http://#{c.ciAttributes.private_ip}:2380")
+        etcd_cluster.push("#{c.ciName}=#{protocol}://#{c.ciAttributes.private_ip}:2380")
       end
     end
   end
@@ -113,7 +118,6 @@ end
 
 
 if node.etcd.security_enabled == 'true'
-  protocol = 'https'
   exit_with_err 'server security certificate is empty.' if node.etcd.security_certificate.empty?
   exit_with_err 'server security key is empty.' if node.etcd.security_key.empty?
   exit_with_err 'certificate authority CA certificate is empty.' if node.etcd.security_ca_certificate.empty?
@@ -135,14 +139,17 @@ if node.etcd.security_enabled == 'true'
   end
 
   security_flags = {
+      'ETCD_PEER_CERT_FILE' => "#{node.etcd.security_path}/server.crt",
+      'ETCD_PEER_KEY_FILE' => "#{node.etcd.security_path}/server.key",
+      'ETCD_PEER_TRUSTED_CA_FILE' => "#{node.etcd.security_path}/ca.crt",
       'ETCD_CERT_FILE' => "#{node.etcd.security_path}/server.crt",
       'ETCD_KEY_FILE' => "#{node.etcd.security_path}/server.key",
       'ETCD_TRUSTED_CA_FILE' => "#{node.etcd.security_path}/ca.crt",
+
       'ETCD_CLIENT_CERT_AUTH' => 'true'
   }.merge(JSON.parse(node.etcd.security_flags))
 
 elsif node.etcd.security_enabled == 'false'
-  protocol = 'http'
   security_flags = {
   }.merge(JSON.parse(node.etcd.security_flags))
 end
@@ -154,7 +161,7 @@ member_flags = {
     'ETCD_SNAPSHOT_COUNT' => '10000',
     'ETCD_HEARTBEAT_INTERVAL' => '100',
     'ETCD_ELECTION_TIMEOUT' => '1000',
-    'ETCD_LISTEN_PEER_URLS' => "http://#{local_server_ip}:2380",
+    'ETCD_LISTEN_PEER_URLS' => "#{protocol}://#{local_server_ip}:2380",
     'ETCD_LISTEN_CLIENT_URLS' => "#{protocol}://#{local_server_ip}:2379,#{protocol}://127.0.0.1:2379",
     'ETCD_MAX_SNAPSHOTS' => '5',
     'ETCD_MAX_WALS' => '5',
@@ -175,7 +182,7 @@ elsif node.workorder.rfcCi.rfcAction == "update"
 end
 
 cluster_flags = {
-    'ETCD_INITIAL_ADVERTISE_PEER_URLS' => "http://#{local_server_ip}:2380",
+    'ETCD_INITIAL_ADVERTISE_PEER_URLS' => "#{protocol}://#{local_server_ip}:2380",
     'ETCD_INITIAL_CLUSTER' => "#{etcd_cluster.join(",")}",
     'ETCD_INITIAL_CLUSTER_STATE' => etcd_initial_cluster_state,
     'ETCD_INITIAL_CLUSTER_TOKEN' => etcd_initial_cluster_token,
