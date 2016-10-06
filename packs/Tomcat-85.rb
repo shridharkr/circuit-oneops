@@ -252,21 +252,8 @@ resource 'java',
          },
          :attributes => {}
 
-resource "user-tomcat",
-    :cookbook => "oneops.1.user",
-    :design => true,
-    :requires => {"constraint" => "1..1"},
-    :attributes => {
-        "username" => "tomcat",
-        "description" => "App User",
-        "home_directory" => "/home/tomcat",
-        "system_account" => true,
-        "sudoer" => true
-}
-
 # depends_on
-[ { :from => 'Tomcat-85',        :to => 'user-tomcat' },
-  { :from => 'Tomcat-85',        :to => 'java' },
+[ { :from => 'Tomcat-85',        :to => 'java' },
   { :from => 'Tomcat-85',        :to => 'keystore' },
   { :from => 'user-tomcat',      :to => 'volume' },
   { :from => 'artifact',         :to => 'library' },

@@ -56,7 +56,7 @@ Chef::Log.debug("mem_start: #{node['tomcat']['java']['mem_start']}")
 ###############################################################################
 # Logs
 ###############################################################################
-Chef::Log.debug("logfiles_path: #{node['tomcat']['logs']['logfiles_path']}")
+Chef::Log.debug("logfiles_path: #{node['tomcat']['logfiles_path']}")
 Chef::Log.debug("access_log_pattern: #{node['tomcat']['logs']['access_log_pattern']}")
 
 ###############################################################################

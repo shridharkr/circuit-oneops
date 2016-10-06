@@ -368,23 +368,13 @@ attribute 'mem_start',
 ##################################################################################################
 # Attributes to control log settings
 ##################################################################################################
-attribute 'logfiles_path',
-          :description => "Cantalina and Access Log Directory Path",
-          :required => "required",
-          :default => "/opt/tomcat/logs",
-          :format => {
-              :help => "Specify the directory that catalina.out and access.log will be written to.",
-              :category => "6.Logs",
-              :order => 1
-          }
-
 attribute 'access_log_pattern',
           :default => '%h %l %u %t &quot;%r&quot; %s %b %D %F',
           :description => "Format of the Access Log",
           :format => {
               :help => 'Specify the format the the access log data will be logged as.',
               :category => '6.Logs',
-              :order => 2
+              :order => 1
           }
 
 ##################################################################################################

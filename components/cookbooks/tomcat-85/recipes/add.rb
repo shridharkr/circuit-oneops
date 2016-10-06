@@ -104,7 +104,7 @@ end
 
 cron 'logrotatecleanup' do
   minute '0'
-  command "ls -t1 #{node['tomcat']['logs']['logfiles_path']}/access_log*|tail -n +7|xargs rm -r"
+  command "ls -t1 #{node['tomcat']['logfiles_path']}/access_log*|tail -n +7|xargs rm -r"
   mailto '/dev/null'
   action :create
 end
@@ -183,12 +183,12 @@ directory "#{node['tomcat']['context_dir']}" do
   not_if "test -d #{node['tomcat']['context_dir']}"
 end
 
-link node['tomcat']['logs']['logfiles_path'] do
+link node['tomcat']['logfiles_path'] do
   to node['tomcat']['logfiles_path_dir']
   action :create
   owner "#{node['tomcat']['global']['tomcat_user']}"
   group "#{node['tomcat']['global']['tomcat_group']}"
-  not_if "test -d #{node['tomcat']['logs']['logfiles_path']}"
+  not_if "test -d #{node['tomcat']['logfiles_path']}"
 end
 
 directory "#{node['tomcat']['keystore_dir']}" do

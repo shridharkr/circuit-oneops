@@ -24,7 +24,7 @@ when /azuredns/
 when /designate/
   provider = "designate"
 else
-  provider = provider_service  
+  provider = provider_service
 end
 
 # skip deletes if other active clouds for same dc
@@ -33,8 +33,7 @@ if node[:workorder][:services].has_key?("gdns")
 end
 
 node.set["is_last_active_cloud_in_dc"] = true
-if node.workorder.box.ciAttributes.is_platform_enabled == 'true' &&
-   node.workorder.payLoad.has_key?("activeclouds") && !cloud_service.nil?
+if node.workorder.payLoad.has_key?("activeclouds") && !cloud_service.nil?
    node.workorder.payLoad["activeclouds"].each do |service|
 
      if service[:ciAttributes].has_key?("gslb_site_dns_id") &&
@@ -48,8 +47,7 @@ if node.workorder.box.ciAttributes.is_platform_enabled == 'true' &&
 end
 
 node.set["is_last_active_cloud"] = true
-if node.workorder.box.ciAttributes.is_platform_enabled == 'true' &&
-   node.workorder.payLoad.has_key?("activeclouds") && !cloud_service.nil?
+if node.workorder.payLoad.has_key?("activeclouds") && !cloud_service.nil?
    node.workorder.payLoad["activeclouds"].each do |service|
 
      if service[:nsPath] != cloud_service[:nsPath]
@@ -61,7 +59,7 @@ end
 
 include_recipe "fqdn::get_authoritative_nameserver"
 
-if env.has_key?("global_dns") && env["global_dns"] == "true" && 
+if env.has_key?("global_dns") && env["global_dns"] == "true" &&
    depends_on["ciClassName"] =~ /Lb/ &&
    node.is_last_active_cloud_in_dc
 
