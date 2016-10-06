@@ -93,20 +93,21 @@ if ( $chocoRepo -ne "" -and $chocoRepo -ne $null ) {
 
 Write-Output "Install ruby ..."
 choco install -y ruby
+refreshenv
 
 Write-Output "Install ruby DevKit ..."
 choco install -y ruby2.devkit
+refreshenv
 
 ###########################################
 Set-Location "C:\tools\DevKit2\"
-Set-Content config.yml "---"
-Set-Content config.yml "- C:/tools/ruby23"
+Add-Content config.yml "`n- C:/tools/ruby23"
 ###########################################
 
-# Set the latest path to the current session, so that we get the latest path
-$env:Path = d[System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-
-$env:Path += ";C:\cygdrive\c\tools\ruby23\bin;C:\tools\DevKit2\bin"
+if ($($env:Path).ToLower().Contains("devkit") -eq $false) {
+  [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\tools\DevKit2\bin", [EnvironmentVariableTarget]::Machine)
+  refreshenv
+}
 
 #ruby dk.rb init
 ruby dk.rb install
