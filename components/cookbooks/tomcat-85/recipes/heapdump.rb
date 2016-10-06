@@ -1,8 +1,8 @@
 # rubocop:disable LineLength
 ###############################################################################
 # Cookbook Name:: tomcat_8-5
-# Recipe:: threaddump
-# Purpose:: This recipe is used to create a threaddump and put in into
+# Recipe:: heapdump
+# Purpose:: This recipe is used to create a heapdump and put in into
 #           the catalina.out file.
 #
 # Copyright 2016, Walmart Stores Incorporated
@@ -40,7 +40,7 @@ if !proc_id.empty?
     end
   end
    if ($?.exitstatus).eql?(0)
-    Chef::Log.info("Thread Dump Completed")
+    Chef::Log.info("Heap Dump Completed")
    else
     Chef::Log.error("Please ensure JDK is installed")
    end

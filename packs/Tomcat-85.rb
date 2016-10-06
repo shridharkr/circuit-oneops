@@ -1,6 +1,6 @@
 include_pack  "genericlb"
 name          "Tomcat-85"
-description   "Tomcat 8_5 Version 7"
+description   "Tomcat 8_5"
 type          "Platform"
 category      "Web Application"
 
@@ -12,28 +12,7 @@ resource "Tomcat-85",
          :source => Chef::Config[:register],
          :design => true,
          :requires => {"constraint" => "1..1",:services=> "mirror"},
-         :attributes => {
-             'install_dir' => '/app',
-             'install_version' => '8.5.2',
-             'server_user' => 'app',
-             'server_group' => 'app',
-             'java_jvm_args' => '-Xms64m -Xmx1024m',
-             'java_system_properties' => '{
-                    "com.walmart.platform.config.runOnEnv":"$OO_LOCAL{runOnEnv}",
-                    "com.walmartlabs.pangaea.platform.config.runOnEnv":"$OO_LOCAL{runOnEnv}",
-                    "com.walmart.platform.config.localConfigLocation":"/app/localConfig/$OO_LOCAL{artifactId}",
-                    "com.walmart.platform.config.appName":"$OO_LOCAL{artifactId}",
-                    "app.domain":"$OO_LOCAL{domain}",
-                    "app.name":"$OO_LOCAL{name}"
-                  }',
-             'java_startup_params' => '[
-                    "+UseCompressedOops",
-                    "SurvivorRatio=10",
-                    "SoftRefLRUPolicyMSPerMB=125"
-                  ]',
-             'access_log_dir' =>'/log/tomcat',
-             'access_log_pattern'=>'%h %{NSC-Client-IP}i %l %u %t &quot;%r&quot; %s %b %D %F'
-         },
+         :attributes => { },
          :monitors => {
              'JvmInfo' => {:description => 'JvmInfo',
                            :source => '',
@@ -125,7 +104,7 @@ resource "Tomcat-85-daemon",
          :cookbook => "oneops.1.daemon",
          :design => true,
          :requires => {
-             :constraint => "0..1",
+             :constraint => "1..1",
              :help => "Restarts Tomcat"
          },
          :attributes => {
@@ -158,7 +137,7 @@ resource "keystore",
 resource "artifact",
   :cookbook => "oneops.1.artifact",
   :design => true,
-  :requires => { "constraint" => "0..*" },
+  :requires => { "constraint" => "1..*" },
   :attributes => {
     :install_dir => '/opt/tomcat/webapps',
   },
@@ -228,7 +207,7 @@ resource "secgroup",
          :cookbook => "oneops.1.secgroup",
          :design => true,
          :attributes => {
-             "inbound" => '[ "22 22 tcp 0.0.0.0/0", "8080 8080 tcp 0.0.0.0/0", "8009 8009 tcp 0.0.0.0/0", "8443 8443 tcp 0.0.0.0/0" ]'
+             "inbound" => '[ "22 22 tcp 0.0.0.0/0", "8080 8080 tcp 0.0.0.0/0", "8443 8443 tcp 0.0.0.0/0" ]'
          },
          :requires => {
              :constraint => "1..1",
@@ -261,8 +240,8 @@ resource 'java',
   { :from => 'build',      :to => 'library' },
   { :from => 'build',      :to => 'Tomcat-85'  },
   { :from => 'build',      :to => 'download'},
-  { :from => 'daemon',     :to => 'artifact' },
-  { :from => 'daemon',     :to => 'build' },
+  { :from => 'Tomcat-85-daemon',     :to => 'artifact' },
+  { :from => 'Tomcat-85-daemon',     :to => 'build' },
   { :from => 'java',       :to => 'compute' },
   { :from => 'java',       :to => 'os' },
   { :from => 'keystore',    :to => 'java'},
