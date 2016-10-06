@@ -21,21 +21,25 @@
 ###############################################################################
 proc_id=`pgrep -f "org.apache.catalina.startup.Bootstrap"`
 proc_id=proc_id.chomp
-Chef::Log.debug("proc_id = #{proc_id}")
+Chef::Log.info("proc_id = #{proc_id}")
 
 tomcatuserid=`ps aux | grep java | grep -v grep | awk '{print $1}'`
 tomcatuserid=tomcatuserid.chomp
-Chef::Log.debug("tomcatuserid = #{tomcatuserid}")
+Chef::Log.info("tomcatuserid = #{tomcatuserid}")
 
-thread_dump_cmd="sudo -u  #{tomcatuserid} jstack -l #{proc_id}"
-Chef::Log.debug("thread_dump_cmd = #{thread_dump_cmd}")
+timestamp=`date +%m_%d_%y_%H_%M_%S`
+timestamp=timestamp.chomp
+Chef::Log.info("timestamp = #{timestamp}")
 
-puts "Command is #{thread_dump_cmd}"
+heap_dump_cmd="sudo -u #{tomcatuserid} jmap -dump:file=/opt/tomcat/logs/heapdump-#{timestamp}.hprof #{proc_id}"
+Chef::Log.info("heap_dump_cmd = #{heap_dump_cmd}")
+
+puts "Command is #{heap_dump_cmd}"
 if !proc_id.empty?
   ruby_block "jstack_output" do
     block do
       Chef::Resource::RubyBlock.send(:include, Chef::Mixin::ShellOut)
-      cmdout =  shell_out!(thread_dump_cmd,
+      cmdout =  shell_out!(heap_dump_cmd,
                :live_stream => Chef::Log::logger)
     end
   end
