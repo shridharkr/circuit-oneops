@@ -1,8 +1,6 @@
 
 download_dir = '/opt'
 
-
-
 # skip install if installed
 installed = false
 version_file = "#{download_dir}/kubernetes/version"
@@ -37,7 +35,9 @@ unless installed
   if node.kubernetes.has_key?('download_args')
     download_args = JSON.parse(node.kubernetes.download_args).join(' ')
   end
-  execute "wget #{download_args} #{pkg_url} -O #{download_dir}/#{pkg_name}"
+  execute "wget -q #{download_args} -c #{pkg_url} -O #{download_dir}/#{pkg_name}" do
+    timeout 10800
+  end
   
   # extract kubernetes package
   execute "extract package #{pkg_name}" do
