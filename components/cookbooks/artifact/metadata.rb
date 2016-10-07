@@ -52,11 +52,11 @@ attribute 'url',
   }
 
 attribute 'repository',
-  :description => "Repository/Package Name",
+  :description => "Repository",
   :required => "required",
   :default => '',
   :format => {
-    :help => 'Repository or Package name',
+    :help => 'Repository',
     :category => '1.Repository',
     :order => 2
   }

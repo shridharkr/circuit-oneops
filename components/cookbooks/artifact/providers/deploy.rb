@@ -58,15 +58,11 @@ def load_current_resource
     Chef::Application.fatal! "The name attribute for this resource is significant, and there cannot be whitespace. The preferred usage is to use the name of the artifact."
   end
 
-  gem_proxy = ::File.read('C:\cygwin64\opt\oneops\rubygems_proxy') if windows_platform
-
   chef_gem "i18n" do
-    source gem_proxy if gem_proxy
     version "0.6.9"
   end
 
   chef_gem "activesupport" do
-    source gem_proxy if gem_proxy
     version "3.2.11"
   end
 
@@ -84,7 +80,6 @@ def load_current_resource
 
   if Chef::Artifact.from_nexus?(@new_resource.artifact_location)
     chef_gem "nexus_cli" do
-      source gem_proxy if gem_proxy
       version "3.0.0"
     end
 
@@ -210,7 +205,7 @@ def extract_artifact!
         group new_resource.group
         retries 2
       end
-    when /zip|war|jar|nupkg/
+    when /zip|war|jar/
       if Chef::Artifact.windows?
         powershell_script "extract_artifact!" do
           code <<-EOH
@@ -227,6 +222,10 @@ def extract_artifact!
           group   new_resource.group
           retries 2
         end
+      end
+     when /nupkg/
+      if Chef::Artifact.windows?
+        Chef::Log.info("Not extracting the nuget package, this will done via nuget install")
       end
     else
       Chef::Application.fatal! "Cannot extract artifact because of its extension. Supported types are [tar.gz tgz tar tar.bz2 tbz zip war jar]."
