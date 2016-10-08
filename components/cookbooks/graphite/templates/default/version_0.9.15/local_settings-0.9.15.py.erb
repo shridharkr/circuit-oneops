@@ -198,7 +198,7 @@ REMOTE_FIND_CACHE_DURATION = 300 # Time to cache remote metric find results
 # instead of one http request per target, per remote server.
 # Especially useful when generating graphs with more than 4-5 targets or if
 # there's significant latency between this server and the backends. (>20ms)
-#REMOTE_PREFETCH_DATA = False
+REMOTE_PREFETCH_DATA = True
 
 # During a rebalance of a consistent hash cluster, after a partition event on a replication > 1 cluster,
 # or in other cases we might receive multiple TimeSeries data for a metric key.  Merge them together rather
