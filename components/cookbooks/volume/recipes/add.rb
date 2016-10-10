@@ -429,7 +429,6 @@ ruby_block 'create-ephemeral-volume-on-azure-vm' do
     if size =~ /%/
       l_switch = "-l"
     end
-    `echo "sleep 20" >> /myScript/lvmscript.sh`
     `echo ""yes" | lvcreate #{l_switch} #{size} -n #{logical_name} #{platform_name}-eph" >> /myScript/lvmscript.sh`
     `echo "if [ ! -d #{_mount_point}/lost+found ]" >> /myScript/lvmscript.sh`
     `echo "then" >> /myScript/lvmscript.sh`
@@ -606,8 +605,7 @@ ruby_block 'create-storage-non-ephemeral-volume' do
       # pipe yes to agree to clear filesystem signature
       cmd = "yes | lvcreate #{l_switch} #{size} -n #{logical_name} #{platform_name}"
       Chef::Log.info("running: #{cmd} ...")
-      out = `#{cmd}`
-      Chef::Log.info("out:#{out}")     
+      `#{cmd}`    
       if $? != 0
         Chef::Log.error("error in lvcreate")
         puts "***FAULT:FATAL=error in lvcreate, Check whether sufficient space is available on the storage device to create volume"
