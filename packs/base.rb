@@ -219,7 +219,7 @@ resource "fqdn",
          }
        ]
     }'
-  },
+  }, 
 'activeclouds' => {
     'description' => 'activeclouds',
     'definition' => '{
@@ -608,7 +608,8 @@ resource "sshkeys",
        "relationName": "bom.SecuredBy",
        "direction": "to"
     }'
-   }
+    }
+
   }
 
 resource "secgroup",
@@ -694,6 +695,7 @@ end
 
 [ { :from => 'hostname',    :to => 'os' },
   { :from => 'user',        :to => 'os' },
+  { :from => 'job',         :to => 'user' },    
   { :from => 'job',         :to => 'os' },
   { :from => 'volume',      :to => 'os' },
   { :from => 'certificate', :to => 'os' },
