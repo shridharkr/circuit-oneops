@@ -48,6 +48,47 @@ attribute 'override_storage-aggregation',
       :order => 4
 }
 
+attribute 'pcre_download_url',
+  :description => 'PCRE Download URL',
+  :required => "required",
+  :default               => 'ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.39.tar.gz',
+  :format => {
+    :category => '2.Package Download',
+    :help => 'If needed, replace it with your preferred PCRE download URL',
+    :order => 1
+}
+
+attribute 'pcre_version',
+:description => 'PCRE Version',
+:required => "required",
+:default               => '8.39',
+:format => {
+    :category => '2.Package Download',
+    :help => 'This version needs to align with the PCRE version in the PCRE Download URL',
+    :order => 2
+}
+
+attribute 'uwsgi_download_url',
+  :description => 'uWSGI Download URL',
+  :required => "required",
+  :default               => 'https://github.com/unbit/uwsgi/archive/2.0.14.tar.gz',
+  :format => {
+    :category => '2.Package Download',
+    :help => 'If needed, replace it with your preferred uWSGI download URL',
+    :order => 3
+}
+
+attribute 'nginx_download_url',
+  :description => 'Nginx Download URL',
+  :required => "required",
+  :default               => 'http://nginx.org/download/nginx-1.7.6.tar.gz',
+  :format => {
+    :category => '2.Package Download',
+    :help => 'If needed, replace it with your preferred Nginx download URL',
+    :order => 4
+}
+
+
 recipe "status", "Graphite Status"
 recipe "start", "Start Graphite"
 recipe "restart", "Resgitart Graphite"
