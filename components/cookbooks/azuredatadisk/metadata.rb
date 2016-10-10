@@ -98,5 +98,3 @@ attribute 'region',
               }
           }
 
-
-recipe "check_subscription_status", "Check Subscription Status"

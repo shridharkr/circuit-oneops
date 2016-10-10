@@ -16,7 +16,7 @@ module AzureBase
 
       OOLog.info("App Name is: #{node[:app_name]}")
       case node[:app_name]
-      when /keypair|secgroup|compute/
+      when /keypair|secgroup|compute|volume/
         service_name = 'compute'
       when /fqdn/
         service_name = 'dns'

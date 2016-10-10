@@ -50,6 +50,7 @@ if rfcAttrs.has_key?("mount_point") &&
     package "lsof"
   end
 if provider_class !~ /azure/
+  Chef::Log.info("executing lsof #{mount_point} | awk '{print $2}' | grep -v PID | uniq | xargs kill -9; umount #{mount_point}")
   execute "lsof #{mount_point} | awk '{print $2}' | grep -v PID | uniq | xargs kill -9; umount #{mount_point}" do
     only_if { has_mounted }
   end
@@ -64,13 +65,15 @@ end
     Chef::Log.info("clearing /etc/fstab entry for fstype tmpfs")
     result = `grep -v #{mount_point} /etc/fstab > /tmp/fstab`
     `mv /tmp/fstab /etc/fstab`
+     logical_name = node.workorder.rfcCi.ciName
+    `rm -rf "/myScript/#{logical_name}.sh"`
   end
 end
 
 
 ruby_block 'lvremove ephemeral' do
   block do
-
+  unless provider_class =~ /azure/
     platform_name = node.workorder.box.ciName
     if ::File.exists?("/dev/#{platform_name}-eph/#{node.workorder.rfcCi.ciName}")
       cmd = "lvremove -f #{platform_name}-eph/#{node.workorder.rfcCi.ciName}"
@@ -81,6 +84,7 @@ ruby_block 'lvremove ephemeral' do
         exit 1
       end
     end
+   end
   end
 end
 
@@ -103,23 +107,25 @@ if storage == nil
   Chef::Log.info("no DependsOn Storage.")
 end
 
-if provider_class =~ /azure/ && !storage.nil?
-   platform_name = node.workorder.box.ciName
-   logical_name = node.workorder.rfcCi.ciName
-   mount_point = node.workorder.rfcCi.ciAttributes.mount_point
-   out= `lsof #{mount_point} | awk '{print $2}' | grep -v PID | uniq | xargs kill -9; umount #{mount_point}`
-   Chef::Log.info("out: #{out}")
-   Chef::Log.info("running: lvremove -f /dev/#{platform_name}/#{logical_name}...")
-   out=`lvremove -f /dev/#{platform_name}/#{logical_name}`
-   Chef::Log.info("out: #{out}")
-   Chef::Log.info("running: lvdisplay /dev/#{platform_name}/* ...")
-   out=`lvdisplay /dev/#{platform_name}/*`
-   Chef::Log.info("out: #{out}")
-   if $? != 0 #No more volumes, disk can be detached.
-    Chef::Log.info("There is no more volumes on the disk, so disk can be detached.")
-    include_recipe "azuredatadisk::detach_datadisk"
-    out=`fsck`
-   end 
+if provider_class =~ /azure/ 
+     platform_name = node.workorder.box.ciName
+     logical_name = node.workorder.rfcCi.ciName
+     mount_point = node.workorder.rfcCi.ciAttributes.mount_point
+     out= `lsof #{mount_point} | awk '{print $2}' | grep -v PID | uniq | xargs kill -9; umount #{mount_point}`    
+  if !storage.nil? 
+     Chef::Log.info("running: lvremove -f /dev/#{platform_name}/#{logical_name}...")
+     out=`lvremove -f /dev/#{platform_name}/#{logical_name}`
+     Chef::Log.info("running: lvdisplay /dev/#{platform_name}/* ...")
+     out=`lvdisplay /dev/#{platform_name}/*`
+     Chef::Log.info("out: #{out}")
+     if $? != 0 #No more volumes, disk can be detached.
+      Chef::Log.info("There is no more volumes on the disk, so disk can be detached.")
+      include_recipe "azuredatadisk::detach"
+     end  
+   else
+     Chef::Log.info("running: lvremove -f /dev/#{platform_name}-eph/#{logical_name}...")
+     out=`lvremove -f /dev/#{platform_name}-eph/#{logical_name}`
+   end
    return true
 end
 

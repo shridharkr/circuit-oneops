@@ -25,12 +25,6 @@ if node.platform =~ /windows/
   include_recipe "volume::windows_vol_add"
   return
 end
-
-package "lvm2"
-package "mdadm"
-
-include_recipe "shared::set_provider"
-
 storage = nil
 node.workorder.payLoad[:DependsOn].each do |dep|
   if dep["ciClassName"] =~ /Storage/
@@ -38,6 +32,29 @@ node.workorder.payLoad[:DependsOn].each do |dep|
     break
   end
 end
+include_recipe "shared::set_provider"
+storage_provider = node.storage_provider_class
+if (storage_provider =~ /azure/) && !storage.nil? 
+       Chef::Log.info("inside attach-azuredatadisk block")
+       dev_id=nil
+       device_maps = storage['ciAttributes']['device_map'].split(" ")
+       node.set[:device_maps] = device_maps
+       device_maps.each do |dev_vol|
+            dev_id = dev_vol.split(":")[4]
+          end
+       Chef::Log.info("executing lsblk #{dev_id}")
+       `lsblk #{dev_id}`
+       if $?.to_i != 0
+         Chef::Log.info("Device NOT attached, attaching the disk now ...")
+         include_recipe "azuredatadisk::attach" 
+       else
+         Chef::Log.info("Device is already attached")
+       end  
+ end
+ 
+package "lvm2"
+package "mdadm"
+
 
 cloud_name = node[:workorder][:cloud][:ciName]
 newDevicesAttached = ""
@@ -68,27 +85,8 @@ logical_name = node.workorder.rfcCi.ciName
 
 cloud_name = node[:workorder][:cloud][:ciName]
 token_class = node[:workorder][:services][:compute][cloud_name][:ciClassName].split(".").last.downcase
-include_recipe "shared::set_provider"
 
-storage_provider = node.storage_provider_class
-
-if node[:storage_provider_class] =~ /azure/ && !storage.nil?
-     dev_id=nil
-     device_maps = storage['ciAttributes']['device_map'].split(" ")
-     node.set[:device_maps] = device_maps
-     device_maps.each do |dev_vol|
-          dev_id = dev_vol.split(":")[4]
-        end
-     Chef::Log.info("executing lsblk #{dev_id}")
-     `lsblk #{dev_id}`
-     if $?.to_i != 0
-       Chef::Log.info("Device NOT attached, attaching the disk now ...")
-       include_recipe "azuredatadisk::attach_datadisk"
-     else
-       Chef::Log.info("Device is already attached")
-     end
-end
-
+Chef::Log.info("storage_provider:#{storage_provider}")
 # need ruby block so package resource above run first
 ruby_block 'create-iscsi-volume-ruby-block' do
   block do
@@ -110,6 +108,8 @@ ruby_block 'create-iscsi-volume-ruby-block' do
           vols.push dev_id
           dev_list += dev_id+" "
         end
+         node.set["device"] = dev_list
+         node.set["raid_device"] = dev_list
       else
         provider = node[:iaas_provider]
         storage_provider = node[:storage_provider]
@@ -412,7 +412,7 @@ end
 ruby_block 'create-ephemeral-volume-on-azure-vm' do
   only_if { (storage.nil? && token_class =~ /azure/ && _fstype != 'tmpfs') }
   block do
-    initial_mountpoint = '/mnt/resource'
+     initial_mountpoint = '/mnt/resource'
 
     `mkdir /myScript`
     `touch /myScript/lvmscript.sh`
@@ -429,8 +429,8 @@ ruby_block 'create-ephemeral-volume-on-azure-vm' do
     if size =~ /%/
       l_switch = "-l"
     end
-
-    `echo "lvcreate #{l_switch} #{size} -n #{logical_name} #{platform_name}-eph" >> /myScript/lvmscript.sh`
+    `echo "sleep 20" >> /myScript/lvmscript.sh`
+    `echo ""yes" | lvcreate #{l_switch} #{size} -n #{logical_name} #{platform_name}-eph" >> /myScript/lvmscript.sh`
     `echo "if [ ! -d #{_mount_point}/lost+found ]" >> /myScript/lvmscript.sh`
     `echo "then" >> /myScript/lvmscript.sh`
     if node[:platform_family] == "rhel" && (node[:platform_version]).to_i >= 7
@@ -445,7 +445,9 @@ ruby_block 'create-ephemeral-volume-on-azure-vm' do
     `sudo chmod +x /myScript/lvmscript.sh`
     `sudo echo "sh /myScript/lvmscript.sh" >> /etc/rc.local`
     `sudo chmod +x /etc/rc.local`
-    `sudo sh /myScript/lvmscript.sh`
+    `sudo mv /myScript/lvmscript.sh "/myScript/#{logical_name}.sh"`
+    Chef::Log.info("executing /myscript/#{logical_name}.sh script")
+    `sudo sh "/myScript/#{logical_name}.sh"`
   end
 end
 
