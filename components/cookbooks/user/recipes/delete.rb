@@ -1,31 +1,21 @@
 if node[:workorder][:rfcCi][:ciAttributes][:ostype] =~ /windows/
-  username = node[:user][:username]
-  params = "-userName '#{username}'"
+  include_recipe "user::windows_user_delete"
+  return
+end
 
-  delete_user_script = "#{Chef::Config[:file_cache_path]}/cookbooks/user/files/default/delete_user.ps1"
-  Chef::Log.info("Script path: #{delete_user_script}")
-  cmd = "#{delete_user_script} #{params}"
-  Chef::Log.info("cmd: #{cmd}")
+username = node[:user][:username]
 
-  powershell_script "run delete_user script" do
-    code cmd
-  end
+Chef::Log.info("Stopping the nslcd service")
+`sudo killall -9  /usr/sbin/nslcd`
 
-else
-  username = node[:user][:username]
+if username != "root"
+  execute "pkill -9 -u #{username} ; true"
+end
 
-  Chef::Log.info("Stopping the nslcd service")
-  `sudo killall -9  /usr/sbin/nslcd`
+user "#{username}" do
+  action :remove
+end
 
-  if username != "root"
-    execute "pkill -9 -u #{username} ; true"
-  end
-
-  user "#{username}" do
-    action :remove
-  end
-
-  group "#{username}" do
-    action :remove
-  end
+group "#{username}" do
+  action :remove
 end
