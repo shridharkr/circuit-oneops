@@ -96,8 +96,7 @@ choco config set proxy $proxy
 
 Write-Output "Install ruby ..."
 choco install -y ruby
-#$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-refreshenv
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
 Write-Output "Install nuget.commandline ..."
 choco install -y nuget.commandline
