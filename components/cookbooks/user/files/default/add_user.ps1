@@ -222,7 +222,8 @@ Function Add-SSH-Keys-To-File {
 }
 
 #################################################
-
+START OF SCRIPT
+#################################################
 if (& net users | select-string "$userName") {
     #  user exists
     Write-Host "User $userName already exists"
