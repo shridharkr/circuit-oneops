@@ -1,8 +1,6 @@
-#ps1_sysnative
-
 param([string]$userName="", [array]$sshKeys=@())
 
-Function Set-Owner-Admin-Folder {
+Function Set-Owner {
 
     [cmdletbinding(
         SupportsShouldProcess = $True
@@ -141,7 +139,7 @@ Function Set-Owner-Admin-Folder {
                     }
                     If ($Recurse) {
                         [void]$PSBoundParameters.Remove('Path')
-                        Get-ChildItem $Item -Force | Set-Owner-Admin-Folder @PSBoundParameters
+                        Get-ChildItem $Item -Force | Set-Owner @PSBoundParameters
                     }
                 }
             } Catch {
@@ -159,40 +157,111 @@ Function Set-Owner-Admin-Folder {
 
 #################################################
 
-Function Add-SSH-Keys {
-  param([string]$file, [array]$keys)
+Function Remove-Inheritance {
+  param([string]$Path)
 
-  foreach ($key in $keys) {
-    $formatted_key = $key + "`n"
-    $formatted_key | Add-Content $file
+  $Acl = (Get-Item $Path).GetAccessControl('Access')
+  $Acl.SetAccessRuleProtection($True, $True)
+  $Acl | Set-Acl $Path
+
+  Get-ChildItem $Path -Recurse |
+  Foreach-Object {
+    $Acl = (Get-Item $_.FullName).GetAccessControl('Access')
+    $Acl.SetAccessRuleProtection($True, $True)
+    $Acl | Set-Acl $_.FullName
   }
 }
 
 #################################################
 
-Write-Host "Adding $userName user to windows"
+Function Remove-Permission {
+  param([string]$Path, [string]$User)
 
-$Computername = $env:COMPUTERNAME
-$ADSIComp = [adsi]"WinNT://$Computername"
-$NewUser = $ADSIComp.Create('User',$userName)
-$NewUser.SetInfo()
+  $Acl = (Get-Item $Path).GetAccessControl('Access')
+  $Ar = New-Object  System.Security.AccessControl.FileSystemAccessRule($User, "Read" ,,,"Allow")
+  $Acl.RemoveAccessRuleAll($Ar)
+  $Acl | Set-Acl $Path
 
-$group = [ADSI]("WinNT://"+$env:COMPUTERNAME+"/administrators,group")
-$group.add("WinNT://$env:USERDOMAIN/$userName,user")
+  Get-ChildItem $Path -Recurse |
+  Foreach-Object {
+    $Acl = (Get-Item $_.FullName).GetAccessControl('Access')
+    $Ar = New-Object  System.Security.AccessControl.FileSystemAccessRule($User, "Read" ,,,"Allow")
+    $Acl.RemoveAccessRuleAll($Ar)
+    $Acl | Set-Acl $_.FullName
+  }
+}
 
 #################################################
 
-Write-Host "Adding $userName user to cygwin"
-C:\cygwin64\bin\mkpasswd.exe -u $userName -l
+Function Set-Permission {
+  param([string]$Path, [string]$User, [string]$Access)
 
-New-Item C:\cygwin64\home\$userName\.ssh\ -ItemType directory
-Copy-Item C:\Users\admin\.ssh\authorized_keys C:\cygwin64\home\$userName\.ssh\authorized_keys
+  $Acl = (Get-Item $Path).GetAccessControl('Access')
+  $Ar = New-Object  System.Security.AccessControl.FileSystemAccessRule($User, $Access, "Allow")
+  $Acl.SetAccessRule($Ar)
+  $Acl | Set-Acl $Path
 
-$user_account = whoami
-$domain = $user_account.Split("\")
-$user_account = $domain[0] + "\$userName"
+  Get-ChildItem $Path -Recurse |
+  Foreach-Object {
+    $Acl = (Get-Item $_.FullName).GetAccessControl('Access')
+    $Ar = New-Object  System.Security.AccessControl.FileSystemAccessRule($User, $Access, "Allow")
+    $Acl.SetAccessRule($Ar)
+    $Acl | Set-Acl $_.FullName
+  }
+}
 
-Set-Owner-Admin-Folder -Path C:\cygwin64\home\$userName -Recurse -Account $user_account
-Add-SSH-Keys-To-File -file C:\cygwin64\home\$userName\.ssh\authorized_keys -keys $sshKeys
+#################################################
+
+Function Add-SSH-Keys-To-File {
+  param([string]$file, [array]$keys)
+
+  foreach ($key in $keys) {
+    Add-Content $file "$key"
+    Write-Host "Adding ssh key to eddie: $key"
+  }
+}
+
+#################################################
+
+if (& net users | select-string "$userName") {
+    #  user exists
+    Write-Host "User $userName already exists"
+} else {
+    #  user does not exist
+    Write-Host "Adding $userName user to windows"
+
+    $Computername = $env:COMPUTERNAME
+    $ADSIComp = [adsi]"WinNT://$Computername"
+    $NewUser = $ADSIComp.Create('User',$userName)
+    $NewUser.SetInfo()
+
+    $group = [ADSI]("WinNT://"+$env:COMPUTERNAME+"/administrators,group")
+    $group.add("WinNT://$env:USERDOMAIN/$userName,user")
+}
+
+#################################################
+
+$userDir = "C:\cygwin64\home\$userName"
+$sshDir = Join-Path $userDir ".ssh"
+$keyFile = Join-Path $sshDir "authorized_keys"
+
+if (!(Test-Path $userDir)) {
+  Write-Host "Adding $userName user to cygwin"
+  New-Item $sshDir -ItemType directory
+
+  Copy-Item C:\Users\admin\.ssh\authorized_keys $keyFile -Force
+  Add-SSH-Keys-To-File -file $keyFile -keys $sshKeys
+
+  $domain = hostname
+  $user_account = "$domain\$userName"
+
+  Remove-Inheritance -Path C:\cygwin64\home\$userName
+  Remove-Permission -Path C:\cygwin64\home\$userName -User "$domain\oneops"
+  Set-Permission -Path C:\cygwin64\home\$userName -User "BUILTIN\Administrators" -Access "FullControl"
+  Set-Owner -Path C:\cygwin64\home\$userName -Recurse -Account $user_account
+} else {
+  Copy-Item C:\Users\admin\.ssh\authorized_keys $keyFile -Force
+  Add-SSH-Keys-To-File -file $keyFile -keys $sshKeys
+}
 
 ## TODO: Cleanup

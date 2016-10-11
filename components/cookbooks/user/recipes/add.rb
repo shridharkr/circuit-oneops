@@ -2,33 +2,22 @@ if node[:workorder][:rfcCi][:ciAttributes][:ostype] =~ /windows/
   username = node[:user][:username]
   ssh_keys = JSON.parse(node[:user][:authorized_keys])
 
-  params = "-userName #{username} "
+  params = "-userName '#{username}' "
   if !ssh_keys.empty?
-      params += "-sshKeys #{ssh_keys}"
+      params += "-sshKeys '#{ssh_keys.shift}'"
+      ssh_keys.each do |key|
+        params += ", '#{key}'"
+      end
   end
 
-  # remove first bom and last Component class
-  class_parts = node.workorder.rfcCi.ciClassName.split(".")
-  class_parts.delete_at(0)
-  class_parts.delete_at(class_parts.size-1)
-  Chef::Log.debug("class parts: #{class_parts.inspect}")
+  add_user_script = "#{Chef::Config[:file_cache_path]}/cookbooks/user/files/default/add_user.ps1"
+  Chef::Log.info("Script path: #{add_user_script}")
+  cmd = "#{add_user_script} #{params}"
+  Chef::Log.info("cmd: #{cmd}")
 
-  # component cookbooks
-  sub_circuit_dir = "circuit-main-1"
-  if class_parts.size > 0 && class_parts.first != "service"
-    sub_circuit_dir = "circuit-" + class_parts.join("-")
+  powershell_script "run add_user script" do
+    code cmd
   end
-
-  install_base = "c:\\cygwin64\\home\\oneops\\circuit-oneops-1\\components\\cookbooks\\user\\files\\default\\create_user.ps1"
-  install_cmd = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File #{sub_circuit_dir}/#{install_base} #{params} "
-  cmd = install_cmd
-
-  shell_timeout = 36000
-  Chef::Log.info("Executing Command: #{cmd}")
-  result = shell_out(cmd, :timeout => shell_timeout)
-
-  Chef::Log.debug("#{cmd} returned: #{result.stdout}")
-  result.error!
 
 else
   home_dir = node[:user][:home_directory]
