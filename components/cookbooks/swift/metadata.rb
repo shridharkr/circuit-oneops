@@ -6,8 +6,8 @@ description      'Installs/Configures swift-client'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          '0.1.0'
 grouping 'default',
-  :access => "global",
-  :packages => [ 'base', 'service.filestore', 'mgmt.cloud.service', 'cloud.service' ],
+  :access => 'global',
+  :packages => %w(base service.filestore mgmt.cloud.service cloud.service cloud.zone.service),
   :namespace => true
 
 attribute 'endpoint',
@@ -68,5 +68,5 @@ attribute 'password',
               :help => 'Password',
               :category => '1.Authentication',
               :order => 6
-          }          
-          
+          }
+
