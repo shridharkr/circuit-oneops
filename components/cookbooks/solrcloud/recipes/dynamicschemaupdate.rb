@@ -14,50 +14,59 @@ payload = args["payload"]
 updateTimeoutSecs = args["updateTimeoutSecs"]
 
 
-payload_arr = payload.split('},{')
-payloadobj = ""
-if !payload_arr.empty?
-	payload_arr.each do |payload|
-	  	if (payload.start_with? "{")
-			construct_str = "add-field:"+payload+"}"
-			if (!payloadobj.empty?)
-				payloadobj = payloadobj + "," + construct_str
+if (!"#{collection_name}".empty?) && (!"#{modify_schema_action}".empty?) && (!"#{payload}".empty?)
+	payload_arr = payload.split('},{')
+	payloadobj = ""
+	if !payload_arr.empty?
+		payload_arr.each do |payload|
+		  	if (payload.start_with? "{")
+				construct_str = "add-field:"+payload+"}"
+				if (!payloadobj.empty?)
+					payloadobj = payloadobj + "," + construct_str
+				else
+					payloadobj = construct_str
+				end
 			else
-				payloadobj = construct_str
+				if (payload.end_with? "}")
+					construct_str = "add-field:"+"{"+payload
+					if (!payloadobj.empty?)
+						payloadobj = payloadobj + "," + construct_str
+					else
+						payloadobj = construct_str
+					end
+				else
+					construct_str = "add-field:"+"{"+payload+"}"
+					if (!payloadobj.empty?)
+						payloadobj = payloadobj + "," + construct_str
+					else
+						payloadobj = construct_str
+					end
+			  	end
 			end
-		else
-			if (payload.end_with? "}")
-				construct_str = "add-field:"+"{"+payload
-				if (!payloadobj.empty?)
-					payloadobj = payloadobj + "," + construct_str
-				else
-					payloadobj = construct_str
-				end
-			else
-				construct_str = "add-field:"+"{"+payload+"}"
-				if (!payloadobj.empty?)
-					payloadobj = payloadobj + "," + construct_str
-				else
-					payloadobj = construct_str
-				end
-		  	end
 		end
+	else
+		payloadobj = payload
 	end
-else
-	payloadobj = payload
-end
 
+	cmd_login = "curl -X POST -H 'Content-type:application/json' --data-binary '{#{payloadobj}}' 'http://#{node['ipaddress']}:8983/solr/#{collection_name}/schema'"
+	Chef::Log.info("#{cmd_login}")
+	parsed = ''
 
-cmd_login = "curl -X POST -H 'Content-type:application/json' --data-binary '{#{payloadobj}}' 'http://#{node['ipaddress']}:8983/solr/#{collection_name}/schema'"
-Chef::Log.info("#{cmd_login}")
-cmd = `#{cmd_login}`
-parsed = JSON.parse(cmd)
-
-if (parsed["errors"] != nil)
-	parsed["errors"].each do |error|
-		Chef::Log.error(error)
+	begin
+		cmd = `#{cmd_login}`
+		parsed = JSON.parse(cmd)
+	rescue
+		Chef::Log.error("Failed to execute rest call")
+	ensure
+		puts "End of rest call execution."
 	end
-	Chef::Log.error("Failed to execute #{modify_schema_action} on the collection '#{collection_name}'.")
+
+	if (parsed["errors"] != nil)
+		parsed["errors"].each do |error|
+			Chef::Log.error(error)
+		end
+		Chef::Log.error("Failed to execute #{modify_schema_action} on the collection '#{collection_name}'.")
+	end
 end
 
 
