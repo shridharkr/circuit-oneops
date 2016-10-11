@@ -95,6 +95,9 @@ Write-Output "Install ruby ..."
 choco install -y ruby
 refreshenv
 
+Write-Output "Install nuget.commandline ..."
+choco install -y nuget.commandline
+
 Write-Output "Install ruby DevKit ..."
 choco install -y ruby2.devkit
 refreshenv

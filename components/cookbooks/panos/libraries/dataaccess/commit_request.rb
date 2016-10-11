@@ -12,7 +12,7 @@ class CommitRequest
     @key = key
   end
 
-  def commit_configs
+  def commit_configs(device_group)
     begin
     	commit_response = RestClient::Request.execute(
     		:method => :post,
@@ -22,7 +22,8 @@ class CommitRequest
     			:params => {
     				:key => @key.value,
     				:type => 'commit',
-    				:cmd => '<commit></commit>'
+            :action => 'all',
+    				:cmd => "<commit-all><shared-policy><device-group><entry name=\"#{device_group}\"/></device-group></shared-policy></commit-all>"
     			}
     		}
     	)
@@ -39,7 +40,7 @@ class CommitRequest
           raise Exception.new("PANOS Error committing: #{commit_hash['response']['msg']}")
         end
       end
-      
+
       if commit_hash['response'].has_key?('result')
         # if job exists in the payload that means a job was submitted to commit the changes.
         if commit_hash['response']['result'].has_key?('job')

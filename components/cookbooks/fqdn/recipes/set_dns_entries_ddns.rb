@@ -188,7 +188,11 @@ node[:entries].each do |entry|
       Chef::Log.info("ns #{ns} has: "+existing_dns.sort.to_s)
       verified = false
       existing_dns.each do |val|
-        if val.downcase.include? dns_value
+        val = dns_value
+        if dns_value[-1,1] == '.'
+          val = dns_value.chop
+        end
+        if val.downcase.include? val
           verified = true
           Chef::Log.info("verified.")
         end
