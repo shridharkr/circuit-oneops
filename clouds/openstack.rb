@@ -66,3 +66,16 @@ service "nova",
             :imagemap => image_map,
             :repo_map => repo_map
         }
+
+service 'swift',
+        :description => 'Swift Storage Service',
+        :cookbook => 'swift',
+        :source => [Chef::Config[:register], Chef::Config[:version].split(".").first].join('.'),
+        :provides => {:service => 'filestore'},
+        :attributes => {
+            :endpoint => '',
+            :tenant => '',
+            :username => '',
+            :password => '',
+            :regionname => ''
+        }
