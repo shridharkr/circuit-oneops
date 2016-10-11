@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-raw_get_pods=`kubectl get pods`.split("\n")
+raw_get_pods=`kubectl get pods --all-namespaces`.split("\n")
 raw_get_pods.shift
 running_count = 0
 pending_count = 0
