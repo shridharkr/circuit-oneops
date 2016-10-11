@@ -142,8 +142,6 @@ ruby_block 'install base' do
          mirror_vars.each_pair do |k,v|
            if k =~ /chocorepo/
              args_win[:chocorepo] = v
-           elsif k =~ /rubygems/
-             args_win[:gemrepo] = v
            end
          end
       else
