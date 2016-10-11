@@ -31,16 +31,8 @@ include_recipe 'kubernetes::install'
 end
 
 # generate systemd file
-%w(kube-proxy.service).each do |service|
+%w(kube-proxy.service kubelet.service).each do |service|
   cookbook_file "/usr/lib/systemd/system/#{service}" do
-    source service
-    mode 00644
-    action :create
-  end
-end
-
-%w(kubelet.service).each do |service|
-  template "/usr/lib/systemd/system/#{service}" do
     source service
     mode 00644
     action :create
