@@ -53,6 +53,17 @@ attribute 'endpoint',
             :order    => 1
           }
 
+attribute 'sensu_vhost_password',
+          :description => 'vhost pwd',
+          :required    => 'required',
+	  :encrypted   => true,
+          :default     => 'topsecret_wontwork',
+          :format      => {
+            :help     => 'vhost password for sensu user in rabbitmq. check with rabbitmq admin',
+            :category => '2.endpoints',
+            :order    => 2
+          }
+
 attribute 'sensu_client_version',
           :description => 'Sensu RPM/deb version',
           :required    => 'required',
@@ -60,7 +71,7 @@ attribute 'sensu_client_version',
           :format      => {
             :help     => 'provide the sensu client version that needs to be installed.',
             :category => '2.endpoints',
-            :order    => 2
+            :order    => 3
           }
 
 attribute 'sensu_client_cert',
