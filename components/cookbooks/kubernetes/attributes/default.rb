@@ -31,7 +31,7 @@ if node.kubernetes.has_key?("controller_manager_args")
     controller_manager_args_value += " --#{k}=#{v}"
   end
 end
-node.set['kube']['controller-manager']['args'] = controller_manager_args_value
+node.set['kube']['controller-manager']['args'] = controller_manager_args_value.strip
   
 scheduler_args_value = ''
 if node.kubernetes.has_key?("scheduler_args")
@@ -41,7 +41,7 @@ if node.kubernetes.has_key?("scheduler_args")
     scheduler_args_value += " --#{k}=#{v}"
   end
 end
-node.set['kube']['scheduler']['args'] = scheduler_args_value  
+node.set['kube']['scheduler']['args'] = scheduler_args_value.strip
 
 api_args_value = ''
 if node.kubernetes.has_key?("api_args")
@@ -51,7 +51,7 @@ if node.kubernetes.has_key?("api_args")
     api_args_value += " --#{k}=#{v}"
   end
 end
-node.set['kube']['api']['args'] = api_args_value    
+node.set['kube']['api']['args'] = api_args_value.strip   
   
 # kubernetes nodes
 default['kube']['kubelet']['machines'] = []
@@ -66,7 +66,7 @@ if node.kubernetes.has_key?("kubelet_args")
     kubelet_args_value += " --#{k}=#{v}"
   end
 end
-node.set['kube']['kubelet']['args'] = kubelet_args_value
+node.set['kube']['kubelet']['args'] = kubelet_args_value.strip
   
 proxy_args_value = ''
 if node.kubernetes.has_key?("proxy_args")
@@ -76,7 +76,7 @@ if node.kubernetes.has_key?("proxy_args")
     proxy_args_value += " --#{k}=#{v}"
   end
 end
-node.set['kube']['proxy']['args'] = proxy_args_value  
+node.set['kube']['proxy']['args'] = proxy_args_value.strip
   
   
 default['kube']['interface'] = 'eth0'
