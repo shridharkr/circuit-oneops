@@ -413,40 +413,44 @@ ruby_block 'create-ephemeral-volume-on-azure-vm' do
   only_if { (storage.nil? && token_class =~ /azure/ && _fstype != 'tmpfs') }
   block do
      initial_mountpoint = '/mnt/resource'
-
-    `mkdir /myScript`
-    `touch /myScript/lvmscript.sh`
+     restore_script_dir = '/opt/oneops/azure-restore-ephemeral-mntpts'
+     script_fullpath_name = "#{restore_script_dir}/#{logical_name}.sh"
+    `mkdir #{restore_script_dir}`
+    `touch #{script_fullpath_name}`
 
     Chef::Log.info("unmounting #{initial_mountpoint}")
-    `echo "umount #{initial_mountpoint}" > /myScript/lvmscript.sh`
+    `echo "umount #{initial_mountpoint}" > #{script_fullpath_name}`
 
     ephemeralDevice = '/dev/sdb1'
-    `echo "pvcreate -f #{ephemeralDevice}" >> /myScript/lvmscript.sh`
-    `echo "vgcreate #{platform_name}-eph #{ephemeralDevice}" >> /myScript/lvmscript.sh`
+    `echo "pvcreate -f #{ephemeralDevice}" >> #{script_fullpath_name}`
+    `echo "vgcreate #{platform_name}-eph #{ephemeralDevice}" >> #{script_fullpath_name}`
 
     size = node.workorder.rfcCi.ciAttributes["size"]
     l_switch = "-L"
     if size =~ /%/
       l_switch = "-l"
     end
-    `echo ""yes" | lvcreate #{l_switch} #{size} -n #{logical_name} #{platform_name}-eph" >> /myScript/lvmscript.sh`
-    `echo "if [ ! -d #{_mount_point}/lost+found ]" >> /myScript/lvmscript.sh`
-    `echo "then" >> /myScript/lvmscript.sh`
+    `echo ""yes" | lvcreate #{l_switch} #{size} -n #{logical_name} #{platform_name}-eph" >> #{script_fullpath_name}`
+    `echo "if [ ! -d #{_mount_point}/lost+found ]" >> #{script_fullpath_name}`
+    `echo "then" >> #{script_fullpath_name}`
     if node[:platform_family] == "rhel" && (node[:platform_version]).to_i >= 7
       # -f switch not valid in latest mkfs
-      `echo "mkfs -t #{_fstype} /dev/#{platform_name}-eph/#{logical_name}" >> /myScript/lvmscript.sh`
+      `echo "mkfs -t #{_fstype} /dev/#{platform_name}-eph/#{logical_name}" >> #{script_fullpath_name}`
     else
-      `echo "mkfs -t #{_fstype} -f /dev/#{platform_name}-eph/#{logical_name}" >> /myScript/lvmscript.sh`
+      `echo "mkfs -t #{_fstype} -f /dev/#{platform_name}-eph/#{logical_name}" >> #{script_fullpath_name}`
     end
-    `echo "fi" >> /myScript/lvmscript.sh`
-    `echo "mkdir #{_mount_point}" >> /myScript/lvmscript.sh`
-    `echo "mount /dev/#{platform_name}-eph/#{logical_name} #{_mount_point}" >> /myScript/lvmscript.sh`
-    `sudo chmod +x /myScript/lvmscript.sh`
-    `sudo echo "sh /myScript/lvmscript.sh" >> /etc/rc.local`
+    `echo "fi" >> #{script_fullpath_name}`
+    `echo "mkdir #{_mount_point}" >> #{script_fullpath_name}`
+    `echo "mount /dev/#{platform_name}-eph/#{logical_name} #{_mount_point}" >> #{script_fullpath_name}`
+    `sudo chmod +x #{script_fullpath_name}`
+     awk_cmd = "awk /#{logical_name}.sh/ /etc/rc.local | wc -l"   
+    `echo "count=\\$(#{awk_cmd})">> #{script_fullpath_name}`
+    `echo "if [ \\$count == 0 ];then" >> #{script_fullpath_name}`
+     `echo "sudo echo \\"sh #{script_fullpath_name}\\" >> \/etc\/rc.local" >> #{script_fullpath_name}`
+     `echo "fi" >> #{script_fullpath_name}`
     `sudo chmod +x /etc/rc.local`
-    `sudo mv /myScript/lvmscript.sh "/myScript/#{logical_name}.sh"`
-    Chef::Log.info("executing /myscript/#{logical_name}.sh script")
-    `sudo sh "/myScript/#{logical_name}.sh"`
+     Chef::Log.info("executing #{script_fullpath_name} script")
+    `sudo sh "#{script_fullpath_name}"`
   end
 end
 

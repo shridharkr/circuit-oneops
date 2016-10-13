@@ -38,9 +38,8 @@ class Datadisk < AzureBase::ResourceGroupManager
             end 
             
              node.workorder.payLoad[:DependsOn].each do |dep|
-              if dep["ciClassName"] =~ /Compute/
-                 compute_Details = dep
-                 @instance_name = compute_Details[:ciAttributes][:instance_name]
+              if dep["ciClassName"] =~ /Compute/ 
+                 @instance_name = dep[:ciAttributes][:instance_name]
                 end
               end       
             when /volume/
