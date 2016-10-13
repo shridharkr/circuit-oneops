@@ -15,7 +15,6 @@
 #
 # storage::delete
 #
-require 'azure'
 
 max_retry_count = 5
 cloud_name = node[:workorder][:cloud][:ciName]
@@ -26,7 +25,7 @@ include_recipe "shared::set_provider"
 dev_map = node.workorder.rfcCi.ciAttributes["device_map"]
 if provider_class =~ /azure/
   Chef::Log.info("Deleting the data disk ...")
-  include_recipe "azuredatadisk::delete"
+  include_recipe "azuredatadisk::delete" # delete the datadisk permanently 
   return true
 end
 
