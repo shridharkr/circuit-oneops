@@ -444,8 +444,8 @@ ruby_block 'create-ephemeral-volume-on-azure-vm' do
     `echo "mount /dev/#{platform_name}-eph/#{logical_name} #{_mount_point}" >> #{script_fullpath_name}`
     `sudo chmod +x #{script_fullpath_name}`
      awk_cmd = "awk /#{logical_name}.sh/ /etc/rc.local | wc -l"   
-    `echo "count=\\$(#{awk_cmd})">> #{script_fullpath_name}`
-    `echo "if [ \\$count == 0 ];then" >> #{script_fullpath_name}`
+    `echo "count=\\$(#{awk_cmd})">> #{script_fullpath_name}` # Check whether script is already added to rc.local, add restore script if not present.
+    `echo "if [ \\$count == 0 ];then" >> #{script_fullpath_name}` 
      `echo "sudo echo \\"sh #{script_fullpath_name}\\" >> \/etc\/rc.local" >> #{script_fullpath_name}`
      `echo "fi" >> #{script_fullpath_name}`
     `sudo chmod +x /etc/rc.local`

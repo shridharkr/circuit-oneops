@@ -66,6 +66,7 @@ if rfcAttrs.has_key?("mount_point") &&
     `mv /tmp/fstab /etc/fstab`
      logical_name = node.workorder.rfcCi.ciName
     `rm -rf "/opt/oneops/azure-restore-ephemeral-mntpts/#{logical_name}.sh"`    
+    #remove the script from rc.local on volume delete
     `cp /etc/rc.local tmpfile;sed -e "/\\/opt\\/oneops\\/azure-restore-ephemeral-mntpts\\/#{logical_name}.sh/d" tmpfile > /etc/rc.local;rm -rf tmpfile`
   end
 end
@@ -92,7 +93,7 @@ supported = true
 
 
 if provider_class =~ /virtualbox|vagrant|docker/
-  Chef::Log.info(" virtual box vegrant and docker don't support iscsi/ebs via api yet - skipping")
+  Chef::Log.info(" virtual box vagrant and docker don't support iscsi/ebs via api yet - skipping")
   supported = false
 end
 
@@ -155,29 +156,23 @@ ruby_block 'lvremove storage' do
       change_count = 1
       retry_count = 0
       while change_count > 0 && retry_count < max_retry_count
-        change_count = 0
-    
+        change_count = 0    
+     
         device_maps.each do |dev_vol|
-
           vol_id = dev_vol.split(":")[0]
           dev_id = dev_vol.split(":")[1]
           Chef::Log.info("vol: "+vol_id)
            if provider_class =~ /rackspace|ibm/
             volume = storage_provider.volumes.get vol_id
            elsif provider_class =~ /azure/
-                   `rm -rf #{mount_point}`
-                    Chef::Log.info("running: lvdisplay /dev/#{platform_name}/* ...")
-
-                    out=`lvdisplay /dev/#{platform_name}/*`
-
-                    Chef::Log.info("out: #{out}")
-
-                    if $? != 0 #No more volumes, disk can be detached.
-                       Chef::Log.info("There is no more volumes on the disk, so disk can be detached.")
-                       dd_manager = Datadisk.new(node) # using azuredatadisk library to detach, recipes cannot be called from the ruby block
-                       dd_manager.detach()                       
-                     end  
-             
+            Chef::Log.info("running: lvdisplay /dev/#{platform_name}/* ...")
+            out=`lvdisplay /dev/#{platform_name}/*`
+            Chef::Log.info("out: #{out}")
+            if $? != 0 #No more volumes, disk can be detached.
+               Chef::Log.info("There is no more volumes on the disk, so disk can be detached.")
+               dd_manager = Datadisk.new(node) # using azuredatadisk library to detach, recipes cannot be called from the ruby block
+               dd_manager.detach()                       
+            end              
           else
             volume = provider.volumes.get  vol_id
           end
