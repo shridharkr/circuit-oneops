@@ -42,7 +42,7 @@
                protocol="org.apache.coyote.http11.Http11NioProtocol"
                redirectPort="<%= node['tomcat']['server']['ssl_port'] %>"
                server="42"
-               allowTrace="<%= node['tomcat']['server']['enable_method_trace'] %>"
+               allowTrace="false"
             <% JSON.parse(node['tomcat']['server']['advanced_nio_connector_config']).each{ |k, v|%>
              <%=k%>="<%=v%>"
               <% } %>
@@ -59,7 +59,7 @@ if node['tomcat']['server']['https_nio_connector_enabled'] == 'true'
                protocol="org.apache.coyote.http11.Http11NioProtocol" SSLEnabled="true"
                maxThreads="<%= node['tomcat']['server']['max_threads'] %>"
                server="42"
-               allowTrace="<%= node['tomcat']['server']['enable_method_trace'] %>"
+               allowTrace="false"
                keystoreFile="<%= node['tomcat']['keystore_path'] %>"
                keystorePass="<%= node['tomcat']['keystore_pass'] %>"
                scheme="https" secure="true"
