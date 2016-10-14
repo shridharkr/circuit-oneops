@@ -4,13 +4,13 @@ class VirtualMachineManager
   USER = 'root'
   PASSWORD = ''
   EPHEMERAL_MOUNT = '/mnt/resource'
-  def initialize(compute_provider, public_key, instance_id = nil)
+  def initialize(compute_provider, public_key, virtual_machine_name = nil)
     fail ArgumentError, 'compute_provider is invalid' if compute_provider.nil?
     fail ArgumentError, 'public_key is invalid' if public_key.nil?
 
     @compute_provider = compute_provider
-    @instance_id = instance_id
     @public_key = public_key
+    @instance_id = get_instance_id(virtual_machine_name) if !virtual_machine_name.nil?
   end
 
   def ip_address
@@ -24,6 +24,8 @@ class VirtualMachineManager
   end
 
   def vm_execute_options
+    fail ArgumentError, 'instance_id is invalid' if @instance_id.nil? || @instance_id.empty?
+
     options = {}
     options['instance_uuid'] = @instance_id
     options['user'] = USER
@@ -33,8 +35,6 @@ class VirtualMachineManager
   private :vm_execute_options
 
   def inject_public_Key
-    fail ArgumentError, 'instance_id is invalid' if @instance_id.nil? || @instance_id.empty?
-
     options = vm_execute_options
     options['command'] = '/usr/bin/echo'
     options['args'] = @public_key.chomp + ' > authorized_keys'
@@ -61,7 +61,6 @@ class VirtualMachineManager
 
   def throttle_yum(data_rate_KBps)
     fail ArgumentError, 'data_rate_KBps is invalid' if data_rate_KBps.nil? || data_rate_KBps.empty?
-    fail ArgumentError, 'instance_id is invalid' if @instance_id.nil? || @instance_id.empty?
 
     options = vm_execute_options
     options['command'] = '/usr/bin/echo'
@@ -251,4 +250,18 @@ class VirtualMachineManager
     end
     return is_deleted
   end
+
+  def get_instance_id(virtual_machine_name)
+    fail ArgumentError, 'virtual_machine_name is invalid' if virtual_machine_name.nil? || virtual_machine_name.empty?
+
+    instance_id = nil
+    begin
+      virtual_machine = @compute_provider.get_virtual_machine(virtual_machine_name)
+      instance_id = virtual_machine['id']
+    rescue => e
+      Chef::Log.warn('Failed to get instance_id: ' + e.to_s)
+    end
+    return instance_id
+  end
+  private :get_instance_id
 end

@@ -1,11 +1,9 @@
-
+require 'uri'
 
 # PCRE build
-pcre_base_url = "ftp://ftp.csx.cam.ac.uk/pub/software/programming/"
-pcre_version = "8.37"
-pcre_tarball = "pcre-#{pcre_version}.tar.bz2"
-pcre_tarball_download = pcre_base_url + "pcre/" + "#{pcre_tarball}"
-
+pcre_tarball_download = node['graphite']['pcre_download_url']
+pcre_version = node['graphite']['pcre_version']
+pcre_tarball = URI(pcre_tarball_download).path.split('/').last
 
 remote_file ::File.join(Chef::Config[:file_cache_path], "#{pcre_tarball}") do
     source pcre_tarball_download
@@ -18,18 +16,18 @@ end
 bash "build-pcre" do
     cwd Chef::Config[:file_cache_path]
     code <<-EOF
-      tar xfvj pcre-#{pcre_version}.tar.bz2
+      tar -xvf #{pcre_tarball}
       cd pcre-#{pcre_version} && ./configure && /usr/bin/make
     EOF
     not_if { ::File.exists?("#{Chef::Config[:file_cache_path]}/pcre-#{pcre_version}") }
 end
 
+pcre_dir = `ls #{Chef::Config[:file_cache_path]} | grep pcre | head -n1`
+Chef::Log.info("pcre_dir: #{pcre_dir}")
 
 # nginx build and install
-nginx_base_url = "http://nginx.org/download/"
-nginx_version = "1.7.6"
-nginx_tarball = "nginx-#{nginx_version}.tar.gz"
-nginx_tarball_download = nginx_base_url + "#{nginx_tarball}"
+nginx_tarball_download = node['graphite']['nginx_download_url']
+nginx_tarball = URI(nginx_tarball_download).path.split('/').last
 install_path = "/opt/nginx"
 
 remote_file ::File.join(Chef::Config[:file_cache_path], "#{nginx_tarball}") do
@@ -43,18 +41,16 @@ end
 bash "build-and-install-nginx" do
     cwd Chef::Config[:file_cache_path]
     code <<-EOF
-      tar xfvz nginx-#{nginx_version}.tar.gz
-      cd nginx-#{nginx_version} && ./configure --with-pcre='#{Chef::Config[:file_cache_path]}/pcre-#{pcre_version}' --prefix=#{install_path} --with-debug && /usr/bin/make && /usr/bin/make install
+      tar -xvf #{nginx_tarball}
+      cd nginx* && ./configure --with-pcre='#{Chef::Config[:file_cache_path]}/pcre-#{pcre_version}' --prefix=#{install_path} --with-debug && /usr/bin/make && /usr/bin/make install
     EOF
     not_if { ::File.exists?(install_path) }
 end
 
 
 # uwsgi build and install
-uwsgi_base_url = "https://github.com/unbit/uwsgi/archive/"
-uwsgi_version = "2.0.13"
-uwsgi_tarball = "uwsgi-#{uwsgi_version}.tar.gz"
-uwsgi_tarball_download = uwsgi_base_url + "#{uwsgi_version}.tar.gz"
+uwsgi_tarball_download = node['graphite']['uwsgi_download_url']
+uwsgi_tarball = URI(uwsgi_tarball_download).path.split('/').last
 install_path = "/opt/uwsgi"
 
 remote_file ::File.join(Chef::Config[:file_cache_path], "#{uwsgi_tarball}") do
@@ -68,8 +64,8 @@ end
 bash "build-and-install-uwsgi" do
     cwd Chef::Config[:file_cache_path]
     code <<-EOF
-      tar xfvz uwsgi-#{uwsgi_version}.tar.gz
-      cd uwsgi-#{uwsgi_version} && /usr/bin/make
+      tar -xvf #{uwsgi_tarball}
+      cd uwsgi* && /usr/bin/make
       mkdir -p #{install_path}/{sbin,apps}
       cp uwsgi #{install_path}/sbin/
     EOF

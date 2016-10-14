@@ -1,7 +1,6 @@
 require File.expand_path('../../libraries/virtual_machine_manager', __FILE__)
 require File.expand_path('../../libraries/models/tenant_model', __FILE__)
 
-compute_attributes =  node[:workorder][:rfcCi][:ciAttributes]
 cloud_name = node[:workorder][:cloud][:ciName]
 service_compute = node[:workorder][:services][:compute][cloud_name][:ciAttributes]
 
@@ -15,7 +14,7 @@ Chef::Log.info("Searching for VM ..... " + node[:server_name].to_s)
 start_time = Time.now
 Chef::Log.info("start time " + start_time.to_s)
 public_key = node.workorder.payLoad[:SecuredBy][0][:ciAttributes][:public]
-virtual_machine_manager = VirtualMachineManager.new(compute_provider, public_key, compute_attributes[:instance_id])
+virtual_machine_manager = VirtualMachineManager.new(compute_provider, public_key, node[:server_name])
 if virtual_machine_manager.delete
   Chef::Log.info("deleted instance")
 end
