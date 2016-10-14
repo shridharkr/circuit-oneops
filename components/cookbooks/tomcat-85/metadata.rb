@@ -269,17 +269,6 @@ attribute 'enable_method_delete',
               :order => 17
           }
 
-attribute 'enable_method_connect',
-          :description => 'Enable CONNECT HTTP method',
-          :default => 'false',
-          :format => {
-              :help => "Enable the CONNECT HTTP method",
-              :filter => {"all" => {"visible" => ('http_methods:eq:true')}},
-              :form => { "field" => "checkbox" },
-              :category => "3.Server",
-              :order => 18
-          }
-
 attribute 'enable_method_options',
           :description => 'Enable OPTIONS HTTP method',
           :default => 'false',
@@ -300,17 +289,6 @@ attribute 'enable_method_head',
               :form => { "field" => "checkbox" },
               :category => "3.Server",
               :order => 20
-          }
-
-attribute 'enable_method_trace',
-          :description => 'Enable TRACE HTTP method',
-          :default => 'false',
-          :format => {
-              :help => "Enable the TRACE HTTP method",
-              :filter => {"all" => {"visible" => ('http_methods:eq:true')}},
-              :form => { "field" => "checkbox" },
-              :category => "3.Server",
-              :order => 21
           }
 
 ##################################################################################################
