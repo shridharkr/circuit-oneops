@@ -219,13 +219,11 @@ Write-Host "Adding nagios user to cygwin"
 C:\cygwin64\bin\mkpasswd.exe -u nagios -l
 C:\cygwin64\bin\mkgroup.exe -g nagios -l
 
-#New-Item C:\cygwin64\home\oneops\.ssh\ -ItemType directory
-#Copy-Item C:\Users\admin\.ssh\authorized_keys C:\cygwin64\home\oneops\.ssh\authorized_keys
+New-Item C:\cygwin64\home\nagios\ -ItemType directory
+Copy-Item C:\Users\admin\.ssh\authorized_keys C:\cygwin64\home\nagios\.ssh\authorized_keys
 
 $user_account = whoami
-
 $domain = $user_account.Split("\")
-
 $user_account = $domain[0] + "\nagios"
 
 Write-Host $user_account

@@ -103,7 +103,6 @@ ruby_block 'install base' do
     proxy = ''
     gem_repo = ''
     choco_repo = ''
-    choco_client = ''
 
     env_vars.each_pair do |k,v|
       args += "#{k}:#{v} "
@@ -111,8 +110,6 @@ ruby_block 'install base' do
         proxy = v
       elsif k =~ /chocorepo/
         choco_repo = v
-      elsif k =~ /chococlient/
-        choco_client = v
       elsif k =~ /rubygems/
         gem_repo = v
       end
@@ -152,7 +149,7 @@ ruby_block 'install base' do
       end
 
       install_base = "components/cookbooks/compute/files/default/install_base.ps1"
-      install_cmd = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File #{sub_circuit_dir}/#{install_base} -proxy '#{proxy}' -chocoClient '#{choco_client}' -chocoRepo '#{choco_repo}' -gemRepo '#{gem_repo}' "
+      install_cmd = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File #{sub_circuit_dir}/#{install_base} -proxy '#{proxy}' -chocoRepo '#{choco_repo}' -gemRepo '#{gem_repo}' "
       cmd = node.ssh_interactive_cmd.gsub("IP",node.ip) + install_cmd
 
       Chef::Log.info("Executing Command: #{cmd}")
