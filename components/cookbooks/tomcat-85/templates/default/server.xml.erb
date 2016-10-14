@@ -19,7 +19,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<Server port="<%= node['tomcat']['server_port'] %>" shutdown="<%= (0...25).map { ('a'..'z').to_a[rand(26)] }.join %>">
+<Server port="<%= node['tomcat']['shutdown_port'] %>" shutdown="<%= (0...25).map { ('a'..'z').to_a[rand(26)] }.join %>">
 
   <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
   <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
