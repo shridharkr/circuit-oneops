@@ -42,18 +42,14 @@
                   <% if node['tomcat']['server']['enable_method_delete'] == 'false' %>
                   <http-method>DELETE</http-method>
                   <% end %>
-                  <% if node['tomcat']['server']['enable_method_connect'] == 'false' %>
-                  <http-method>CONNECT</http-method>
-                  <% end %>
                   <% if node['tomcat']['server']['enable_method_options'] == 'false' %>
                   <http-method>OPTIONS</http-method>
                   <% end %>
                   <% if node['tomcat']['server']['enable_method_head'] == 'false' %>
                   <http-method>HEAD</http-method>
                   <% end %>
-                  <% if node['tomcat']['server']['enable_method_trace'] == 'false' %>
+                  <http-method>CONNECT</http-method>
                   <http-method>TRACE</http-method>
-                  <% end %>
           </web-resource-collection>
           <auth-constraint />
    </security-constraint>

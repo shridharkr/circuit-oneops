@@ -8,7 +8,7 @@
 ##################################################################################################
 
 ##################################################################################################
-# HANDLED - Global attributes for Tomcat 8.5
+# Global attributes for Tomcat 8.5
 ##################################################################################################
 node.set['tomcat']['global']['version'] = node.workorder.rfcCi.ciAttributes.version
 node.set['tomcat']['global']['tomcat_user'] = node.workorder.rfcCi.ciAttributes.tomcat_user
@@ -24,7 +24,7 @@ node.set['tomcat']['global']['tomcat_group'] = node.workorder.rfcCi.ciAttributes
 node.set['tomcat']['global']['environment_settings'] = node.workorder.rfcCi.ciAttributes.environment_settings
 
 ##################################################################################################
-# HANDLED - Attributes for context.xml Configuration
+# Attributes for context.xml Configuration
 ##################################################################################################
 node.set['tomcat']['context']['override_context_enabled'] = node.workorder.rfcCi.ciAttributes.override_context_enabled
   if node.set['tomcat']['context']['override_context_enabled'] == 'true'
@@ -32,7 +32,7 @@ node.set['tomcat']['context']['override_context_enabled'] = node.workorder.rfcCi
   end
 
 ##################################################################################################
-# HANDLED - Attributes for server.xml Configuration
+# Attributes for server.xml Configuration
 ##################################################################################################
 node.set['tomcat']['server']['override_server_enabled'] = node.workorder.rfcCi.ciAttributes.override_server_enabled
   if node.set['tomcat']['context']['override_context_enabled'] == 'true'
@@ -53,10 +53,8 @@ node.set['tomcat']['server']['enable_method_get'] = node.workorder.rfcCi.ciAttri
 node.set['tomcat']['server']['enable_method_put'] = node.workorder.rfcCi.ciAttributes.enable_method_put
 node.set['tomcat']['server']['enable_method_post'] = node.workorder.rfcCi.ciAttributes.enable_method_post
 node.set['tomcat']['server']['enable_method_delete'] = node.workorder.rfcCi.ciAttributes.enable_method_delete
-node.set['tomcat']['server']['enable_method_connect'] = node.workorder.rfcCi.ciAttributes.enable_method_connect
 node.set['tomcat']['server']['enable_method_options'] = node.workorder.rfcCi.ciAttributes.enable_method_options
 node.set['tomcat']['server']['enable_method_head'] = node.workorder.rfcCi.ciAttributes.enable_method_head
-node.set['tomcat']['server']['enable_method_trace'] = node.workorder.rfcCi.ciAttributes.enable_method_trace
 
 ##################################################################################################
 # Attributes set in the setenv.sh script

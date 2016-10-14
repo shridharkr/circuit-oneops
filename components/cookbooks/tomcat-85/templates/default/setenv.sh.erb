@@ -64,6 +64,7 @@ CATALINA_OPTS="${CATALINA_OPTS}-d64 "
 <% JSON.parse(node["tomcat"]['java']['startup_params']).each{ |v|%>
 CATALINA_OPTS="${CATALINA_OPTS}-XX:<%=v%> "
 <% } %>
+CATALINA_OPTS="${CATALINA_OPTS}-Xloggc:<%= node['tomcat']['logfiles_path'] %>/verbosegc.log"
 
 
 ###############################################################################
