@@ -9,7 +9,7 @@ if !ssh_keys.empty?
     end
 end
 
-add_user_script = "#{Chef::Config[:file_cache_path]}/cookbooks/user/files/default/add_user.ps1"
+add_user_script = "#{Chef::Config[:file_cache_path]}/cookbooks/User/files/default/add_user.ps1"
 Chef::Log.info("Script path: #{add_user_script}")
 cmd = "#{add_user_script} #{params}"
 Chef::Log.info("cmd: #{cmd}")

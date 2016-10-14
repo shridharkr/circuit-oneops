@@ -213,31 +213,55 @@ Function Set-Permission {
 #################################################
 
 Function Add-SSH-Keys-To-File {
-  param([string]$file, [array]$keys)
+  param([string]$userName, [string]$file, [array]$keys)
 
   foreach ($key in $keys) {
     Add-Content $file "$key"
-    Write-Host "Adding ssh key to eddie: $key"
+    Write-Host "Adding ssh key to ${userName}: $key"
   }
 }
 
 #################################################
-START OF SCRIPT
+
+Function User-Exists {
+  param([string]$userName)
+
+  $exists = $false
+
+  net user | Foreach-Object {
+    # These lines are useless in "net user" command
+    if($_.Contains("User accounts for") -or $_.Contains("The command completed successfully.") -or $_.Contains("-------")) {
+      Return
+    }
+
+    $_.Split(" ") | Foreach-Object {
+      if($_ -eq $userName) {
+          $exists = $true
+      }
+    }
+  }
+
+  return $exists
+}
+
 #################################################
-if (& net users | select-string "$userName") {
-    #  user exists
-    Write-Host "User $userName already exists"
+# START OF SCRIPT
+#################################################
+
+if (User-Exists -userName $userName) {
+  #  user exists
+  Write-Host "User $userName already exists"
 } else {
-    #  user does not exist
-    Write-Host "Adding $userName user to windows"
+  #  user does not exist
+  Write-Host "Adding $userName user to windows"
 
-    $Computername = $env:COMPUTERNAME
-    $ADSIComp = [adsi]"WinNT://$Computername"
-    $NewUser = $ADSIComp.Create('User',$userName)
-    $NewUser.SetInfo()
+  $Computername = $env:COMPUTERNAME
+  $ADSIComp = [adsi]"WinNT://$Computername"
+  $NewUser = $ADSIComp.Create('User',$userName)
+  $NewUser.SetInfo()
 
-    $group = [ADSI]("WinNT://"+$env:COMPUTERNAME+"/administrators,group")
-    $group.add("WinNT://$env:USERDOMAIN/$userName,user")
+  $group = [ADSI]("WinNT://"+$env:COMPUTERNAME+"/administrators,group")
+  $group.add("WinNT://$env:USERDOMAIN/$userName,user")
 }
 
 #################################################
@@ -251,7 +275,7 @@ if (!(Test-Path $userDir)) {
   New-Item $sshDir -ItemType directory
 
   Copy-Item C:\Users\admin\.ssh\authorized_keys $keyFile -Force
-  Add-SSH-Keys-To-File -file $keyFile -keys $sshKeys
+  Add-SSH-Keys-To-File -userName $userName -file $keyFile -keys $sshKeys
 
   $domain = hostname
   $user_account = "$domain\$userName"
@@ -262,7 +286,7 @@ if (!(Test-Path $userDir)) {
   Set-Owner -Path C:\cygwin64\home\$userName -Recurse -Account $user_account
 } else {
   Copy-Item C:\Users\admin\.ssh\authorized_keys $keyFile -Force
-  Add-SSH-Keys-To-File -file $keyFile -keys $sshKeys
+  Add-SSH-Keys-To-File -userName $userName -file $keyFile -keys $sshKeys
 }
 
 ## TODO: Cleanup
