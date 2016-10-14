@@ -143,7 +143,7 @@ def get_loadbalancer_rules(env_name, platform_name, probes, frontend_ipconfig, b
   return lb_rules
 end
 
-def get_dc_lb_name()
+def get_dc_lb_names()
   platform_name = node.workorder.box.ciName
   environment_name = node.workorder.payLoad.Environment[0]["ciName"]
   assembly_name = node.workorder.payLoad.Assembly[0]["ciName"]
@@ -155,7 +155,7 @@ def get_dc_lb_name()
   dc_dns_zone = dc + dns_zone
   platform_ciId = node.workorder.box.ciId.to_s
 
-  dc_lb_name = ''
+  vnames = { }
   listeners = get_listeners_from_wo()
   listeners.each do |listener|
     frontend_port = listener.vport
@@ -166,9 +166,11 @@ def get_dc_lb_name()
     end
     dc_lb_name = [platform_name, environment_name, assembly_name, org_name, dc_dns_zone].join(".") +
                  '-'+service_type+"_"+frontend_port+"tcp-" + platform_ciId + "-lb"
+
+    vnames[dc_lb_name] = nil
   end
 
-  return dc_lb_name
+  return vnames
 end
 
 def get_compute_nodes_from_wo
@@ -476,7 +478,12 @@ if lbip.nil? || lbip == ''
 else
   OOLog.info("AzureLB IP: #{lbip}")
   node.set[:azurelb_ip] = lbip
-  dc_lb_name = get_dc_lb_name()
-  vname = { dc_lb_name => lbip}
-  puts "***RESULT:vnames=" + vname.to_json
+  vnames = get_dc_lb_names()
+
+  vnames.keys.each do |key|
+    vnames[key] = lbip
+  end
+
+
+  puts "***RESULT:vnames=" + vnames.to_json
 end
