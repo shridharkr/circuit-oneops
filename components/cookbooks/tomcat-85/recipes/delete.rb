@@ -27,7 +27,7 @@ service "tomcat" do
   action [:stop, :disable]
 end
 
-directory "#{node['tomcat']['tomcat_config_dir']}" do
+directory "#{node['tomcat']['config_dir']}" do
    recursive true
    action :delete
 end

@@ -114,7 +114,7 @@ restart_artifact_command=  <<-"EOF"
 execute "rm -rf /opt/tomcat/webapps/$OO_LOCAL{deployContext}"
 
 link "/opt/tomcat/webapps/$OO_LOCAL{deployContext}" do
-  to "/home/tomcat/$OO_LOCAL{artifactId}/current"
+  to "/opt/tomcat/$OO_LOCAL{artifactId}/current"
 end
 EOF
 
@@ -163,7 +163,7 @@ resource "artifact",
     :password => '',
     :location => '$OO_LOCAL{groupId}:$OO_LOCAL{artifactId}:$OO_LOCAL{extension}',
     :version => '$OO_LOCAL{appVersion}',
-    :install_dir => '/home/tomcat/$OO_LOCAL{artifactId}',
+    :install_dir => '/opt/tomcat/$OO_LOCAL{artifactId}',
     :as_user => 'tomcat',
     :as_group => 'tomcat',
     :should_expand => 'true',
@@ -256,6 +256,7 @@ resource 'java',
 [ { :from => 'Tomcat-85',        :to => 'java' },
   { :from => 'Tomcat-85',        :to => 'keystore' },
   { :from => 'user-tomcat',      :to => 'volume' },
+  { :from => 'user-tomcat',      :to => 'os' },
   { :from => 'artifact',         :to => 'library' },
   { :from => 'artifact',         :to => 'Tomcat-85' },
   { :from => 'artifact',         :to => 'download' },

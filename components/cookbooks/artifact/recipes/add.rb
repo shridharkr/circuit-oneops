@@ -1,7 +1,7 @@
 #
 # Cookbook Name:: artifact
 # Recipe:: add
-# 
+#
 # Copyright 2013, Walmartlabs
 #
 
@@ -15,19 +15,22 @@ if node[:artifact][:install_dir] =~ /\s/
   Chef::Log.info "Removed whitepsaces from installation directory. New Element value is:"+node[:artifact][:install_dir]
 end
 
-directory "#{node[:artifact][:install_dir]}/tmp" do
-  owner 'root'
-  group 'root'
-  recursive true
-  mode 0777
-  action :create
-end
+if node['platform_family'] != 'windows'
 
-ruby_block "set temp #{node[:artifact][:install_dir]}/tmp" do
-  begin
-    ENV['TEMP'] = "#{node[:artifact][:install_dir]}/tmp"
+  directory "#{node[:artifact][:install_dir]}/tmp" do
+    owner 'root'
+    group 'root'
+    recursive true
+    mode 0777
+    action :create
   end
-  action :nothing
+
+  ruby_block "set temp #{node[:artifact][:install_dir]}/tmp" do
+    begin
+      ENV['TEMP'] = "#{node[:artifact][:install_dir]}/tmp"
+    end
+    action :nothing
+  end
 end
 
 # oo stores booleans as string and no ruby-built-in to_bool
@@ -37,7 +40,7 @@ cloud_name = node[:workorder][:cloud][:ciName]
 
 if node[:workorder][:services].has_key?(:maven)
         cloud_service = node[:workorder][:services][:maven][cloud_name][:ciAttributes]
-	
+
 	if node[:artifact].has_key?(:username) && !node[:artifact][:username].empty?
         	Chef::Log.info("Not using the cloud attributes for nexus username as user has set one in the artifact component")
         	nexus_username = node[:artifact][:username]
@@ -60,8 +63,8 @@ if node[:workorder][:services].has_key?(:maven)
 	else
         	Chef::Log.info("Using the nexus cloud service attributes for nexus url")
           	nexus_url = cloud_service[:url]
-  end        	
-          	
+  end
+
   if node[:artifact].has_key?(:path) && !node[:artifact][:path].empty?
           Chef::Log.info("Using the cloud attributes for repo path from the artifact component")
           nexus_path = node[:artifact][:path]

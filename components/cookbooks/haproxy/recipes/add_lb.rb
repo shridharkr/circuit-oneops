@@ -62,10 +62,21 @@ def delete_lb(conn,lb_name)
         
 end
 
+
+cloud_name = node.workorder.cloud.ciName
+service = node[:workorder][:services][:lb][cloud_name][:ciAttributes]
+Chef::Log.info("endpoint: #{service[:endpoint]}")
+node.set['lb_dns_name'] = service[:endpoint].gsub('https://','').gsub(/:\d+/,'')
+
+conn = Excon.new(service[:endpoint], 
+#  :user => service[:username], 
+#  :password => service[:password], 
+  :ssl_verify_peer => false)
+  
 # cleanup old ones if they change vport or vprotocol (name changes)
 node.cleanup_loadbalancers.each do |lb|
-  delete_lb(lb)
-end
+  delete_lb(conn, lb[:name])
+end  
 
 lbmethod = node.workorder.rfcCi.ciAttributes.lbmethod.upcase
 
@@ -83,16 +94,6 @@ computes = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Com
 computes.each do |c|
   servers.push c['ciAttributes']['private_ip']
 end
-
-cloud_name = node.workorder.cloud.ciName
-service = node[:workorder][:services][:lb][cloud_name][:ciAttributes]
-Chef::Log.info("endpoint: #{service[:endpoint]}")
-node.set['lb_dns_name'] = service[:endpoint].gsub('https://','').gsub(/:\d+/,'')
-
-conn = Excon.new(service[:endpoint], 
-#  :user => service[:username], 
-#  :password => service[:password], 
-  :ssl_verify_peer => false)
   
 node.loadbalancers.each do |lb_def|
 

@@ -31,8 +31,12 @@ unless installed
   pkg_url = mirror+"/kubernetes/releases/download/v#{node.workorder.rfcCi.ciAttributes.version}/#{pkg_name}"  
   
   # download kubernetes package
-  remote_file "#{download_dir}/#{pkg_name}" do
-    source pkg_url
+  download_args = ''
+  if node.kubernetes.has_key?('download_args')
+    download_args = JSON.parse(node.kubernetes.download_args).join(' ')
+  end
+  execute "wget -q #{download_args} -c #{pkg_url} -O #{download_dir}/#{pkg_name}" do
+    timeout 10800
   end
   
   # extract kubernetes package
@@ -44,7 +48,7 @@ unless installed
   # copy kubernetes bin to /usr/bin dir
   execute 'copy kubernetes to /usr/bin dir' do
     cwd download_dir
-    command '/bin/cp -rf kubernetes/server/bin/kube* /usr/bin/'
+    command '/bin/cp -rf kubernetes/server/bin/kube* /usr/bin/ ; chmod a+x /usr/bin/kube* ; rm -fr kubernetes/server ; rm -fr kubernetes/platforms '
   end
   
   # create kube user
