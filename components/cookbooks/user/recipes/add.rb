@@ -1,4 +1,4 @@
-if node[:workorder][:rfcCi][:ciAttributes][:ostype] =~ /windows/
+if node.platform =~ /windows/
   include_recipe "user::windows_user_add"
   return
 end
