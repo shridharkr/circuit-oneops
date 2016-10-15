@@ -4,7 +4,7 @@ dpath = node.workorder.rfcCi.ciAttributes.datapath
 
 rabbitmq = node['rabbitmq']
 
-location = rabbitmq['src_url'] + "v" + rabbitmq['version'] + "/" + "rabbitmq-server-" + rabbitmq['version'] + "-1" + ".noarch.rpm"
+location = rabbitmq['src_url'] + rabbitmq['path'] + "/" + "rabbitmq-server-" + rabbitmq['version'] + "-1" + ".noarch.rpm"
 file = "rabbitmq-server-" + rabbitmq['version'] + "-1" + ".noarch.rpm"
 
 case node[:platform]
