@@ -1,3 +1,3 @@
-oo_iis_web_site 'Default Web Site' do
+iis_web_site 'Default Web Site' do
   action [:delete]
 end

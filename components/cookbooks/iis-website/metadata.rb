@@ -6,7 +6,7 @@ description      'This cookbook creates/configures iis website'
 version          '0.1.0'
 
 supports 'windows'
-depends 'oo_iis'
+depends 'iis'
 
 grouping 'default',
   :access   => "global",

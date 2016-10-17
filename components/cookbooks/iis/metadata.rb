@@ -1,4 +1,4 @@
-name             'oo_iis'
+name             'iis'
 maintainer       'OneOps'
 maintainer_email 'support@oneops.com'
 license          'All rights reserved'

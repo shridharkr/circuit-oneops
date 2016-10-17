@@ -19,7 +19,7 @@ Vagrant.configure("2") do |config|
     chef.log_level      = :info
     chef.cookbooks_path = [".."]
 
-    chef.add_recipe("iis-website::enable")
+    chef.add_recipe("iis-website::add")
 
     chef.json = {
                 	"iis-website": {

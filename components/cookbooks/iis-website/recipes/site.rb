@@ -17,13 +17,13 @@ directory physical_path do
   recursive true
 end
 
-oo_iis_app_pool app_pool_name do
+iis_app_pool app_pool_name do
   managed_runtime_version runtime_version
   process_model_identity_type identity_type
   action [:create, :update]
 end
 
-oo_iis_web_site site_name do
+iis_web_site site_name do
   bindings site_bindings
   virtual_directory_physical_path website_physical_path.gsub('/', '\\')
   application_pool app_pool_name
