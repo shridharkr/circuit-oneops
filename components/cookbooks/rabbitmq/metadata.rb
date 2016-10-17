@@ -18,7 +18,7 @@ attribute 'version',
     :order => 1,
     :form => { 'field' => 'select', 'options_for_select' => [['3.5.6','3.5.6'],['3.4.2','3.4.2'],['3.4.3','3.4.3'],['2.8.5','2.8.5']]}
   }
-  
+
 attribute 'src_url',
           :description => 'Source URL',
           :required => 'required',
@@ -28,6 +28,16 @@ attribute 'src_url',
               :category => '1.Global',
               :order => 2
           }
+
+attribute 'path',
+        :description => 'Package Directory',
+        :required => 'required',
+        :default => 'v3.4.2',
+        :format => {
+            :help => 'Name of Directory which contains Rabbitmq source distribution',
+            :category => '1.Global',
+            :order => 2
+        }
 
 
 attribute 'port',
@@ -39,7 +49,7 @@ attribute 'port',
     :order => 2,
     :pattern => "[0-9]+"
   }
-  
+
 attribute 'datapath',
   :description => "Data Directory",
   :default => "/data/rabbitmq/mnesia",
@@ -48,7 +58,7 @@ attribute 'datapath',
     :category => '1.Global',
     :order => 2
   }
-  
+
 attribute 'erlangcookie',
   :description => "Erlang Cookie",
   :encrypted => true,
@@ -58,7 +68,7 @@ attribute 'erlangcookie',
     :category => '1.Global',
     :order => 2
   }
-  
+
 recipe "status", "Rabbitmq Status"
 recipe "start", "Start Rabbitmq"
 recipe "stop", "Stop Rabbitmq"
