@@ -1,7 +1,7 @@
 require File.expand_path('../../libraries/network_security_group.rb', __FILE__)
 require File.expand_path('../../../azure_base/libraries/logger.rb', __FILE__)
 require File.expand_path('../../../azure_base/libraries/utils.rb', __FILE__)
-require File.expand_path('../../libraries/resource_group.rb', __FILE__)
+require File.expand_path('../../../azure/libraries/resource_group.rb', __FILE__)
 
 ::Chef::Recipe.send(:include, AzureNetwork)
 ::Chef::Recipe.send(:include, Azure::ARM::Network)
