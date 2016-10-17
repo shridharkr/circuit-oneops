@@ -110,6 +110,9 @@ ruby_block 'create-iscsi-volume-ruby-block' do
         end
          node.set["device"] = dev_list
          node.set["raid_device"] = dev_list
+         if rfc_action =~ /replace/
+            raid_device = raid_device +"_0"
+         end
       else
         provider = node[:iaas_provider]
         storage_provider = node[:storage_provider]
@@ -348,11 +351,10 @@ ruby_block 'create-iscsi-volume-ruby-block' do
       max_retry = 10
 
       if vols.size > 1 && mode != 'no-raid'
-
+        
         cmd = "yes |mdadm --create -l#{level} -n#{vols.size.to_s} --assume-clean --chunk=256 #{raid_device} #{dev_list} 2>&1"
         until ::File.exists?(raid_device) || has_created_raid || exec_count > max_retry do
           Chef::Log.info(raid_device+" being created with: "+cmd)
-
           out = `#{cmd}`
           exit_code = $?.to_i
           Chef::Log.info("exit_code: "+exit_code.to_s+" out: "+out)
@@ -368,10 +370,9 @@ ruby_block 'create-iscsi-volume-ruby-block' do
             ccmd = "for f in /dev/md*; do mdadm --stop $f; done"
             Chef::Log.info("cleanup bad arrays: "+ccmd)
             Chef::Log.info(`#{ccmd}`)
-
             ccmd = "mdadm --zero-superblock #{dev_list}"
             Chef::Log.info("cleanup incase re-using: "+ccmd)
-            Chef::Log.info(`#{ccmd}`)
+            Chef::Log.info(`#{ccmd}`)            
           end
         end
         node.set["raid_device"] = raid_device
