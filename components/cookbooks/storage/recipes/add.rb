@@ -122,7 +122,7 @@ Array(1..slice_count).each do |i|
       e = Exception.new("no backtrace")
       e.set_backtrace("")
       raise e
-    rescue Execption => e
+    rescue Exception => e
       puts "***FAULT:FATAL="+e.message
       e = Exception.new("no backtrace")
       e.set_backtrace("")

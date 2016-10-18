@@ -52,7 +52,7 @@ attribute 'url',
   }
 
 attribute 'repository',
-  :description => "Repository Name",
+  :description => "Repository",
   :required => "required",
   :default => '',
   :format => {
@@ -124,7 +124,7 @@ attribute 'install_dir',
     :help => 'Directory path where the artifact will be downloaded and versions will be kept',
     :category => '4.Destination',
     :order => 1,
-    :pattern => '^((?:[\/$][${}a-zA-Z0-9]+(?:_[${}a-zA-Z0-9]+)*(?:-[${}a-zA-Z0-9]+)*)+)$'
+    :pattern => '^((?:[${}a-zA-Z]:){0,1}(?:[\\\/$][${}a-zA-Z0-9]+(?:_[${}a-zA-Z0-9]+)*(?:-[${}a-zA-Z0-9]+)*)+)$'
   }
 
 attribute 'as_user',
