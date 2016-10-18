@@ -1,4 +1,4 @@
-name                "Tomcat-85"
+name                "tomcat-85"
 description         "Installs/Configures Tomcat 8.5"
 version             "0.1.0"
 maintainer          "OneOps"
