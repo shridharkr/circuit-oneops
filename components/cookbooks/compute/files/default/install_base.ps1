@@ -69,7 +69,7 @@ $chocoDir = "C:\Chocolatey"
 
 Get-ChildItem $chocoTempDir -Filter *.zip |
 Foreach-Object{
-    Expand-ZIPFile $_.FullName  $chocoDir
+   Expand-ZIPFile $_.FullName  $chocoDir
 }
 
 $toolsFolder = Join-Path $chocoDir "tools"
@@ -84,12 +84,12 @@ Remove-Item -Recurse -Force $chocoTempDir
 
 ## =======================================
 if ( $proxy -ne "" -and $proxy -ne $null) {
-    choco config set proxy $proxy
+  choco config set proxy $proxy
 }
 
 if ( $chocoRepo -ne "" -and $chocoRepo -ne $null ) {
-    #choco source disable -y --name="chocolatey"
-    choco source add -y --name='internal' --source=$chocoRepo --priority=1
+  #choco source disable -y --name="chocolatey"
+  choco source add -y --name='internal' --source=$chocoRepo --priority=1
 }
 
 Write-Output "Install ruby ..."
@@ -109,8 +109,8 @@ Add-Content config.yml "`n- C:/tools/ruby23"
 ###########################################
 
 if ($($env:Path).ToLower().Contains("devkit") -eq $false) {
-    [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\tools\DevKit2\bin", [EnvironmentVariableTarget]::Machine)
-    refreshenv
+  [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\tools\DevKit2\bin", [EnvironmentVariableTarget]::Machine)
+  refreshenv
 }
 
 #ruby dk.rb init
@@ -134,7 +134,7 @@ New-Item C:\cygwin64\opt\oneops\rubygems_proxy -type file -force
 Set-Content C:\cygwin64\opt\oneops\rubygems_proxy $gemRepo
 
 Set-Location "C:\"
-    Write-Output "End of windows install_base script"
+Write-Output "End of windows install_base script"
 }
 catch 
 {
