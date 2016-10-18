@@ -506,7 +506,7 @@ resource "job",
   :requires => { "constraint" => "0..*" }
 
 resource "objectstore",
-  :cookbook => "objectstore",
+  :cookbook => "oneops.1.objectstore",
   :design => true,
   :requires => {"constraint" => "0..1",:services => "filestore"},
   :attributes => {
