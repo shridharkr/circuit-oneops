@@ -505,6 +505,15 @@ resource "job",
   :design => true,
   :requires => { "constraint" => "0..*" }
 
+resource "objectstore",
+  :cookbook => "oneops.1.objectstore",
+  :design => true,
+  :requires => {"constraint" => "0..1",:services => "filestore"},
+  :attributes => {
+    "username" => "",
+    "password" => ""
+  }
+
 resource "storage",
   :cookbook => "oneops.1.storage",
   :design => true,
@@ -714,7 +723,9 @@ end
   { :from => 'file',        :to => 'os' },
   { :from => 'artifact',    :to => 'os' },    
   { :from => 'sensuclient', :to => 'compute'  },
-  { :from => 'library',     :to => 'os' }
+  { :from => 'library',     :to => 'os' },
+  { :from => 'objectstore',  :to => 'compute'},
+  { :from => 'objectstore',  :to => 'user'}
 ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
     :relation_name => 'DependsOn',
@@ -752,7 +763,7 @@ end
 
 # managed_via
 [ 'os', 'user', 'job', 'file', 'volume', 'share', 'download', 'library', 'daemon', 
-  'certificate', 'logstash', 'sensuclient', 'artifact' ].each do |from|
+  'certificate', 'logstash', 'sensuclient', 'artifact', 'objectstore'].each do |from|
   relation "#{from}::managed_via::compute",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',
