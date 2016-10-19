@@ -2,17 +2,18 @@ kibana_version = node['kibana']['version']
 Chef::Log.info("Kibana Version: #{kibana_version}")
 install_path = node['kibana']['install_path']
 Chef::Log.info("Kibana installation Path: #{install_path}")
-current_path = "#{install_path}/kibana-#{kibana_version}-linux-x64/"
+arch = ( Gem::Version.new(kibana_version) < Gem::Version.new('4.5.10') ) ? 'linux-x64' : 'linux-x86_64'
+current_path = "#{install_path}/kibana-#{kibana_version}-#{arch}/"
 Chef::Log.info("Kibana Installation Location: #{current_path}")
 cloud = node['workorder']['cloud']['ciName']
 
-location = node['kibana']['src_url'] + "/kibana-" + node['kibana']['version'] + "-linux-x64" + ".tar.gz"
+location = "#{node['kibana']['src_url']}/kibana-#{node['kibana']['version']}-#{arch}.tar.gz"
 
-Chef::Log.info("Kibana Download locaction #{location} ")
+Chef::Log.info("Kibana Download location #{location} ")
 Chef::Log.info("Kibana Version: #{kibana_version}")
 Chef::Log.info("Kibana installation Path: #{install_path}")
 
-tarball = "kibana-#{kibana_version}-linux-x64.tar.gz"
+tarball = "kibana-#{kibana_version}-#{arch}.tar.gz"
 Chef::Log.info("Tar ball file name: #{tarball}")
 
 tar_file_path = "#{install_path}/#{tarball}"
