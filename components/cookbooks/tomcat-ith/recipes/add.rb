@@ -87,7 +87,7 @@ end
 # Run Install Cookbook for Tomcat Binaries
 ###############################################################################
 
-include_recipe 'tomcat-85::add_binary'
+include_recipe 'tomcat-ith::add_binary'
 
 ###############################################################################
 # Setup Log Rotation
@@ -309,7 +309,7 @@ end
 
 template "/lib/systemd/system/tomcat.service" do
       source 'init_systemd.erb'
-      cookbook 'tomcat-85'
+      cookbook 'tomcat-ith'
       owner 'root'
       group 'root'
       mode '0644'

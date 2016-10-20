@@ -296,7 +296,7 @@ attribute 'enable_method_head',
 ##################################################################################################
 attribute 'java_options',
           :description => "Java Options",
-          :default => '-Djava.awt.headless=true',
+          :default => '-Djava.awt.headless=true -Xloggc:/opt/tomcat/logs/verbosegc.log',
           :format => {
               :help => 'Specify any JVM command line options needed in your Tomcat instance.',
               :category => '5.Java',

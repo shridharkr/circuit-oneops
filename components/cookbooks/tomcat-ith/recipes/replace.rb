@@ -1,5 +1,5 @@
 ###############################################################################
-# Cookbook Name:: tomcat-85
+# Cookbook Name:: tomcat-ith
 # Recipe:: replace
 # Purpose:: This recipe is used to replace the Tomcat binaries on the server.
 #
