@@ -78,7 +78,7 @@ compute_provider = tenant_model.get_compute_provider
 volumes = Array.new
 Chef::Log.info("configuring disks")
 volumes.push(get_volume(compute_provider, service_compute[:datastore], 'os', 'PERSISTENT', true, 9))
-volumes.push(get_volume(compute_provider, service_compute[:datastore], 'data_disk', 'INDEPENDENT_PERSISTENT', true, disk_size))
+secondary_volume = get_volume(compute_provider, service_compute[:datastore], 'data_disk', 'INDEPENDENT_PERSISTENT', true, disk_size)
 
 Chef::Log.info("configuring network interfaces")
 network_interface = get_network_interface(compute_provider, service_compute)
@@ -97,7 +97,7 @@ else
   is_debug = node.workorder.payLoad[:Environment][0][:ciAttributes][:debug]
   virtual_machine_manager = VirtualMachineManager.new(compute_provider, public_key)
   virtual_machine_manager.bandwidth_throttle_rate = bandwidth_throttle_rate
-  virtual_machine_manager.clone(vm_attributes, is_debug)
+  virtual_machine_manager.clone(vm_attributes, is_debug, secondary_volume)
   Chef::Log.info("end time " + Time.now.to_s)
   total_time = Time.now - start_time
   Chef::Log.info("Total time to create " + total_time.to_s)
