@@ -33,9 +33,11 @@ node.workorder.payLoad[:DependsOn].each do |dep|
   end
 end
 include_recipe "shared::set_provider"
+`mkdir /etc/mdadm/;touch /etc/mdadm/mdadm.conf`
+`echo "HOMEHOST <ignore>" > /etc/mdadm/mdadm.conf`
 storage_provider = node.storage_provider_class
 if (storage_provider =~ /azure/) && !storage.nil? 
-       Chef::Log.info("inside attach-azuredatadisk block")
+       Chef::Log.info("inside attach-azuredatadisk block")         
        dev_id=nil
        device_maps = storage['ciAttributes']['device_map'].split(" ")
        node.set[:device_maps] = device_maps
@@ -108,12 +110,7 @@ ruby_block 'create-iscsi-volume-ruby-block' do
           vols.push dev_id
           dev_list += dev_id+" "
         end
-         node.set["device"] = dev_list
-         node.set["raid_device"] = dev_list
-         if rfc_action =~ /replace/
-            raid_device = raid_device +"_0"
-         end
-      else
+      else        
         provider = node[:iaas_provider]
         storage_provider = node[:storage_provider]
 
