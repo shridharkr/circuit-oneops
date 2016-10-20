@@ -33,8 +33,6 @@ node.workorder.payLoad[:DependsOn].each do |dep|
   end
 end
 include_recipe "shared::set_provider"
-`mkdir /etc/mdadm/;touch /etc/mdadm/mdadm.conf`
-`echo "HOMEHOST <ignore>" > /etc/mdadm/mdadm.conf`
 storage_provider = node.storage_provider_class
 if (storage_provider =~ /azure/) && !storage.nil?        
        dev_id=nil
