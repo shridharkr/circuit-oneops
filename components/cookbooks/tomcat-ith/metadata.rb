@@ -1,6 +1,6 @@
-name                "tomcat-85"
-description         "Installs/Configures Tomcat 8.5"
-version             "0.1.0"
+name                "tomcat-ith"
+description         "Installs/Configures Tomcat ITH"
+version             "1.0.0"
 maintainer          "OneOps"
 maintainer_email    "support@oneops.com"
 license             "Copyright OneOps, All rights reserved."
@@ -10,7 +10,7 @@ grouping 'default',
          :packages => ["base", "mgmt.catalog", "mgmt.manifest", "catalog", "manifest", "bom"]
 
 ##################################################################################################
-# Attributes for Tomcat 8.5 Binary Install
+# Attributes for Tomcat ITH Binary Install
 ##################################################################################################\
 attribute 'version',
           :description => "Tomcat Version",

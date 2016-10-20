@@ -1,8 +1,9 @@
 ###############################################################################
-# Cookbook Name:: tomcat_8-5
-# Recipe:: repair
-# Purpose:: This recipe is used to repair the Tomcat binaries by simply
-#           restarting them
+# Cookbook Name:: tomcat-ith
+# Recipe:: delete
+# Purpose:: This recipe is used to delete the Tomcat system by disabling the
+#           service and deleting the directory
+#
 # Copyright 2016, Walmart Stores Incorporated
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,4 +19,15 @@
 # limitations under the License.
 ###############################################################################
 
-include_recipe 'tomcat-85::restart'
+node.set['tomcat']['config_dir'] = '/opt/tomcat'
+
+service "tomcat" do
+  only_if { ::File.exists?('/lib/systemd/system/tomcat.service') }
+  service_name "tomcat"
+  action [:stop, :disable]
+end
+
+directory "#{node['tomcat']['config_dir']}" do
+   recursive true
+   action :delete
+end

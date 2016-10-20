@@ -1,7 +1,7 @@
 # rubocop:disable LineLength
 ###############################################################################
-# Cookbook Name:: tomcat_8-5
-# Recipe:: add_repo
+# Cookbook Name:: tomcat-ith
+# Recipe:: add_binary
 # Purpose:: This recipe is used to install the Tomcat binaries onto the server.
 #
 # Copyright 2016, Walmart Stores Incorporated
@@ -78,5 +78,5 @@ execute "chown -R #{node['tomcat']['global']['tomcat_user']}:#{node['tomcat']['g
 execute "rm -fr #{node['tomcat']['download_destination']}"
 
 ###############################################################################
-# End of add_repo.rb
+# End of add_binary.rb
 ###############################################################################

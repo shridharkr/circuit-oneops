@@ -1,7 +1,7 @@
 ###############################################################################
-# Cookbook Name:: tomcat_8-5
-# Recipe:: start
-# Purpose:: This recipe is used to start the Tomcat binaries.
+# Cookbook Name:: tomcat-85
+# Recipe:: replace
+# Purpose:: This recipe is used to replace the Tomcat binaries on the server.
 #
 # Copyright 2016, Walmart Stores Incorporated
 #
@@ -17,7 +17,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###############################################################################
-
-service "tomcat" do
-  action :start
-end
+include_recipe 'tomcat-ith::delete'
+include_recipe 'tomcat-ith::add'

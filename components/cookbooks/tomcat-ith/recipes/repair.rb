@@ -1,8 +1,8 @@
 ###############################################################################
-# Cookbook Name:: tomcat_8-5
-# Recipe:: update
-# Purpose:: This recipe is used to update the Tomcat binaries.
-#
+# Cookbook Name:: tomcat-ith
+# Recipe:: repair
+# Purpose:: This recipe is used to repair the Tomcat binaries by simply
+#           restarting them
 # Copyright 2016, Walmart Stores Incorporated
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,4 +18,4 @@
 # limitations under the License.
 ###############################################################################
 
-include_recipe 'tomcat-85::add'
+include_recipe 'tomcat-ith::restart'

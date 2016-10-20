@@ -1,6 +1,6 @@
 # rubocop:disable LineLength
 ###############################################################################
-# Cookbook Name:: tomcat_8-5
+# Cookbook Name:: tomcat-ith
 # Recipe:: add
 # Purpose:: This recipe is used to do the initial setup of the Tomcat system
 #     settings before the Tomcat binaries are installed onto the server.
@@ -24,8 +24,8 @@
 #   The tomcat_user and tomcat_group variables will be grabbed from the user
 #     response in the metadata.rb file if different from the default values.
 ###############################################################################
-include_recipe 'tomcat-85::generate_variables'
-include_recipe 'tomcat-85::dump_attributes'
+include_recipe 'tomcat-ith::generate_variables'
+include_recipe 'tomcat-ith::dump_attributes'
 
 group "#{node['tomcat']['global']['tomcat_group']}" do
   action :create
@@ -350,4 +350,4 @@ end
 #   These recipes will be called after the rest of the add.rb file is run.
 ###############################################################################
 
-include_recipe 'tomcat-85::start'
+include_recipe 'tomcat-ith::start'
