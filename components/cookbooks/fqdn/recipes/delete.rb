@@ -61,7 +61,7 @@ end
 
 include_recipe "fqdn::get_authoritative_nameserver"
 
-if env.has_key?("global_dns") && env["global_dns"] == "true" &&
+if env.has_key?("global_dns") && env["global_dns"] == "true" && 
    depends_on["ciClassName"] =~ /Lb/ &&
    node.is_last_active_cloud_in_dc
 
