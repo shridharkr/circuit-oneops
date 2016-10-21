@@ -41,6 +41,7 @@ attribute 'mode',
       ["RAID5", "raid5"],
       ["RAID10", "raid10"],
       ["NO-RAID", "no-raid"]] },
+    :filter => {"all" => {"visible" => "mode:eq:invisible"}},
     :order => 3
   }
 
