@@ -41,12 +41,14 @@ attribute 'volume_type',
   :required => "optional",
   :default => "GENERAL",
   :format => {
-    :help => 'Provide volume type',
+    :help => 'select the storage type. Storage type determines the volume type(IOPS) and service level(bandwidth)',
     :category => '1.Configuration',
     :order => 3,
     :form => { 'field' => 'select', 'options_for_select' => [
-      ["General", "GENERAL"],
-      ["IOPS", "IOPS"]] }
+      ["General", "GENERAL"], # default
+      ["Standard-1", "iops-low-300"],
+      ["IOPS-1", "iops-high-3500"],
+      ] }
   }   
 # maps provider vol-id for md
 attribute 'device_map',
