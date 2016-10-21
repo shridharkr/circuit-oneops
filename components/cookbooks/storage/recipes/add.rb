@@ -33,7 +33,12 @@ provider = node['provider_class']
 size_config = node.workorder.rfcCi.ciAttributes["size"]
 size_scale = size_config[-1,1]
 size = size_config[0..-2].to_i
-
+action = node.workorder.rfcCi.rfcAction
+if node.workorder.has_key?("payLoad") && node.workorder.payLoad.has_key?("volumes")
+  mode = node.workorder.payLoad.volumes[0].ciAttributes["mode"]
+else
+  mode = "no-raid"
+end
 
     Chef::Log.info("----------------------------------------------------------")
     Chef::Log.info("Storage Requested : " + size_config)
@@ -56,13 +61,20 @@ if size_scale == "T"
   size *= 1024
 end
 if size < 10
-  size = 10
+  puts "***FAULT:FATAL=Minimum size should be 10G"
+  e = Exception.new("no backtrace")
+  e.set_backtrace(" ")
+  raise e
 end
 
 if slice_count == 1
   slice_size = size.to_i
- else
- slice_size = (size.to_f / slice_count.to_f).ceil * 2
+elsif mode == "no-raid" || mode == "raid0"
+  slice_size = (size.to_f / slice_count.to_f).ceil
+elsif mode == "raid1" || mode == "raid10"
+  slice_size = (size.to_f / slice_count.to_f).ceil * 2
+elsif mode == "raid5"
+  slice_size = size.to_f/(slice_count.to_i-1).ceil
 end
 
 Chef::Log.info("raid10 - #{slice_count} slices of: #{slice_size}")
@@ -70,7 +82,74 @@ Chef::Log.info("raid10 - #{slice_count} slices of: #{slice_size}")
 # Create the dev/vols and store the map to device_map attr ... volume::add will attach them to the compute
 dev_list = ""
 vols = Array.new
-
+old_slice_count = slice_count
+old_size = size
+if action == "update"
+  if mode != "no-raid"
+    puts "***FAULT:FATAL=Could not extend volume for raid mode. Recreate volumes in no-raid mode for volume extension support"
+    e = Exception.new("no backtrace")
+    e.set_backtrace("")
+    raise e
+  end
+  if node.workorder.rfcCi.ciBaseAttributes.has_key?("size")
+    old_size = node.workorder.rfcCi.ciBaseAttributes["size"]
+  else
+    Chef::Log.info("Storage requested is same as before. #{old_size}G")
+    return true
+  end
+  if node.workorder.rfcCi.ciBaseAttributes.has_key?("slice_count")
+    old_slice_count = node.workorder.rfcCi.ciBaseAttributes["slice_count"].to_i
+  end
+  scale = old_size[-1,1]
+  oldsize = old_size[0..-2].to_i
+  size = size.to_i
+  old_size = old_size.to_i
+  if old_slice_count > slice_count
+    puts "***FAULT:FATAL=Slice count cant be decreased"
+    e = Exception.new("no backtrace")
+    e.set_backtrace("")
+    raise e
+  else
+    slice_count = slice_count - old_slice_count
+    if slice_count == 0
+      slice_count = 1
+    end
+  end
+  if scale == "T"
+    old_size *= 1024
+  end
+  if size > old_size
+    slice_size = size - old_size
+    if slice_size < 10
+      puts "***FAULT:FATAL=Size requested is too small"
+      e = Exception.new("no backtrace")
+      e.set_backtrace("")
+      raise e
+    end
+  elsif size == old_size
+    Chef::Log.info("Storage requested is same as before. #{old_size}G")
+    return true
+  else
+    puts "***FAULT:FATAL=Size of storage can not be decreased"
+    e = Exception.new("no backtrace")
+    e.set_backtrace("")
+    raise e
+  end
+  if node.workorder.rfcCi.ciAttributes.has_key?("device_map")
+    vols = node.workorder.rfcCi.ciAttributes["device_map"].split(" ")
+  end
+  if mode == "no-raid" || mode == "raid0"
+    slice_size = (slice_size.to_f / slice_count.to_f).ceil
+  else
+    slice_size = (slice_size.to_f / slice_count.to_f).ceil*2
+  end
+end
+if slice_size < 10
+  puts "***FAULT:FATAL=Minimum slice size should be 10G"
+  e = Exception.new("no backtrace")
+  e.set_backtrace(" ")
+  raise e
+end
 # fog/aws need to use sdf-sdp for ebs devices - e-h used by ephemeral
 # find the first unused block device
 
