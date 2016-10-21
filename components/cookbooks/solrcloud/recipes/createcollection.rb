@@ -2,7 +2,7 @@
 # Cookbook Name :: solrcloud
 # Recipe :: createcollection.rb
 #
-# The recipie create collection on the solrcloud.
+# The recipe create collection on the solrcloud.
 #
 
 include_recipe 'solrcloud::default'

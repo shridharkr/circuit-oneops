@@ -4,13 +4,13 @@ class VirtualMachineManager
   USER = 'root'
   PASSWORD = ''
   EPHEMERAL_MOUNT = '/mnt/resource'
-  def initialize(compute_provider, public_key, instance_id = nil)
+  def initialize(compute_provider, public_key, virtual_machine_name = nil)
     fail ArgumentError, 'compute_provider is invalid' if compute_provider.nil?
     fail ArgumentError, 'public_key is invalid' if public_key.nil?
 
     @compute_provider = compute_provider
-    @instance_id = instance_id
     @public_key = public_key
+    @instance_id = get_instance_id(virtual_machine_name) if !virtual_machine_name.nil?
   end
 
   def ip_address
@@ -24,6 +24,8 @@ class VirtualMachineManager
   end
 
   def vm_execute_options
+    fail ArgumentError, 'instance_id is invalid' if @instance_id.nil? || @instance_id.empty?
+
     options = {}
     options['instance_uuid'] = @instance_id
     options['user'] = USER
@@ -33,14 +35,12 @@ class VirtualMachineManager
   private :vm_execute_options
 
   def inject_public_Key
-    fail ArgumentError, 'instance_id is invalid' if @instance_id.nil? || @instance_id.empty?
-
     options = vm_execute_options
     options['command'] = '/usr/bin/echo'
     options['args'] = @public_key.chomp + ' > authorized_keys'
     options['working_dir'] = '/root/.ssh'
 
-    time_to_live = 180
+    time_to_live = 120
     start_time = Time.now
     is_public_key_injected = false
     Chef::Log.info("waiting to inject public key")
@@ -61,14 +61,13 @@ class VirtualMachineManager
 
   def throttle_yum(data_rate_KBps)
     fail ArgumentError, 'data_rate_KBps is invalid' if data_rate_KBps.nil? || data_rate_KBps.empty?
-    fail ArgumentError, 'instance_id is invalid' if @instance_id.nil? || @instance_id.empty?
 
     options = vm_execute_options
     options['command'] = '/usr/bin/echo'
     options['args'] = "throttle=#{data_rate_KBps}k" + ' >> yum.conf'
     options['working_dir'] = '/etc'
 
-    time_to_live = 180
+    time_to_live = 120
     start_time = Time.now
     is_yum_throttled = false
     Chef::Log.info("waiting for yum throttle config")
@@ -90,7 +89,7 @@ class VirtualMachineManager
   def get_ip_address
     fail ArgumentError, 'instance_id is invalid' if @instance_id.nil? || @instance_id.empty?
 
-    time_to_live = 180
+    time_to_live = 120
     start_time = Time.now
     ip_address = nil
     Chef::Log.info("getting ip address")
@@ -139,20 +138,59 @@ class VirtualMachineManager
   end
   private :power_on
 
-  def clone(vm_attributes, is_debug)
+  def add_controller
+    fail ArgumentError, 'instance_id is invalid' if @instance_id.nil? || @instance_id.empty?
+
+    scsi_controller = Fog::Compute::Vsphere::SCSIController.new
+    scsi_controller.server_id = @instance_id
+    scsi_controller.type = RbVmomi::VIM.VirtualLsiLogicController.class
+    scsi_controller.key = 1000
+    scsi_controller.shared_bus = false
+
+    Chef::Log.info("adding scsi controller for secondary disk")
+    controller = @compute_provider.add_vm_controller(scsi_controller)
+  end
+  private :add_controller
+
+  def add_secondary_disk(secondary_volume)
+    fail ArgumentError, 'secondary_volume is invalid' if secondary_volume.nil?
+    fail ArgumentError, 'instance_id is invalid' if @instance_id.nil? || @instance_id.empty?
+
+    secondary_volume.server_id = @instance_id
+    secondary_volume.unit_number = 0
+    begin
+      add_controller
+      Chef::Log.info("adding secondary disk")
+      @compute_provider.add_vm_volume(secondary_volume)
+    rescue => e
+      error = 'Failed to add secondary disk. '
+      Chef::Log.error("#{error}" + e.to_s)
+      puts "***FAULT:FATAL=#{error}"
+      raise error
+    end
+  end
+  private :add_secondary_disk
+
+  def clone(vm_attributes, is_debug, secondary_volume)
     begin
       new_vm = @compute_provider.vm_clone(vm_attributes)
       @instance_id = new_vm['new_vm']['id']
       Chef::Log.debug('instance_id: ' + @instance_id.to_s)
       puts "***RESULT:instance_id=" + @instance_id
+
+      add_secondary_disk(secondary_volume)
       is_power_on = power_on(initial_boot = true)
       raise 'Failed to power on instance' if is_power_on == false
     rescue => e
-      Chef::Log.error('Cloning instance failed: ' + e.to_s)
+      error = 'Cloning instance failed. '
+      Chef::Log.error("#{error}" + e.to_s)
+
       if (!@instance_id.nil?) && (is_debug == 'false')
-        Chef::Log.error('Deleting failed instance')
+        error = 'Deleting failed instance. '
+        Chef::Log.error("#{error}" + e.to_s)
         delete
       end
+      puts "***FAULT:FATAL=#{error}"
       exit 1
     end
     return @instance_id
@@ -251,4 +289,18 @@ class VirtualMachineManager
     end
     return is_deleted
   end
+
+  def get_instance_id(virtual_machine_name)
+    fail ArgumentError, 'virtual_machine_name is invalid' if virtual_machine_name.nil? || virtual_machine_name.empty?
+
+    instance_id = nil
+    begin
+      virtual_machine = @compute_provider.get_virtual_machine(virtual_machine_name)
+      instance_id = virtual_machine['id']
+    rescue => e
+      Chef::Log.warn('Failed to get instance_id: ' + e.to_s)
+    end
+    return instance_id
+  end
+  private :get_instance_id
 end

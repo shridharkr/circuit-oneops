@@ -1,5 +1,5 @@
 #TODO: add checks in each method for rg_name
-
+require File.expand_path('../../../azuresecgroup/libraries/network_security_group.rb', __FILE__)
 # module to contain classes for dealing with the Azure Network features.
 module AzureNetwork
 

@@ -2,7 +2,6 @@ name              'Kubernetes'
 maintainer        'OneOps'
 license           'Apache 2.0'
 description       'Configures and installs Kubernetes'
-long_description  IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version           '0.0.1'
 
 
@@ -205,7 +204,19 @@ attribute 'cluster_cloud_map',
     :category => '1.Master',
     :order => 10
   }
-    
+
+attribute 'download_args',
+  :grouping => 'cluster',
+  :description => "Download Args",
+  :data_type => "array",
+  :default => '[]',
+  :required => "required",
+  :format => {
+    :help => 'Download Args for wget eg) --limit-rate 128k',
+    :category => '1.Master',
+    :order => 10
+  }
+      
   
 attribute 'security_enabled',
   :description => 'Enable SSL/TLS',

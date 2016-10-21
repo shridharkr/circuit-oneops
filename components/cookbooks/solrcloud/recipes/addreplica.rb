@@ -2,7 +2,7 @@
 # Cookbook Name :: solrcloud
 # Recipe :: addReplica.rb
 #
-# The recipie adds replica to the solr cloud.
+# The recipe adds replica to the solr cloud.
 #
 
 require 'json'

@@ -23,6 +23,7 @@ def delete_by_name(server_key)
       exit 1      
     else
       Chef::Log.info( "delete #{server_key} resp: #{resp_obj.inspect}")
+      node.set["gslb_has_changes"] = true
     end
     
   else 

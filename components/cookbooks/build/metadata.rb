@@ -97,7 +97,7 @@ attribute 'install_dir',
     :help => 'Directory path where the source code will be downloaded and versions will be kept (Note: the latest code will be in a sub-directory current)',
     :category => '2.Destination',
     :order => 1,
-    :pattern => '^((?:[\/\$][\$\{\}a-zA-Z0-9]+(?:_[\$\{\}a-zA-Z0-9]+)*(?:\-[\$\{\}a-zA-Z0-9]+)*)+)$'
+    :pattern => '^((?:[\/\$][\${}a-zA-Z0-9]+(?:_[\${}a-zA-Z0-9]+)*(?:-[\${}a-zA-Z0-9]+)*)+)$'
   }
 
 attribute 'as_user',

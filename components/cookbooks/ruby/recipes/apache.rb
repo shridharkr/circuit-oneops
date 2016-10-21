@@ -33,10 +33,16 @@ bash 'install passenger' do
       rvm use #{node[:ruby][:version]}
     EOH
   end
+  if node[:ruby][:version].to_f < 2.2
+    script += <<-EOH
+    gem install rack -v 1.6.4
+    EOH
+  end
 
   script += <<-EOH
     GEM_DIR=`gem env gemdir`/gems/passenger-#{passenger_version}
     RUBY_BIN=`which ruby | tail -1`
+    rm -f #{conf_file}
     gem install passenger --version=#{passenger_version} --no-ri --no-rdoc
     $GEM_DIR/bin/passenger-install-apache2-module -a
     echo "LoadModule passenger_module $GEM_DIR/buildout/apache2/mod_passenger.so" > #{conf_file}

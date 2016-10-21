@@ -49,7 +49,9 @@ File.open(tmp_key_path, "w") do |keyfile|
         keyfile.write(key_content)
 end
 
+#get the rmq password
 
+vhost_pwd = node[:sensuclient][:sensu_vhost_password]
 
 #arrange the endpoints for message queue
 
@@ -180,7 +182,8 @@ Chef::Log.info("Total sensu endpoints are #{endpoint_count}")
                         		owner 'sensu'
                         		group 'sensu'
                         		variables({
-                                		:rabbitmq_endpoint_1 => rabbitmq_endpoint_1
+                                		:rabbitmq_endpoint_1 => rabbitmq_endpoint_1,
+						:rabbitmq_vhost_password => vhost_pwd
                         		})
                          		notifies :restart, 'service[sensu-client]', :delayed
 				end
@@ -192,7 +195,8 @@ Chef::Log.info("Total sensu endpoints are #{endpoint_count}")
                         		group 'sensu'
                         		variables({
                                 		:rabbitmq_endpoint_1 => rabbitmq_endpoint_1,
-                                		:rabbitmq_endpoint_2 => rabbitmq_endpoint_2
+                                		:rabbitmq_endpoint_2 => rabbitmq_endpoint_2,
+						:rabbitmq_vhost_password => vhost_pwd
                         		})
                          		notifies :restart, 'service[sensu-client]', :delayed
 				end
@@ -205,7 +209,8 @@ Chef::Log.info("Total sensu endpoints are #{endpoint_count}")
                         		variables({
                                 		:rabbitmq_endpoint_1 => rabbitmq_endpoint_1,
                                 		:rabbitmq_endpoint_2 => rabbitmq_endpoint_2,
-                                		:rabbitmq_endpoint_3 => rabbitmq_endpoint_3
+                                		:rabbitmq_endpoint_3 => rabbitmq_endpoint_3,
+						:rabbitmq_vhost_password => vhost_pwd
                         		})
                          		notifies :restart, 'service[sensu-client]', :delayed
 				end
@@ -219,7 +224,8 @@ Chef::Log.info("Total sensu endpoints are #{endpoint_count}")
                                 		:rabbitmq_endpoint_1 => rabbitmq_endpoint_1,
                                 		:rabbitmq_endpoint_2 => rabbitmq_endpoint_2,
                                 		:rabbitmq_endpoint_3 => rabbitmq_endpoint_3,
-                                		:rabbitmq_endpoint_4 => rabbitmq_endpoint_4
+                                		:rabbitmq_endpoint_4 => rabbitmq_endpoint_4,
+						:rabbitmq_vhost_password => vhost_pwd
                         		})
                          		notifies :restart, 'service[sensu-client]', :delayed
 				end
@@ -234,7 +240,8 @@ Chef::Log.info("Total sensu endpoints are #{endpoint_count}")
                                 		:rabbitmq_endpoint_2 => rabbitmq_endpoint_2,
                                 		:rabbitmq_endpoint_3 => rabbitmq_endpoint_3,
                                 		:rabbitmq_endpoint_4 => rabbitmq_endpoint_4,
-                                		:rabbitmq_endpoint_5 => rabbitmq_endpoint_5      
+                                		:rabbitmq_endpoint_5 => rabbitmq_endpoint_5,
+						:rabbitmq_vhost_password => vhost_pwd
                         		})
                          		notifies :restart, 'service[sensu-client]', :delayed
 				end
@@ -250,8 +257,8 @@ Chef::Log.info("Total sensu endpoints are #{endpoint_count}")
                                 		:rabbitmq_endpoint_3 => rabbitmq_endpoint_3,
                                 		:rabbitmq_endpoint_4 => rabbitmq_endpoint_4,
                                 		:rabbitmq_endpoint_5 => rabbitmq_endpoint_5,
-                                		:rabbitmq_endpoint_6 => rabbitmq_endpoint_6
-                                     
+                                		:rabbitmq_endpoint_6 => rabbitmq_endpoint_6,
+						:rabbitmq_vhost_password => vhost_pwd
                         		})
                          		notifies :restart, 'service[sensu-client]', :delayed
 				end

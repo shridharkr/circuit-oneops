@@ -90,7 +90,7 @@ class AddressManager
       end
     end
 
-    # commit_and_check_status()
+    commit_and_check_status(device_groups)
   end
 
   # this function creates the tag, addresses and dynamic address group
@@ -114,7 +114,7 @@ class AddressManager
       end
     end
 
-    # commit_and_check_status()
+    commit_and_check_status(device_groups)
   end
 
   # this function deletes the addresses and address group from the firewall
@@ -133,28 +133,30 @@ class AddressManager
       dag_request.delete(address_group_name, device_group)
     end
 
-    # commit_and_check_status()
+    commit_and_check_status(device_groups)
   end
 
   private
 
   # reusable function to commit the changes to the firewall and check the status
   # of the async job that is queued.
-  def commit_and_check_status()
-    # commit the changes on the firewall device
-    commit = CommitRequest.new(@url, @key)
-    job = commit.commit_configs
+  def commit_and_check_status(device_groups)
+    device_groups.each do |device_group|
+      # commit the changes on the firewall device
+      commit = CommitRequest.new(@url, @key)
+      job = commit.commit_configs(device_group)
 
-    if !job.nil?
-      # check status until complete
-      # won't continue until the update is complete.
-      status = StatusRequest.new(@url, @key)
-      until status.job_complete?(job) do
-        Chef::Log.info("job, #{job.id} still in progress")
-        sleep(5)
+      if !job.nil?
+        # check status until complete
+        # won't continue until the update is complete.
+        status = StatusRequest.new(@url, @key)
+        until status.job_complete?(job) do
+          Chef::Log.info("job, #{job.id} still in progress")
+          sleep(5)
+        end
+
+        Chef::Log.info("Job, #{job.id} complete!")
       end
-
-      Chef::Log.info("Job, #{job.id} complete!")
     end
   end
 
