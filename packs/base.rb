@@ -521,7 +521,27 @@ resource "storage",
     "size"        => '20G',
     "slice_count" => '1'
   },
-  :requires => { "constraint" => "0..*", "services" => "storage" }
+  :requires => { "constraint" => "0..*", "services" => "storage" },
+  :payloads => {
+    'volumes' => {
+     'description' => 'volumes',
+     'definition' => '{
+       "returnObject": false,
+       "returnRelation": false,
+       "relationName": "base.RealizedAs",
+       "direction": "to",
+       "targetClassName": "manifest.oneops.1.Storage",
+       "relations": [
+         { "returnObject": true,
+           "returnRelation": false,
+           "relationName": "manifest.DependsOn",
+           "direction": "to",
+           "targetClassName": "manifest.oneops.1.Volume"
+         }
+       ]
+     }'
+   }
+  }
 
 resource "volume",
   :cookbook => "oneops.1.volume",
@@ -712,7 +732,6 @@ end
   { :from => 'logstash',    :to => 'os' },
   { :from => 'logstash',    :to => 'compute' },
   { :from => 'storage',     :to => 'compute' },
-  { :from => 'volume',      :to => 'storage' },
   { :from => 'share',       :to => 'volume'  },
   { :from => 'volume',      :to => 'user' },
   { :from => 'daemon',      :to => 'os' },
@@ -750,6 +769,15 @@ end
     :from_resource => from,
     :to_resource   => 'compute',
     :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
+end
+
+[{ :from => 'volume',      :to => 'storage' }
+].each do |link|
+  relation "#{link[:from]}::depends_on::#{link[:to]}",
+    :relation_name => 'DependsOn',
+    :from_resource => link[:from],
+    :to_resource   => link[:to],
+    :attributes    => { "propagate_to" => 'from',"flex" => false, "min" => 1, "max" => 1 }
 end
 
 # propagation rule for replace and updating /etc/profile.d/oneops.sh
