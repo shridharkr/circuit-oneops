@@ -695,16 +695,16 @@ ruby_block 'filesystem' do
       Chef::Log.info("***RESULT:device="+_device)
       if rfc_action == "update"
         has_resized = false
-	  if _fstype == "xfs"
+	      if _fstype == "xfs"
           `xfs_growfs #{_mount_point}`
-          Chef::Log.info("Extending the xfs filesystem" )
-	      has_resized = true
-      elsif (_fstype == "ext4" || _fstype == "ext3") && File.exists?("/dev/#{platform_name}/#{logical_name}")
+           Chef::Log.info("Extending the xfs filesystem" )
+	        has_resized = true
+        elsif (_fstype == "ext4" || _fstype == "ext3") && File.exists?("/dev/#{platform_name}/#{logical_name}")
           `resize2fs /dev/#{platform_name}/#{logical_name}`
-          Chef::Log.info("Extending the filesystem" )
-	      has_resized = true
-      end
-       if has_resized && $? != 0
+           Chef::Log.info("Extending the filesystem" )
+	         has_resized = true
+        end
+        if has_resized && $? != 0
           puts "***FAULT:FATAL=Error in extending filesystem"
           e = Exception.new("no backtrace")
           e.set_backtrace("")
