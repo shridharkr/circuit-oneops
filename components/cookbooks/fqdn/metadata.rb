@@ -107,5 +107,16 @@ attribute 'gslb_vnames',
     :order => 8
   }
 
+attribute 'hijack_enabled',
+  :description => "Hijackable",
+  :required => true,
+  :default => "false",
+  :format => {
+    :help => 'Enable/Check this to create TXT record allowing fqdn component to delete unknown entries. Use with caution - a misconfigured dev env with same cname as prod would hijack it.',
+    :category => '1.Global',
+    :form => { 'field' => 'checkbox' },
+    :order => 9
+  }  
+  
 recipe "repair", "Repair"
 recipe "gslbstatus", "GSLB Status"

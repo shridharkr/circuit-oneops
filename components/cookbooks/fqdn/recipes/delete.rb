@@ -9,6 +9,10 @@
 # no ManagedVia - recipes will run on the gw
 
 
+extend Fqdn::Base
+Chef::Resource::RubyBlock.send(:include, Fqdn::Base)
+
+
 env = node.workorder.payLoad["Environment"][0]["ciAttributes"]
 depends_on = { "ciClassName" => "" }
 depends_on = node.workorder.payLoad["DependsOn"][0] if node.workorder.payLoad.has_key?("DependsOn")

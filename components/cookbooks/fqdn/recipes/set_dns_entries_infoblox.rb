@@ -18,19 +18,8 @@
 # uses node[:entries] list of dns entries based on entrypoint, aliases, zone, and platform to update dns
 # no ManagedVia - recipes will run on the gw
 
-# get dns record type - check for ip addresses
-def get_record_type (dns_name, dns_values)
-  record_type = "cname"
-  ips = dns_values.grep(/\d+\.\d+\.\d+\.\d+/)
-  if ips.size > 0
-    record_type = "a"
-  end
-  if dns_name =~ /^\d+\.\d+\.\d+\.\d+$/
-    record_type = "ptr"
-  end
-
-  return record_type
-end
+extend Fqdn::Base
+Chef::Resource::RubyBlock.send(:include, Fqdn::Base)
 
 
 def delete_dns (dns_name, dns_value)
@@ -48,6 +37,10 @@ def delete_dns (dns_name, dns_value)
   when "ptr"
     record = {"ipv4addr" => dns_name,
               "ptrdname" => dns_value}
+  when "txt"
+      record = {"name" => dns_name,
+                "text" => dns_value}
+              
   end
 
   records = JSON.parse(node.infoblox_conn.request(:method=>:get,
@@ -66,25 +59,31 @@ def delete_dns (dns_name, dns_value)
   end
 end
 
-def get_existing_dns (dns_name,ns)
-  existing_dns = Array.new
-  if dns_name =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
-    ptr_name = $4 +'.' + $3 + '.' + $2 + '.' + $1 + '.in-addr.arpa'
-    cmd = "dig +short PTR #{ptr_name} @#{ns}"
-    Chef::Log.info(cmd)
-    existing_dns += `#{cmd}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-  else
-    ["A","CNAME"].each do |record_type|
-      Chef::Log.info("dig +short #{record_type} #{dns_name} @#{ns}")
-      vals = `dig +short #{record_type} #{dns_name} @#{ns}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-      # skip dig's lenient A record lookup thru CNAME
-      next if record_type == "A" && vals.size > 1 && vals[0] !~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
-      existing_dns += vals
-    end
-  end
-  Chef::Log.info("existing: "+existing_dns.sort.inspect)
-  return existing_dns
-end
+
+def set_is_hijackable_record(dns_name)
+  
+  record = { :name => dns_name, :text => 'is_hijackable' }
+  
+  resp_obj = node.infoblox_conn.request(
+    :method => :post,
+    :path => "/wapi/v1.0/record:TXT",
+    :body => JSON.dump(record))
+    
+end 
+
+def delete_is_hijackable_record(dns_name)
+  
+  record = { :name => dns_name, :text => 'is_hijackable' }
+  
+  resp_obj = node.infoblox_conn.request(
+    :method => :delete,
+    :path => "/wapi/v1.0/record:TXT",
+    :body => JSON.dump(record))
+    
+  
+    
+end 
+
 
 include_recipe "fqdn::get_infoblox_connection"
 
@@ -133,7 +132,16 @@ node[:entries].each do |entry|
   Chef::Log.info("previous entries: #{node.previous_entries}")
   Chef::Log.info("deletable_values: #{deletable_values}")
   
+  is_hijackable = check_for_hijack_attr_and_record(dns_name,ns)
+
+  if node.fqdn.hijack_enabled == 'true'
+    set_is_hijackable_record
+  end
   
+  if node.workorder.ci
+    set_is_hijackable_record    
+  end
+    
   if existing_dns.length > 0 || node[:dns_action] == "delete"
     
     # cleanup or delete
@@ -144,7 +152,9 @@ node[:entries].each do |entry|
          (!dns_values.include?(existing_entry) &&
           node.previous_entries.has_key?(dns_name) &&
           node.previous_entries[dns_name].include?(existing_entry) && 
-          node[:dns_action] != "delete")
+          node[:dns_action] != "delete") ||
+         # hijackable - remove any unknown value
+         (is_hijackable && !dns_values.include?(existing_entry))
 
         delete_dns(dns_name, existing_entry)
       end
@@ -209,54 +219,10 @@ node[:entries].each do |entry|
     end
 
     if infoblox_resp_obj.class.to_s != "String" && infoblox_resp_obj.has_key?("Error") 
-      msg = infoblox_resp_obj.inspect
-      puts "***FAULT:FATAL=#{msg}"
-      e = Exception.new("no backtrace")
-      e.set_backtrace("")
-      raise e
+      fail_with_fault infoblox_resp_obj.inspect      
     end
     
-    # verify using authoratative dns sever
-    sleep 5
-    verified = false
-    max_retry_count = 30
-    retry_count = 0
-
-    while !verified && retry_count<max_retry_count do
-      dns_lookup_name = dns_name
-      if dns_name =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
-        dns_lookup_name = $4 +'.' + $3 + '.' + $2 + '.' + $1 + '.in-addr.arpa'
-      end
-      if ns
-        existing_dns = `dig +short #{dns_type} #{dns_lookup_name} @#{ns}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-      else
-        existing_dns = `dig +short #{dns_type} #{dns_lookup_name}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-      end
-
-      Chef::Log.info("verify ns has: "+dns_value)
-      Chef::Log.info("ns #{ns} has: "+existing_dns.sort.to_s)
-      verified = false
-      existing_dns.each do |val|
-        if val.downcase.include? dns_value
-          verified = true
-          Chef::Log.info("verified.")
-        end
-      end
-      if !verified
-        Chef::Log.info("waiting 10sec for #{ns} to get updated...")
-        sleep 10
-      end
-      retry_count +=1
-    end
-
-    if verified == false
-      msg = "dns could not be verified after 5min!"
-      Chef::Log.error(msg)
-      puts "***FAULT:FATAL=#{msg}"
-      e = Exception.new("no backtrace")
-      e.set_backtrace("")
-      raise e
-    end
   end
+  verify(dns_name,dns_values,ns)
 
 end

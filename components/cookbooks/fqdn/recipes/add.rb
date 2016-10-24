@@ -18,6 +18,10 @@
 # builds a list of entries based on entrypoint, aliases, and then sets them in the set_dns_entries recipe
 # no ManagedVia - recipes will run on the gw
 
+extend Fqdn::Base
+Chef::Resource::RubyBlock.send(:include, Fqdn::Base)
+
+
 # cleanup old platform version entries
 if node.workorder.box.ciAttributes.is_active == "false"
   Chef::Log.info("platform is_active false - only performing deletes")
@@ -28,15 +32,10 @@ end
 # get the cloud and provider
 cloud_name = node[:workorder][:cloud][:ciName]
 provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
+
+# default to fog
 provider = "fog"
-case provider_service
-when /infoblox/
-  provider = "infoblox"
-when /azuredns/
-  provider = "azuredns"
-when /designate/
-  provider = "designate"
-else
+if provider_service =~ /infoblox|azuredns|designate|ddns/
   provider = provider_service
 end
 
