@@ -1,6 +1,6 @@
 # rubocop:disable LineLength
 ###############################################################################
-# Cookbook Name:: tomcat-ith
+# Cookbook Name:: tomcat-2
 # Recipe:: dump_attributes
 # Purpose:: This recipe is used to dump defaults and calculated values for
 #           Tomcat and from the metadata

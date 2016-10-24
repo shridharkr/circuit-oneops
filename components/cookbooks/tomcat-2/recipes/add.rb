@@ -1,6 +1,6 @@
 # rubocop:disable LineLength
 ###############################################################################
-# Cookbook Name:: tomcat-ith
+# Cookbook Name:: tomcat-2
 # Recipe:: add
 # Purpose:: This recipe is used to do the initial setup of the Tomcat system
 #     settings before the Tomcat binaries are installed onto the server.
@@ -24,8 +24,8 @@
 #   The tomcat_user and tomcat_group variables will be grabbed from the user
 #     response in the metadata.rb file if different from the default values.
 ###############################################################################
-include_recipe 'tomcat-ith::generate_variables'
-include_recipe 'tomcat-ith::dump_attributes'
+include_recipe 'tomcat-2::generate_variables'
+include_recipe 'tomcat-2::dump_attributes'
 
 group "#{node['tomcat']['global']['tomcat_group']}" do
   action :create
@@ -87,7 +87,7 @@ end
 # Run Install Cookbook for Tomcat Binaries
 ###############################################################################
 
-include_recipe 'tomcat-ith::add_binary'
+include_recipe 'tomcat-2::add_binary'
 
 ###############################################################################
 # Setup Log Rotation
@@ -309,7 +309,7 @@ end
 
 template "/lib/systemd/system/tomcat.service" do
       source 'init_systemd.erb'
-      cookbook 'tomcat-ith'
+      cookbook 'tomcat-2'
       owner 'root'
       group 'root'
       mode '0644'
@@ -350,4 +350,4 @@ end
 #   These recipes will be called after the rest of the add.rb file is run.
 ###############################################################################
 
-include_recipe 'tomcat-ith::start'
+include_recipe 'tomcat-2::start'

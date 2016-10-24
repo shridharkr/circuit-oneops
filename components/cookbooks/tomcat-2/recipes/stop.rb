@@ -1,7 +1,7 @@
 ###############################################################################
-# Cookbook Name:: tomcat-ith
-# Recipe:: update
-# Purpose:: This recipe is used to update the Tomcat binaries.
+# Cookbook Name:: tomcat-2
+# Recipe:: stop
+# Purpose:: This recipe is used to stop the Tomcat binaries.
 #
 # Copyright 2016, Walmart Stores Incorporated
 #
@@ -18,4 +18,6 @@
 # limitations under the License.
 ###############################################################################
 
-include_recipe 'tomcat-ith::add'
+service "tomcat" do
+  action :stop
+end

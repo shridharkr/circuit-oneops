@@ -1,7 +1,8 @@
 ###############################################################################
-# Cookbook Name:: tomcat-ith
-# Recipe:: start
-# Purpose:: This recipe is used to start the Tomcat binaries.
+# Cookbook Name:: tomcat-2
+# Recipe:: delete
+# Purpose:: This recipe is used to delete the Tomcat system by disabling the
+#           service and deleting the directory
 #
 # Copyright 2016, Walmart Stores Incorporated
 #
@@ -18,6 +19,15 @@
 # limitations under the License.
 ###############################################################################
 
+node.set['tomcat']['config_dir'] = '/opt/tomcat'
+
 service "tomcat" do
-  action :start
+  only_if { ::File.exists?('/lib/systemd/system/tomcat.service') }
+  service_name "tomcat"
+  action [:stop, :disable]
+end
+
+directory "#{node['tomcat']['config_dir']}" do
+   recursive true
+   action :delete
 end

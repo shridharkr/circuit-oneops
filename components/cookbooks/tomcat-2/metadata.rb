@@ -1,9 +1,10 @@
-name                "tomcat-ith"
-description         "Installs/Configures Tomcat ITH"
-version             "1.0.0"
-maintainer          "OneOps"
-maintainer_email    "support@oneops.com"
-license             "Copyright OneOps, All rights reserved."
+name                "tomcat-2"
+description         "Installs/Configures Tomcat"
+version             "2"
+maintainer          "Brett Bourquin/Mary Metzger"
+maintainer_email    "Brett.Bourquin@walmart.com Mary.Metzger@walmart.com"
+license             "Licensed under the Apache License, Version 2.0"
+group_id            "oneops"
 
 grouping 'default',
          :access => "global",
