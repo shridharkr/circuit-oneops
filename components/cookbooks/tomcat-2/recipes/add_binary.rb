@@ -1,6 +1,6 @@
 # rubocop:disable LineLength
 ###############################################################################
-# Cookbook Name:: tomcat-ith
+# Cookbook Name:: tomcat-2
 # Recipe:: add_binary
 # Purpose:: This recipe is used to install the Tomcat binaries onto the server.
 #

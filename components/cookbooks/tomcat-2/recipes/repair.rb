@@ -1,8 +1,8 @@
 ###############################################################################
-# Cookbook Name:: tomcat-ith
-# Recipe:: restart
-# Purpose:: This recipe is used to restart the Tomcat binaries.
-#
+# Cookbook Name:: tomcat-2
+# Recipe:: repair
+# Purpose:: This recipe is used to repair the Tomcat binaries by simply
+#           restarting them
 # Copyright 2016, Walmart Stores Incorporated
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,9 +17,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###############################################################################
-service "tomcat" do
-  action :stop
-end
-service "tomcat" do
-  action :start
-end
+
+include_recipe 'tomcat-2::restart'
