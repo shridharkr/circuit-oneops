@@ -60,8 +60,7 @@ $chocoTempFile = "c:\chocotemp\choco.zip"
 Write-Output "Downloading chocolatey ..."
 Download-File $proxy $chocoPkg $chocoTempDir $chocoTempFile
 
-try
-{
+
 Set-Location $chocoTempDir
 
 Write-Output "Extracting chocolatey zipfile "
@@ -135,9 +134,3 @@ Set-Content C:\cygwin64\opt\oneops\rubygems_proxy $gemRepo
 
 Set-Location "C:\"
 Write-Output "End of windows install_base script"
-}
-catch 
-{
-    Write-Error $_.Exception.Message
-    exit 1
-}
