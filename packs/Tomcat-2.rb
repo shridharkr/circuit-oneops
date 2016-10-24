@@ -1,6 +1,6 @@
 include_pack  "genericlb"
-name          "Tomcat-85"
-description   "Tomcat-ITH"
+name          "Tomcat-2"
+description   "Tomcat-2"
 type          "Platform"
 category      "Web Application"
 
@@ -35,8 +35,8 @@ variable "repository",
         :description => 'Repository name',
         :value => 'snapshots'
 
-resource "Tomcat-85",
-         :cookbook => "1.Tomcat-85",
+resource "Tomcat-2",
+         :cookbook => "1.Tomcat-2",
          :source => Chef::Config[:register],
          :design => true,
          :requires => {"constraint" => "1..1",:services=> "mirror"},
@@ -118,7 +118,7 @@ link "/opt/tomcat/webapps/$OO_LOCAL{deployContext}" do
 end
 EOF
 
-resource "Tomcat-85-daemon",
+resource "Tomcat-2-daemon",
          :cookbook => "oneops.1.daemon",
          :design => true,
          :requires => {
@@ -253,20 +253,18 @@ resource 'java',
          :attributes => {}
 
 # depends_on
-[ { :from => 'Tomcat-85',        :to => 'java' },
-  { :from => 'Tomcat-85',        :to => 'keystore' },
-  { :from => 'user-tomcat',      :to => 'volume' },
-  { :from => 'user-tomcat',      :to => 'os' },
+[ { :from => 'Tomcat-2',        :to => 'java' },
+  { :from => 'Tomcat-2',        :to => 'keystore' },
   { :from => 'artifact',         :to => 'library' },
-  { :from => 'artifact',         :to => 'Tomcat-85' },
+  { :from => 'artifact',         :to => 'Tomcat-2' },
   { :from => 'artifact',         :to => 'download' },
   { :from => 'artifact',         :to => 'build' },
   { :from => 'build',            :to => 'library' },
-  { :from => 'build',            :to => 'Tomcat-85' },
+  { :from => 'build',            :to => 'Tomcat-2' },
   { :from => 'build',            :to => 'download' },
-  { :from => 'Tomcat-85-daemon', :to => 'Tomcat-85' },
-  { :from => 'Tomcat-85-daemon', :to => 'artifact' },
-  { :from => 'Tomcat-85-daemon', :to => 'build' },
+  { :from => 'Tomcat-2-daemon', :to => 'Tomcat-2' },
+  { :from => 'Tomcat-2-daemon', :to => 'artifact' },
+  { :from => 'Tomcat-2-daemon', :to => 'build' },
   { :from => 'java',             :to => 'os' },
   { :from => 'keystore',         :to => 'java' },
   { :from => 'java',             :to => 'download' } ].each do |link|
@@ -277,15 +275,15 @@ resource 'java',
     :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
 end
 
-relation "Tomcat-85-daemon::depends_on::artifact",
+relation "Tomcat-2-daemon::depends_on::artifact",
   :relation_name => 'DependsOn',
-  :from_resource => 'Tomcat-85-daemon',
+  :from_resource => 'Tomcat-2-daemon',
   :to_resource => 'artifact',
   :attributes => {"propagate_to" => "from", "flex" => false, "min" => 1, "max" => 1}
 
-relation "Tomcat-85-daemon::depends_on::keystore",
+relation "Tomcat-2-daemon::depends_on::keystore",
   :relation_name => 'DependsOn',
-  :from_resource => 'Tomcat-85-daemon',
+  :from_resource => 'Tomcat-2-daemon',
   :to_resource => 'keystore',
   :attributes => {"propagate_to" => "from", "flex" => false, "min" => 1, "max" => 1}
 
@@ -297,7 +295,7 @@ relation "keystore::depends_on::certificate",
 
 
 # managed_via
-[ 'Tomcat-85', 'artifact', 'build', 'java','keystore', 'Tomcat-85-daemon'].each do |from|
+[ 'Tomcat-2', 'artifact', 'build', 'java','keystore', 'Tomcat-2-daemon'].each do |from|
   relation "#{from}::managed_via::compute",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',
