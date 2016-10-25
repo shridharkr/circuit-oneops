@@ -1,3 +1,8 @@
+if node.platform =~ /windows/
+  include_recipe "user::windows_user_add"
+  return
+end
+
 home_dir = node[:user][:home_directory]
 node.set[:user][:home] = home_dir && !home_dir.empty? ? home_dir : "/home/#{node[:user][:username]}"
 
