@@ -23,13 +23,10 @@ include_recipe "shared::set_provider"
   end
 
 if storage != nil
-Chef::Log.info("------------------------------------------------------------------")
-Chef::Log.info("No Update Operation Supported for Stoarge depandent Volums .. ")
-Chef::Log.info("------------------------------------------------------------------")
-#  include_recipe "volume::delete"
+  include_recipe "volume::add"
 else
   if node.platform =~ /windows/
     include_recipe "volume::delete"
   end
-include_recipe "volume::add"
+  include_recipe "volume::add"
 end
