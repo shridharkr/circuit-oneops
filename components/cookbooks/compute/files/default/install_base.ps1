@@ -108,9 +108,15 @@ Add-Content config.yml "`n- C:/tools/ruby23"
 ###########################################
 
 if ($($env:Path).ToLower().Contains("devkit") -eq $false) {
-  [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\tools\DevKit2\bin", [EnvironmentVariableTarget]::Machine)
-  refreshenv
+  [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\tools\ruby23\bin", [EnvironmentVariableTarget]::Machine)
+  & refreshenv
 }
+
+if ($($env:Path).ToLower().Contains("devkit") -eq $false) {
+  [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\tools\DevKit2\bin", [EnvironmentVariableTarget]::Machine)
+  & refreshenv
+}
+
 
 #ruby dk.rb init
 ruby dk.rb install
