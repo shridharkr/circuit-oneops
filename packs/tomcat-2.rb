@@ -1,6 +1,6 @@
 include_pack  "genericlb"
 name          "tomcat"
-description   "tomcat"
+description   "Tomcat"
 type          "Platform"
 category      "Web Application"
 version       "2"
@@ -37,7 +37,7 @@ variable "repository",
         :value => 'snapshots'
 
 resource "tomcat",
-         :cookbook => "oneops.1.tomcat-2",
+         :cookbook => "1.tomcat-2",
          :source => Chef::Config[:register],
          :design => true,
          :requires => {"constraint" => "1..1",:services=> "mirror"},
