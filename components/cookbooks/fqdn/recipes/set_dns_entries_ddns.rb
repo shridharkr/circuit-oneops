@@ -38,34 +38,11 @@ def delete_dns (dns_name, dns_value)
   delete_type = get_record_type(dns_name,[dns_value])
   Chef::Log.info("delete #{delete_type}: #{dns_name} to #{dns_value}")
   
-  cmd_content = node.ddns_header + "update delete #{dns_name} #{delete_type.upcase} #{dns_value}\nsend\n"
-  cmd_file = node.ddns_key_file + '-cmd'
-  File.open(cmd_file, 'w') { |file| file.write(cmd_content) }
-  cmd = "nsupdate -k #{node.ddns_key_file} #{cmd_file}"
-  puts cmd
-  result = `#{cmd}`
-  
+  ddns_execute "update delete #{dns_name} #{delete_type.upcase} #{dns_value}"
+    
 end
 
-def get_existing_dns (dns_name,ns)
-  existing_dns = Array.new
-  if dns_name =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
-    ptr_name = $4 +'.' + $3 + '.' + $2 + '.' + $1 + '.in-addr.arpa'
-    cmd = "dig +short PTR #{ptr_name} @#{ns}"
-    Chef::Log.info(cmd)
-    existing_dns += `#{cmd}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-  else
-    ["A","CNAME"].each do |record_type|
-      Chef::Log.info("dig +short #{record_type} #{dns_name} @#{ns}")
-      vals = `dig +short #{record_type} #{dns_name} @#{ns}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-      # skip dig's lenient A record lookup thru CNAME
-      next if record_type == "A" && vals.size > 1 && vals[0] !~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
-      existing_dns += vals
-    end
-  end
-  Chef::Log.info("existing: "+existing_dns.sort.inspect)
-  return existing_dns
-end
+
 
 include_recipe "fqdn::get_ddns_connection"
 
@@ -152,66 +129,12 @@ node[:entries].each do |entry|
       ttl = node.workorder.rfcCi.ciAttributes.ttl.to_i
     end
     
-    type = get_record_type(dns_name,[dns_value])
-    cmd_content = node.ddns_header + "update add #{dns_name} #{ttl} #{type.upcase} #{dns_value}\nsend\n"
-    puts "cmd_content: #{cmd_content}"
-    File.open(cmd_file, 'w') { |file| file.write(cmd_content) }
-    cmd = "nsupdate -k #{node.ddns_key_file} #{cmd_file}"
-    puts cmd
-    result = `#{cmd}`    
+    type = get_record_type(dns_name,[dns_value]).upcase
+    ddns_execute "update add #{dns_name} #{ttl} #{type} #{dns_value}"
     
-    if result =~ /error/i
-      puts "***FAULT:FATAL=#{result}"
-      e = Exception.new("no backtrace")
-      e.set_backtrace("")
-      raise e
-    end
-    
-    # verify using authoratative dns sever
-    sleep 5
-    verified = false
-    max_retry_count = 30
-    retry_count = 0
-
-    while !verified && retry_count<max_retry_count do
-      dns_lookup_name = dns_name
-      if dns_name =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
-        dns_lookup_name = $4 +'.' + $3 + '.' + $2 + '.' + $1 + '.in-addr.arpa'
-      end
-      if ns
-        existing_dns = `dig +short #{dns_type} #{dns_lookup_name} @#{ns}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-      else
-        existing_dns = `dig +short #{dns_type} #{dns_lookup_name}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-      end
-
-      Chef::Log.info("verify ns has: "+dns_value)
-      Chef::Log.info("ns #{ns} has: "+existing_dns.sort.to_s)
-      verified = false
-      existing_dns.each do |val|
-        val = dns_value
-        if dns_value[-1,1] == '.'
-          val = dns_value.chop
-        end
-        if val.downcase.include? val
-          verified = true
-          Chef::Log.info("verified.")
-        end
-      end
-      if !verified
-        Chef::Log.info("waiting 10sec for #{ns} to get updated...")
-        sleep 10
-      end
-      retry_count +=1
-    end
-
-    if verified == false
-      msg = "dns could not be verified after 5min!"
-      Chef::Log.error(msg)
-      puts "***FAULT:FATAL=#{msg}"
-      e = Exception.new("no backtrace")
-      e.set_backtrace("")
-      raise e
-    end
+  end
+  if !verify(dns_name,dns_values,ns)
+    fail_with_error "could not verify: #{dns_name} to #{dns_values} on #{ns} after 5min."
   end
 
 end

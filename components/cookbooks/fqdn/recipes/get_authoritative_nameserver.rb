@@ -19,3 +19,4 @@ end
 
 Chef::Log.info("authoritative_dns_server: "+ns.inspect)
 node.set["ns"] = ns
+node.set["ns_list"] = ns_list
