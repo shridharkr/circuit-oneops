@@ -257,7 +257,7 @@ Array(1..slice_count).each do |i|
         else
           volume = storage.master_rg+":"+storage.storage_account_std+":"+(node.workorder.rfcCi.ciId).to_s+":"+slice_size.to_s
           Chef::Log.info("Choosing Standard Storage Account: #{storage.storage_account_std}") 
-        end
+        end       
       end
 
     else
@@ -276,6 +276,8 @@ Array(1..slice_count).each do |i|
   if node.storage_provider_class =~ /azure/
     Chef::Log.info("Adding #{dev} to the device list")
     vols.push(volume.to_s+":"+dev)
+    node.set["device_map"] = vols.join(" ")
+    include_recipe "azuredatadisk::add" #Create datadisk, but doesn't attach it to the compute
   else
     Chef::Log.info("added "+volume.id.to_s)
     vols.push(volume.id.to_s+":"+dev)
