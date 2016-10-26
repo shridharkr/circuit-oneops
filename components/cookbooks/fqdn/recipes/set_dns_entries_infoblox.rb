@@ -22,7 +22,7 @@ extend Fqdn::Base
 Chef::Resource::RubyBlock.send(:include, Fqdn::Base)
 
 
-def delete_dns (dns_name, dns_value)
+def delete_record (dns_name, dns_value)
 
   delete_type = get_record_type(dns_name,[dns_value])
 
@@ -59,30 +59,46 @@ def delete_dns (dns_name, dns_value)
   end
 end
 
+def handle_reponse (resp_obj)
+  
+  Chef::Log.info("response: #{resp_obj.inspect}")
+  infoblox_resp_obj = resp_obj.inspect
+  begin
+    infoblox_resp_obj = JSON.parse(resp_obj.body)
+    Chef::Log.info("infoblox_resp_obj: #{infoblox_resp_obj.inspect}")
+  rescue 
+    # ok - non formated response
+  end
+
+  if infoblox_resp_obj.class.to_s != "String" && infoblox_resp_obj.has_key?("Error") 
+    fail_with_fault infoblox_resp_obj.inspect      
+  end
+end  
+
 
 def set_is_hijackable_record(dns_name)
   
-  record = { :name => dns_name, :text => 'is_hijackable' }
+  # 'txt-' prefix due to cnames and txt records cannot exist for same name in infoblox 
+  record = { :name => 'txt-' + dns_name, :text => "hijackable_from_#{node.customer_domain}" }
   
-  resp_obj = node.infoblox_conn.request(
-    :method => :post,
-    :path => "/wapi/v1.0/record:TXT",
-    :body => JSON.dump(record))
-    
-end 
+  records = JSON.parse(node.infoblox_conn.request(:method=>:get,
+    :path=>"/wapi/v1.0/record:txt", :body => JSON.dump(record) ).body)
 
-def delete_is_hijackable_record(dns_name)
-  
-  record = { :name => dns_name, :text => 'is_hijackable' }
-  
-  resp_obj = node.infoblox_conn.request(
-    :method => :delete,
-    :path => "/wapi/v1.0/record:TXT",
-    :body => JSON.dump(record))
-    
-  
-    
-end 
+  if records.size == 0
+    Chef::Log.info("creating txt record: #{record.inspect}")
+    handle_reponse node.infoblox_conn.request(
+      :method => :post,
+      :path => "/wapi/v1.0/record:txt",
+      :body => JSON.dump(record))
+        
+    Chef::Log.info("created record: #{record.inspect}")
+  else
+    Chef::Log.info("exists record: #{record.inspect}")    
+  end
+ 
+end
+
+
 
 
 include_recipe "fqdn::get_infoblox_connection"
@@ -91,7 +107,7 @@ cloud_name = node[:workorder][:cloud][:ciName]
 domain_name = node[:workorder][:services][:dns][cloud_name][:ciAttributes][:zone]
 view_attribute = node[:workorder][:services][:dns][cloud_name][:ciAttributes][:view_attr]
 
-Chef::Log.info("view_attribute " +view_attribute)
+Chef::Log.debug("view_attribute: #{view_attribute}")
 
 ns = node.ns
 
@@ -132,14 +148,15 @@ node[:entries].each do |entry|
   Chef::Log.info("previous entries: #{node.previous_entries}")
   Chef::Log.info("deletable_values: #{deletable_values}")
   
-  is_hijackable = check_for_hijack_attr_and_record(dns_name,ns)
-
-  if node.fqdn.hijack_enabled == 'true'
-    set_is_hijackable_record
-  end
   
-  if node.workorder.ci
-    set_is_hijackable_record    
+  # is_hijackable only set on full_aliases
+  if entry.has_key?(:is_hijackable)    
+    if node.workorder.rfcCi.ciAttributes.hijackable_full_aliases == 'true'
+      set_is_hijackable_record(dns_name)
+    elsif node.workorder.rfcCi.ciBaseAttributes.has_key?('hijackable_full_aliases') &&
+      node.workorder.rfcCi.ciBaseAttributes.hijackable_full_aliases == 'true'    
+      delete_record('txt-' + dns_name,"hijackable_from_#{node.customer_domain}")
+    end
   end
     
   if existing_dns.length > 0 || node[:dns_action] == "delete"
@@ -153,10 +170,10 @@ node[:entries].each do |entry|
           node.previous_entries.has_key?(dns_name) &&
           node.previous_entries[dns_name].include?(existing_entry) && 
           node[:dns_action] != "delete") ||
-         # hijackable - remove any unknown value
-         (is_hijackable && !dns_values.include?(existing_entry))
+         # hijackable cname - remove unknown value
+         (entry.has_key?(:is_hijackable) && is_hijackable(dns_name,ns) && !dns_values.include?(existing_entry))
 
-        delete_dns(dns_name, existing_entry)
+         delete_record(dns_name, existing_entry)
       end
     end
 
@@ -203,26 +220,17 @@ node[:entries].each do |entry|
 
     puts "record: #{record.inspect}"
 
-    resp_obj = node.infoblox_conn.request(
+    handle_response node.infoblox_conn.request(
       :method => :post,
       :path => "/wapi/v1.0/record:#{dns_type}",
       :body => JSON.dump(record))
 
-    Chef::Log.info("response: #{resp_obj.inspect}")
+    
 
-    infoblox_resp_obj = resp_obj.inspect
-    begin
-      infoblox_resp_obj = JSON.parse(resp_obj.body)
-      Chef::Log.info("infoblox_resp_obj: #{infoblox_resp_obj.inspect}")
-    rescue 
-      # ok - non formated response
-    end
-
-    if infoblox_resp_obj.class.to_s != "String" && infoblox_resp_obj.has_key?("Error") 
-      fail_with_fault infoblox_resp_obj.inspect      
-    end
+    
     
   end
-  verify(dns_name,dns_values,ns)
-
+  if !verify(dns_name,dns_values,ns)
+    fail_with_error "could not verify: #{dns_name} to #{dns_values} on #{ns} after 5min."
+  end
 end

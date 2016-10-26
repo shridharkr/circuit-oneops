@@ -37,11 +37,8 @@ end
 node[:entries].each do |entry|
   dns_match = false
   dns_name = entry[:name]
-  dns_values = entry[:values].is_a?(String) ? Array.new([entry[:values]]) : entry[:values]
-  if dns_values.empty?
-    
-  dns_type = get_record_type(dns_name, dns_values).upcase 
-  
+  dns_values = entry[:values].is_a?(String) ? Array.new([entry[:values]]) : entry[:values]    
+  dns_type = get_record_type(dns_name, dns_values).upcase   
   existing_dns = get_existing_dns(dns_name,ns)
   
   Chef::Log.info("new values:"+dns_values.sort.to_s)  
@@ -112,7 +109,7 @@ node[:entries].each do |entry|
     ttl = 300
   end
       
-  Chef::Log.info("create #{dns_type}: #{dns_name} to #{dns_values.to_s}")
+  Chef::Log.info("create #{dns_type}: #{dns_name} to #{dns_values.to_s}") if !dns_values.empty?
   case node.dns_service_class
   when /rackspace/
     # rackspace cannot handle array dns_value      
@@ -166,6 +163,8 @@ node[:entries].each do |entry|
     )      
   end
   
-  verify(dns_name,dns_values,ns)
+  if !verify(dns_name,dns_values,ns)
+    fail_with_error "could not verify: #{dns_name} to #{dns_values} on #{ns} after 5min."
+  end
     
 end

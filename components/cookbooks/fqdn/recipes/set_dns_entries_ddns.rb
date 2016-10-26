@@ -132,51 +132,9 @@ node[:entries].each do |entry|
     type = get_record_type(dns_name,[dns_value]).upcase
     ddns_execute "update add #{dns_name} #{ttl} #{type} #{dns_value}"
     
-    # verify using authoratative dns sever
-    sleep 5
-    verified = false
-    max_retry_count = 30
-    retry_count = 0
-
-    while !verified && retry_count<max_retry_count do
-      dns_lookup_name = dns_name
-      if dns_name =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
-        dns_lookup_name = $4 +'.' + $3 + '.' + $2 + '.' + $1 + '.in-addr.arpa'
-      end
-      if ns
-        existing_dns = `dig +short #{dns_type} #{dns_lookup_name} @#{ns}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-      else
-        existing_dns = `dig +short #{dns_type} #{dns_lookup_name}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-      end
-
-      Chef::Log.info("verify ns has: "+dns_value)
-      Chef::Log.info("ns #{ns} has: "+existing_dns.sort.to_s)
-      verified = false
-      existing_dns.each do |val|
-        val = dns_value
-        if dns_value[-1,1] == '.'
-          val = dns_value.chop
-        end
-        if val.downcase.include? val
-          verified = true
-          Chef::Log.info("verified.")
-        end
-      end
-      if !verified
-        Chef::Log.info("waiting 10sec for #{ns} to get updated...")
-        sleep 10
-      end
-      retry_count +=1
-    end
-
-    if verified == false
-      msg = "dns could not be verified after 5min!"
-      Chef::Log.error(msg)
-      puts "***FAULT:FATAL=#{msg}"
-      e = Exception.new("no backtrace")
-      e.set_backtrace("")
-      raise e
-    end
+  end
+  if !verify(dns_name,dns_values,ns)
+    fail_with_error "could not verify: #{dns_name} to #{dns_values} on #{ns} after 5min."
   end
 
 end
