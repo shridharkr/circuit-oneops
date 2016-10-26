@@ -24,7 +24,8 @@ include_recipe "shared::set_provider"
 
 dev_map = node.workorder.rfcCi.ciAttributes["device_map"]
 if provider_class =~ /azure/
-  include_recipe "azuredatadisk::detach_datadisk"
+  Chef::Log.info("Deleting the data disk ...")
+  include_recipe "azuredatadisk::delete" # delete the datadisk permanently 
   return true
 end
 
