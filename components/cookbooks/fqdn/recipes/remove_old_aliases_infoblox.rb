@@ -87,8 +87,7 @@ aliases.each do |a|
   Chef::Log.info("alias dns_name: "+alias_name)
 
   if !values.nil?
-    values.gsub!(/\.$/,"")
-    entries.push({:name => alias_name, :values => [ values ] })
+    entries.push({:name => alias_name, :values => [ values.gsub(/\.$/,"") ] })
   else
     Chef::Log.info("already removed: "+alias_name)
   end
@@ -111,8 +110,7 @@ aliases.each do |a|
 
      Chef::Log.info("alias dns_name: "+alias_platform_dns_name)
      if !values.nil?
-       values.gsub!(/\.$/,"")       
-       entries.push({:name => alias_platform_dns_name, :values => [ values ] })
+       entries.push({:name => alias_platform_dns_name, :values => [ values.gsub(/\.$/,"") ] })
      else
        Chef::Log.info("already removed: "+alias_platform_dns_name)
      end
