@@ -1,4 +1,4 @@
-name                "Tomcat"
+name                "Tomcat-2"
 description         "Installs/Configures Tomcat"
 maintainer          "Brett Bourquin/Mary Metzger"
 maintainer_email    "Brett.Bourquin@walmart.com Mary.Metzger@walmart.com"
