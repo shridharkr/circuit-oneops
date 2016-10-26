@@ -63,6 +63,7 @@ def delete_record (dns_name, dns_value)
   end
 end
 
+
 def handle_response (resp_obj)
   
   Chef::Log.debug("response: #{resp_obj.inspect}")
@@ -73,10 +74,8 @@ def handle_response (resp_obj)
   rescue
     # ok - non formated response
   end
-
   
-  if infoblox_resp_obj.class.to_s != "String" && infoblox_resp_obj.has_key?("Error") 
-    
+  if infoblox_resp_obj.class.to_s != "String" && infoblox_resp_obj.has_key?("Error")
     if infoblox_resp_obj.has_key?('text')
       fail_with_fault infoblox_resp_obj['text']                 
     else
@@ -228,7 +227,7 @@ node[:entries].each do |entry|
       record.delete(:name)
     end
 
-    puts "record: #{record.inspect}"
+    Chef::Log.debug("record: #{record.inspect}")
 
     handle_response node.infoblox_conn.request(
       :method => :post,

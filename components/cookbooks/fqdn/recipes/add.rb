@@ -31,29 +31,21 @@ end
 
 # get the cloud and provider
 cloud_name = node[:workorder][:cloud][:ciName]
-provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
-
-# default to fog
-provider = "fog"
-if provider_service =~ /infoblox|azuredns|designate|ddns/
-  provider = provider_service
-end
-
-Chef::Log.info("Cloud name is: #{cloud_name}")
-Chef::Log.info("Provider is: #{provider}")
+Chef::Log.debug("Cloud name is: #{cloud_name}")
+provider = get_provider
 
 # check for gdns service
 gdns_service = nil
 if node[:workorder][:services].has_key?("gdns") &&
    node[:workorder][:services][:gdns].has_key?(cloud_name)
 
-   Chef::Log.info('Setting GDNS Service')
+   Chef::Log.debug('Setting GDNS Service')
    gdns_service = node[:workorder][:services][:gdns][cloud_name]
 end
 
 # getting the environment attributes
 env = node.workorder.payLoad["Environment"][0]["ciAttributes"]
-Chef::Log.info("Env is: #{env}")
+Chef::Log.debug("Env is: #{env}")
 
 # skip in active (A/B update)
 box = node[:workorder][:box][:ciAttributes]
