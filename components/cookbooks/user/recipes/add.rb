@@ -29,6 +29,7 @@ username = node[:user][:username]
 directory "#{node[:user][:home]}" do
   owner node[:user][:username]
   group node[:user][:username]
+  recursive true
 end
 
 directory "#{node[:user][:home]}/.ssh" do
