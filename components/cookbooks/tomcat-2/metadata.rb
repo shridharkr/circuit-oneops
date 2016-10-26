@@ -102,7 +102,7 @@ attribute 'server_tomcat',
 
 attribute 'http_nio_connector_enabled',
           :description => "Enable HTTP Connector",
-          :default => "false",
+          :default => "true",
           :format => {
                 :help => "Enable the HTTP Connector (Non-SSL/TLS) Connector.",
                 :filter => {"all" => {"visible" => "override_server_enabled:eq:false"}},
@@ -125,7 +125,7 @@ attribute 'http_nio_connector_enabled',
 
 attribute 'https_nio_connector_enabled',
           :description => "Enable HTTPS Connector",
-          :default => "true",
+          :default => "false",
           :format => {
                 :help => "Enable the HTTPS Connector (SSL/TLS) Connector.",
                 :filter => {"all" => {"visible" => "override_server_enabled:eq:false"}},
