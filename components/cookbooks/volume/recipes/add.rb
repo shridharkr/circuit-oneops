@@ -13,7 +13,7 @@
 # limitations under the License.
 
 #
-# volume::delete
+# volume::add
 #
 
 # scan for available /dev/xvd* devices from dmesg
@@ -38,7 +38,10 @@ node.workorder.payLoad[:DependsOn].each do |dep|
     break
   end
 end
-
+storageUpdated = false
+if !storage.nil?
+  storageUpdated = storage.ciBaseAttributes.has_key?("size")
+end
 cloud_name = node[:workorder][:cloud][:ciName]
 newDevicesAttached = ""
 mode = "no-raid"
@@ -183,13 +186,21 @@ ruby_block 'create-iscsi-volume-ruby-block' do
                   Chef::Log.error("attached already, no way to determine device")
                   # mdadm sometime reassembles with _0
                   new_raid_device = `ls -1 #{raid_device}* 2>/dev/null`.chop
-                  if new_raid_device.empty?
+		  non_raid_device  = `ls -1 /dev/#{platform_name}/#{node.workorder.rfcCi.ciName}* 2>/dev/null`.chop
+                  if new_raid_device.empty? && non_raid_device.empty?
+                    Chef::Log.warn("Cleanup Failed Attempt ")
+                    vol.detach instance_id, vol_id
                     exit 1
                   else
-                    raid_device = new_raid_device
-                    break
+                    if new_raid_device.empty?
+                      raid_device = non_raid_device
+                      no_raid_device = non_raid_device
+                    else
+                      raid_device = new_raid_device
+                      no_raid_device = new_raid_device
+                    end
+		    next 
                   end
-
                 end
 
 
@@ -579,12 +590,15 @@ ruby_block 'create-storage-non-ephemeral-volume' do
     end
 
     if device_list != ""
-      # yes | and -ff needed sometimes
-      Chef::Log.info("vgcreate #{platform_name} #{device_list} ..."+`yes | vgcreate -ff #{platform_name} #{device_list}`)
+      if rfc_action != "update"
+        # yes | and -ff needed sometimes
+        Chef::Log.info("vgcreate #{platform_name} #{device_list} ..."+`yes | vgcreate -ff #{platform_name} #{device_list}`)
+      else
+        Chef::Log.info("vgextend #{platform_name} #{device_list} ..."+`yes | vgextend -ff #{platform_name} #{device_list}`)
+      end
     else
       Chef::Log.info("Volume Group Exists Already")
     end
-
 
     size = node.workorder.rfcCi.ciAttributes["size"]
     l_switch = "-L"
@@ -602,7 +616,14 @@ ruby_block 'create-storage-non-ephemeral-volume' do
         exit 1
       end
     end
-
+    if rfc_action == "update" && storageUpdated
+      cmd = "yes |lvextend #{l_switch} +#{size} /dev/#{platform_name}/#{logical_name}"
+      Chef::Log.info("running: #{cmd} ..."+`#{cmd}`)
+      if $? != 0
+        Chef::Log.error("error in lvextend")
+        exit 1
+      end
+    end
     `vgchange -ay #{platform_name}`
     if $? != 0
       Chef::Log.error("Error in vgchange")
@@ -654,7 +675,24 @@ ruby_block 'filesystem' do
       Chef::Log.info("filesystem type: "+_fstype+" device: "+_device +" mount_point: "+_mount_point)
       # result attr updates cms
       Chef::Log.info("***RESULT:device="+_device)
-
+      if rfc_action == "update"
+        has_resized = false
+	if _fstype == "xfs"
+          `xfs_growfs #{_mount_point}`
+          Chef::Log.info("Extending the xfs filesystem" )
+	  has_resized = true
+        elsif (_fstype == "ext4" || _fstype == "ext3") && File.exists?("/dev/#{platform_name}/#{logical_name}")
+          `resize2fs /dev/#{platform_name}/#{logical_name}`
+          Chef::Log.info("Extending the filesystem" )
+	  has_resized = true
+        end
+        if has_resized && $? != 0
+          puts "***FAULT:FATAL=Error in extending filesystem"
+          e = Exception.new("no backtrace")
+          e.set_backtrace("")
+          raise e
+        end
+      end
       `mountpoint -q #{_mount_point}`
       if $?.to_i == 0
         Chef::Log.info("device #{_mount_point} already mounted.")

@@ -1,3 +1,8 @@
+if node.platform =~ /windows/
+  include_recipe "user::windows_user_delete"
+  return
+end
+
 username = node[:user][:username]
 
 Chef::Log.info("Stopping the nslcd service")
