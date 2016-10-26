@@ -18,22 +18,11 @@
 # uses node[:entries] list of dns entries based on entrypoint, aliases, zone, and platform to update dns
 # no ManagedVia - recipes will run on the gw
 
-# get dns record type - check for ip addresses
-def get_record_type (dns_name, dns_values)
-  record_type = "cname"
-  ips = dns_values.grep(/\d+\.\d+\.\d+\.\d+/)
-  if ips.size > 0
-    record_type = "a"
-  end
-  if dns_name =~ /^\d+\.\d+\.\d+\.\d+$/
-    record_type = "ptr"
-  end
-
-  return record_type
-end
+extend Fqdn::Base
+Chef::Resource::RubyBlock.send(:include, Fqdn::Base)
 
 
-def delete_dns (dns_name, dns_value)
+def delete_record (dns_name, dns_value)
 
   delete_type = get_record_type(dns_name,[dns_value])
 
@@ -48,6 +37,10 @@ def delete_dns (dns_name, dns_value)
   when "ptr"
     record = {"ipv4addr" => dns_name,
               "ptrdname" => dns_value}
+  when "txt"
+      record = {"name" => dns_name,
+                "text" => dns_value}
+              
   end
 
   records = JSON.parse(node.infoblox_conn.request(:method=>:get,
@@ -61,30 +54,61 @@ def delete_dns (dns_name, dns_value)
       ref = r["_ref"]
       resp = node.infoblox_conn.request(:method => :delete, :path => "/wapi/v1.0/#{ref}")
       Chef::Log.info("status: #{resp.status}")
-      Chef::Log.info("response: #{resp.inspect}")
+      if (resp.status.to_i != 200)
+        Chef::Log.error("response: #{resp.inspect}")
+      else
+        Chef::Log.debug("response: #{resp.inspect}")
+      end
     end
   end
 end
 
-def get_existing_dns (dns_name,ns)
-  existing_dns = Array.new
-  if dns_name =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
-    ptr_name = $4 +'.' + $3 + '.' + $2 + '.' + $1 + '.in-addr.arpa'
-    cmd = "dig +short PTR #{ptr_name} @#{ns}"
-    Chef::Log.info(cmd)
-    existing_dns += `#{cmd}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-  else
-    ["A","CNAME"].each do |record_type|
-      Chef::Log.info("dig +short #{record_type} #{dns_name} @#{ns}")
-      vals = `dig +short #{record_type} #{dns_name} @#{ns}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-      # skip dig's lenient A record lookup thru CNAME
-      next if record_type == "A" && vals.size > 1 && vals[0] !~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
-      existing_dns += vals
+
+def handle_response (resp_obj)
+  
+  Chef::Log.debug("response: #{resp_obj.inspect}")
+  infoblox_resp_obj = resp_obj.inspect
+  begin
+    infoblox_resp_obj = JSON.parse(resp_obj.body)
+    Chef::Log.info("infoblox response obj: #{infoblox_resp_obj.inspect}")
+  rescue
+    # ok - non formated response
+  end
+  
+  if infoblox_resp_obj.class.to_s != "String" && infoblox_resp_obj.has_key?("Error")
+    if infoblox_resp_obj.has_key?('text')
+      fail_with_fault infoblox_resp_obj['text']                 
+    else
+      fail_with_fault infoblox_resp_obj.inspect
     end
   end
-  Chef::Log.info("existing: "+existing_dns.sort.inspect)
-  return existing_dns
+end  
+
+
+def set_is_hijackable_record(dns_name)
+  
+  # 'txt-' prefix due to cnames and txt records cannot exist for same name in infoblox 
+  record = { :name => 'txt-' + dns_name, :text => "hijackable_from_#{node.customer_domain}" }
+  
+  records = JSON.parse(node.infoblox_conn.request(:method=>:get,
+    :path=>"/wapi/v1.0/record:txt", :body => JSON.dump(record) ).body)
+
+  if records.size == 0
+    Chef::Log.info("creating txt record: #{record.inspect}")
+    handle_response node.infoblox_conn.request(
+      :method => :post,
+      :path => "/wapi/v1.0/record:txt",
+      :body => JSON.dump(record))
+        
+    Chef::Log.info("created record: #{record.inspect}")
+  else
+    Chef::Log.info("exists record: #{record.inspect}")    
+  end
+ 
 end
+
+
+
 
 include_recipe "fqdn::get_infoblox_connection"
 
@@ -92,7 +116,7 @@ cloud_name = node[:workorder][:cloud][:ciName]
 domain_name = node[:workorder][:services][:dns][cloud_name][:ciAttributes][:zone]
 view_attribute = node[:workorder][:services][:dns][cloud_name][:ciAttributes][:view_attr]
 
-Chef::Log.info("view_attribute " +view_attribute)
+Chef::Log.debug("view_attribute: #{view_attribute}")
 
 ns = node.ns
 
@@ -134,6 +158,16 @@ node[:entries].each do |entry|
   Chef::Log.info("deletable_values: #{deletable_values}")
   
   
+  # is_hijackable only set on full_aliases
+  if entry.has_key?(:is_hijackable)    
+    if node.workorder.rfcCi.ciAttributes.hijackable_full_aliases == 'true'
+      set_is_hijackable_record(dns_name)
+    elsif node.workorder.rfcCi.ciBaseAttributes.has_key?('hijackable_full_aliases') &&
+      node.workorder.rfcCi.ciBaseAttributes.hijackable_full_aliases == 'true'
+      delete_record('txt-' + dns_name,"hijackable_from_#{node.customer_domain}")
+    end
+  end
+    
   if existing_dns.length > 0 || node[:dns_action] == "delete"
     
     # cleanup or delete
@@ -144,9 +178,11 @@ node[:entries].each do |entry|
          (!dns_values.include?(existing_entry) &&
           node.previous_entries.has_key?(dns_name) &&
           node.previous_entries[dns_name].include?(existing_entry) && 
-          node[:dns_action] != "delete")
+          node[:dns_action] != "delete") ||
+         # hijackable cname - remove unknown value
+         (entry.has_key?(:is_hijackable) && is_hijackable(dns_name,ns) && !dns_values.include?(existing_entry))
 
-        delete_dns(dns_name, existing_entry)
+         delete_record(dns_name, existing_entry)
       end
     end
 
@@ -191,72 +227,15 @@ node[:entries].each do |entry|
       record.delete(:name)
     end
 
-    puts "record: #{record.inspect}"
+    Chef::Log.debug("record: #{record.inspect}")
 
-    resp_obj = node.infoblox_conn.request(
+    handle_response node.infoblox_conn.request(
       :method => :post,
       :path => "/wapi/v1.0/record:#{dns_type}",
       :body => JSON.dump(record))
-
-    Chef::Log.info("response: #{resp_obj.inspect}")
-
-    infoblox_resp_obj = resp_obj.inspect
-    begin
-      infoblox_resp_obj = JSON.parse(resp_obj.body)
-      Chef::Log.info("infoblox_resp_obj: #{infoblox_resp_obj.inspect}")
-    rescue 
-      # ok - non formated response
-    end
-
-    if infoblox_resp_obj.class.to_s != "String" && infoblox_resp_obj.has_key?("Error") 
-      msg = infoblox_resp_obj.inspect
-      puts "***FAULT:FATAL=#{msg}"
-      e = Exception.new("no backtrace")
-      e.set_backtrace("")
-      raise e
-    end
     
-    # verify using authoratative dns sever
-    sleep 5
-    verified = false
-    max_retry_count = 30
-    retry_count = 0
-
-    while !verified && retry_count<max_retry_count do
-      dns_lookup_name = dns_name
-      if dns_name =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
-        dns_lookup_name = $4 +'.' + $3 + '.' + $2 + '.' + $1 + '.in-addr.arpa'
-      end
-      if ns
-        existing_dns = `dig +short #{dns_type} #{dns_lookup_name} @#{ns}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-      else
-        existing_dns = `dig +short #{dns_type} #{dns_lookup_name}`.split("\n").map! { |v| v.gsub(/\.$/,"") }
-      end
-
-      Chef::Log.info("verify ns has: "+dns_value)
-      Chef::Log.info("ns #{ns} has: "+existing_dns.sort.to_s)
-      verified = false
-      existing_dns.each do |val|
-        if val.downcase.include? dns_value
-          verified = true
-          Chef::Log.info("verified.")
-        end
-      end
-      if !verified
-        Chef::Log.info("waiting 10sec for #{ns} to get updated...")
-        sleep 10
-      end
-      retry_count +=1
-    end
-
-    if verified == false
-      msg = "dns could not be verified after 5min!"
-      Chef::Log.error(msg)
-      puts "***FAULT:FATAL=#{msg}"
-      e = Exception.new("no backtrace")
-      e.set_backtrace("")
-      raise e
-    end
   end
-
+  if !verify(dns_name,dns_values,ns)
+    fail_with_error "could not verify: #{dns_name} to #{dns_values} on #{ns} after 5min."
+  end
 end

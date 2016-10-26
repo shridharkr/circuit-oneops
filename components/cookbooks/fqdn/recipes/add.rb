@@ -18,6 +18,10 @@
 # builds a list of entries based on entrypoint, aliases, and then sets them in the set_dns_entries recipe
 # no ManagedVia - recipes will run on the gw
 
+extend Fqdn::Base
+Chef::Resource::RubyBlock.send(:include, Fqdn::Base)
+
+
 # cleanup old platform version entries
 if node.workorder.box.ciAttributes.is_active == "false"
   Chef::Log.info("platform is_active false - only performing deletes")
@@ -27,34 +31,21 @@ end
 
 # get the cloud and provider
 cloud_name = node[:workorder][:cloud][:ciName]
-provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
-provider = "fog"
-case provider_service
-when /infoblox/
-  provider = "infoblox"
-when /azuredns/
-  provider = "azuredns"
-when /designate/
-  provider = "designate"
-else
-  provider = provider_service
-end
-
-Chef::Log.info("Cloud name is: #{cloud_name}")
-Chef::Log.info("Provider is: #{provider}")
+Chef::Log.debug("Cloud name is: #{cloud_name}")
+provider = get_provider
 
 # check for gdns service
 gdns_service = nil
 if node[:workorder][:services].has_key?("gdns") &&
    node[:workorder][:services][:gdns].has_key?(cloud_name)
 
-   Chef::Log.info('Setting GDNS Service')
+   Chef::Log.debug('Setting GDNS Service')
    gdns_service = node[:workorder][:services][:gdns][cloud_name]
 end
 
 # getting the environment attributes
 env = node.workorder.payLoad["Environment"][0]["ciAttributes"]
-Chef::Log.info("Env is: #{env}")
+Chef::Log.debug("Env is: #{env}")
 
 # skip in active (A/B update)
 box = node[:workorder][:box][:ciAttributes]
@@ -82,17 +73,18 @@ if env.has_key?("global_dns") && env["global_dns"] == "true" && depends_on_lb &&
   end
 end
 
-#Remove the old aliases
+node.set['dns_action'] = 'create'
+#build the entry list
+include_recipe 'fqdn::build_entries_list'
+
+
+# remove the old aliases
 if provider =~ /azuredns/
   include_recipe 'azuredns::remove_old_aliases'
 else
   include_recipe "fqdn::get_#{provider}_connection"
   include_recipe 'fqdn::remove_old_aliases_'+provider
 end
-
-node.set['dns_action'] = 'create'
-#build the entry list
-include_recipe 'fqdn::build_entries_list'
 
 # set the records
 if provider =~ /azuredns/
