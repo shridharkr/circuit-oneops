@@ -36,7 +36,7 @@ if ptr.size > 0
     :body => JSON.dump(record) ).body)
   
   if records.size == 0
-    Chef::Log.info("ptr record already deleted")        
+    Chef::Log.info("ptr record already deleted") 
   else      
     records.each do |r|      
       ref = r["_ref"]

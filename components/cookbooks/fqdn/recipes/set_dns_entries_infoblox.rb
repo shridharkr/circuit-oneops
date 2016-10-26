@@ -54,24 +54,34 @@ def delete_record (dns_name, dns_value)
       ref = r["_ref"]
       resp = node.infoblox_conn.request(:method => :delete, :path => "/wapi/v1.0/#{ref}")
       Chef::Log.info("status: #{resp.status}")
-      Chef::Log.info("response: #{resp.inspect}")
+      if (resp.status.to_i != 200)
+        Chef::Log.error("response: #{resp.inspect}")
+      else
+        Chef::Log.debug("response: #{resp.inspect}")
+      end
     end
   end
 end
 
-def handle_reponse (resp_obj)
+def handle_response (resp_obj)
   
-  Chef::Log.info("response: #{resp_obj.inspect}")
+  Chef::Log.debug("response: #{resp_obj.inspect}")
   infoblox_resp_obj = resp_obj.inspect
   begin
     infoblox_resp_obj = JSON.parse(resp_obj.body)
-    Chef::Log.info("infoblox_resp_obj: #{infoblox_resp_obj.inspect}")
-  rescue 
+    Chef::Log.info("infoblox response obj: #{infoblox_resp_obj.inspect}")
+  rescue
     # ok - non formated response
   end
 
+  
   if infoblox_resp_obj.class.to_s != "String" && infoblox_resp_obj.has_key?("Error") 
-    fail_with_fault infoblox_resp_obj.inspect      
+    
+    if infoblox_resp_obj.has_key?('text')
+      fail_with_fault infoblox_resp_obj['text']                 
+    else
+      fail_with_fault infoblox_resp_obj.inspect
+    end
   end
 end  
 
@@ -86,7 +96,7 @@ def set_is_hijackable_record(dns_name)
 
   if records.size == 0
     Chef::Log.info("creating txt record: #{record.inspect}")
-    handle_reponse node.infoblox_conn.request(
+    handle_response node.infoblox_conn.request(
       :method => :post,
       :path => "/wapi/v1.0/record:txt",
       :body => JSON.dump(record))
@@ -154,7 +164,7 @@ node[:entries].each do |entry|
     if node.workorder.rfcCi.ciAttributes.hijackable_full_aliases == 'true'
       set_is_hijackable_record(dns_name)
     elsif node.workorder.rfcCi.ciBaseAttributes.has_key?('hijackable_full_aliases') &&
-      node.workorder.rfcCi.ciBaseAttributes.hijackable_full_aliases == 'true'    
+      node.workorder.rfcCi.ciBaseAttributes.hijackable_full_aliases == 'true'
       delete_record('txt-' + dns_name,"hijackable_from_#{node.customer_domain}")
     end
   end
@@ -224,10 +234,6 @@ node[:entries].each do |entry|
       :method => :post,
       :path => "/wapi/v1.0/record:#{dns_type}",
       :body => JSON.dump(record))
-
-    
-
-    
     
   end
   if !verify(dns_name,dns_values,ns)

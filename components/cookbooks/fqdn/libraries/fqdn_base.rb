@@ -61,7 +61,7 @@ module Fqdn
       if dns_name =~ /^\d+\.\d+\.\d+\.\d+$/
         record_type = "ptr"
       end
-      if dns_values.include?("hijackable")
+      if dns_name =~ /^txt-/
         record_type = "txt"
       end
     

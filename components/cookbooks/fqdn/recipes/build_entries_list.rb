@@ -253,17 +253,7 @@ if node.workorder.rfcCi.ciAttributes.has_key?("entries")
 end
 node.set[:previous_entries] = previous_entries
 
-
-# needed due to cleanup/delete logic using dns call to get list
-deletable_entries.each do |k,v|
-  if previous_entries.has_key?(k)
-    if v.is_a?(String)
-      vals = [v]
-    else
-      vals = v
-    end 
-    vals += previous_entries[k]
-    deletable_entries[k] = vals
-  end
+previous_entries.each do |k,v|
+  deletable_entries.push({:name => k, :values => v})
 end
 node.set[:deletable_entries] = deletable_entries

@@ -81,17 +81,18 @@ if env.has_key?("global_dns") && env["global_dns"] == "true" && depends_on_lb &&
   end
 end
 
-#Remove the old aliases
+node.set['dns_action'] = 'create'
+#build the entry list
+include_recipe 'fqdn::build_entries_list'
+
+
+# remove the old aliases
 if provider =~ /azuredns/
   include_recipe 'azuredns::remove_old_aliases'
 else
   include_recipe "fqdn::get_#{provider}_connection"
   include_recipe 'fqdn::remove_old_aliases_'+provider
 end
-
-node.set['dns_action'] = 'create'
-#build the entry list
-include_recipe 'fqdn::build_entries_list'
 
 # set the records
 if provider =~ /azuredns/
