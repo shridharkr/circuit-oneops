@@ -85,7 +85,7 @@ catch {
 Set-Location "C:\"
 Remove-Item -Recurse -Force $chocoTempDir
 
-## =======================================a
+## =======================================
 if ( $proxy -ne "" -and $proxy -ne $null) {
   choco config set proxy $proxy
 }
@@ -140,14 +140,14 @@ if ( $gemRepo -ne "" -and $gemRepo -ne $null) {
 try {
   Write-Output "Installing json ..."
   gem install json --version 1.8.2 --no-ri --no-document
+
+  #Write-Output "Installing Bundler ..."
+  #gem install bundler --version 1.10.5 --no-ri --no-rdoc
 }
 catch {
   Write-Error "Could not install one or more gems"
   exit 1
 }
-
-#Write-Output "Installing Bundler ..."
-#gem install bundler --version 1.10.5 --no-ri --no-rdoc
 
 #Add-Content C:\cygwin64\home\Administrator\.bash_profile 'export PATH=$PATH:/cygdrive/c/ProgramData/chocolatey/bin:/cygdrive/c/tools/ruby23/bin:/cygdrive/c/tools/DevKit2/bin'
 #New-Item -ItemType Directory -Force -Path C:\cygwin64\opt\Administrator\workorder\
@@ -155,8 +155,8 @@ catch {
 Add-Content C:\cygwin64\home\oneops\.bash_profile 'export PATH=$PATH:/cygdrive/c/ProgramData/chocolatey/bin/:/cygdrive/c/tools/ruby23/bin:/cygdrive/c/tools/DevKit2/bin'
 New-Item -ItemType Directory -Force -Path C:\cygwin64\opt\oneops\workorder\
 
-#New-Item C:\cygwin64\opt\oneops\rubygems_proxy -type file -force
-#Set-Content C:\cygwin64\opt\oneops\rubygems_proxy $gemRepo
+New-Item C:\cygwin64\opt\oneops\rubygems_proxy -type file -force
+Set-Content C:\cygwin64\opt\oneops\rubygems_proxy $gemRepo
 
 Set-Location "C:\"
 Write-Output "End of windows install_base script"
