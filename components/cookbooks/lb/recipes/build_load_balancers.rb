@@ -90,9 +90,15 @@ cleanup_loadbalancers = Array.new
 listeners = JSON.parse(ci[:ciAttributes][:listeners])
 listeners.each do |l|
 
+  acl = ''
   lb_attrs = l.split(" ")
   vproto = lb_attrs[0]
   vport = lb_attrs[1]
+  if vport.include?(':')
+    vport_parts = vport.split(':')
+    vport = vport_parts[0]    
+    acl = vport_parts[1]
+  end
   iproto = lb_attrs[2]
   iport = lb_attrs[3]
 
@@ -121,6 +127,7 @@ listeners.each do |l|
     :name => lb_name,
     :iport => iport,
     :vport => vport,
+    :acl => acl,
     :sg_name => sg_name,
     :vprotocol => vprotocol,
     :iprotocol => iprotocol
@@ -134,6 +141,7 @@ listeners.each do |l|
     :name => dc_lb_name,
     :iport => iport,
     :vport => vport,
+    :acl => acl,    
     :sg_name => sg_name,
     :vprotocol => vprotocol,
     :iprotocol => iprotocol
@@ -167,6 +175,11 @@ listeners_old.each do |ol|
   lb_attrs_old = ol.split()
   vproto_old = lb_attrs_old[0]
   vport_old = lb_attrs_old[1]
+  if vport_old.include?(':')
+    vport_parts = vport_old.split(':')
+    vport_old = vport_parts[0]    
+    acl_old = vport_parts[1]
+  end  
   iproto_old = lb_attrs_old[2]
   iport_old = lb_attrs_old[3]
 
@@ -179,7 +192,8 @@ listeners_old.each do |ol|
     :name => lb_name,
     :iport => iport_old,
     :vport => vport_old,
-    :sg_name => sg_name,
+    :acl => acl_old,    
+    :sg_name => sg_name,    
     :vprotocol => vprotocol_old
   }
 
@@ -211,6 +225,7 @@ listeners_old.each do |ol|
     dc_lb = {
       :name => dc_lb_name,
       :vport => vport_old,
+      :acl => acl_old,       
       :sg_name => sg_name,
       :vprotocol => vprotocol_old
     }
