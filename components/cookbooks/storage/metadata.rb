@@ -39,15 +39,14 @@ attribute 'slice_count',
 attribute 'volume_type',
   :description => "Storage Type",
   :required => "optional",
-  :default => "GENERAL",
+  :default => "STANDARD1",
   :format => {
-    :help => 'select the storage type. Storage type determines the volume type(IOPS) and service level(bandwidth)',
+    :help => 'Select the storage type.Storage_types are mapped against volume types offered by cloud providers - see provider documentation for details. Storage type determines the volume type(IOPS) and service level(bandwidth).',
     :category => '1.Configuration',
     :order => 3,
     :form => { 'field' => 'select', 'options_for_select' => [
-      ["General", "GENERAL"], # default
-      ["Standard-1", "iops-low-300"],
-      ["IOPS-1", "iops-high-3500"],
+      ["Standard-1", "STANDARD1"],
+      ["IOPS-1", "IOPS1"],
       ] }
   }   
 # maps provider vol-id for md

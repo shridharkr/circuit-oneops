@@ -155,6 +155,17 @@ attribute 'total_snapshots_used',
     :order => 10,
     :editable => false
   }    
+
+attribute 'volumetypemap',
+  :description => "Volume Type Map",
+  :data_type => "hash",
+  :default => '{}',
+  :format => {
+    :help => 'Map of generic volume types to provider specific',
+    :category => '3.Mappings',
+    :order => 1
+  }   
+
           
 recipe "validate", "Validate Service Configuration"
 recipe "status", "Check Service Status"
