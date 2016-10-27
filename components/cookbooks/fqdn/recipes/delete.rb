@@ -9,23 +9,15 @@
 # no ManagedVia - recipes will run on the gw
 
 
+extend Fqdn::Base
+Chef::Resource::RubyBlock.send(:include, Fqdn::Base)
+
+
 env = node.workorder.payLoad["Environment"][0]["ciAttributes"]
 depends_on = { "ciClassName" => "" }
 depends_on = node.workorder.payLoad["DependsOn"][0] if node.workorder.payLoad.has_key?("DependsOn")
 cloud_name = node[:workorder][:cloud][:ciName]
-provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
-
-provider = "fog"
-case provider_service
-when /infoblox/
-  provider = "infoblox"
-when /azuredns/
-  provider = "azuredns"
-when /designate/
-  provider = "designate"
-else
-  provider = provider_service  
-end
+provider = get_provider
 
 # skip deletes if other active clouds for same dc
 if node[:workorder][:services].has_key?("gdns")
@@ -61,7 +53,7 @@ end
 
 include_recipe "fqdn::get_authoritative_nameserver"
 
-if env.has_key?("global_dns") && env["global_dns"] == "true" && 
+if env.has_key?("global_dns") && env["global_dns"] == "true" &&
    depends_on["ciClassName"] =~ /Lb/ &&
    node.is_last_active_cloud_in_dc
 

@@ -24,6 +24,10 @@ end
 
 has_mounted = false
 
+cloud_name = node[:workorder][:cloud][:ciName]
+provider_class = node[:workorder][:services][:compute][cloud_name][:ciClassName].split(".").last.downcase
+Chef::Log.info("provider: #{provider_class}")
+
 rfcAttrs = node.workorder.rfcCi.ciAttributes
 if rfcAttrs.has_key?("mount_point") &&
    !rfcAttrs["mount_point"].empty?
@@ -46,10 +50,10 @@ if rfcAttrs.has_key?("mount_point") &&
     package "lsof"
   end
 
+  Chef::Log.info("executing lsof #{mount_point} | awk '{print $2}' | grep -v PID | uniq | xargs kill -9; umount #{mount_point}")
   execute "lsof #{mount_point} | awk '{print $2}' | grep -v PID | uniq | xargs kill -9; umount #{mount_point}" do
     only_if { has_mounted }
   end
-
   cloud_name = node[:workorder][:cloud][:ciName]
   provider_class = node[:workorder][:services][:compute][cloud_name][:ciClassName].split(".").last.downcase
 
@@ -60,35 +64,36 @@ if rfcAttrs.has_key?("mount_point") &&
     Chef::Log.info("clearing /etc/fstab entry for fstype tmpfs")
     result = `grep -v #{mount_point} /etc/fstab > /tmp/fstab`
     `mv /tmp/fstab /etc/fstab`
+     logical_name = node.workorder.rfcCi.ciName
+    `rm -rf "/opt/oneops/azure-restore-ephemeral-mntpts/#{logical_name}.sh"`    
+    #remove the script from rc.local on volume delete
+    `cp /etc/rc.local tmpfile;sed -e "/\\/opt\\/oneops\\/azure-restore-ephemeral-mntpts\\/#{logical_name}.sh/d" tmpfile > /etc/rc.local;rm -rf tmpfile`
   end
 end
 
 
 ruby_block 'lvremove ephemeral' do
-  block do
-
+  block do  
     platform_name = node.workorder.box.ciName
     if ::File.exists?("/dev/#{platform_name}-eph/#{node.workorder.rfcCi.ciName}")
-
       cmd = "lvremove -f #{platform_name}-eph/#{node.workorder.rfcCi.ciName}"
       Chef::Log.info("running: #{cmd} ...")
       out = `#{cmd}`
+      `sudo rm -rf #{mount_point}`
       if $? != 0
         Chef::Log.error("error in lvremove: #{out}")
         exit 1
       end
     end
-
-  end
+   end
 end
+
 
 supported = true
 
-cloud_name = node[:workorder][:cloud][:ciName]
-provider_class = node[:workorder][:services][:compute][cloud_name][:ciClassName].split(".").last.downcase
-Chef::Log.info("provider: #{provider_class}")
+
 if provider_class =~ /virtualbox|vagrant|docker/
-  Chef::Log.info(" virtail box vegrant and docker don't support iscsi/ebs via api yet - skipping")
+  Chef::Log.info(" virtual box vagrant and docker don't support iscsi/ebs via api yet - skipping")
   supported = false
 end
 
@@ -103,6 +108,7 @@ if storage == nil
   Chef::Log.info("no DependsOn Storage.")
 end
 
+
 include_recipe "shared::set_provider"
 
 ruby_block 'lvremove storage' do
@@ -111,11 +117,11 @@ ruby_block 'lvremove storage' do
     unless storage.nil? 
         
       platform_name = node.workorder.box.ciName
-      
+      Chef::Log.info("provider_class: #{provider_class}")
       cmd = "lvremove -f #{platform_name}"
       Chef::Log.info("running: #{cmd}...")
       out = `#{cmd}`
-    
+      
       raid_device = "/dev/md/"+ node.workorder.rfcCi.ciName
       retry_count = 0
       max_retry_count = 3
@@ -150,18 +156,23 @@ ruby_block 'lvremove storage' do
       change_count = 1
       retry_count = 0
       while change_count > 0 && retry_count < max_retry_count
-        change_count = 0
-    
+        change_count = 0    
+     
         device_maps.each do |dev_vol|
-
           vol_id = dev_vol.split(":")[0]
           dev_id = dev_vol.split(":")[1]
           Chef::Log.info("vol: "+vol_id)
            if provider_class =~ /rackspace|ibm/
             volume = storage_provider.volumes.get vol_id
            elsif provider_class =~ /azure/
-               `rm -rf #{mount_point}`
-             Chef::Log.info( "azure data disk will be detached in the storage step")
+            Chef::Log.info("running: lvdisplay /dev/#{platform_name}/* ...")
+            out=`lvdisplay /dev/#{platform_name}/*`
+            Chef::Log.info("out: #{out}")
+            if $? != 0 #No more volumes, disk can be detached.
+               Chef::Log.info("There is no more volumes on the disk, so disk can be detached.")
+               dd_manager = Datadisk.new(node) # using azuredatadisk library to detach, recipes cannot be called from the ruby block
+               dd_manager.detach()                       
+            end              
           else
             volume = provider.volumes.get  vol_id
           end
@@ -170,6 +181,8 @@ ruby_block 'lvremove storage' do
           begin
             if provider_class =~ /openstack/
               vol_state = volume.status.downcase
+            elsif provider_class =~ /azure/
+              Chef::Log.info("azuredatadisk no action needed")
             else
               vol_state = volume.state.downcase
             end
@@ -214,6 +227,8 @@ ruby_block 'lvremove storage' do
                 when /ibm/
                   compute = provider.servers.get instance_id
                   compute.detach(volume.id)
+                when /azure/
+                   Chef::Log.info("azuredatadisk no action needed")
                 else
                   # aws uses server_id
                   if volume.server_id == instance_id
