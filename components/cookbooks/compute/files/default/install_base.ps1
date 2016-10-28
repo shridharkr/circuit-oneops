@@ -14,12 +14,12 @@ function Download-File {
   }
   catch {
      Write-Output "Could not download from $uri "
-     Write-Output " applying proxy ... "
+     Write-Output "applying proxy ... "
      try {
         Invoke-WebRequest -Uri $uri -Proxy $proxy -OutFile $destination
      }
      catch {
-        Write-Error "Could not download chocolatey. Cannot continue. Exiting!!! "
+        Write-Error "Could not download chocolatey. Cannot continue. Exiting!"
         exit 1
      }
   }
@@ -60,11 +60,10 @@ $chocoTempFile = "c:\chocotemp\choco.zip"
 Write-Output "Downloading chocolatey ..."
 Download-File $proxy $chocoPkg $chocoTempDir $chocoTempFile
 
-
 Set-Location $chocoTempDir
 
 Write-Output "Extracting chocolatey zipfile "
-$chocoDir = "C:\Chocolatey"
+$chocoDir = Join-Path $chocoTempDir "choco"
 
 Get-ChildItem $chocoTempDir -Filter *.zip |
 Foreach-Object{
@@ -72,11 +71,16 @@ Foreach-Object{
 }
 
 $toolsFolder = Join-Path $chocoDir "tools"
-
 $chocoInstallPS = Join-Path $toolsFolder "chocolateyInstall.ps1"
 
-Write-Output "Installing Chocolatey ..."
-& $chocoInstallPS
+try {
+  Write-Output "Installing Chocolatey ..."
+  & $chocoInstallPS
+}
+catch {
+  Write-Error "Could not install chocolatey. Exiting now!"
+  exit 1
+}
 
 Set-Location "C:\"
 Remove-Item -Recurse -Force $chocoTempDir
@@ -91,42 +95,64 @@ if ( $chocoRepo -ne "" -and $chocoRepo -ne $null ) {
   choco source add -y --name='internal' --source=$chocoRepo --priority=1
 }
 
-Write-Output "Install ruby ..."
-choco install -y ruby
-refreshenv
+try {
+  Write-Output "Installing ruby ..."
+  choco install -y ruby
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
-Write-Output "Install nuget.commandline ..."
-choco install -y nuget.commandline
+  Write-Output "Installing nuget.commandline ..."
+  choco install -y nuget.commandline
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
-Write-Output "Install ruby DevKit ..."
-choco install -y ruby2.devkit
-refreshenv
-
+  Write-Output "Installing ruby2.devKit ..."
+  choco install -y ruby2.devkit
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+}
+catch {
+  Write-Error "Could not install one or more choco packages"
+  exit 1
+}
 ###########################################
+
 Set-Location "C:\tools\DevKit2\"
 Add-Content config.yml "`n- C:/tools/ruby23"
+
 ###########################################
+
+if ($($env:Path).ToLower().Contains("ruby") -eq $false) {
+  [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\tools\ruby23\bin", [EnvironmentVariableTarget]::Machine)
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+}
 
 if ($($env:Path).ToLower().Contains("devkit") -eq $false) {
   [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\tools\DevKit2\bin", [EnvironmentVariableTarget]::Machine)
-  refreshenv
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 }
 
 #ruby dk.rb init
 ruby dk.rb install
 
-gem source --add $gemRepo
+if ( $gemRepo -ne "" -and $gemRepo -ne $null) {
+    gem source --add $gemRepo
+    gem source -r https://rubygems.org/
+}
 
-Write-Output "Installing json ..."
-gem install json --version 1.8.2 --no-ri --no-rdoc
+try {
+  Write-Output "Installing json ..."
+  gem install json --version 1.8.2 --no-ri --no-document
 
-#Write-Output "Installing Bundler ..."
-#gem install bundler --version 1.10.5 --no-ri --no-rdoc
+  #Write-Output "Installing Bundler ..."
+  #gem install bundler --version 1.10.5 --no-ri --no-rdoc
+}
+catch {
+  Write-Error "Could not install one or more gems"
+  exit 1
+}
 
-Add-Content C:\cygwin64\home\admin\.bash_profile 'export PATH=$PATH:/cygdrive/c/tools/ruby23/bin/'
-New-Item C:\cygwin64\opt\admin\workorder\ -ItemType directory
+#Add-Content C:\cygwin64\home\Administrator\.bash_profile 'export PATH=$PATH:/cygdrive/c/ProgramData/chocolatey/bin:/cygdrive/c/tools/ruby23/bin:/cygdrive/c/tools/DevKit2/bin'
+#New-Item -ItemType Directory -Force -Path C:\cygwin64\opt\Administrator\workorder\
 
-Add-Content C:\cygwin64\home\oneops\.bash_profile 'export PATH=$PATH:/cygdrive/c/tools/ruby23/bin:/cygdrive/c/tools/DevKit2'
+Add-Content C:\cygwin64\home\oneops\.bash_profile 'export PATH=$PATH:/cygdrive/c/ProgramData/chocolatey/bin/:/cygdrive/c/tools/ruby23/bin:/cygdrive/c/tools/DevKit2/bin'
 New-Item -ItemType Directory -Force -Path C:\cygwin64\opt\oneops\workorder\
 
 New-Item C:\cygwin64\opt\oneops\rubygems_proxy -type file -force
