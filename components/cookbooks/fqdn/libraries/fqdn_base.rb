@@ -157,7 +157,7 @@ module Fqdn
           Chef::Log.info("ns #{ns} has: "+existing_dns.sort.to_s)
           verified = false
           existing_dns.each do |val|
-            if val.downcase.include? dns_value
+            if dns_value? val.downcase.include
               verified = true
               Chef::Log.info("verified.")
             end
