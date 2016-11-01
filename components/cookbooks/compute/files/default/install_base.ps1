@@ -1,9 +1,8 @@
 
-param([string]$proxy, [string]$chocoRepo, [string]$gemRepo)
-
+param([string]$proxy="", [string]$chocoPkg="", [string]$chocoRepo="", [string]$gemRepo="")
 
 function Download-File {
-  param ( [string]$proxy, [string]$chocoRepo, [string]$dir, [string]$destination )
+  param ( [string]$proxy, [string]$uri, [string]$dir, [string]$destination )
 
   #Create the directory if it does not exists
   New-Item -ItemType Directory -Force -Path $dir
@@ -11,17 +10,17 @@ function Download-File {
   $start_time = Get-Date
 
   try {
-     Invoke-WebRequest -Uri $chocoRepo -OutFile $destination
+     Invoke-WebRequest -Uri $uri -OutFile $destination
   }
   catch {
-     Write-Output "Could not download from $chocoRepo "
-     Write-Output " applying proxy ... "
+     Write-Output "Could not download from $uri "
+     Write-Output "applying proxy ... "
      try {
-        Invoke-WebRequest -Uri $chocoRepo -Proxy $proxy -OutFile $destination
+        Invoke-WebRequest -Uri $uri -Proxy $proxy -OutFile $destination
      }
      catch {
-        Write-Output "Cloud not download chocolatey. Cannot continue. Exiting!!! "
-        exit
+        Write-Error "Could not download chocolatey. Cannot continue. Exiting!"
+        exit 1
      }
   }
   finally {
@@ -46,30 +45,25 @@ function Expand-ZIPFile {
 ## =====================================================
 
 Write-Output "install_base param proxy: $proxy "
+Write-Output "install_base param choco pkg: $chocoPkg "
 Write-Output "install_base param choco repo: $chocoRepo "
 Write-Output "install_base param gem repo: $gemRepo "
 
-if( $chocoRepo -eq $null -or $chocoRepo -eq "" ) {
-  $chocoRepo = "https://packages.chocolatey.org/chocolatey.0.9.9.12.nupkg"
+if( $chocoPkg -eq $null -or $chocoPkg -eq "" ) {
+  $chocoPkg = "https://packages.chocolatey.org/chocolatey.0.9.9.12.nupkg"
 }
-else {
-  #$chocoRepo = "http://chocodev.cloud.wal-mart.com/api/v2/package/chocolatey/0.9.10.3"
-}
-
-Write-Output "using choco repo: $chocoRepo "
 
 $chocoTempDir = "c:\chocotemp\"
 $chocoTempFile = "c:\chocotemp\choco.zip"
 
 
 Write-Output "Downloading chocolatey ..."
-Download-File $proxy $chocoRepo $chocoTempDir $chocoTempFile
-
+Download-File $proxy $chocoPkg $chocoTempDir $chocoTempFile
 
 Set-Location $chocoTempDir
 
 Write-Output "Extracting chocolatey zipfile "
-$chocoDir = "C:\Chocolatey"
+$chocoDir = Join-Path $chocoTempDir "choco"
 
 Get-ChildItem $chocoTempDir -Filter *.zip |
 Foreach-Object{
@@ -77,65 +71,87 @@ Foreach-Object{
 }
 
 $toolsFolder = Join-Path $chocoDir "tools"
-
 $chocoInstallPS = Join-Path $toolsFolder "chocolateyInstall.ps1"
 
-
-Write-Output "Installing Chocolatey ..."
-& $chocoInstallPS
+try {
+  Write-Output "Installing Chocolatey ..."
+  & $chocoInstallPS
+}
+catch {
+  Write-Error "Could not install chocolatey. Exiting now!"
+  exit 1
+}
 
 Set-Location "C:\"
 Remove-Item -Recurse -Force $chocoTempDir
 
-
 ## =======================================
+if ( $proxy -ne "" -and $proxy -ne $null) {
+  choco config set proxy $proxy
+}
 
-choco config set proxy $proxy
-#choco source disable --name="chocolatey"
-#choco source add --name='wmrepo' --source=$chocoRepo
+if ( $chocoRepo -ne "" -and $chocoRepo -ne $null ) {
+  #choco source disable -y --name="chocolatey"
+  choco source add -y --name='internal' --source=$chocoRepo --priority=1
+}
 
-Write-Output "Install ruby ..."
-choco install -y ruby
-$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+try {
+  Write-Output "Installing ruby ..."
+  choco install -y ruby
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
-Write-Output "Install nuget.commandline ..."
-choco install -y nuget.commandline
+  Write-Output "Installing nuget.commandline ..."
+  choco install -y nuget.commandline
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
-Write-Output "Install ruby DevKit ..."
-choco install -y ruby2.devkit
-
-# http://chocodev.cloud.wal-mart.com/chocolatey/
-# choco config unset proxy
-# choco source -y disable --name="chocolatey"
-# choco source -y add --name='wmrepo' --source=http://chocodev.cloud.wal-mart.com/chocolatey/
-# Write-Output "Installing nagios..."
-# choco install -d -v -y --acceptlicense nagios-core
-
+  Write-Output "Installing ruby2.devKit ..."
+  choco install -y ruby2.devkit
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+}
+catch {
+  Write-Error "Could not install one or more choco packages"
+  exit 1
+}
 ###########################################
+
 Set-Location "C:\tools\DevKit2\"
-Set-Content config.yml "---"
-Set-Content config.yml "- C:/tools/ruby23"
+Add-Content config.yml "`n- C:/tools/ruby23"
+
 ###########################################
 
-# Set the latest path to the current session, so that we get the latest path
-$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+if ($($env:Path).ToLower().Contains("ruby") -eq $false) {
+  [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\tools\ruby23\bin", [EnvironmentVariableTarget]::Machine)
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+}
 
-$env:Path += ";C:\cygdrive\c\tools\ruby23\bin;C:\tools\DevKit2\bin"
+if ($($env:Path).ToLower().Contains("devkit") -eq $false) {
+  [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\tools\DevKit2\bin", [EnvironmentVariableTarget]::Machine)
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+}
 
 ruby dk.rb install
 
-gem source --add $gemRepo
+if ( $gemRepo -ne "" -and $gemRepo -ne $null) {
+    gem source --add $gemRepo
+    gem source -r https://rubygems.org/
+}
 
-Write-Output "Installing json ..."
-gem install json --version 1.8.2 --no-ri --no-rdoc
+try {
+  Write-Output "Installing json ..."
+  gem install json --version 1.8.2 --no-ri --no-document
 
-#Write-Output "Installing Bundler ..."
-#gem install bundler --version 1.10.5 --no-ri --no-rdoc
+  #Write-Output "Installing Bundler ..."
+  #gem install bundler --version 1.10.5 --no-ri --no-rdoc
+}
+catch {
+  Write-Error "Could not install one or more gems"
+  exit 1
+}
 
-Add-Content C:\cygwin64\home\admin\.bash_profile 'export PATH=$PATH:/cygdrive/c/tools/ruby23/bin/'
-New-Item C:\cygwin64\opt\admin\workorder\ -ItemType directory
+#Add-Content C:\cygwin64\home\Administrator\.bash_profile 'export PATH=$PATH:/cygdrive/c/ProgramData/chocolatey/bin:/cygdrive/c/tools/ruby23/bin:/cygdrive/c/tools/DevKit2/bin'
+#New-Item -ItemType Directory -Force -Path C:\cygwin64\opt\Administrator\workorder\
 
-Add-Content C:\cygwin64\home\oneops\.bash_profile 'export PATH=$PATH:/cygdrive/c/tools/ruby23/bin:/cygdrive/c/tools/DevKit2'
+Add-Content C:\cygwin64\home\oneops\.bash_profile 'export PATH=$PATH:/cygdrive/c/ProgramData/chocolatey/bin/:/cygdrive/c/tools/ruby23/bin:/cygdrive/c/tools/DevKit2/bin'
 New-Item -ItemType Directory -Force -Path C:\cygwin64\opt\oneops\workorder\
 New-Item -ItemType Directory -Force -Path C:\cygwin64\etc\nagios\conf.d\
 New-Item -ItemType Directory -Force -Path C:\cygwin64\var\log\nagios\

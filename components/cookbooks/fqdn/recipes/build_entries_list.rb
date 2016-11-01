@@ -15,83 +15,23 @@
 # Cookbook Name:: fqdn
 # Recipe:: build_entries_list
 #
-# builds a list of dns entries based on entrypoint, aliases, cloud and platform
-# no ManagedVia - recipes will run on the gw
+# builds a list of dns entries based on entrypoint, DependsOn, (full) aliases, cloud and platform
+#
 
-require 'json'
+extend Fqdn::Base
+Chef::Resource::RubyBlock.send(:include, Fqdn::Base)
 
 cloud_name = node[:workorder][:cloud][:ciName]
-service = node[:workorder][:services][:dns][cloud_name][:ciAttributes]
-domain_name = service[:zone]
-
-# set to empty set to handle delete on inactive platform
-node.set["entries"] = []
-
-# get dns value using dns_record attr or if empty resort to case stmt based on component class
-def get_dns_values (components)
-  values = Array.new
-  components.each do |component|
-
-    attrs = component[:ciAttributes]
-
-    dns_record = attrs[:dns_record] || ''
-
-    # backwards compliance: until all computes,lbs,clusters have dns_record populated need to get via case stmt
-    if dns_record.empty?
-      case component[:ciClassName]
-      when /Compute/
-        if attrs.has_key?("public_dns") && !attrs[:public_dns].empty?
-         dns_record = attrs[:public_dns]+'.'
-        else
-         dns_record = attrs[:public_ip]
-        end
-
-        if location == ".int" || dns_entry == nil || dns_entry.empty?
-          dns_record = attrs[:private_ip]
-        end
-
-      when /Lb/
-        dns_record = attrs[:dns_record]
-      when /Cluster/
-        dns_record = attrs[:shared_ip]
-      end
-    else
-      # dns_record must be all lowercase
-      dns_record.downcase!
-      # unless ends w/ . or is an ip address
-      dns_record += '.' unless dns_record =~ /,|\.$|^\d+\.\d+\.\d+\.\d+$/
-    end
-
-    if dns_record.empty?
-      Chef::Log.error("cannot get dns_record value for: "+component.inspect)
-      exit 1
-    end
-
-    if dns_record =~ /,/
-      values.concat dns_record.split(",")
-    else
-      values.push(dns_record)
-    end
-  end
-  return values
-end
-
-
-
+service_attrs = node[:workorder][:services][:dns][cloud_name][:ciAttributes]
+  
 # ex) customer_domain: env.asm.org.oneops.com
 customer_domain = node.customer_domain.downcase
 if node.customer_domain.downcase !~ /^\./
   customer_domain = '.'+node.customer_domain.downcase
 end
 
-
 # entries Array of {name:String, values:Array}
 entries = Array.new
-
-#
-# build set of entries from entrypoint or DependsOn compute
-#
-ci = nil
 
 # used to prevent full,short aliases on hostname entries
 is_hostname_entry = false
@@ -114,15 +54,11 @@ else
   os = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Os/ }
 
   if os.size > 1
-    Chef::Log.error("unsupported usecase - need to check why there are multiple os for same fqdn")
-    e = Exception.new("no backtrace")
-    e.set_backtrace("")
-    raise e
+    fail_with_error "unsupported usecase - need to check why there are multiple os for same fqdn"
   end
   is_hostname_entry = true
   ci = os.first
 
-  cloud_name = node[:workorder][:cloud][:ciName]
   provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
   if provider_service =~ /azuredns/
     dns_name = (ci[:ciAttributes][:hostname]).downcase
@@ -153,25 +89,13 @@ if node.workorder.rfcCi.ciAttributes.has_key?("full_aliases") && !is_hostname_en
 end
 
 
-cloud_service = node[:workorder][:services][:dns][cloud_name]
-service_attrs = cloud_service[:ciAttributes]
 if service_attrs[:cloud_dns_id].nil? || service_attrs[:cloud_dns_id].empty?
-  msg = "no cloud_dns_id for dns cloud service: #{cloud_service[:nsPath]} #{cloud_service[:ciName]}"
-  Chef::Log.error(msg)
-  puts "***FAULT:FATAL=#{msg}"
-  e = Exception.new("no backtrace")
-  e.set_backtrace("")
-  raise e
+  fail_with_error "no cloud_dns_id for dns cloud service: #{cloud_service[:nsPath]} #{cloud_service[:ciName]}"
 end
 
 
 if !node.workorder.payLoad.has_key?(:DependsOn)
-  msg = "missing DependsOn payload"
-  Chef::Log.error(msg)
-  puts "***FAULT:FATAL=#{msg}"
-  e = Exception.new("no backtrace")
-  e.set_backtrace("")
-  raise e
+  fail_with_error "missing DependsOn payload"
 end
 
 # values using DependsOn's dns_record attr
@@ -291,8 +215,9 @@ else
         full_value = node.gslb_domain
       end
 
-      Chef::Log.info("full alias dns_name: #{full} values: "+full_value)
-      entries.push({:name => full, :values => full_value })
+
+      Chef::Log.info("full alias dns_name: #{full} values: #{full_value} hijackable: #{node.workorder.rfcCi.ciAttributes.hijackable_full_aliases}")
+      entries.push({:name => full, :values => full_value, :is_hijackable => node.workorder.rfcCi.ciAttributes.hijackable_full_aliases })
       deletable_entries.push({:name => full, :values => full_value})
     end
   end
@@ -322,23 +247,13 @@ node.set[:entries] = entries
 previous_entries = {}
 if node.workorder.rfcCi.ciBaseAttributes.has_key?("entries")
   previous_entries = JSON.parse(node.workorder.rfcCi.ciBaseAttributes.entries)
-end  
+end
 if node.workorder.rfcCi.ciAttributes.has_key?("entries")
   previous_entries.merge!(JSON.parse(node.workorder.rfcCi.ciAttributes['entries']))
-end  
+end
 node.set[:previous_entries] = previous_entries
 
-  
-# needed due to cleanup/delete logic using dns call to get list
-deletable_entries.each do |k,v|
-  if previous_entries.has_key?(k)
-    if v.is_a?(String)
-      vals = [v]
-    else
-      vals = v
-    end 
-    vals += previous_entries[k]
-    deletable_entries[k] = vals
-  end
+previous_entries.each do |k,v|
+  deletable_entries.push({:name => k, :values => v})
 end
 node.set[:deletable_entries] = deletable_entries

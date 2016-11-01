@@ -505,6 +505,15 @@ resource "job",
   :design => true,
   :requires => { "constraint" => "0..*" }
 
+resource "objectstore",
+  :cookbook => "oneops.1.objectstore",
+  :design => true,
+  :requires => {"constraint" => "0..1",:services => "filestore"},
+  :attributes => {
+    "username" => "",
+    "password" => ""
+  }
+
 resource "storage",
   :cookbook => "oneops.1.storage",
   :design => true,
@@ -512,7 +521,27 @@ resource "storage",
     "size"        => '20G',
     "slice_count" => '1'
   },
-  :requires => { "constraint" => "0..*", "services" => "storage" }
+  :requires => { "constraint" => "0..*", "services" => "storage" },
+  :payloads => {
+    'volumes' => {
+     'description' => 'volumes',
+     'definition' => '{
+       "returnObject": false,
+       "returnRelation": false,
+       "relationName": "base.RealizedAs",
+       "direction": "to",
+       "targetClassName": "manifest.oneops.1.Storage",
+       "relations": [
+         { "returnObject": true,
+           "returnRelation": false,
+           "relationName": "manifest.DependsOn",
+           "direction": "to",
+           "targetClassName": "manifest.oneops.1.Volume"
+         }
+       ]
+     }'
+   }
+  }
 
 resource "volume",
   :cookbook => "oneops.1.volume",
@@ -703,7 +732,6 @@ end
   { :from => 'logstash',    :to => 'os' },
   { :from => 'logstash',    :to => 'compute' },
   { :from => 'storage',     :to => 'compute' },
-  { :from => 'volume',      :to => 'storage' },
   { :from => 'share',       :to => 'volume'  },
   { :from => 'volume',      :to => 'user' },
   { :from => 'daemon',      :to => 'os' },
@@ -714,7 +742,9 @@ end
   { :from => 'file',        :to => 'os' },
   { :from => 'artifact',    :to => 'os' },    
   { :from => 'sensuclient', :to => 'compute'  },
-  { :from => 'library',     :to => 'os' }
+  { :from => 'library',     :to => 'os' },
+  { :from => 'objectstore',  :to => 'compute'},
+  { :from => 'objectstore',  :to => 'user'}
 ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
     :relation_name => 'DependsOn',
@@ -741,6 +771,15 @@ end
     :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
 end
 
+[{ :from => 'volume',      :to => 'storage' }
+].each do |link|
+  relation "#{link[:from]}::depends_on::#{link[:to]}",
+    :relation_name => 'DependsOn',
+    :from_resource => link[:from],
+    :to_resource   => link[:to],
+    :attributes    => { "propagate_to" => 'from',"flex" => false, "min" => 1, "max" => 1 }
+end
+
 # propagation rule for replace and updating /etc/profile.d/oneops.sh
 [ 'hostname','os' ].each do |from|
   relation "#{from}::depends_on::compute",
@@ -752,7 +791,7 @@ end
 
 # managed_via
 [ 'os', 'user', 'job', 'file', 'volume', 'share', 'download', 'library', 'daemon', 
-  'certificate', 'logstash', 'sensuclient', 'artifact' ].each do |from|
+  'certificate', 'logstash', 'sensuclient', 'artifact', 'objectstore'].each do |from|
   relation "#{from}::managed_via::compute",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',

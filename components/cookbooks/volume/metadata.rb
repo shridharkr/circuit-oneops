@@ -4,6 +4,7 @@ version          "0.1"
 maintainer       "OneOps"
 maintainer_email "support@oneops.com"
 license          "Apache License, Version 2.0"
+depends 'azuredatadisk'
 
 grouping 'default',
   :access => "global",
@@ -41,6 +42,7 @@ attribute 'mode',
       ["RAID5", "raid5"],
       ["RAID10", "raid10"],
       ["NO-RAID", "no-raid"]] },
+    :filter => {"all" => {"visible" => "mode:eq:invisible"}},
     :order => 3
   }
 
