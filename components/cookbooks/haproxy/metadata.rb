@@ -7,10 +7,55 @@ license          "Apache License, Version 2.0"
 
 grouping 'default',
   :access => "global",
-  :packages => [ 'base', 'mgmt.catalog', 'catalog', 'mgmt.manifest', 'manifest', 'bom' ]
+  :packages => [ 'base']
 
+grouping 'instance',
+  :access => "global",
+  :packages => [ 'mgmt.catalog', 'mgmt.manifest', 'catalog', 'manifest', 'bom' ]
+
+grouping 'service',
+  :access => "global",
+  :packages => [ 'service.lb', 'mgmt.cloud.service', 'cloud.service' ]
+
+    
+# attrs for cloud service
+attribute 'endpoint',
+  :grouping => 'service',
+  :description => "endpoint",
+  :required => "required",
+  :format => {
+    :important => true,
+    :help => 'Endpoint of haproxy',
+    :category => '1.General',
+    :order => 1
+  }    
+  
+
+attribute 'username',
+  :grouping => 'service',
+  :description => "username",
+  :required => "required",
+  :format => {
+    :important => true,
+    :help => 'Username',
+    :category => '1.General',
+    :order => 3
+  }      
+
+attribute 'password',
+  :grouping => 'service',
+  :description => "password",
+  :encrypted => true, 
+  :required => "required",
+  :format => {
+    :help => 'Password',
+    :category => '1.General',
+    :order => 4
+  }        
+    
 
 attribute 'enable_stats_socket',
+  :grouping => 'instance',  
   :description => "Enable Stats Socket",
   :required => "required",
   :default => 'true',
@@ -22,6 +67,7 @@ attribute 'enable_stats_socket',
   }
 
 attribute 'stats_socket_location',
+  :grouping => 'instance', 
   :description => "Stats Socket Location",
   :required => "required",
   :default => '/var/lib/haproxy/stats',
@@ -32,6 +78,7 @@ attribute 'stats_socket_location',
   }
 
 attribute 'enable_stats_web',
+  :grouping => 'instance', 
   :description => "Enable Stats Web",
   :required => "required",
   :default => 'true',
@@ -43,6 +90,7 @@ attribute 'enable_stats_web',
   }
 
 attribute 'stats_web_port',
+  :grouping => 'instance',
   :description => "Stats Web Port",
   :required => "required",
   :default => '1936',
@@ -54,6 +102,7 @@ attribute 'stats_web_port',
   
   
 attribute 'lbmethod',
+  :grouping => 'instance',
   :description => "LB Method",
   :required => "required",
   :default => "leastconn",
@@ -66,6 +115,7 @@ attribute 'lbmethod',
   }
 
 attribute 'lbmode',
+  :grouping => 'instance',
   :description => "LB Mode",
   :required => "required",
   :default => "tcp",
@@ -78,6 +128,7 @@ attribute 'lbmode',
   }
       
 attribute 'listeners',
+  :grouping => 'instance',
   :description => "Map of External to Internal Ports",
   :required => "required",  
   :default => "{}",
@@ -90,6 +141,7 @@ attribute 'listeners',
   }   
     
 attribute 'timeout_connect',
+  :grouping => 'instance',
   :description => "Timeout Connect",
   :required => "required",
   :default => "500s",
@@ -100,6 +152,7 @@ attribute 'timeout_connect',
   }
 
 attribute 'timeout_client',
+  :grouping => 'instance',
   :description => "Timeout Client",
   :required => "required",
   :default => "5000s",
@@ -110,6 +163,7 @@ attribute 'timeout_client',
   }
 
 attribute 'timeout_server',
+  :grouping => 'instance',
   :description => "Timeout Server",
   :required => "required",
   :default => "1h",
@@ -120,6 +174,7 @@ attribute 'timeout_server',
   }
 
 attribute 'maxconn_defaults',
+  :grouping => 'instance',
   :description => "Max Connections Defaults",
   :required => "required",
   :default => "32000",
@@ -130,6 +185,7 @@ attribute 'maxconn_defaults',
   }
 
 attribute 'maxconn_server',
+  :grouping => 'instance',
   :description => "Max Connections Per Server",
   :required => "required",
   :default => "1500",
@@ -140,6 +196,7 @@ attribute 'maxconn_server',
   } 
   
 attribute 'retries',
+  :grouping => 'instance',
   :description => "Retries",
   :required => "required",
   :default => "3",
@@ -150,6 +207,7 @@ attribute 'retries',
   }         
 
 attribute 'options',
+  :grouping => 'instance',
   :description => "Options",
   :required => "required",
   :default => '["dontlognull","redispatch"]',
@@ -160,9 +218,19 @@ attribute 'options',
     :order => 10
   }         
   
-             
+attribute 'check_port',
+   :grouping => 'instance',
+   :description => "Check Port",
+   :default => "",
+   :format => {
+   :help => 'Handshake check',
+   :category => '1.Config',
+   :order => 11
+  }
+
     
 attribute 'override_config',
+  :grouping => 'instance',
   :description => "Override Config Content",
   :data_type => "text",
   :format => {

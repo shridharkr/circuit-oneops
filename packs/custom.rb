@@ -42,21 +42,24 @@ resource "secgroup",
              :constraint => "1..1",
              :services => "compute"
          }
-         
+
 resource "artifact",
-  :cookbook => "oneops.1.artifact",
-  :design => true,
-  :requires => { "constraint" => "0..*" },
-  :attributes => {
-
-  }
-
-resource "java",
-         :cookbook => "oneops.1.java",
+         :cookbook => "oneops.1.artifact",
          :design => true,
-         :requires => { "constraint" => "0..1"},
+         :requires => {"constraint" => "0..*"},
          :attributes => {
+
          }
+
+resource 'java',
+         :cookbook => 'oneops.1.java',
+         :design => true,
+         :requires => {
+             :constraint => '0..1',
+             :services => '*mirror',
+             :help => 'Java Programming Language Environment'
+         },
+         :attributes => {}
 
 resource "keystore",
          :cookbook => "oneops.1.keystore",

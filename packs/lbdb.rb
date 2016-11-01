@@ -43,7 +43,7 @@ resource "volume",
 resource "lb",
   :except => [ 'single' ],
   :cookbook => "oneops.1.lb",
-  :design => false,
+  :design => true,
   :requires => { "constraint" => "1..1", "services" => "lb,dns" },
   :attributes => {
     "stickiness"    => ""
@@ -198,7 +198,7 @@ end
     :relation_name => 'DependsOn',
     :from_resource => from,
     :to_resource   => 'lb',
-    :attributes    => { "propagate_to" => 'to', "flex" => false, "min" => 1, "max" => 1 } 
+    :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 } 
 end
 
 

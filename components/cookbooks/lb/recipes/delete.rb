@@ -47,6 +47,13 @@ when /azure_lb/
 
     include_recipe "azure_lb::delete"
 
+when /f5-bigip/
+
+   include_recipe "f5-bigip::f5_delete_lbvserver"
+   include_recipe "f5-bigip::f5_delete_pool"
+   include_recipe "f5-bigip::f5_delete_monitor"
+   include_recipe "f5-bigip::f5_delete_node"
+
 when /netscaler/
 
   n = netscaler_connection "conn" do
@@ -66,5 +73,9 @@ when /rackspace/
 when /elb/
 
   include_recipe "elb::delete_lb"
-  
+
+when /haproxy/  
+
+  include_recipe "haproxy::delete_lb"
+    
 end

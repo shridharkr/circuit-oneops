@@ -44,19 +44,20 @@ resource "secgroup",
     :attributes    => { "flex" => false, "min" => 1, "max" => 1 } 
 end
 
-relation "fqdn::depends_on::compute",
-  :only => [ '_default', 'single' ],
-  :relation_name => 'DependsOn',
-  :from_resource => 'fqdn',
-  :to_resource   => 'compute',
-  :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
-
 relation "fqdn::depends_on_flex::compute",
   :except => [ '_default', 'single' ],
   :relation_name => 'DependsOn',
   :from_resource => 'fqdn',
   :to_resource   => 'compute',
   :attributes    => { "flex" => true, "min" => 2, "max" => 10 }
+
+[ 'fqdn' ].each do |from|
+  relation "#{from}::depends_on::compute",
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'compute',
+    :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
+end
 
 # managed_via
 [ 'glusterfs' ].each do |from|

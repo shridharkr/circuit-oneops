@@ -21,7 +21,7 @@ image_map = '{"ubuntu-14.04":"",
               "fedora-19":""}'
 
 repo_map = '{
-      "centos-7.0":"yum -d0 -e0 -y install rsync; rpm -ivh http://dl.fedoraproject.org/pub/epel/7/x86_64/epel-release-6-8.noarch.rpm",
+      "centos-7.0":"sudo yum -d0 -e0 -y install rsync epel-release",
       "centos-6.5":"yum -d0 -e0 -y install rsync; rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm",
       "centos-6.4":"yum -d0 -e0 -y install rsync; rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm",
       "centos-6.2":"yum -d0 -e0 -y install rsync; rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm"
@@ -65,4 +65,17 @@ service "nova",
             :subnet => "",
             :imagemap => image_map,
             :repo_map => repo_map
+        }
+
+service 'swift',
+        :description => 'Swift Storage Service',
+        :cookbook => 'swift',
+        :source => [Chef::Config[:register], Chef::Config[:version].split(".").first].join('.'),
+        :provides => {:service => 'filestore'},
+        :attributes => {
+            :endpoint => '',
+            :tenant => '',
+            :username => '',
+            :password => '',
+            :regionname => ''
         }

@@ -168,45 +168,8 @@ cis: !map:Mash
       ciClassName: account.Keypair
       ciAttributes: !ruby/object:Cms::AttrMap 
         attributes: !map:ActiveSupport::HashWithIndifferentAccess 
-          public: |
-            -----BEGIN RSA PUBLIC KEY-----
-            MIIBCgKCAQEA1oguDj/9tbPrsDcIoGEZRrGJXHs+gSvMkWub/7FBBNbpM01jH2tf
-            Wi9KAGJjMCbMp8HtIN0i5C2Yt7sS5tIXh6LuRDHvql7uW8p7p5/Mmv/cPOppDpm4
-            JG8Gj3y0nLqQB+E7dWryV0I8yN8Hl0E01F2z1EjmOlrv2jsvmHw+/PDmqJOkZZml
-            mVW6YB93HTrsDNjIr4AdaM7whH/0JUKBrxNMrzT63pWSx7mHADZ+NnFyq3+WJnF5
-            pqh8o4uuobwslVNGWzGBSJcl33kft1v9k72FFgoTA1Jm5DL2L+l00L/pVjQS6rTN
-            60jrvs4HQcwC6Tqt1qafr+rbz9UU0NZhRQIDAQAB
-            -----END RSA PUBLIC KEY-----
-
-          private: |
-            -----BEGIN RSA PRIVATE KEY-----
-            MIIEpAIBAAKCAQEA1oguDj/9tbPrsDcIoGEZRrGJXHs+gSvMkWub/7FBBNbpM01j
-            H2tfWi9KAGJjMCbMp8HtIN0i5C2Yt7sS5tIXh6LuRDHvql7uW8p7p5/Mmv/cPOpp
-            Dpm4JG8Gj3y0nLqQB+E7dWryV0I8yN8Hl0E01F2z1EjmOlrv2jsvmHw+/PDmqJOk
-            ZZmlmVW6YB93HTrsDNjIr4AdaM7whH/0JUKBrxNMrzT63pWSx7mHADZ+NnFyq3+W
-            JnF5pqh8o4uuobwslVNGWzGBSJcl33kft1v9k72FFgoTA1Jm5DL2L+l00L/pVjQS
-            6rTN60jrvs4HQcwC6Tqt1qafr+rbz9UU0NZhRQIDAQABAoIBACLVL60upLIpCX6u
-            IN9xhJoe32+9rxNoGioOb+DfVfBEOM8UpKCIXY4WGYzgbLx3wEkIysjIPw8PfDlw
-            zYve1uU2BjvaY9Ck40zSHqvD3YPZQVg+s1okiWqZAFax591+yT4OSwowmDKk1ZvD
-            4sajVsGYiUdRotgcxc8IRx0aJ1wIMTpKWUFZBmVA2L3DeJE4RS7fg6XDdWxggJ/h
-            H3AP06yENUPotjHqJkK0LzSyhIrB7DST7E+grJ8UE9z/aw/TDW+cZm3eLVzmfMqP
-            m5045j0NfdDorH4ptWSRsJzuIZFCOOAT0Qkn8GrbdPR8YPSoK7AzsoQa4F9bpwCL
-            zWV1DOECgYEA8LDUTLP+/fA/4J8ao77KWK4wpuV8qS9I+yeuUpl/2k9f5TCt8Gws
-            Tv2Q0RwGK54ki/w6PGrPJTSsMBDX1ANNuaiMTzaDV6/9T6AHkmak6V5hG83wOzsn
-            aE4wAU+/FpQhwOKksq+k9qWKAvLSQjQeNjQJkJRCNetCg5xKhYFEf10CgYEA5C1o
-            HpyYR4S6YfR/ZISA1EAcS4Xa3SUl5S+9jyMgUUlUbdGTbZk1UdGnhZYB3HCkTeeu
-            /ctkcm1l0YPgSZeSezuklfFl+7dBGELySBStqUWz6beSy9pmI7NcNPmZ0PvJb1fB
-            raAnWxEDjRDBx5QiqiCsWHh3BcEADQoqmCJCEwkCgYEAj+gqBvJXs1zB1HtMYjrg
-            oMUFMcRkFIPBDulawOgmGVD79Px2AxmqJFBXFa+7wLh9AXV9HEKAN66WhOaNJKYV
-            ArxTp8jgHr2KpuD3pgDY+O8FAKrQx5lGpoaZDS+xAL7wr3LTJkL+TroLGlg0foDK
-            z32telQqgjJ3Qllf9RKk8cECgYEAz0/SAb4VPSWCke0qsZER28ZD7vo22CYgQBMY
-            DyzC+Be/9ecsI6/Hmgb6RYz9M+PD5GRTwZNCOBTdJXbEGRj1pbGS4Ajrt7/QDNMG
-            ficLgXgq9nYrkbtkgZs8c4U0E4QwiFEbTzzrhPn4V/qZlVMqC5iT/e21dizcdvx9
-            pqu5jMECgYBQ/vd14qoF3ezZ9pHG9sNjUVO6vo+7lI9M5zf+CpsWJIK3+tFe73l+
-            PUKwUeyUihU33t6CYyGXBj5WJPbFZJjYU3SimbzCj1zMfD47u0S6c3dop/QHFMkr
-            hJZijzCFpCCf3+u3BfcT3PpSjfCcs6eBmlTKWvQ2DQMtpWvcO2hBGg==
-            -----END RSA PRIVATE KEY-----
-
+          public: 
+          private: 
           description: 2048-bit keys
         prefix_options: {}
 

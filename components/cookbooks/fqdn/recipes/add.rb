@@ -18,35 +18,34 @@
 # builds a list of entries based on entrypoint, aliases, and then sets them in the set_dns_entries recipe
 # no ManagedVia - recipes will run on the gw
 
-# get the cloud and provider
-cloud_name = node[:workorder][:cloud][:ciName]
-provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
-provider = "fog"
-case provider_service
-when /infoblox/
-  provider = "infoblox"
-when /azuredns/
-  provider = "azuredns"
-when /designate/
-  provider = "designate"
+extend Fqdn::Base
+Chef::Resource::RubyBlock.send(:include, Fqdn::Base)
+
+
+# cleanup old platform version entries
+if node.workorder.box.ciAttributes.is_active == "false"
+  Chef::Log.info("platform is_active false - only performing deletes")
+  include_recipe "fqdn::delete"
+  return
 end
 
-Chef::Log.info("Cloud name is: #{cloud_name}")
-Chef::Log.info("Provider is: #{provider}")
-
+# get the cloud and provider
+cloud_name = node[:workorder][:cloud][:ciName]
+Chef::Log.debug("Cloud name is: #{cloud_name}")
+provider = get_provider
 
 # check for gdns service
 gdns_service = nil
 if node[:workorder][:services].has_key?("gdns") &&
    node[:workorder][:services][:gdns].has_key?(cloud_name)
 
-   Chef::Log.info('Setting GDNS Service')
+   Chef::Log.debug('Setting GDNS Service')
    gdns_service = node[:workorder][:services][:gdns][cloud_name]
 end
 
 # getting the environment attributes
 env = node.workorder.payLoad["Environment"][0]["ciAttributes"]
-Chef::Log.info("Env is: #{env}")
+Chef::Log.debug("Env is: #{env}")
 
 # skip in active (A/B update)
 box = node[:workorder][:box][:ciAttributes]
@@ -64,8 +63,22 @@ node.workorder.payLoad["DependsOn"].each do |dep|
 end
 
 Chef::Log.info("Depends on LB is: #{depends_on_lb}")
+if env.has_key?("global_dns") && env["global_dns"] == "true" && depends_on_lb &&
+   !gdns_service.nil? && gdns_service["ciAttributes"]["gslb_authoritative_servers"] != '[]'
+   if provider !~ /azuredns/
+      include_recipe "netscaler::get_dc_lbvserver"
+      include_recipe "netscaler::add_gslb_vserver"
+      include_recipe "netscaler::add_gslb_service"
+      include_recipe "netscaler::logout"
+  end
+end
 
-#Remove the old aliases
+node.set['dns_action'] = 'create'
+#build the entry list
+include_recipe 'fqdn::build_entries_list'
+
+
+# remove the old aliases
 if provider =~ /azuredns/
   include_recipe 'azuredns::remove_old_aliases'
 else
@@ -73,40 +86,14 @@ else
   include_recipe 'fqdn::remove_old_aliases_'+provider
 end
 
-node.set['dns_action'] = 'create'
-#build the entry list
-include_recipe 'fqdn::build_entries_list'
-
 # set the records
 if provider =~ /azuredns/
   include_recipe 'azuredns::set_dns_records'
+  include_recipe 'azuredns::update_dns_on_pip'
 
-  compute_service = node['workorder']['services']['compute'][cloud_name]['ciAttributes']
-  express_route_enabled = compute_service['express_route_enabled']
-
-  Chef::Log.info("express_route_enable is: #{express_route_enabled}")
-
-  # IF it is public, update the DNS settings on the public ip.
-  # it's only public because these settings aren't available to private ips within azure.
-  if express_route_enabled == 'false'
-    Chef::Log.info("calling azuredns::update_dns_on_pip recipe")
-    include_recipe 'azuredns::update_dns_on_pip'
+  if env.has_key?("global_dns") && env["global_dns"] == "true" && depends_on_lb
+    include_recipe "azuretrafficmanager::add"
   end
 else
   include_recipe 'fqdn::set_dns_entries_'+provider
 end
-
-if env.has_key?("global_dns") && env["global_dns"] == "true" && depends_on_lb &&
-   !gdns_service.nil? && gdns_service["ciAttributes"]["gslb_authoritative_servers"] != '[]'
-
-  if provider =~ /azuredns/
-    include_recipe "azuretrafficmanager::add"
-  else
-    include_recipe "netscaler::get_dc_lbvserver"
-    include_recipe "netscaler::add_gslb_vserver"
-    include_recipe "netscaler::add_gslb_service"
-    include_recipe "netscaler::logout"
-  end
-end
-
-

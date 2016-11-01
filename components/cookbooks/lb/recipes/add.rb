@@ -62,6 +62,11 @@ when /azure_lb/
   include_recipe "azure_lb::add"
   lb_dns_name = node.azurelb_ip
 
+when /azuregateway/
+
+  include_recipe "azuregateway::add"
+  lb_dns_name = node.azure_ag_ip
+
 when /netscaler/
 
   # clear connection for replace (delete+add)
@@ -77,6 +82,13 @@ when /netscaler/
   include_recipe "netscaler::add_servicegroup"  
   include_recipe "netscaler::logout"
   lb_dns_name = node.ns_lbvserver_ip  
+
+when /f5-bigip/
+
+  include_recipe "f5-bigip::f5_add_server"
+  include_recipe "f5-bigip::f5_add_pool"
+  include_recipe "f5-bigip::f5_add_lbvserver"
+  lb_dns_name = node.ns_lbvserver_ip
   
 when /rackspace/
 
@@ -85,25 +97,11 @@ when /rackspace/
   
 when /haproxy/
 
-  lb_dns_name = "haproxy."+node.customer_domain;
-  
-  # gen /opt/oneops/pool_#{lb_ci_id} with: 
-  # server #{ciName} #{compute_ip}:#{port} cookie #{ciName} weight 1 check inter 2000 rise 2 fall 5
-  # the vservice will put them together
-
-  pool_rows = ""
-  depends_on.each do |instance|
-    ip = instance["ciAttributes"]["private_ip"]
-    ciName = instance["ciName"]
-    # iport will get eval'd by the vservice
-    pool_rows += "server #{ciName} #{ip}:"+'#{iport} '+"cookie #{ciName} weight 1 check inter 2000 rise 2 fall 5\n"
-  end
-  
-  #
-  pool_file = "/opt/oneops/pool_#{lb_name}"      
-  File.open(pool_file, 'w') {|f| f.write(pool_rows) }
+  include_recipe "haproxy::add_lb"
+  lb_dns_name = node.lb_dns_name
 
 when /neutron/
+
   include_recipe "neutron::add_lb"
   lb_dns_name = node.lb_dns_name
       

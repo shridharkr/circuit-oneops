@@ -54,7 +54,6 @@ if node.java.binpath.empty?
     group 'root'
     mode 0755
     source "#{base_url}/#{file_name}"
-    action :create_if_missing
   end
 
 else

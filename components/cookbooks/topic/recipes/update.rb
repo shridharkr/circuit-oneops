@@ -1,4 +1,5 @@
 #
 # Cookbook Name:: topic
-# Recipe:: add
+# Recipe:: update
 #
+include_recipe "topic::add"

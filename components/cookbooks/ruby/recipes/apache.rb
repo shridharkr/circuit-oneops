@@ -1,20 +1,7 @@
-ruby_repository "brightbox" do
-  uri "http://apt.brightbox.net"
-  distribution node['lsb']['codename']
-  components ["main"]
-  key "http://apt.brightbox.net/release.asc"
-  # keyserver "wwwkeys.eu.pgp.net"
-  action :add
-end
-
 pkgs = value_for_platform(
-  [ "centos", "redhat", "fedora" ] => {
-    "default" => %w{ }
-  },
-  [ "debian", "ubuntu" ] => {
-    "default" => %w{ libapache2-mod-passenger }
-  },
-  "default" => %w{ libapache2-mod-passenger }
+  %w(centos redhat fedora) => {'default' => []},
+  %w(debian ubuntu)        => {'default' => %w(libapache2-mod-passenger)},
+  'default'                => %w(libapache2-mod-passenger)
 )
 
 pkgs.each do |pkg|
@@ -23,57 +10,51 @@ pkgs.each do |pkg|
   end
 end
 
-
 passenger_version = '4.0.59'
 
-if node[:ruby][:install_type] == 'rvm'
-
-  ruby_version = node[:ruby][:version]
-
-  ruby_bin = "/usr/local/rvm/wrappers/ruby-#{ruby_version}/ruby"
-  gems_dir = "/usr/local/rvm/gems/ruby-#{ruby_version}/gems"
-
-  bash "install passenger" do
-    code <<-EOH
-      source /usr/local/rvm/scripts/rvm
-      rvm use #{ruby_version}
-      gem install passenger --version=#{passenger_version} --no-ri --no-rdoc
-      passenger-install-apache2-module -a
-    EOH
-  end
-
-else
-
-  ruby_bin = '/usr/bin/ruby'
-  gems_dir = '/usr/lib/ruby/gems/1.8/gems'
-
-  bash "install passenger" do
-    code <<-EOH
-      /usr/bin/gem install passenger --version=#{passenger_version} --no-ri --no-rdoc
-      /usr/bin/passenger-install-apache2-module -a
-    EOH
-  end
-
+case node[:platform]
+  when 'centos', 'redhat', 'fedora', 'suse', 'arch'
+    conf_file    = '/etc/httpd/conf.d/passenger'
+    service_name = 'httpd'
+  when 'debian', 'ubuntu'
+    conf_file    = '/etc/apache2/conf.d/passenger'
+    service_name = 'apache2'
+  else
+    message = "Unsupported platform: #{node[:platform]}"
+    Chef::Log.error(message)
+    raise Exception.new(message)
 end
 
-passenger_content = "LoadModule passenger_module #{gems_dir}/passenger-#{passenger_version}/buildout/apache2/mod_passenger.so\n"
-passenger_content += "PassengerRoot #{gems_dir}/passenger-#{passenger_version}\n"
-passenger_content += "PassengerRuby #{ruby_bin}\n"
+bash 'install passenger' do
+  script = ''
+  if node[:ruby][:install_type] == 'rvm'
+    script += <<-EOH
+      source /usr/local/rvm/scripts/rvm
+      rvm use #{node[:ruby][:version]}
+    EOH
+  end
+  if node[:ruby][:version].to_f < 2.2
+    script += <<-EOH
+    gem install rack -v 1.6.4
+    EOH
+  end
 
+  script += <<-EOH
+    GEM_DIR=`gem env gemdir`/gems/passenger-#{passenger_version}
+    RUBY_BIN=`which ruby | tail -1`
+    rm -f #{conf_file}
+    gem install passenger --version=#{passenger_version} --no-ri --no-rdoc
+    $GEM_DIR/bin/passenger-install-apache2-module -a
+    echo "LoadModule passenger_module $GEM_DIR/buildout/apache2/mod_passenger.so" > #{conf_file}
+    echo "PassengerRoot $GEM_DIR" >> #{conf_file}
+    echo "PassengerRuby $RUBY_BIN" >> #{conf_file}
+  EOH
 
-case node[:platform]
-when "centos","redhat","fedora","suse","arch"
-  file "/etc/httpd/conf.d/passenger" do
-    content passenger_content
-  end
-  service "httpd" do
-    action :restart
-  end
-when "debian","ubuntu"
-  file "/etc/apache2/conf.d/passenger" do
-    content passenger_content
-  end
-  service "apache2" do
-    action :restart
-  end
+  Chef::Log.info("Script to install passenger:\n#{script}")
+
+  code script
+end
+
+service service_name do
+  action :restart
 end

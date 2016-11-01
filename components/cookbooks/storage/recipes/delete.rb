@@ -23,6 +23,13 @@ provider_class = node[:workorder][:services][:storage][cloud_name][:ciClassName]
 include_recipe "shared::set_provider"           
 
 dev_map = node.workorder.rfcCi.ciAttributes["device_map"]
+if provider_class =~ /azure/
+  Chef::Log.info("Deleting the data disk ...")
+  include_recipe "azuredatadisk::delete" # delete the datadisk permanently 
+  return true
+end
+
+
 unless dev_map.nil?
   dev_map.split(" ").each do |dev|
     dev_parts = dev.split(":")

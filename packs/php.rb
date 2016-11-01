@@ -18,6 +18,7 @@ resource "php",
     },
   :attributes => {
     "install_type" => 'repository',
+    "version" => 'default',
     "build_options" => '{"srcdir":"/usr/local/src/php","version":"PHP_5_3_10","prefix":"/usr/local/php","configure":""}'
   }
 

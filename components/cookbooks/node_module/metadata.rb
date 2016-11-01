@@ -21,7 +21,7 @@ attribute 'name',
   :format => {
     :category => '1.Global',
     :order => 1,
-    :help => 'Name of your application node module without the @walmart'
+    :help => 'Name of your application node module'
   }
 
 attribute 'module_name',
@@ -49,12 +49,21 @@ attribute 'server_root',
     :help => 'Location of the server'
   }
 
+attribute 'install_options',
+  :description => 'Options to pass to npe install',
+  :default => '',
+  :format => {
+    :category => '1.Global',
+    :order => 4,
+    :help => 'Options for npe install. eg --disturl=http://someinternalserver/nodejs'
+  }  
+  
 attribute 'options',
   :description => 'Options for node',
   :default => '-p 8080 -e DEV',
   :format => {
     :category => '1.Global',
-    :order => 4,
+    :order => 5,
     :help => 'Options for node'
   }
 
@@ -62,7 +71,7 @@ attribute 'script_location',
   :description => "Server start up script",
   :format => {
     :category => '1.Global',
-    :order => 5,
+    :order => 6,
     :help => 'Start node options'
   }
 
@@ -71,7 +80,7 @@ attribute 'log_file',
   :default => "/log/nodejs/app.js.log",
   :format => {
     :category => '1.Global',
-    :order => 6,
+    :order => 7,
     :help => 'location of log file'
   }
 
@@ -80,6 +89,6 @@ attribute 'as_user',
   :default => 'app',
   :format => {
     :category => '1.Global',
-    :order => 7,
+    :order => 8,
     :help => 'The user which the app will be run as'
   }

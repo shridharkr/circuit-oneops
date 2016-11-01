@@ -12,8 +12,14 @@ as_user = node['node_module']['as_user']
 server_root = node['node_module']['server_root']
 node.set['node_module']['npm'] = `which npm`.strip
 node.set['node_module']['node'] = `which node`.strip
+install_options = node['node_module']['install_options'] || ''
 
-execute "#{node['node_module']['npm']} install #{module_name}@#{module_version}" do
+["module_name","module_version","name"].each do |attr|
+  exit_with_error "#{attr} has not been defined. please specify value to proceed" unless node.node_module.has_key?(attr)
+  exit_with_error "#{attr} is empty. please specify value to proceed" if node["node_module"]["#{attr}"].empty?
+end
+
+execute "#{node['node_module']['npm']} install #{module_name}@#{module_version} #{install_options}" do
   cwd server_root
 end
 

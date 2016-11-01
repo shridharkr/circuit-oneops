@@ -100,6 +100,16 @@ attribute 'amq_truststore_location',
               :category => '1.Configuration',
               :order => 9
           }
+          
+attribute 'user',
+          :description => "User",
+          :required => "required",
+          :default => 'ooadmin',
+          :format => {
+              :help => 'The user which will own and run chef-solo on the inductor.',
+              :category => '1.Configuration',
+              :order => 10
+          }          
 
 
 # 2.Options

@@ -4,22 +4,29 @@ name "cassandra"
 description "Cassandra"
 type "Platform"
 category "Database NoSQL"
-  
+
+platform :attributes => {'autoreplace' => 'false'}
+
 resource "cassandra",
   :cookbook => "oneops.1.cassandra",
   :design => true,
-  :requires => { 
+  :requires => {
       :constraint => "1..1",
       :services => "mirror",
       :help => 'Cassandra Server'
     },
   :attributes => {
-    "version"       => "2.1",
+    "version"       => "2.1.9",
     "cluster"       => "TestCluster",
     "config_directives" => '{
-      "data_file_directories":"[\"/var/lib/cassandra/data\"]",    
+      "data_file_directories":"/var/lib/cassandra/data",
       "saved_caches_directory":"/var/lib/cassandra/saved_caches",
       "commitlog_directory":"/var/lib/cassandra/commitlog"
+    }',
+    "log4j_directives" => '{
+      "log4j.appender.R.File":"/var/log/cassandra/system.log",
+      "log4j.appender.R.maxFileSize":"10MB",
+      "log4j.rootLogger":"INFO,stdout,R"
     }'
   },
   :monitors => {
@@ -42,7 +49,7 @@ resource "cassandra",
                  :thresholds => {
                    'CriticalLogException' => threshold('1m', 'avg', 'criticals', trigger('>=', 1, 1, 1), reset('<', 1, 1, 1)),
                  }
-       },        
+       },
       'ReadOperations' =>  { :description => 'Read Operations',
                   :source => '',
                   :chart => {'min'=>0, 'unit'=>'Per Second'},
@@ -54,7 +61,7 @@ resource "cassandra",
                   },
                   :thresholds => {
                   }
-                },  
+                },
       'WriteOperations' =>  { :description => 'Write Operations',
                   :source => '',
                   :chart => {'min'=>0, 'unit'=>'Per Second'},
@@ -68,69 +75,69 @@ resource "cassandra",
                   }
                 }
   },
-  :payloads => { 
+  :payloads => {
 'clouds' => {
-    'description' => 'clouds', 
-    'definition' => '{ 
+    'description' => 'clouds',
+    'definition' => '{
        "returnObject": false,
-       "returnRelation": false, 
-       "relationName": "base.RealizedAs", 
-       "direction": "to", 
-       "targetClassName": "manifest.oneops.1.Cassandra", 
-       "relations": [ 
-         { "returnObject": false, 
-           "returnRelation": false, 
-           "relationName": "manifest.DependsOn", 
+       "returnRelation": false,
+       "relationName": "base.RealizedAs",
+       "direction": "to",
+       "targetClassName": "manifest.oneops.1.Cassandra",
+       "relations": [
+         { "returnObject": false,
+           "returnRelation": false,
+           "relationName": "manifest.DependsOn",
            "direction": "from",
-           "targetClassName": "manifest.oneops.1.Compute", 
-           "relations": [ 
-             { "returnObject": false, 
-               "returnRelation": false, 
-               "relationName": "base.RealizedAs", 
+           "targetClassName": "manifest.oneops.1.Compute",
+           "relations": [
+             { "returnObject": false,
+               "returnRelation": false,
+               "relationName": "base.RealizedAs",
                "direction": "from",
                "targetClassName": "bom.oneops.1.Compute",
-               "relations": [ 
-                 { "returnObject": true, 
-                   "returnRelation": false, 
-                   "relationName": "base.DeployedTo", 
+               "relations": [
+                 { "returnObject": true,
+                   "returnRelation": false,
+                   "relationName": "base.DeployedTo",
                    "direction": "from",
-                   "targetClassName": "account.Cloud" 
+                   "targetClassName": "account.Cloud"
                  }
-               ]                
+               ]
              }
            ]
-         } 
-       ] 
-    }'  
+         }
+       ]
+    }'
   },
 'computes' => {
-    'description' => 'computes', 
-    'definition' => '{ 
-       "returnObject": false, 
-       "returnRelation": false, 
-       "relationName": "base.RealizedAs", 
-       "direction": "to", 
-       "targetClassName": "manifest.oneops.1.Cassandra", 
-       "relations": [ 
-         { "returnObject": false, 
-           "returnRelation": false, 
-           "relationName": "manifest.DependsOn", 
+    'description' => 'computes',
+    'definition' => '{
+       "returnObject": false,
+       "returnRelation": false,
+       "relationName": "base.RealizedAs",
+       "direction": "to",
+       "targetClassName": "manifest.oneops.1.Cassandra",
+       "relations": [
+         { "returnObject": false,
+           "returnRelation": false,
+           "relationName": "manifest.DependsOn",
            "direction": "from",
-           "targetClassName": "manifest.oneops.1.Compute", 
-           "relations": [ 
-             { "returnObject": true, 
-               "returnRelation": false, 
-               "relationName": "base.RealizedAs", 
+           "targetClassName": "manifest.oneops.1.Compute",
+           "relations": [
+             { "returnObject": true,
+               "returnRelation": false,
+               "relationName": "base.RealizedAs",
                "direction": "from",
                "targetClassName": "bom.oneops.1.Compute"
              }
            ]
-         } 
-       ] 
-    }'  
-  }  
+         }
+       ]
+    }'
+  }
  }
-  
+
 
 
 # overwrite volume from generic_ring to make them mandatory
@@ -139,19 +146,19 @@ resource "volume",
   :attributes => {  "mount_point"   => '/var/lib/cassandra',
                     "device"        => '',
                     "fstype"        => 'xfs',
-                    "options"       => ''                     
+                    "options"       => ''
                  },
   :monitors => {
-      'usage' =>  {'description' => 'Usage', 
+      'usage' =>  {'description' => 'Usage',
                   'chart' => {'min'=>0,'unit'=> 'Percent used'},
                   'cmd' => 'check_disk_use!:::node.workorder.rfcCi.ciAttributes.mount_point:::',
                   'cmd_line' => '/opt/nagios/libexec/check_disk_use.sh $ARG1$',
                   'metrics' => { 'space_used' => metric( :unit => '%', :description => 'Disk Space Percent Used'),
                                  'inode_used' => metric( :unit => '%', :description => 'Disk Inode Percent Used') },
                   :thresholds => {
-                    'LowDiskSpace' => threshold('5m','avg','space_used',trigger('>',45,5,1),reset('<',45,5,1))                
-                  },                 
-                },                  
+                    'LowDiskSpace' => threshold('5m','avg','space_used',trigger('>',45,5,1),reset('<',45,5,1))
+                  },
+                },
     }
 
 resource "artifact",
@@ -162,19 +169,22 @@ resource "artifact",
          }
 
 resource "keyspace",
-  :cookbook => "oneops.1.keyspace",
-  :design => true,
-  :requires => { "constraint" => "0..*"},
-  :attributes => {
-  }
+         :cookbook => "oneops.1.keyspace",
+         :design => true,
+         :requires => {"constraint" => "0..*"},
+         :attributes => {
+         }
 
-resource "java",
-  :cookbook => "oneops.1.java",
-  :design => true,
-  :requires => { "constraint" => "0..1"},
-  :attributes => {
-  }
-  
+resource 'java',
+         :cookbook => 'oneops.1.java',
+         :design => true,
+         :requires => {
+             :constraint => '0..1',
+             :services => '*mirror',
+             :help => 'Java Programming Language Environment'
+         },
+         :attributes => {}
+
 resource "secgroup",
          :cookbook => "oneops.1.secgroup",
          :design => true,
@@ -185,7 +195,7 @@ resource "secgroup",
              :constraint => "1..1",
              :services => "compute"
          }
-  
+
 resource 'logstash',
          :cookbook => 'oneops.1.logstash',
          :design => true,
@@ -231,7 +241,7 @@ resource "hostname",
     :services => "dns",
     :help => "optional hostname dns entry"
   }
-  
+
 
 resource "haproxy",
   :cookbook => "oneops.1.haproxy",
@@ -253,25 +263,25 @@ resource "haproxy",
                          'bytes_out' => metric(:unit => 'bytes/sec', :description => 'Bytes out /sec', :dstype => 'DERIVE')
                      }
            }
-  }        
-  
+  }
+
 # depends_on
 [ { :from => 'java',      :to => 'os' },
-  { :from => 'haproxy',   :to => 'os' },    
+  { :from => 'haproxy',   :to => 'os' },
   { :from => 'cassandra', :to => 'volume' },
   { :from => 'cassandra', :to => 'share' },
   { :from => 'cassandra', :to => 'hostname' },
-  { :from => 'cassandra', :to => 'java' },  
+  { :from => 'cassandra', :to => 'java' },
   { :from => 'daemon',    :to => 'cassandra'  },
   { :from => 'artifact',  :to => 'cassandra'  },
   { :from => 'logstash',  :to => 'artifact'  },
-  { :from => 'daemon',    :to => 'artifact'  },  
+  { :from => 'daemon',    :to => 'artifact'  },
   { :from => 'build',     :to => 'cassandra'  }  ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
     :relation_name => 'DependsOn',
     :from_resource => link[:from],
     :to_resource   => link[:to],
-    :attributes    => { "flex" => false, "min" => 1, "max" => 1 } 
+    :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
 end
 
 # propagation rule for replace
@@ -289,7 +299,7 @@ end
     :relation_name => 'DependsOn',
     :from_resource => link[:from],
     :to_resource   => link[:to],
-    :attributes    => {"propagate_to" => 'from', "flex" => false, "min" => 1, "max" => 1 } 
+    :attributes    => {"propagate_to" => 'from', "flex" => false, "min" => 1, "max" => 1 }
 end
 
 relation "ring::depends_on::cassandra",
@@ -297,22 +307,22 @@ relation "ring::depends_on::cassandra",
     :relation_name => 'DependsOn',
     :from_resource => 'ring',
     :to_resource   => 'cassandra',
-    :attributes    => { "flex" => true, "min" => 3, "max" => 10 } 
+    :attributes    => { "flex" => true, "min" => 3, "max" => 10 }
 
 relation "keyspace::depends_on::ring",
     :except => [ '_default', 'single' ],
     :relation_name => 'DependsOn',
     :from_resource => 'keyspace',
     :to_resource   => 'ring',
-    :attributes    => { } 
+    :attributes    => { }
 
 relation "keyspace::depends_on::cassandra",
     :except => [ 'redundant' ],
     :relation_name => 'DependsOn',
     :from_resource => 'keyspace',
     :to_resource   => 'cassandra',
-    :attributes    => { } 
-    
+    :attributes    => { }
+
 # managed_via
 [ 'cassandra','java','artifact', 'logstash','haproxy'].each do |from|
   relation "#{from}::managed_via::compute",
@@ -320,7 +330,7 @@ relation "keyspace::depends_on::cassandra",
     :relation_name => 'ManagedVia',
     :from_resource => from,
     :to_resource   => 'compute',
-    :attributes    => { } 
+    :attributes    => { }
 end
 
 [ 'keyspace'].each do |from|
@@ -329,7 +339,7 @@ end
     :relation_name => 'ManagedVia',
     :from_resource => from,
     :to_resource   => 'compute',
-    :attributes    => { } 
+    :attributes    => { }
 end
 
 [ 'keyspace'].each do |from|
@@ -338,5 +348,40 @@ end
     :relation_name => 'ManagedVia',
     :from_resource => from,
     :to_resource   => 'ring',
-    :attributes    => { } 
+    :attributes    => { }
 end
+
+procedure "nodetool",
+  :description => "Cassandra nodetool",
+  :arguments => {
+        "nodetool arguments" => {
+                "name" => "nodetool_args",
+                "defaultValue" => "status",
+                "dataType" => "string"
+        }
+   },
+   :definition => '{
+    "flow": [
+        {
+            "execStrategy": "one-by-one",
+            "relationName": "manifest.Requires",
+            "direction": "from",
+            "targetClassName": "manifest.oneops.1.Cassandra",
+            "flow": [
+                {
+                    "relationName": "base.RealizedAs",
+                    "execStrategy": "one-by-one",
+                    "direction": "from",
+                    "targetClassName": "bom.oneops.1.Cassandra",
+                    "actions": [
+                        {
+                            "actionName": "nodetool",
+                            "stepNumber": 1,
+                            "isCritical": true
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}'

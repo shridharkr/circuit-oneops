@@ -1,4 +1,10 @@
-node.set[:user][:home] = node[:user][:home_directory].empty? ? "/home/#{node[:user][:username]}" : node[:user][:home_directory]
+if node.platform =~ /windows/
+  include_recipe "user::windows_user_add"
+  return
+end
+
+home_dir = node[:user][:home_directory]
+node.set[:user][:home] = home_dir && !home_dir.empty? ? home_dir : "/home/#{node[:user][:username]}"
 
 Chef::Log.info("Stopping the nslcd service")
 `sudo killall -9  /usr/sbin/nslcd`

@@ -29,35 +29,28 @@ file "#{inductor_home}/certs/perf_collector_cert.crt" do
   content inductor[:ciAttributes][:perf_collector_cert]
 end
 
-# answers
-# TODO metrics is hard-coded to true because collector_domain is needed for logs, conditional question should be removed
-directory "#{inductor_home}/answers"
-file "#{inductor_home}/answers/#{inductor_name}" do
-  content <<-EOT
-#{inductor[:ciAttributes][:mqhost]}
-#{inductor[:ciAttributes][:dns]}
-#{inductor[:ciAttributes][:debug]}
-true
-#{inductor[:ciAttributes][:collector_domain]}
-#{inductor_home}/certs/perf_collector_cert.crt
-#{inductor[:ciAttributes][:ip]}
-#{inductor[:ciAttributes][:queue]}
-#{inductor[:ciAttributes][:url]}
-#{inductor_home}/certs/#{inductor_name}
-#{inductor[:ciAttributes][:logstash_hosts]}
-#{inductor[:ciAttributes][:max]}
-#{inductor[:ciAttributes][:maxlocal]}
-#{inductor[:ciAttributes][:authkey]}
-#{inductor[:ciAttributes][:additional_java_args]}
-#{inductor[:ciAttributes][:env_vars]}
-#{inductor[:ciAttributes][:amq_truststore_location]}
-EOT
-end
+cmd = "inductor add "
+cmd += "--mqhost #{inductor[:ciAttributes][:mqhost]} "
+cmd += "--dns #{inductor[:ciAttributes][:dns]} "
+cmd += "--debug #{inductor[:ciAttributes][:debug]} "
+cmd += "--daq_enabled true "
+cmd += "--collector_domain #{inductor[:ciAttributes][:collector_domain]} "
+cmd += "--tunnel_metrics off "
+cmd += "--perf_collector_cert #{inductor_home}/certs/perf_collector_cert.crt "
+cmd += "--ip_attribute #{inductor[:ciAttributes][:ip]} "
+cmd += "--queue #{inductor[:ciAttributes][:queue]} "
+cmd += "--mgmt_url #{inductor[:ciAttributes][:url]} "
+cmd += "--logstash_cert_location #{inductor_home}/certs/#{inductor_name} "
+cmd += "--logstash_hosts #{inductor[:ciAttributes][:logstash_hosts]} "
+cmd += "--max_consumers #{inductor[:ciAttributes][:max]} "
+cmd += "--local_max_consumers #{inductor[:ciAttributes][:maxlocal]} "
+cmd += "--authkey #{inductor[:ciAttributes][:authkey]} "
+cmd += "--additional_java_args \"#{inductor[:ciAttributes][:additional_java_args]}\" "
+cmd += "--env_vars \"#{inductor[:ciAttributes][:env_vars]}\" "
+cmd += "--amq_truststore_location #{inductor[:ciAttributes][:amq_truststore_location]} "
 
 # add/update inductor queue
-execute "inductor add < #{inductor_home}/answers/#{inductor_name}" do
+execute cmd do
   cwd inductor_home
+  user "ooadmin"
 end
-
-# this needs to be fixed in the gem
-execute "chmod +x #{inductor_home}/clouds-available/*/bin/*"

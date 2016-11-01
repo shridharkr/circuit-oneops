@@ -6,7 +6,7 @@ Installs activemq and sets up a service using the init script that comes with it
 
 Platform:
 
-Tested on Ubuntu 10.04 and CentOS 5.5. Should work on any Debian or Red Hat family distributions.
+Tested CentOS 7.0. Should work on any Debian or Red Hat family distributions.
 
 Opscode cookbooks:
 
@@ -17,6 +17,11 @@ Opscode cookbooks:
 * `activemq[:mirror]` - download URL up to the activemq/apache-activemq directory.
 * `activemq[:version]` - version to install.
 * `activemq[:deploy]` - directory to deploy to (/opt by default)
+
+# VERSIONS:
+
+Tested with versions 5.9 onwards till 5.13.2(latest)
+
 
 # USAGE:
 

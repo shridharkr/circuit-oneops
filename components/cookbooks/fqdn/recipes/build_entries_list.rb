@@ -15,155 +15,56 @@
 # Cookbook Name:: fqdn
 # Recipe:: build_entries_list
 #
-# builds a list of dns entries based on entrypoint, aliases, cloud and platform
-# no ManagedVia - recipes will run on the gw
+# builds a list of dns entries based on entrypoint, DependsOn, (full) aliases, cloud and platform
+#
 
-require 'json'
+extend Fqdn::Base
+Chef::Resource::RubyBlock.send(:include, Fqdn::Base)
 
 cloud_name = node[:workorder][:cloud][:ciName]
-service = node[:workorder][:services][:dns][cloud_name][:ciAttributes]
-domain_name = service[:zone]
-
-# set to empty set to handle delete on inactive platform
-node.set["entries"] = []
-
-# get dns value using dns_record attr or if empty resort to case stmt based on component class
-def get_dns_values (components)
-  values = Array.new
-  components.each do |component|
-
-    attrs = component[:ciAttributes]
-
-    dns_record = attrs[:dns_record] || ''
-
-    # backwards compliance: until all computes,lbs,clusters have dns_record populated need to get via case stmt
-    if dns_record.empty?
-      case component[:ciClassName]
-      when /Compute/
-        if attrs.has_key?("public_dns") && !attrs[:public_dns].empty?
-         dns_record = attrs[:public_dns]+'.'
-        else
-         dns_record = attrs[:public_ip]
-        end
-
-        if location == ".int" || dns_entry == nil || dns_entry.empty?
-          dns_record = attrs[:private_ip]
-        end
-
-      when /Lb/
-        dns_record = attrs[:dns_record]
-      when /Cluster/
-        dns_record = attrs[:shared_ip]
-      end
-    else
-      # unless ends w/ . or is an ip address
-      dns_record += '.' unless dns_record =~ /,|\.$|^\d+\.\d+\.\d+\.\d+$/
-    end
-
-    if dns_record.empty?
-      Chef::Log.error("cannot get dns_record value for: "+component.inspect)
-      exit 1
-    end
-
-    if dns_record =~ /,/
-      values.concat dns_record.split(",")
-    else
-      values.push(dns_record)
-    end
-  end
-  return values
-end
-
-
-def get_primary_ips(ci,values,customer_domain)
-
-  other_active_clouds = []
-  if node.workorder.payLoad.has_key?("activeclouds")
-     node.workorder.payLoad.activeclouds.each do |cloud|
-       if cloud["nsPath"] != node.workorder.cloud.nsPath
-         other_active_clouds.push(cloud["nsPath"])
-       end
-     end
-
-    # map by ns_path
-    dns_cloud_map = {}
-    if node.workorder.payLoad.has_key?("remotedns")
-      node.workorder.payLoad.remotedns.each do |dns_service|
-        ns_path = dns_service["nsPath"]
-        dns_cloud_map[ns_path] = dns_service["ciAttributes"]
-      end
-
-    end
-
-    cloud_level_name = ci[:ciName] + customer_domain
-    cloud_name = node.workorder.cloud.ciName
-    cloud_dns_service = node[:workorder][:services][:dns][cloud_name][:ciAttributes]
-    cloud_dns_zone = cloud_dns_service[:zone]
-    cloud_dns_id = cloud_dns_service[:cloud_dns_id]
-
-    # foreach other active cloud get the cloud-level entry and ip for the RR dns entry
-    other_active_clouds.each do |cloud|
-      ci_name = cloud.split("/").last
-      next if ci_name == cloud_name
-      other_cloud_service = dns_cloud_map[cloud]
-      other_cloud_dns_id =  other_cloud_service["cloud_dns_id"]
-      other_cloud_dns_zone =  other_cloud_service["zone"]
-      other_cloud_dns_name =   cloud_level_name.gsub(
-           "\."+cloud_dns_id+"\."+cloud_dns_zone,
-           "."+other_cloud_dns_id+"."+other_cloud_dns_zone).downcase
-      Chef::Log.info("other_cloud_dns_name: dig +short #{other_cloud_dns_name} @#{node.ns}")
-      other_ips = `dig +short #{other_cloud_dns_name} @#{node.ns} | grep -v ";;"`.split("\n")
-      other_ips.each do |rr_entry|
-        Chef::Log.info("#{other_cloud_dns_name} #{rr_entry}")
-        values.push(rr_entry) if !values.include?(rr_entry)
-      end
-    end
-
-  end
-
-  return values
-end
-
+service_attrs = node[:workorder][:services][:dns][cloud_name][:ciAttributes]
+  
 # ex) customer_domain: env.asm.org.oneops.com
-customer_domain = node.customer_domain
-if node.customer_domain !~ /^\./
-  customer_domain = '.'+node.customer_domain
-end
-
-# skip in active (A/B update)
-box = node[:workorder][:box][:ciAttributes]
-if box.has_key?(:is_active) && box[:is_active] == "false"
-  Chef::Log.info("skipping due to platform is_active false")
-  return
+customer_domain = node.customer_domain.downcase
+if node.customer_domain.downcase !~ /^\./
+  customer_domain = '.'+node.customer_domain.downcase
 end
 
 # entries Array of {name:String, values:Array}
 entries = Array.new
 
-#
-# build set of entries from entrypoint or DependsOn compute
-#
-ci = nil
-
 # used to prevent full,short aliases on hostname entries
 is_hostname_entry = false
+lbs = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Lb/ }
+
 if node.workorder.payLoad.has_key?("Entrypoint")
-  ci = node.workorder.payLoad.Entrypoint[0]
-  dns_name = (ci[:ciName] +customer_domain).downcase
+ ci = node.workorder.payLoad.Entrypoint[0]
+ dns_name = (ci[:ciName] +customer_domain).downcase
+
+elsif lbs.size > 0
+ ci = lbs.first
+ ci_name_parts = ci[:ciName].split('-')
+ # remove instance and cloud id from ci name
+ ci_name_parts.pop
+ ci_name_parts.pop 
+ ci_name = ci_name_parts.join('-')
+ dns_name = (ci_name + customer_domain).downcase
 
 else
   os = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Os/ }
 
   if os.size > 1
-    Chef::Log.error("unsupported usecase - need to check why there are multiple os for same fqdn")
-    e = Exception.new("no backtrace")
-    e.set_backtrace("")
-    raise e
+    fail_with_error "unsupported usecase - need to check why there are multiple os for same fqdn"
   end
   is_hostname_entry = true
   ci = os.first
-  dns_name = (ci[:ciAttributes][:hostname] + customer_domain).downcase
 
+  provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
+  if provider_service =~ /azuredns/
+    dns_name = (ci[:ciAttributes][:hostname]).downcase
+  else
+    dns_name = (ci[:ciAttributes][:hostname] + customer_domain).downcase
+  end
 end
 
 
@@ -188,25 +89,13 @@ if node.workorder.rfcCi.ciAttributes.has_key?("full_aliases") && !is_hostname_en
 end
 
 
-cloud_service = node[:workorder][:services][:dns][cloud_name]
-service_attrs = cloud_service[:ciAttributes]
 if service_attrs[:cloud_dns_id].nil? || service_attrs[:cloud_dns_id].empty?
-  msg = "no cloud_dns_id for dns cloud service: #{cloud_service[:nsPath]} #{cloud_service[:ciName]}"
-  Chef::Log.error(msg)
-  puts "***FAULT:FATAL=#{msg}"
-  e = Exception.new("no backtrace")
-  e.set_backtrace("")
-  raise e
+  fail_with_error "no cloud_dns_id for dns cloud service: #{cloud_service[:nsPath]} #{cloud_service[:ciName]}"
 end
 
 
 if !node.workorder.payLoad.has_key?(:DependsOn)
-  msg = "missing DependsOn payload"
-  Chef::Log.error(msg)
-  puts "***FAULT:FATAL=#{msg}"
-  e = Exception.new("no backtrace")
-  e.set_backtrace("")
-  raise e
+  fail_with_error "missing DependsOn payload"
 end
 
 # values using DependsOn's dns_record attr
@@ -221,7 +110,9 @@ deletable_entries = [{:name => dns_name, :values => values }]
 
 # cloud-level short aliases
 aliases.each do |a|
-  next if a.empty?
+  next if a.empty? 
+  # skip if user has a short alias same as platform name
+  next if a == node.workorder.box.ciName
   alias_name = a + customer_domain
   Chef::Log.info("short alias dns_name: #{alias_name} values: "+dns_name)
   entries.push({:name => alias_name, :values => dns_name })
@@ -256,10 +147,17 @@ end
 
 
  # platform level
-if node.workorder.cloud.ciAttributes.priority == "1"
+if node.workorder.cloud.ciAttributes.priority != "1"
+
+  # clear platform if not primary and not gslb
+  if !node.has_key?("gslb_domain")
+    entries.push({:name => primary_platform_dns_name, :values => [] })
+  end
+  
+else
 
   if node.has_key?("gslb_domain") && !node.gslb_domain.nil?
-    value_array = node.gslb_domain
+    value_array = [ node.gslb_domain ]
   else
     # infoblox doesnt support round-robin cnames so need to get other primary cloud-level ip's
     value_array = []
@@ -269,17 +167,18 @@ if node.workorder.cloud.ciAttributes.priority == "1"
       value_array += values
     end
 
-    if node.dns_action != "delete" ||
-      (node.dns_action == "delete" && node.is_last_active_cloud)
-
-      get_primary_ips(ci,value_array,customer_domain)
-
+  end
+  
+  is_a_record = false
+  value_array.each do |val|
+    if val =~ /^\d+\.\d+\.\d+\.\d+$/
+      is_a_record = true
     end
-
   end
 
   if node.dns_action != "delete" ||
-    (node.dns_action == "delete" && node.is_last_active_cloud_in_dc)
+    (node.dns_action == "delete" && node.is_last_active_cloud) ||
+    (node.dns_action == "delete" && is_a_record)
 
     entries.push({:name => primary_platform_dns_name, :values => value_array })
     deletable_entries.push({:name => primary_platform_dns_name, :values => value_array })
@@ -316,8 +215,9 @@ if node.workorder.cloud.ciAttributes.priority == "1"
         full_value = node.gslb_domain
       end
 
-      Chef::Log.info("full alias dns_name: #{full} values: "+full_value)
-      entries.push({:name => full, :values => full_value })
+
+      Chef::Log.info("full alias dns_name: #{full} values: #{full_value} hijackable: #{node.workorder.rfcCi.ciAttributes.hijackable_full_aliases}")
+      entries.push({:name => full, :values => full_value, :is_hijackable => node.workorder.rfcCi.ciAttributes.hijackable_full_aliases })
       deletable_entries.push({:name => full, :values => full_value})
     end
   end
@@ -342,5 +242,18 @@ puts "***RESULT:entries=#{JSON.dump(entries_hash)}"
 
 # pass to set_dns_entries
 node.set[:entries] = entries
-# needed due to cleanup/delete logic using dns call to get list
+
+
+previous_entries = {}
+if node.workorder.rfcCi.ciBaseAttributes.has_key?("entries")
+  previous_entries = JSON.parse(node.workorder.rfcCi.ciBaseAttributes.entries)
+end
+if node.workorder.rfcCi.ciAttributes.has_key?("entries")
+  previous_entries.merge!(JSON.parse(node.workorder.rfcCi.ciAttributes['entries']))
+end
+node.set[:previous_entries] = previous_entries
+
+previous_entries.each do |k,v|
+  deletable_entries.push({:name => k, :values => v})
+end
 node.set[:deletable_entries] = deletable_entries

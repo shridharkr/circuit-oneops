@@ -1,5 +1,11 @@
+
+def exit_with_error(msg)
+	puts "***FAULT:FATAL=#{msg}"
+	Chef::Application.fatal!(msg)
+end
+
 def find_bricks(index,replicas,length)
-  bricks = []
+  bricks = Array.new
   for n in 0..(replicas-1)
     brick_id = (index - 1) * replicas + 1 - n * (replicas - 1)
     brick_id = brick_id > 0 ? brick_id : brick_id + length * replicas
@@ -8,11 +14,20 @@ def find_bricks(index,replicas,length)
   return bricks
 end
 
-def check_for_error_message(message)
-	bad_messages=["fail", "error", "Error"]
-	if bad_messages.any? { |m| message.include?(m) }
-		return "fail"
+def extract_hosts_from_bricks(bricks)
+	hosts = Array.new
+	bricks.each do |b|
+		hosts << b.scan(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/).to_s
+	end
+	return hosts
+end
+
+def execute_command(command, exit_out = true)
+	output = `#{command} 2>&1`
+	if $?.success?
+		Chef::Log.info("#{command} got successful. #{output}")
 	else
-		return "success"
+        Chef::Application.fatal!("#{command} got failed. #{output}") if exit_out
+        Chef::Log.warn("#{command} got failed. #{output}") if !exit_out
 	end
 end

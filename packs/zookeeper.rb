@@ -5,6 +5,8 @@ description "Zookeeper"
 type "Platform"
 category "Other"
 
+platform :attributes => {'autoreplace' => 'false'}
+
 environment "single", {}
 environment "redundant", {}
 
@@ -75,15 +77,15 @@ resource "user-zookeeper",
              "sudoer" => true
          }
 
-resource "java",
-         :cookbook => "oneops.1.java",
+resource 'java',
+         :cookbook => 'oneops.1.java',
          :design => true,
          :requires => {
-             :constraint => "1..1",
-             :help => "Java Programming Language Environment"
+             :constraint => '1..1',
+             :services => '*mirror',
+             :help => 'Java Programming Language Environment'
          },
-         :attributes => {
-          }
+         :attributes => {}
 
 resource "hostname",
         :cookbook => "oneops.1.fqdn",

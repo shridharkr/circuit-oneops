@@ -13,13 +13,13 @@ grouping 'default',
 attribute 'version',
           :description => 'Version',
           :required => 'required',
-          :default => '1.9.1',
+          :default => '1.11.2',
           :format => {
               :important => true,
               :help => 'Docker engine version',
               :category => '1.Binary',
               :order => 1,
-              :form => {:field => 'select', :options_for_select => [['1.9.1', '1.9.1'], ['1.10.2', '1.10.2']]}
+              :form => {:field => 'select', :options_for_select => [['1.9.1', '1.9.1'], ['1.10.2', '1.10.2'], ['1.11.2', '1.11.2']]}
           }
 
 attribute 'repo',
@@ -151,8 +151,82 @@ attribute 'limit_directives',
               :help => 'Systemd limit directives for docker engine. Use the string "infinity" to configure no limit on a specific resource.',
               :order => 1
           }
+          
+          
+attribute 'network',
+          :description => 'Network Overlay',
+          :default => 'none',
+          :format => {
+            :category => '7.Network',
+            :help => 'Network Overlay',
+            :form => {
+              :field => 'select',
+              :options_for_select => [['none', 'none'], ['flannel', 'flannel']]
+            },
+            :order => 1
+          }          
 
+attribute 'network_cidr',
+          :description => 'Network CIDR',
+          :default => '11.11.0.0/16',
+          :format => {
+            :category => '7.Network',
+            :help => 'Network CIDR',
+            :form => {
+              :filter => {:all => {:visible => 'network:ne:none'}},
+            },
+            :order => 2
+          }
 
+attribute 'flannel_security_enabled',
+          :description => 'Flannel Etcd TLS Enabled',
+          :default => 'false',
+          :format => {
+            :category => '7.Flannel',
+            :help => 'Flannel Etcd TLS Enabled',
+            :form => {
+              :filter => {:all => {:visible => 'network:eq:flannel'}},
+            },
+            :order => 3
+          }                       
+                    
+attribute 'flannel_security_cacert',
+          :description => 'Flannel Etcd CA Cert',
+          :default => '',
+          :format => {
+            :category => '7.Flannel',
+            :help => 'Flannel Etcd CA Cert',
+            :form => {
+              :filter => {:all => {:visible => 'flannel_security_enabled:eq:true'}},
+            },
+            :order => 4
+          }
+
+attribute 'flannel_security_cert',
+          :description => 'Flannel Etcd Cert',
+          :default => '',
+          :format => {
+            :category => '7.Flannel',
+            :help => 'Flannel Etcd CA Cert',
+            :form => {
+              :filter => {:all => {:visible => 'flannel_security_enabled:eq:true'}},
+            },
+            :order => 5
+          }
+           
+attribute 'flannel_security_key',
+          :description => 'Flannel Etcd Key',
+          :default => '',
+          :encrypted => true,
+          :format => {
+            :category => '7.Flannel',
+            :help => 'Flannel Etcd CA Cert',
+            :form => {
+              :filter => {:all => {:visible => 'flannel_security_enabled:eq:true'}},
+            },
+            :order => 6
+          }
+          
 recipe 'status', 'Docker engine Status'
 recipe 'start', 'Start Docker engine'
 recipe 'stop', 'Stop Docker engine'

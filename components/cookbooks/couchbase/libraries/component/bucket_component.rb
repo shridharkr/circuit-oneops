@@ -50,8 +50,8 @@ module Couchbase
                     # dynamic payload defined in the pack to get the resources
                     dependencies = @data.workorder.payLoad.cb
                     dependencies.each do |depends_on|
-                        class_name = depends_on["ciClassName"].downcase.gsub("bom\.","")
-                        Chef::Log.info("class_name:#{class_name}")
+                        class_name = depends_on["ciClassName"].downcase.gsub("bom\.oneops\.1\.","")
+			Chef::Log.info("class_name:#{class_name}")
                         if class_name == "couchbase"
                             if depends_on["ciAttributes"].has_key?("adminuser")
                                 user = depends_on["ciAttributes"]["adminuser"]

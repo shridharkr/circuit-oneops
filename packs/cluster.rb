@@ -6,6 +6,8 @@ type "Platform"
 ignore true
 category "General"
 
+platform :attributes => {'autoreplace' => 'false'}
+
 resource "crm",
   :except => [ 'single' ],
   :design => false,

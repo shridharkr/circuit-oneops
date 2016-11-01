@@ -1,5 +1,8 @@
 require File.expand_path('../../libraries/traffic_managers.rb', __FILE__)
 
+#set the proxy if it exists as a cloud var
+Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
+
 nsPathParts = node['workorder']['rfcCi']['nsPath'].split('/')
 cloud_name = node['workorder']['cloud']['ciName']
 dns_attributes = node['workorder']['services']['dns'][cloud_name]['ciAttributes']
@@ -18,4 +21,3 @@ traffic_manager_processor = TrafficManagers.new(resource_group_name, profile_nam
 status_code = traffic_manager_processor.delete_profile
 
 Chef::Log.info("Exiting Traffic Manager Delete with response status code: " + status_code.to_s)
-

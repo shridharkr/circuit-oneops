@@ -38,24 +38,23 @@ file "#{control_script_location}" do
   action :create
 end
 
+# enable daemon service
+service "#{service_name}" do
+  action :enable
+end
 
-# TODO: find why service use of only_if { pat.empty? } doesn't work
-
-if pat.empty?
-  # set basic service
-  #service "#{service_name}" do
-  #  action [:enable,:restart]
-  #end
-  # above segfaults on some VMs with 1.8.7     
-  service "#{service_name}" do
-    action :enable
+# restart daemon service when pattern has not been specified
+ruby_block "restart #{service_name} service" do
+  block do
+    Chef::Resource::RubyBlock.send(:include, Chef::Mixin::ShellOut)
+    shell_out!("service #{service_name} restart", :live_stream => Chef::Log::logger)
   end
-  execute "/sbin/service #{service_name} restart"  
+  only_if { pat.empty? }
+end
 
-else
-  # set pattern based service
-  service "#{service_name}" do
-    pattern "#{pat}"
-    action [:enable,:restart]
-  end
+# restart daemon service when pattern has been specified
+service "#{service_name}" do
+  pattern "#{pat}"
+  action :restart
+  only_if { !pat.empty? }
 end

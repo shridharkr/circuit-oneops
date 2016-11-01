@@ -8,24 +8,22 @@ category "Worker Application"
 environment "single", {}
 environment "redundant", {}
 
-resource "java",
-  :cookbook => "oneops.1.java",
-  :design => true,
-  :requires => {
-    :constraint => "1..1",
-    :help => "java programming language environment",
-    :services => 'mirror'
-  },
-  :attributes => {
-
-  }
+resource 'java',
+         :cookbook => 'oneops.1.java',
+         :design => true,
+         :requires => {
+             :constraint => '1..1',
+             :services => 'mirror',
+             :help => 'Java Programming Language Environment'
+         },
+         :attributes => {}
 
 resource "secgroup",
          :cookbook => "oneops.1.secgroup",
          :design => true,
          :attributes => {
-       	     "inbound" => '[ "22 22 tcp 0.0.0.0/0" ]'
-	 },
+             "inbound" => '[ "22 22 tcp 0.0.0.0/0" ]'
+         },
          :requires => {
              :constraint => "1..1",
              :services => "compute"

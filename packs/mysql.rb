@@ -1,9 +1,11 @@
-include_pack "genericdb"
+include_pack "lbdb"
 
 name "mysql"
 description "MySQL"
 type "Platform"
 category "Database Relational SQL"
+
+platform :attributes => {'autoreplace' => 'false'}
   
 resource "mysql",
   :cookbook => "oneops.1.mysql",
@@ -73,16 +75,6 @@ end
     :attributes    => { "flex" => false, "min" => 1, "max" => 1 } 
 end
 
-[ 'crm' ].each do |from|
-  relation "#{from}::depends_on::mysql",
-    :except => [ '_default', 'single' ],
-    :relation_name => 'DependsOn',
-    :from_resource => from,
-    :to_resource   => 'mysql',
-    :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
-end
-
-
 # managed_via
 [ 'mysql' ].each do |from|
   relation "#{from}::managed_via::compute",
@@ -99,14 +91,14 @@ end
 procedure "snapshot",
   :description => "Snapshot",
   :arguments => {
-        "snapshot" => {
-                "name" => "snapshot",
-                "defaultValue" => "",
+        "database_name" => {
+                "name" => "database_name",
+                "defaultValue" => "mydb",
                 "dataType" => "string"
         },
-        "bucket" => {
-                "name" => "bucket",
-                "defaultValue" => "",
+        "snapshot_path" => {
+                "name" => "snapshot_path",
+                "defaultValue" => "/db/snapshot/mydb.sql",
                 "dataType" => "string"
         }
    },
@@ -116,13 +108,13 @@ procedure "snapshot",
             "execStrategy": "one-by-one",
             "relationName": "manifest.Requires",
             "direction": "from",
-            "targetClassName": "manifest.Mysql",
+            "targetClassName": "manifest.oneops.1.Mysql",
             "flow": [
                 {
                     "relationName": "base.RealizedAs",
                     "execStrategy": "one-by-one",
                     "direction": "from",
-                    "targetClassName": "bom.Mysql",
+                    "targetClassName": "bom.oneops.1.Mysql",
                     "actions": [
                         {
                             "actionName": "snapshot",
@@ -139,14 +131,14 @@ procedure "snapshot",
 procedure "restore",
   :description => "Restore",
   :arguments => {
-        "snapshot" => {
-                "name" => "snapshot",
-                "defaultValue" => "",
+        "database_name" => {
+                "name" => "database_name",
+                "defaultValue" => "mydb",
                 "dataType" => "string"
         },
-        "bucket" => {
-                "name" => "bucket",
-                "defaultValue" => "",
+        "snapshot_path" => {
+                "name" => "snapshot_path",
+                "defaultValue" => "/db/snapshot/mydb.sql",
                 "dataType" => "string"
         }
    },
@@ -156,13 +148,13 @@ procedure "restore",
             "execStrategy": "one-by-one",
             "relationName": "manifest.Requires",
             "direction": "from",
-            "targetClassName": "manifest.Mysql",
+            "targetClassName": "manifest.oneops.1.Mysql",
             "flow": [
                 {
                     "relationName": "base.RealizedAs",
                     "execStrategy": "one-by-one",
                     "direction": "from",
-                    "targetClassName": "bom.Mysql",
+                    "targetClassName": "bom.oneops.1.Mysql",
                     "actions": [
                         {
                             "actionName": "restore",

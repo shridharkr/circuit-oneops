@@ -202,7 +202,7 @@ resource "build",
     "migration_command" => '',
     "restart_command"   => ''
   }
-  
+
 resource "secgroup",
          :cookbook => "oneops.1.secgroup",
          :design => true,
@@ -214,52 +214,65 @@ resource "secgroup",
              :services => "compute"
          }
 
-resource "java",
-  :cookbook => "oneops.1.java",
-  :design => true,
-  :requires => {
-    :constraint => "1..1",
-    :help => "java programming language environment"
-  },
-  :attributes => {
+resource 'java',
+         :cookbook => 'oneops.1.java',
+         :design => true,
+         :requires => {
+             :constraint => '1..1',
+             :services => '*mirror',
+             :help => 'Java Programming Language Environment'
+         },
+         :attributes => {}
 
-  }
-  
-  
+
 # depends_on
-[ { :from => 'tomcat',     :to => 'os' },  
+[ { :from => 'tomcat',     :to => 'os' },
   { :from => 'tomcat',     :to => 'user'  },
   { :from => 'tomcat-daemon',     :to => 'compute' },
+  { :from => 'tomcat-daemon',     :to => 'tomcat' },
   { :from => 'tomcat',     :to => 'java'  },
+  { :from => 'tomcat',     :to => 'volume'},
+  { :from => 'tomcat',     :to => 'keystore'},
   { :from => 'artifact',   :to => 'library' },
   { :from => 'artifact',   :to => 'tomcat'  },
-  { :from => 'artifact',   :to => 'download'}, 
+  { :from => 'artifact',   :to => 'download'},
   { :from => 'artifact',   :to => 'build'},
   { :from => 'artifact',   :to => 'volume'},
   { :from => 'build',      :to => 'library' },
   { :from => 'build',      :to => 'tomcat'  },
   { :from => 'build',      :to => 'download'},
-  { :from => 'daemon',     :to => 'artifact' },  
-  { :from => 'daemon',     :to => 'build' },  
+  { :from => 'daemon',     :to => 'artifact' },
+  { :from => 'daemon',     :to => 'build' },
   { :from => 'java',       :to => 'compute' },
   { :from => 'java',       :to => 'os' },
-  {:from => 'keystore', :to => 'certificate'},
-  {:from => 'keystore', :to => 'java'},
-  {:from => 'tomcat', :to => 'keystore'},
-  { :from => 'java',       :to => 'download'},  ].each do |link|
+  { :from => 'keystore',    :to => 'java'},
+  { :from => 'java',       :to => 'download'} ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
     :relation_name => 'DependsOn',
     :from_resource => link[:from],
     :to_resource   => link[:to],
-    :attributes    => { "flex" => false, "min" => 1, "max" => 1 } 
+    :attributes    => { "flex" => false, "min" => 1, "max" => 1 }
 end
 
 relation "tomcat-daemon::depends_on::artifact",
-             :relation_name => 'DependsOn',
-                   :from_resource => 'tomcat-daemon',
-                   :to_resource => 'artifact',
-                   :attributes => {"propagate_to" => "from", "flex" => false, "min" => 1, "max" => 1}
+  :relation_name => 'DependsOn',
+  :from_resource => 'tomcat-daemon',
+  :to_resource => 'artifact',
+  :attributes => {"propagate_to" => "from", "flex" => false, "min" => 1, "max" => 1}
 
+relation "tomcat-daemon::depends_on::keystore",
+  :relation_name => 'DependsOn',
+  :from_resource => 'tomcat-daemon',
+  :to_resource => 'keystore',
+  :attributes => {"propagate_to" => "from", "flex" => false, "min" => 1, "max" => 1}                                          
+
+relation "keystore::depends_on::certificate",
+  :relation_name => 'DependsOn',
+  :from_resource => 'keystore',
+  :to_resource => 'certificate',
+  :attributes => {"propagate_to" => "from", "flex" => false, "min" => 1, "max" => 1}                                          
+                     
+                     
 # managed_via
 [ 'tomcat', 'artifact', 'build', 'java','keystore', 'tomcat-daemon'].each do |from|
   relation "#{from}::managed_via::compute",

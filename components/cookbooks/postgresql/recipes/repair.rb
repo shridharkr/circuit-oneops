@@ -2,6 +2,7 @@
 # Cookbook Name:: postgresql
 # Recipe:: repair
 #
-service "postgresql-9.1" do
+
+service "postgresql-#{node["postgresql"]["version"]}" do
   action :restart
 end

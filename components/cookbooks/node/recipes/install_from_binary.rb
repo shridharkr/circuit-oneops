@@ -33,13 +33,16 @@ nodejs_tar = "#{package_stub}.tar.gz"
 expected_checksum = node['nodejs']["checksum_linux_#{arch}"]
 
 nodejs_tar_path = nodejs_tar
-if node['nodejs']['version'].split('.')[1].to_i >= 5
+if node['nodejs']['version'].split('.')[1].to_i >= 5 ||
+   node['nodejs']['version'].split('.')[0].to_i >= 4
   nodejs_tar_path = "v#{node['nodejs']['version']}/#{nodejs_tar_path}"
 end
 
 # Let the user override the source url in the attributes
 nodejs_bin_url = "#{node['nodejs']['src_url']}/#{nodejs_tar_path}"
 Chef::Log.info("OneOps CI attributes : #{nodejs_bin_url}")
+
+execute "rm -fr /usr/local/src/#{nodejs_tar}"
 
 # Download it:
 remote_file "/usr/local/src/#{nodejs_tar}" do

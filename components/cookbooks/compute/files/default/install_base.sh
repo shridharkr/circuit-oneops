@@ -53,10 +53,8 @@ if [ -e /etc/SuSE-release ] ; then
 
 # redhat / centos
 elif [ -e /etc/redhat-release ] ; then
-
-  # needs ruby-devel from rbel
   echo "installing ruby, libs, headers and gcc"
-  yum -d0 -e0 -y install sudo file make gcc glibc-devel libgcc ruby ruby-libs ruby-devel libxml2-devel libxslt-devel ruby-rdoc rubygems perl nagios nagios-devel nagios-plugins
+  yum -d0 -e0 -y install sudo file make gcc gcc-c++ glibc-devel libgcc ruby ruby-libs ruby-devel libxml2-devel libxslt-devel ruby-rdoc rubygems perl perl-Digest-MD5 nagios nagios-devel nagios-plugins
 
   # disable selinux
   if [ -e /selinux/enforce ]; then
@@ -79,11 +77,11 @@ else
 	   echo "apt-get update returned non-zero result code. Usually means some repo is returning a 403 Forbidden. Try deleting the compute from providers console and retrying."
 	   exit 1
 	fi
-	apt-get install -q -y make libxml2-dev libxslt-dev libz-dev ruby ruby-dev nagios3
+	apt-get install -q -y build-essential make libxml2-dev libxslt-dev libz-dev ruby ruby-dev nagios3
 	
 	# seperate rubygems - rackspace 14.04 needs it, aws doesn't
 	set +e
-	apt-get -y -q install rubygems
+	apt-get -y -q install rubygems-integration
 	rm -fr /etc/apache2/conf.d/nagios3.conf
 	set -e
 fi
@@ -130,7 +128,7 @@ if [ -e /etc/redhat-release ] ; then
    fi	
 fi
 
-gem install json-1.7.7 --no-ri --no-rdoc
+gem install json --version 1.7.7 --no-ri --no-rdoc
 if [ $? -ne 0 ]; then
     echo "gem install using local repo failed. reverting to rubygems proxy."
     gem source --add $rubygems_proxy

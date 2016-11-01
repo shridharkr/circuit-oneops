@@ -12,7 +12,7 @@ if node.has_key?("ns_conn")
 end
 
 cloud_name = node[:workorder][:cloud][:ciName]
-if node[:workorder][:services].has_key?(:lb)
+if node[:workorder][:services].has_key?(:lb) && node[:workorder][:cloud][:ciAttributes][:location] !~ /azure/
   cloud_service = node[:workorder][:services][:lb][cloud_name][:ciAttributes]
 else
   cloud_service = node[:workorder][:services][:gdns][cloud_name][:ciAttributes]
