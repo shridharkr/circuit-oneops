@@ -122,7 +122,6 @@ $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";"
 
 $env:Path += ";C:\cygdrive\c\tools\ruby23\bin;C:\tools\DevKit2\bin"
 
-#ruby dk.rb init
 ruby dk.rb install
 
 gem source --add $gemRepo
@@ -140,6 +139,9 @@ Add-Content C:\cygwin64\home\oneops\.bash_profile 'export PATH=$PATH:/cygdrive/c
 New-Item -ItemType Directory -Force -Path C:\cygwin64\opt\oneops\workorder\
 New-Item -ItemType Directory -Force -Path C:\cygwin64\etc\nagios\conf.d\
 New-Item -ItemType Directory -Force -Path C:\cygwin64\var\log\nagios\
+New-Item -ItemType Directory -Force -Path C:\cygwin64\var\nagios\archives\
+New-Item -ItemType Directory -Force -Path C:\cygwin64\var\nagios\spool\checkresults
+New-Item -ItemType Directory -Force -Path C:\cygwin64\etc\rc.d\init.d\
 
 New-Item C:\cygwin64\opt\oneops\rubygems_proxy -type file -force
 Set-Content C:\cygwin64\opt\oneops\rubygems_proxy $gemRepo
