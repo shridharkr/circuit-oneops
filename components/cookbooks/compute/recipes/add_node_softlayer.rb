@@ -27,7 +27,7 @@ region = token[:region]
 conn=nil
 server=nil
 
-conn = Fog::Compute.new(:provider: => "softlayer",
+conn = Fog::Compute.new(:provider => "softlayer",
  :softlayer_username => token[:username],
  :softlayer_api_key => token[:apikey]
 )
@@ -59,11 +59,16 @@ end
 public_ip = nil
 private_ip = nil
 
+sshkey = conn.key_pairs.by_label(node[:kp_name])
+
 if server.nil?
   Chef::Log.info("creating server")
   server = conn.servers.create :name => node.server_name,
                  :image_id => image.id,
-                 :flavor_id => flavor.id
+                 :flavor_id => flavor.id,
+		 :datacenter => token.datacenter,
+		 :domain => customer_domain,
+		 :key_pairs => [ sshkey ]
 	
   server.wait_for { ready? }
     
