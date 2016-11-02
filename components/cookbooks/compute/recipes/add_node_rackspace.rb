@@ -64,7 +64,8 @@ if server.nil?
   Chef::Log.info("creating server")
   server = conn.servers.create :name => node.server_name,
                  :image_id => image.id,
-                 :flavor_id => flavor.id
+                 :flavor_id => flavor.id,
+		 :key_name => node.workorder.payLoad[:SecuredBy][0][:ciAttributes][:key_name].to_s
 	
   server.wait_for { ready? }
     
@@ -115,7 +116,8 @@ o =  [('a'..'z'),('A'..'Z'),('0'..'9')].map{|i| i.to_a}.flatten
 new_pass  =  (0...10).map{ o[rand(o.length)] }.join  
 # Chef::Log.info("new password: #{new_pass}")
 
-setting_sshkey = true
+#setting_sshkey = true
+setting_sshkey = false
 retry_count = 0
 # rackspace 
 max_retry_count = 20
