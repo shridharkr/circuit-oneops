@@ -179,12 +179,12 @@ end
 
 if node.ostype =~ /centos/ &&
   node.set["use_initial_user"] = true
-  node.set["initial_user"] = "ec2-user"
+  node.set["initial_user"] = "centos"
 end
 
 puts "***RESULT:private_ip="+server.private_ip_address
 puts "***RESULT:private_dns="+server.private_dns_name
 puts "***RESULT:public_ip="+server.public_ip_address
-puts "***RESULT:public_dns="+server.dns_name
-puts "***RESULT:dns_record="+server.dns_name
+puts "***RESULT:public_dns="+server.dns_name if !server.dns_name.nil?
+puts "***RESULT:dns_record="+server.public_ip_address
 puts "***RESULT:instance_id="+server.id
