@@ -5,4 +5,4 @@ auth "kubernetessecretkey"
 service "kubernetes",
   :cookbook => 'kubernetes',
   :source => [Chef::Config[:register], Chef::Config[:version].split(".").first].join('.'),  
-  :provides => { :service => 'kubernetes' }
+  :provides => { :service => 'container' }
