@@ -49,7 +49,7 @@ cloud_services.each do |lb_service|
     lb_name = ""
     vnames_map = {}
     if lb[:ciAttributes].has_key?("vnames")
-      JSON.parse(lb[:ciAttributes][:vnames])
+      vnames_map = JSON.parse(lb[:ciAttributes][:vnames])
     end
     vnames_map.keys.each do |key|
       if key =~ /#{dc_name}/
