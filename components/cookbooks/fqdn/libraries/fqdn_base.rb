@@ -144,6 +144,10 @@ module Fqdn
       dns_type = get_record_type(dns_name, dns_values)
   
       dns_values.each do |dns_value|
+        if dns_value[-1,1] == '.'
+          dns_value.chomp!('.')
+        end
+        
         verified = false
         while !verified && retry_count<max_retry_count do
           dns_lookup_name = dns_name
