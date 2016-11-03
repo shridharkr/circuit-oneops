@@ -396,10 +396,6 @@ lb_name = "lb-#{plat_name}"
 #   # 6 - Inbound NAT rules
 #   # 7 - Create LB
 
-OOLog.info("TenantID: #{tenant_id}")
-OOLog.info("ClientID: #{client_id}")
-OOLog.info("ClientSecret: #{client_secret}")
-
 credentials = Utils.get_credentials(tenant_id, client_id, client_secret)
 public_ip_name = ''
 public_ip = nil
@@ -520,7 +516,7 @@ else
   end  #end of compute_nodes IF
 end #end of main lb IF
 
-raise("Stop deployment")
+
 lbip = nil
 if xpress_route_enabled
   lbip = lb.properties.frontend_ipconfigurations[0].properties.private_ipaddress
