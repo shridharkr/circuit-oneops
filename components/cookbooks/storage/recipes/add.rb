@@ -27,6 +27,7 @@
 require File.expand_path('../../../azure_base/libraries/utils.rb', __FILE__)
 
 include_recipe 'shared::set_provider'
+
 require 'json'
 provider = node['provider_class']
 
@@ -179,22 +180,15 @@ Array(1..slice_count).each do |i|
   Chef::Log.info("node.storage_provider_class"+node.storage_provider_class)
 
   volume = nil
-  volType = "GENERAL"
   case node.storage_provider_class
   when /cinder/
-
     begin
-      vol_name = node["workorder"]["rfcCi"]["ciName"]+"-"+node["workorder"]["rfcCi"]["ciId"].to_s
-      if node.workorder.payLoad.has_key?("offerings")
-        spec = node.workorder.payLoad.offerings.first.ciAttributes.specification
-        spec = JSON.parse spec.gsub('=>', ':')
-        volType = spec["volume_type"]
-      end
-      if volType == "GENERAL"
-        volType = ""
-      end
+      include_recipe 'storage::node_lookup'
+      vol_name = node["workorder"]["rfcCi"]["ciName"]+"-"+node["workorder"]["rfcCi"]["ciId"].to_s                  
+      Chef::Log.info("Volume type selected in the storage component:"+node.volume_type_from_map)
+      Chef::Log.info("Creating volume of size:#{slice_size} , volume_type:#{node.volume_type_from_map}, volume_name:#{vol_name} .... ")
       volume = node.storage_provider.volumes.new :device => dev, :size => slice_size, :name => vol_name,
-        :description => dev, :display_name => vol_name, :volume_type => volType
+        :description => dev, :display_name => vol_name, :volume_type => node.volume_type_from_map
       volume.save
     rescue Excon::Errors::RequestEntityTooLarge => e
       puts "***FAULT:FATAL="+JSON.parse(e.response[:body])["overLimit"]["message"]
@@ -257,7 +251,7 @@ Array(1..slice_count).each do |i|
         else
           volume = storage.master_rg+":"+storage.storage_account_std+":"+(node.workorder.rfcCi.ciId).to_s+":"+slice_size.to_s
           Chef::Log.info("Choosing Standard Storage Account: #{storage.storage_account_std}") 
-        end
+        end       
       end
 
     else
@@ -276,6 +270,8 @@ Array(1..slice_count).each do |i|
   if node.storage_provider_class =~ /azure/
     Chef::Log.info("Adding #{dev} to the device list")
     vols.push(volume.to_s+":"+dev)
+    node.set["device_map"] = vols.join(" ")
+    include_recipe "azuredatadisk::add" #Create datadisk, but doesn't attach it to the compute
   else
     Chef::Log.info("added "+volume.id.to_s)
     vols.push(volume.id.to_s+":"+dev)

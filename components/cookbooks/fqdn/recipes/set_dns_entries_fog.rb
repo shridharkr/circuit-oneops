@@ -18,15 +18,8 @@
 # uses node[:entries] list of dns entries based on entrypoint, aliases, zone, and platform to update dns
 # no ManagedVia - recipes will run on the gw
 
-# get dns record type - check for ip addresses
-def get_record_type (dns_values)
-  record_type = "CNAME"
-  ips = dns_values.grep(/\d+\.\d+\.\d+\.\d+/)
-  if ips.size > 0
-    record_type = "A"
-  end     
-  return record_type
-end
+extend Fqdn::Base
+Chef::Resource::RubyBlock.send(:include, Fqdn::Base)
 
 # set in get_fog_connection  
 zone = node.fog_zone
@@ -44,17 +37,9 @@ end
 node[:entries].each do |entry|
   dns_match = false
   dns_name = entry[:name]
-  dns_values = entry[:values].is_a?(String) ? Array.new([entry[:values]]) : entry[:values]
-  dns_type = get_record_type(dns_values) 
-  
-  existing_dns = `dig +short #{dns_name} @#{ns}`.split("\n")
-  
-  existing_ips = existing_dns.grep(/\d+\.\d+\.\d+\.\d+/)
-  if dns_type == "CNAME" && existing_ips.size > 0 && existing_dns.size >1
-    existing_ips.each do |ip|
-       existing_dns.delete(ip)      
-    end
-  end
+  dns_values = entry[:values].is_a?(String) ? Array.new([entry[:values]]) : entry[:values]    
+  dns_type = get_record_type(dns_name, dns_values).upcase   
+  existing_dns = get_existing_dns(dns_name,ns)
   
   Chef::Log.info("new values:"+dns_values.sort.to_s)  
   Chef::Log.info("existing:"+existing_dns.sort.to_s)
@@ -79,7 +64,7 @@ node[:entries].each do |entry|
           node.previous_entries[dns_name].include?(existing_entry) && 
           node[:dns_action] != "delete")
           
-        delete_type = get_record_type(existing_dns)
+        delete_type = get_record_type(dns_name, existing_dns).upcase
         Chef::Log.info("delete #{delete_type}: #{dns_name} to #{existing_dns.to_s}") 
     
         # rackspace get is by record_id, not name and type like route53    
@@ -108,102 +93,78 @@ node[:entries].each do |entry|
     end  
   end
 
-  existing_comparison = clean_set.sort <=> dns_values.sort  
-  if existing_comparison == 0
-    dns_match = true
-  end
     
   # delete workorder skips the create call
   if node[:dns_action] == "delete"
     next
   end
   
-  if dns_match
-    Chef::Log.info("exists #{dns_type}: #{dns_name} to #{dns_values.to_s}") 
-  else
-    ttl = 60
-    if node.workorder.rfcCi.ciAttributes.has_key?("ttl")
-      ttl = node.workorder.rfcCi.ciAttributes.ttl.to_i
-    end
-    if node.dns_service_class =~ /rackspace/ && ttl < 300
-      Chef::Log.warn("rackspace dns has min ttl of 300 - using that")
-      ttl = 300
-    end
-        
-    Chef::Log.info("create #{dns_type}: #{dns_name} to #{dns_values.to_s}")
-    case node.dns_service_class
-    when /rackspace/
-      # rackspace cannot handle array dns_value      
-      dns_values.each do |dns_value|
-        begin
-          record = zone.records.create(
-           :value => dns_value,
-           :name  => dns_name,
-           :type  => dns_type,
-           :ttl => ttl
-          )
-         rescue Fog::DNS::Rackspace::CallbackError => e
-           puts "#{e.details}"
-           next if e.details =~ /duplicate/
-           raise e
-         end
-      end
-
-    when /route53/
-      record = zone.records.get(dns_name, dns_type)
-      if record.nil?
-        record = zone.records.create(
-          :value => dns_values,
-          :name  => dns_name,
-          :type  => dns_type,
-          :ttl => ttl
-        )
-      else
-        new_vals = record.value.clone
-        new_vals += dns_values
-        new_vals.uniq!
-        record.modify(value: new_vals)        
+  
+  ttl = 60
+  if node.workorder.rfcCi.ciAttributes.has_key?("ttl")
+    ttl = node.workorder.rfcCi.ciAttributes.ttl.to_i
+  end
+  if node.dns_service_class =~ /rackspace/ && ttl < 300
+    Chef::Log.warn("rackspace dns has min ttl of 300 - using that")
+    ttl = 300
+  end
+      
+  Chef::Log.info("create #{dns_type}: #{dns_name} to #{dns_values.to_s}") if !dns_values.empty?
+  case node.dns_service_class
+  when /rackspace/
+    # rackspace cannot handle array dns_value      
+    dns_values.each do |dns_value|
+      if existing_dns.include?(dns_value)
+        Chef::Log.info("exists #{dns_type}: #{dns_name} to #{dns_values.to_s}")
+        next        
       end      
-      
-    else
-      
+      begin
+        record = zone.records.create(
+         :value => dns_value,
+         :name  => dns_name,
+         :type  => dns_type,
+         :ttl => ttl
+        )
+       rescue Fog::DNS::Rackspace::CallbackError => e
+         puts "#{e.details}"
+         next if e.details =~ /duplicate/
+         raise e
+       end
+    end
+
+  when /route53/
+    if verify(dns_name,dns_values,ns,1)
+      Chef::Log.info("exists - skipping create")
+      next
+    end    
+        
+    record = zone.records.get(dns_name, dns_type)
+    if record.nil?
       record = zone.records.create(
         :value => dns_values,
         :name  => dns_name,
         :type  => dns_type,
         :ttl => ttl
-      )      
-    end
+      )
+    else
+      new_vals = record.value.clone
+      new_vals += dns_values
+      new_vals.uniq!
+      record.modify(value: new_vals)        
+    end      
     
-    # lets verify using authoratative dns sever
-    sleep 5    
-    verified = false
-    max_retry_count = 30
-    retry_count = 0
-    while !verified && retry_count<max_retry_count do
-      existing_dns = `dig +short #{dns_name} @#{ns}`.split("\n")
-
-      existing_comparison = existing_dns.sort <=> dns_values.sort
-      Chef::Log.info("verify ns has: "+dns_values.sort.to_s)  
-      Chef::Log.info("ns #{ns} has: "+existing_dns.sort.to_s)
-      # for matching of cname of cname
-      possible_value = dns_values.first + '.'
-              
-      if existing_comparison == 0 || 
-         (dns_type == "CNAME" && existing_dns.include?(possible_value))        
-        verified = true
-        Chef::Log.info("verified.")
-      else 
-        Chef::Log.info("waiting 10sec for #{ns} to get updated...")
-        sleep 10
-      end
-      retry_count +=1
-    end
+  else
     
-    if verified == false
-      Chef::Log.info("dns could not be verified after 5min!")    
-      exit 1
-    end
-    
+    record = zone.records.create(
+      :value => dns_values,
+      :name  => dns_name,
+      :type  => dns_type,
+      :ttl => ttl
+    )      
   end
+  
+  if !verify(dns_name,dns_values,ns)
+    fail_with_fault "could not verify: #{dns_name} to #{dns_values} on #{ns} after 5min."
+  end
+    
 end

@@ -113,26 +113,30 @@ node.loadbalancers.each do |lb_def|
   if response.status == 200 
     backend = JSON.parse(response.body)
   end 
-  if backend.nil?
-    backend = { 
-      :lbmethod => lb_method,
-      :servers => servers,
-      :port => iport,
-      :server_options => { "check inter" => "5s", "rise" => 3, "fall" => 2 }
-    }
-    
-    ecvs = JSON.parse(node.lb.ecv_map)
-    if ecvs.has_key?(iport.to_s)
-      backend[:options] = { "httpchk" => ecvs[iport] }
-    end
-
-    response = conn.request(:method => :post,
-      :path => "/backend/#{lb_name}", :body => JSON.dump(backend))
-            
-    puts "new backend: #{response.inspect}"
-  else
-    puts "existing backend: #{backend.inspect}"
+  action = :put
+  if frontend.nil?
+    action = :post
   end
+
+  backend = { 
+    :lbmethod => lb_method,
+    :servers => servers,
+    :port => iport,
+    :server_options => { "check inter" => "5s", "rise" => 3, "fall" => 2 }
+  }
+  if !lb_def[:acl].empty?
+    backend[:acl] = lb_def[:acl]
+  end  
+  
+  ecvs = JSON.parse(node.lb.ecv_map)
+  if ecvs.has_key?(iport.to_s)
+    backend[:options] = { "httpchk" => ecvs[iport] }
+  end
+
+  response = conn.request(:method => action,
+    :path => "/backend/#{lb_name}", :body => JSON.dump(backend))
+          
+  puts "#{action} backend: #{response.inspect}"
   
   
   # frontend
@@ -141,17 +145,23 @@ node.loadbalancers.each do |lb_def|
   if response.status == 200 
     frontend = JSON.parse(response.body)
   end 
+  action = :put
   if frontend.nil?
-    frontend = { 
-      :port => lb_def[:vport],
-    }
-
-    frontend = JSON.parse(conn.request(:method => :post,
-      :path => "/frontend/#{lb_name}", :body => JSON.dump(frontend)).body)
-            
-    puts "new frontend: #{frontend.inspect}"
-  else
-    puts "existing frontend: #{frontend.inspect}"
+    action = :post
   end
+  
+  frontend = { 
+    :port => lb_def[:vport],      
+  }
+  
+  if !lb_def[:acl].empty?
+    frontend[:acl] = lb_def[:acl]
+    frontend[:backend_port] = iport
+  end  
+      
+  response = JSON.parse(conn.request(:method => action,
+    :path => "/frontend/#{lb_name}", :body => JSON.dump(frontend)).body)
+          
+  puts "#{action} frontend: #{response.inspect}"
   
 end

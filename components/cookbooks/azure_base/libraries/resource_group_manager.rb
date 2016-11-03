@@ -26,7 +26,11 @@ module AzureBase
       @assembly = nsPathParts[2]
       @environment = nsPathParts[3]
       @platform_ci_id = node[:workorder][:box][:ciId]
-      @location = @service[:location]
+      if @service[:location] != nil
+       @location = @service[:location]
+      elsif @service[:region] != nil
+       @location = @service[:region]
+      end
       @subscription = @service[:subscription]
 
       @rg_name = get_name

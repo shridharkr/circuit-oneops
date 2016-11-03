@@ -78,13 +78,14 @@ if !current_full_aliases.nil?
 end
 
 aliases.each do |a|
-  alias_name = a + customer_domain
+  alias_name = a + customer_domain  
   values = `dig +short CNAME #{alias_name} @#{ns}`.split("\n").first
   if values.nil?
     values = `dig +short #{alias_name} @#{ns}`.split("\n").first
   end
 
   Chef::Log.info("alias dns_name: "+alias_name)
+
   if !values.nil?
     entries.push({:name => alias_name, :values => [ values.gsub(/\.$/,"") ] })
   else
@@ -114,10 +115,9 @@ aliases.each do |a|
        Chef::Log.info("already removed: "+alias_platform_dns_name)
      end
 
-
-     # full cname when priority changes
   end
 end
+
 
 full_aliases.each do |full_alias|
   values = `dig +short CNAME #{full_alias} @#{ns}`.split("\n").first
@@ -125,9 +125,22 @@ full_aliases.each do |full_alias|
     values = `dig +short #{full_alias} @#{ns}`.split("\n").first
   end
 
+  
   Chef::Log.info("full_alias dns_name: "+full_alias)
   if !values.nil?
-    entries.push({:name => full_alias, :values => [ values.gsub(/\.$/,"") ] })
+    values.gsub!(/\.$/,"")
+    is_removable = false
+    node.deletable_entries.each do |record|
+      if record[:name].include?(full_alias) && record[:values].include?(values)
+        is_removable = true
+      end
+    end
+    
+    if is_removable
+      entries.push({:name => full_alias, :values => [ values.gsub(/\.$/,"") ] })
+    else
+      Chef::Log.info("will not remove existing cname: #{full_alias} -> #{values}")
+    end
   else
     Chef::Log.info("already removed: "+full_alias)
   end

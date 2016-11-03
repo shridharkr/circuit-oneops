@@ -69,24 +69,6 @@ def delete_publicip(credentials,subscription_id,resource_group_name, public_ip_n
  end
 end
 
-#Delete both Page blob(vhd) and Block Blob from the storage account
-#associated with the vm
-def delete_vm_storage(credentials, subscription_id, resource_group_name,storage_account)
-  begin
-    storage_client = StorageManagementClient.new(credentials)
-    storage_client.subscription_id = subscription_id
-
-    storage_account_keys= storage_client.storage_accounts.list_keys(resource_group_name,storage_account).value!
-    Chef::Log.info('  storage_account_keys : ' +   storage_account_keys.body.inspect)
-    node.set['storage_key1'] = storage_account_keys.body.key1
-    node.set['storage_key2'] = storage_account_keys.body.key2
-    Chef::Log.info('vhd_uri : ' + node['vhd_uri'] )
-
-    #Delete both osdisk and datadisk blob
-    include_recipe "azure::del_blobs"
-  end
-end
-
 cloud_name = node['workorder']['cloud']['ciName']
 Chef::Log.info('cloud_name is: ' + cloud_name)
 compute_service = node['workorder']['services']['compute'][cloud_name]['ciAttributes']
@@ -118,7 +100,7 @@ begin
   start_time = Time.now.to_i
   client = ComputeManagementClient.new(credentials)
   client.subscription_id = subscription_id
-
+  vm = nil
   vm = get_vm(client, node['platform-resource-group'], server_name)
 
   if vm.nil?
@@ -148,7 +130,9 @@ begin
     end
     #delete the blobs
     #Delete both Page blob(vhd) and Block Blob from the storage account
-    delete_vm_storage(credentials, subscription_id, node['platform-resource-group'],storage_account)
+    #Delete both osdisk and datadisk blob
+    include_recipe "azure::del_blobs"
+    
   end
 rescue MsRestAzure::AzureOperationError => e
   OOLog.fatal("Error deleting VM, resource group: #{node['platform-resource-group']}, VM name: #{node['server_name']}. Exception is=#{e.body.values[0]['message']}")

@@ -106,10 +106,6 @@ ruby_block 'install base' do
       args += "#{k}:#{v} "
       if k =~ /apiproxy/
         args_win[:proxy] = v
-      elsif k =~ /chocopkg/
-        args_win[:chocopkg] = v
-      elsif k =~ /chocorepo/
-        args_win[:chocorepo] = v
       elsif k =~ /rubygems/
         args_win[:gemrepo] = v
       end
@@ -140,7 +136,9 @@ ruby_block 'install base' do
 
          mirror_vars = JSON.parse( node.workorder.services["mirror"][cloud_name][:ciAttributes][:mirrors] )
          mirror_vars.each_pair do |k,v|
-           if k =~ /chocorepo/
+           if k =~ /chocopkg/
+             args_win[:chocopkg] = v
+           elsif k =~ /chocorepo/
              args_win[:chocorepo] = v
            end
          end

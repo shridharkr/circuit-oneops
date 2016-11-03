@@ -98,30 +98,8 @@ node[:entries].each do |entry|
                  
     Chef::Log.info("record: #{record_result.inspect}")
             
-    # verify using authoratative dns sever
-    sleep 5    
-    verified = false
-    max_retry_count = 30
-    retry_count = 0
-    while !verified && retry_count<max_retry_count do
-      existing_dns = `dig +short #{dns_name} @#{ns}`.split("\n")
-
-      existing_comparison = existing_dns.sort <=> dns_values.sort
-      Chef::Log.info("verify ns has: "+dns_values.sort.to_s)  
-      Chef::Log.info("ns #{ns} has: "+existing_dns.sort.to_s)
-      if existing_comparison == 0
-        verified = true
-        Chef::Log.info("verified.")
-      else 
-        Chef::Log.info("waiting 10sec for #{ns} to get updated...")
-        sleep 10
-      end
-      retry_count +=1
-    end
-    
-    if verified == false
-      Chef::Log.info("dns could not be verified after 5min!")    
-      exit 1
+    if !verify(dns_name,dns_values,ns)
+      fail_with_error "could not verify: #{dns_name} to #{dns_values} on #{ns} after 5min."
     end
     
   end
