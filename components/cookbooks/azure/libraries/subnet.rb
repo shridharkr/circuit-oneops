@@ -43,8 +43,6 @@ module AzureNetwork
     # ips
     def get_subnet_with_available_ips(subnets, express_route_enabled)
       subnets.each do |subnet|
-        next if subnet.name.downcase == "gatewaysubnet"
-
         OOLog.info('checking for ip availability in ' + subnet.name)
         address_prefix = subnet.properties.address_prefix
 
