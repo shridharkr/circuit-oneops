@@ -160,8 +160,8 @@ Write-Host "Adding oneops user to windows"
 
 $Computername = $env:COMPUTERNAME
 $ADSIComp = [adsi]"WinNT://$Computername"
-$Username = 'oneops'
-$NewUser = $ADSIComp.Create('User',$Username)
+$OoUsername = 'oneops'
+$NewUser = $ADSIComp.Create('User',$OoUsername)
 $NewUser
 
 #Create password
@@ -175,21 +175,61 @@ $NewUser.SetInfo()
 
 $group = [ADSI]("WinNT://"+$env:COMPUTERNAME+"/administrators,group")
 $group.add("WinNT://$env:USERDOMAIN/oneops,user")
+
 #################################################
+
 Write-Host "Adding oneops user to cygwin"
-C:\cygwin64\bin\mkpasswd.exe -u oneops -l
+#C:\cygwin64\bin\mkpasswd.exe -u oneops -l
 
-New-Item C:\cygwin64\home\oneops\.ssh\ -ItemType directory
-Copy-Item C:\Users\admin\.ssh\authorized_keys C:\cygwin64\home\oneops\.ssh\authorized_keys
+$ooUserDir = "C:\cygwin64\home\$OoUsername"
+$ooSshDir = Join-Path $ooUserDir ".ssh"
+$ooKeyFile = Join-Path $ooSshDir "authorized_keys"
 
-$user_account = whoami
+New-Item $ooSshDir -ItemType directory
+Copy-Item C:\Users\admin\.ssh\authorized_keys $ooKeyFile
 
-$domain = $user_account.Split("\")
-
-$user_account = $domain[0] + "\oneops"
+$domain = hostname
+$user_account = "$domain\$OoUsername"
 
 Write-Host $user_account
 
-Set-Owner-Admin-Folder -Path C:\cygwin64\home\oneops -Recurse -Account $user_account
+Set-Owner-Admin-Folder -Path $ooUserDir -Recurse -Account $user_account
 
 ## TODO: Cleanup
+
+################################################
+Write-Host "Adding nagios user to windows"
+
+$Computername = $env:COMPUTERNAME
+$ADSIComp = [adsi]"WinNT://$Computername"
+$Username = 'nagios'
+$NewUser = $ADSIComp.Create('User',$Username)
+$NewUser
+
+#Create password
+$Password = "0penStack16#" | ConvertTo-SecureString -AsPlainText -Force
+$BSTR = [system.runtime.interopservices.marshal]::SecureStringToBSTR($Password)
+$_password = [system.runtime.interopservices.marshal]::PtrToStringAuto($BSTR)
+#Set password on account
+$NewUser.SetPassword(($_password))
+
+$NewUser.SetInfo()
+
+$group = [ADSI]("WinNT://"+$env:COMPUTERNAME+"/administrators,group")
+$group.add("WinNT://$env:USERDOMAIN/nagios,user")
+#################################################
+Write-Host "Adding nagios user to cygwin"
+#C:\cygwin64\bin\mkpasswd.exe -u nagios -l
+#C:\cygwin64\bin\mkgroup.exe -g nagios -l
+
+New-Item C:\cygwin64\home\nagios\ -ItemType directory
+Copy-Item C:\Users\admin\.ssh\authorized_keys C:\cygwin64\home\nagios\.ssh\authorized_keys
+
+#$user_account = whoami
+
+$domain = hostname
+$user_account = "$domain\nagios"
+
+Write-Host $user_account
+
+Set-Owner-Admin-Folder -Path C:\cygwin64\home\nagios -Recurse -Account $user_account

@@ -59,7 +59,7 @@ resource "compute",
 resource "os",
   :cookbook => "oneops.1.os",
   :design => true,
-  :requires => { "constraint" => "1..1", "services" => "compute,dns,*ntp" },
+  :requires => { "constraint" => "1..1", "services" => "compute,dns,*mirror,*ntp" },
   :attributes => { "ostype"  => "centos-7.0",
                    "dhclient"  => 'true'
                  },

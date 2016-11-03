@@ -548,6 +548,7 @@ ruby_block 'handle ssh port closed' do
       end
 
       Chef::Log.error("ssh port closed after 5min - fail")
+      puts "***FAULT:FATAL=ssh port closed after 5min"
       e = Exception.new("no backtrace")
       e.set_backtrace("")
       raise e

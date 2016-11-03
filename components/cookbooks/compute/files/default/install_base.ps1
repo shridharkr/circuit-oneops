@@ -129,7 +129,6 @@ if ($($env:Path).ToLower().Contains("devkit") -eq $false) {
   $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 }
 
-#ruby dk.rb init
 ruby dk.rb install
 
 if ( $gemRepo -ne "" -and $gemRepo -ne $null) {
@@ -154,6 +153,11 @@ catch {
 
 Add-Content C:\cygwin64\home\oneops\.bash_profile 'export PATH=$PATH:/cygdrive/c/ProgramData/chocolatey/bin/:/cygdrive/c/tools/ruby23/bin:/cygdrive/c/tools/DevKit2/bin'
 New-Item -ItemType Directory -Force -Path C:\cygwin64\opt\oneops\workorder\
+New-Item -ItemType Directory -Force -Path C:\cygwin64\etc\nagios\conf.d\
+New-Item -ItemType Directory -Force -Path C:\cygwin64\var\log\nagios\
+New-Item -ItemType Directory -Force -Path C:\cygwin64\var\nagios\archives\
+New-Item -ItemType Directory -Force -Path C:\cygwin64\var\nagios\spool\checkresults
+New-Item -ItemType Directory -Force -Path C:\cygwin64\etc\rc.d\init.d\
 
 New-Item C:\cygwin64\opt\oneops\rubygems_proxy -type file -force
 Set-Content C:\cygwin64\opt\oneops\rubygems_proxy $gemRepo
