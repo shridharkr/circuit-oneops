@@ -34,7 +34,7 @@ attribute 'secret',
 attribute 'password',
   :description => "Initial Password to Login",
   :required => "required",
-  :default => "Aliyun.ecs",
+  :default => "",
   :format => {
     :help => 'Initial password to login ECS with root',
     :category => '1.Authentication',
