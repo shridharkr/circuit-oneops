@@ -57,13 +57,31 @@ else
     fail_with_error "unsupported usecase - need to check why there are multiple os for same fqdn"
   end
   is_hostname_entry = true
-  ci = os.first
+  if os.size == 0
+    # When no OS is specified, the fqdn recipe cannot get the host name
+    # from the OS component.  In this case, get the name from the first
+    # alias specified.
 
-  provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
-  if provider_service =~ /azuredns/
-    dns_name = (ci[:ciAttributes][:hostname]).downcase
+    if node.workorder.rfcCi.ciAttributes.has_key?("aliases")
+      begin
+        aliases = JSON.parse(node.workorder.rfcCi.ciAttributes.aliases)
+      rescue Exception =>e
+        Chef::Log.info("could not parse aliases json: "+node.workorder.rfcCi.ciAttributes.aliases)
+      end
+    end
+
+    # Use the first alias as the name for the fqdn, and append the
+    # platform name to it to avoid DNS name conflicts.
+    dns_name = (aliases[0] + "." + node.workorder.box.ciName + customer_domain).downcase
   else
-    dns_name = (ci[:ciAttributes][:hostname] + customer_domain).downcase
+    ci = os.first
+
+    provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
+    if provider_service =~ /azuredns/
+      dns_name = (ci[:ciAttributes][:hostname]).downcase
+    else
+      dns_name = (ci[:ciAttributes][:hostname] + customer_domain).downcase
+    end
   end
 end
 
