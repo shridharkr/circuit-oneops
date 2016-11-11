@@ -140,7 +140,7 @@ case action
     dir = conn.directories.get bucket_name
     if dir.nil?
       puts "Creating the bucket: #{bucket_name}"
-      dir = conn.directories.create(:key => bucket_name, :public => true)
+      dir = conn.directories.create :key => bucket_name
     end
 
     puts "Uploading local file/dir: #{file_name} to bucket: #{bucket_name}"
@@ -155,11 +155,7 @@ case action
     size = 0
     files.each_with_index { |file, idx|
       puts "#{idx+1}/#{files.size}) Upload: #{file} to bucket: #{bucket_name}"
-      dir.files.create(
-          :key => file,
-          :body => File.open(file),
-          :public => true
-      )
+      dir.files.create :key => file, :body => File.open(file)
       size += File.size(file)
     }
     finish = Time.now
