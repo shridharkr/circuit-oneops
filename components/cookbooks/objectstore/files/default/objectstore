@@ -143,7 +143,7 @@ case action
       dir = conn.directories.create :key => bucket_name
     end
 
-    puts "Uploading local file/dir: #{file_name} to bucket: #{bucket_name}"
+    puts "Uploading local file/dir: #{file_name}, filter: #{file_filter} to bucket: #{bucket_name}"
     files = if File.directory?(file_name)
               Dir.chdir(file_name)
               Dir.glob("**/#{file_filter}").reject { |path| File.directory?(path) }
