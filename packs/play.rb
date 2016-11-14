@@ -7,7 +7,7 @@ category "Web Application"
 
 variable "appName",
          :description => 'Application name',
-         :value => ''
+         :value => 'playapp'
 
 variable "appOpts",
         :description => 'Java Opts',

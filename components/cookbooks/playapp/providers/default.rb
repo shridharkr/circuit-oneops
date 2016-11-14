@@ -28,7 +28,7 @@ action :deploy do
 			mode 00755
 			action :create
 		end
-		cookbook_file "/root/.ivy2/.credentials" do	
+		cookbook_file "/root/.ivy2/.credentials" do
 			source new_resource.ivy_credentials
 			mode 00755
 			action :create
@@ -40,7 +40,6 @@ action :deploy do
                 action [ :restart ]
         end
 
-	
 end
 
 action :before_symlink do
@@ -63,7 +62,7 @@ def create_initd
 		opts << "-Dconfig.file=#{new_resource.application_conf}"
 	end
 	if new_resource.log_file
-		opts << "-Dlogger.file=#{new_resource.log_file}"	
+		opts << "-Dlogger.file=#{new_resource.log_file}"
 	end
 	if new_resource.app_secret
                 opts << "-Dplay.crypto.secret=#{new_resource.app_secret}"
@@ -81,7 +80,7 @@ def create_initd
                         :path => new_resource.app_location,
 			:options => opts.join(" ") + " " + new_resource.app_opts,
 #			:command => new_resource.strategy != :dist_remote_file ? "target/start" : "start"
-		:command => "start"	
+		:command => "start"
 	})
 	end
 
@@ -89,5 +88,4 @@ def create_initd
 		supports :status => true, :start => true, :stop => true, :restart => true
 		action [ :enable ]
 	end
-	
 end
