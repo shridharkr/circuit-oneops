@@ -83,7 +83,11 @@ node[:entries].each do |entry|
           new_values = record.value.clone
           new_values.delete(existing_entry)
           clean_set = new_values
-          record.modify({value: new_values})
+          if new_values.empty?
+            record.destroy
+          else
+            record.modify({value: new_values})
+          end
         else 
           record.destroy        
         end
