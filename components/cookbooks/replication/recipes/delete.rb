@@ -1,5 +1,5 @@
-# Cookbook Name:: container
-# Recipe:: add
+# Cookbook Name:: replication
+# Recipe:: delete
 #
 # Copyright 2016, Walmart Stores, Inc.
 #
@@ -15,9 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-rfcCi = node["workorder"]["rfcCi"]
-nsPathParts = rfcCi["nsPath"].split("/")
-container_name = node.workorder.box.ciName+'-'+nsPathParts[3]+'-'+nsPathParts[2]+'-'+nsPathParts[1]+'-'+ rfcCi["ciId"].to_s
+container = node.workorder.payLoad.DependsOn.select { |o| o[:ciClassName].split('.').last == "Container" }.first
+Chef::Log.debug("container: #{container.inspect}")
+node.set[:container] = container
+nsPathParts = container["nsPath"].split("/")
+container_name = node.workorder.box.ciName+'-'+nsPathParts[3]+'-'+nsPathParts[2]+'-'+nsPathParts[1]+'-'+ container["ciId"].to_s
 node.set[:container_name] = container_name
 
 cloud_name = node.workorder.cloud.ciName
@@ -36,11 +38,11 @@ Chef::Log.info("Container Cloud Service: #{cloud_service[:ciClassName]}")
 
 case cloud_service[:ciClassName].split(".").last.downcase
 when /kubernetes/
-  include_recipe "kubernetes::add_container"
+  include_recipe "kubernetes::delete_replication"
 when /swarm/
-  include_recipe "swarm::add_container"
+  include_recipe "swarm::delete_replication"
 when /ecs/
-  include_recipe "ecs::add_container"
+  include_recipe "ecs::delete_replication"
 else
   Chef::Log.fatal!("Container Cloud Service: #{cloud_service[:ciClassName]}")
 end
