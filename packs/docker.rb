@@ -101,10 +101,10 @@ resource 'docker_engine',
                                 "targetClassName": "bom.oneops.1.Compute"
                               }
                             ]
-          
-                         }              
+
+                         }
                        ]
-          
+
                      }
                    ]
                  }
@@ -112,13 +112,40 @@ resource 'docker_engine',
             }'
           }
         }
-           
+
 
 resource 'artifact',
          :cookbook => 'oneops.1.artifact',
          :design => true,
          :requires => {:constraint => '0..*'},
          :attributes => {}
+
+resource "build",
+ :cookbook => "oneops.1.build",
+ :design => true,
+ :requires => { "constraint" => "0..*" },
+ :attributes => {  "repository"    => "",
+                   "remote"        => 'origin',
+                   "revision"      => 'master',
+                   "depth"         => 1,
+                   "submodules"    => 'false',
+                   "environment"   => '{}',
+                   "persist"       => '[]',
+                   "migration_command" => '',
+                   "restart_command"   => ''
+                },
+   :payloads => { 'daemonizedBy' => {
+     'description' => 'Daemons',
+     'definition' => '{
+        "returnObject": true,
+        "returnRelation": false,
+        "relationName": "bom.DependsOn",
+        "direction": "to",
+        "targetClassName": "bom.Daemon",
+        "relations": []
+     }'
+   }
+ }
 
 resource 'java',
          :cookbook => 'oneops.1.java',
@@ -185,7 +212,12 @@ resource 'vol-data',
  {:from => 'docker_engine', :to => 'vol-data'},
  {:from => 'file', :to => 'vol-data'},
  {:from => 'share', :to => 'vol-data'},
- {:from => 'artifact', :to => 'docker_engine'}
+ {:from => 'artifact', :to => 'docker_engine'},
+ { :from => 'build', :to => 'download' },
+ { :from => 'build', :to => 'library' },
+ { :from => 'build', :to => 'compute' },
+ { :from => 'build', :to => 'docker_engine' },
+ { :from => 'daemon', :to => 'build' }
 ].each { |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
            :relation_name => 'DependsOn',
@@ -215,7 +247,7 @@ resource 'vol-data',
 
 
 # Managed_via
-%w(vol-docker vol-data docker_engine artifact java daemon).each { |from|
+%w(vol-docker vol-data docker_engine artifact java daemon build).each { |from|
   relation "#{from}::managed_via::compute",
            :except => ['_default'],
            :relation_name => 'ManagedVia',
