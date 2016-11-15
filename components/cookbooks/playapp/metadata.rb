@@ -15,7 +15,7 @@ attribute 'http_port',
   :description => "HttpPort",
   :required => "required",
   :default => '80',
-  :format => { 
+  :format => {
     :help => 'Http Port for your Play application',
     :category => '1.Application Configuration',
     :order => 1
@@ -23,7 +23,7 @@ attribute 'http_port',
 
 attribute 'log_file',
   :description => "Log File",
-  :format => { 
+  :format => {
     :help => 'Xml Log file for your application',
     :category => '1.Application Configuration',
     :order => 2
@@ -31,7 +31,7 @@ attribute 'log_file',
 
 attribute 'application_conf_file',
   :description => "play application conf file",
-  :format => { 
+  :format => {
     :help => 'Your play application configuration file',
     :category => '1.Application Configuration',
     :order => 3
@@ -39,6 +39,7 @@ attribute 'application_conf_file',
 
 attribute 'app_name',
 :description => "Application name",
+:required => "required",
 :format => {
     :help => 'Your application name',
     :category => '1.Application Configuration',
@@ -64,7 +65,7 @@ attribute 'app_secret',
 
 attribute 'app_opts',
   :description => "Java Startup parameters",
-  :format => { 
+  :format => {
     :help => 'Java startup opts like Xmx',
     :category => '2.Startup Opts',
     :order => 1
