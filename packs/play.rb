@@ -7,7 +7,7 @@ category "Web Application"
 
 variable "appName",
          :description => 'Application name',
-         :value => ''
+         :value => 'playapp'
 
 variable "appOpts",
         :description => 'Java Opts',
@@ -16,6 +16,10 @@ variable "appOpts",
 variable "httpPort",
         :description => 'Http Port for your play app',
         :value => '9000'
+
+variable "AppSecret",
+        :description => 'App secret key',
+        :value => ''
 
 resource "user-app",
   :cookbook => "oneops.1.user",
@@ -117,7 +121,7 @@ resource 'java',
              :help => 'Java Programming Language Environment'
          },
          :attributes => {}
- 
+
 resource "volume-log",
   :cookbook => "oneops.1.volume",
   :design => true,
