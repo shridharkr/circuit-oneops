@@ -13,7 +13,7 @@ grouping 'bom',
   :access => "global",
   :packages => [ 'bom' ]
 
-     
+
 # http://kubernetes.io/docs/user-guide/pods/multi-container/#containers
 
 attribute 'image',
@@ -35,6 +35,7 @@ attribute 'command',
 attribute 'args',
   :description => "Arguments",
   :data_type => "array",
+  :default => '[]',
   :format => {
     :help => 'Command arguments to use as entrypoint to start the container',
     :category => '1.Launch',
@@ -44,21 +45,23 @@ attribute 'args',
 attribute 'env',
   :description => "Environment Variables",
   :data_type => "hash",
+  :default => '{}',
   :format => {
     :help => '',
     :category => '1.Launch',
     :order => 4
-  }    
-  
+  }
+
 attribute 'ports',
   :description => "Ports",
   :data_type => "hash",
+  :default => '{}',
   :format => {
     :help => 'Map of port name (a DNS_LABEL) and value as <port-number>[/<port-protocol>]. Example ssh=22/tcp',
     :category => '1.Launch',
     :order => 5
   }
-    
+
 attribute 'cpu',
   :description => "CPU",
   :format => {
