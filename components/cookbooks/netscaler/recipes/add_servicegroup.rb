@@ -160,9 +160,7 @@ lbs.each do |lb|
 
   # delete members no longer in the sg
   ip_map = {}
-  computes = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Compute/ }
-
-  computes.each do |compute|
+  node.lb_members.each do |compute|
     ip = compute["ciAttributes"]["private_ip"]
     next if ip.nil?
     ip_map[ip]=1
@@ -212,7 +210,7 @@ lbs.each do |lb|
 
 
   # add members
-  computes.each do |compute|
+  node.lb_members.each do |compute|
 
     ip = compute["ciAttributes"]["private_ip"]
     server_name = ip

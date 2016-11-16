@@ -86,10 +86,22 @@ loadbalancers = Array.new
 dcloadbalancers = Array.new
 cleanup_loadbalancers = Array.new
 
-#build load-balancers from listeners
+# build load-balancers from listeners
 listeners = JSON.parse(ci[:ciAttributes][:listeners])
-listeners.each do |l|
 
+# map for iport to node port
+override_iport_map = {}
+node.workorder.payLoad.DependsOn.each do |dep|
+  if dep['ciClassName'] =~ /Replication/
+    JSON.parse(dep['ciAttributes']['ports']).each_pair do |internal_port,external_port|
+      override_iport_map[internal_port] = external_port
+    end
+    puts "override_iport_map: #{override_iport_map.inspect}"    
+  end
+end 
+  
+listeners.each do |l|
+  
   acl = ''
   lb_attrs = l.split(" ")
   vproto = lb_attrs[0]
@@ -101,6 +113,11 @@ listeners.each do |l|
   end
   iproto = lb_attrs[2]
   iport = lb_attrs[3]
+  
+  if override_iport_map.has_key?(iport)
+    Chef::Log.info("using container PAT: #{iport} to #{override_iport_map[iport]}")
+    iport = override_iport_map[iport]
+  end
 
   # Get the service types
   iprotocol = get_ns_service_type(cloud_service[:ciClassName],iproto)
@@ -242,3 +259,18 @@ node.set["cleanup_loadbalancers"] = cleanup_loadbalancers
 if cloud_service[:ciClassName] != ("cloud.service.Netscaler" || "cloud.service.F5-bigip")
   node.set["lb_name"] = [env_name, platform_name, ci[:ciId].to_s].join(".")
 end
+
+computes = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Compute/ }
+replications = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Replication/}
+if replications.size >0
+  replication = replications.first
+  computes = []
+  JSON.parse(replication['ciAttributes']['nodes']).each do |ip|
+    server = {}
+    server['private_ip'] = ip    
+    computes.push({'ciAttributes'=>server})
+  end
+  
+  Chef::Log.info("replication based computes: #{computes.inspect}")
+end
+node.set['lb_members'] = computes
