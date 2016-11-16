@@ -29,7 +29,7 @@ resource "replication",
 resource "lb",
   :design => true,
   :cookbook => "oneops.1.lb",
-  :requires => { "constraint" => "1..1", "services" => "lb" },
+  :requires => { "constraint" => "1..1", "services" => "lb,dns" },
   :attributes => {
   },
   :payloads => {
@@ -78,7 +78,7 @@ resource "fqdn",
   :requires => { "constraint" => "1..1", "services" => "dns,*gdns" },
   :attributes => { "aliases" => '[]' },
   :payloads => {
-  'environment' => {
+'environment' => {
     'description' => 'Environment',
     'definition' => '{
        "returnObject": false,
@@ -103,8 +103,8 @@ resource "fqdn",
          }
        ]
     }'
-  },
-  'activeclouds' => {
+  }, 
+'activeclouds' => {
     'description' => 'activeclouds',
     'definition' => '{
        "returnObject": false,
@@ -131,7 +131,43 @@ resource "fqdn",
                    "returnRelation": false,
                    "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
                    "relationName": "base.Provides",
-                   "direction": "from"
+                   "direction": "from",
+                   "targetClassName": "cloud.service.oneops.1.Netscaler"
+                 },
+                 { "returnObject": true,
+                   "returnRelation": false,
+                   "relationName": "base.Provides",
+                   "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
+                   "direction": "from",
+                   "targetClassName": "cloud.service.Netscaler"
+                 },
+                 { "returnObject": true,
+                   "returnRelation": false,
+                   "relationName": "base.Provides",
+                   "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
+                   "direction": "from",
+                   "targetClassName": "cloud.service.oneops.1.Route53"
+                 },
+                 { "returnObject": true,
+                   "returnRelation": false,
+                   "relationName": "base.Provides",
+                   "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
+                   "direction": "from",
+                   "targetClassName": "cloud.service.oneops.1.Designate"
+                 },
+                 { "returnObject": true,
+                   "returnRelation": false,
+                   "relationName": "base.Provides",
+                   "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
+                   "direction": "from",
+                   "targetClassName": "cloud.service.oneops.1.Rackspacedns"
+                 },
+                 { "returnObject": true,
+                   "returnRelation": false,
+                   "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
+                   "relationName": "base.Provides",
+                   "direction": "from",
+                   "targetClassName": "cloud.service.oneops.1.Azuretrafficmanager"
                  }
                ]
              }
@@ -140,7 +176,7 @@ resource "fqdn",
        ]
     }'
   },
-  'organization' => {
+'organization' => {
     'description' => 'Organization',
     'definition' => '{
        "returnObject": false,
@@ -182,7 +218,7 @@ resource "fqdn",
        ]
     }'
   },
-  'lb' => {
+ 'lb' => {
     'description' => 'all loadbalancers',
     'definition' => '{
        "returnObject": false,
@@ -208,7 +244,7 @@ resource "fqdn",
        ]
     }'
   },
-  'remotedns' => {
+   'remotedns' => {
        'description' => 'Other clouds dns services',
        'definition' => '{
            "returnObject": false,
@@ -233,7 +269,36 @@ resource "fqdn",
                        "returnRelation": false,
                        "relationName": "base.Provides",
                        "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"dns"}],
-                       "direction": "from"
+                       "direction": "from",
+                       "targetClassName": "cloud.service.Infoblox"
+                     },
+                   { "returnObject": true,
+                      "returnRelation": false,
+                      "relationName": "base.Provides",
+                      "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"dns"}],
+                      "direction": "from",
+                      "targetClassName": "cloud.service.oneops.1.Route53"
+                    },
+                   { "returnObject": true,
+                      "returnRelation": false,
+                      "relationName": "base.Provides",
+                      "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"dns"}],
+                      "direction": "from",
+                      "targetClassName": "cloud.service.oneops.1.Designate"
+                    },
+                   { "returnObject": true,
+                      "returnRelation": false,
+                      "relationName": "base.Provides",
+                      "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"dns"}],
+                      "direction": "from",
+                      "targetClassName": "cloud.service.oneops.1.Rackspacedns"
+                    },
+                     { "returnObject": true,
+                       "returnRelation": false,
+                       "relationName": "base.Provides",
+                       "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"dns"}],
+                       "direction": "from",
+                       "targetClassName": "cloud.service.oneops.1.Infoblox"
                      }
                    ]
                  }
@@ -268,6 +333,42 @@ resource "fqdn",
                        "relationName": "base.Provides",
                        "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
                        "direction": "from",
+                       "targetClassName": "cloud.service.oneops.1.Netscaler"
+                     },
+                     { "returnObject": true,
+                       "returnRelation": false,
+                       "relationName": "base.Provides",
+                       "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
+                       "direction": "from",
+                       "targetClassName": "cloud.service.Netscaler"
+                     },
+                     { "returnObject": true,
+                        "returnRelation": false,
+                        "relationName": "base.Provides",
+                        "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
+                        "direction": "from",
+                        "targetClassName": "cloud.service.oneops.1.Route53"
+                      },
+                     { "returnObject": true,
+                        "returnRelation": false,
+                        "relationName": "base.Provides",
+                        "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
+                        "direction": "from",
+                        "targetClassName": "cloud.service.oneops.1.Designate"
+                      },
+                     { "returnObject": true,
+                        "returnRelation": false,
+                        "relationName": "base.Provides",
+                        "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
+                        "direction": "from",
+                        "targetClassName": "cloud.service.oneops.1.Rackspacedns"
+                      },
+                     { "returnObject": true,
+                       "returnRelation": false,
+                       "relationName": "base.Provides",
+                       "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
+                       "direction": "from",
+                       "targetClassName": "cloud.service.oneops.1.Azuretrafficmanager"
                      }
                    ]
                  }
