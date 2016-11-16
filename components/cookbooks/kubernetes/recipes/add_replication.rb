@@ -31,9 +31,34 @@ end
 
 ruby_block "expose service #{node[:container_name]}" do
   block do
-    kubectl_expose = "kubectl expose deployment #{node[:container_name]} --type=\"LoadBalancer\" 2>&1"
+    kubectl_expose = "kubectl expose deployment #{node[:container_name]} --type=\"NodePort\" 2>&1"
     Chef::Log.info(kubectl_expose)
     result = `#{kubectl_expose}`
     Chef::Log.info(result)
+    
+    # ports
+    service = JSON.parse(`kubectl get service #{node[:container_name]} -o json`)
+    ports = {}
+    service['spec']['ports'].each do |service_port|
+      internal_port = service_port['port']
+      ports[internal_port] = service_port['nodePort'].to_s
+    end       
+    puts "***RESULT:ports="+JSON.generate(ports)
+
+    
+    # nodes
+    nodes_result = JSON.parse(`kubectl get nodes -o json`)
+    nodes = []
+    nodes_result['items'].each do |item|
+      addresses = item['status']['addresses']
+      puts "addrs: #{addresses}"
+      addresses.each do |addr|
+        next unless addr['type'] == 'InternalIP'
+        nodes.push(addr['address'])
+      end
+    end       
+    puts "***RESULT:nodes="+JSON.generate(nodes)
+    
+        
   end
 end

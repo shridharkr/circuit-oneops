@@ -37,7 +37,6 @@ attribute 'ports',
   :description => "PAT Ports",
   :grouping => 'bom',
   :data_type => "hash",
-  :default => '{}',
   :format => {
     :help => 'PAT Ports. Internal Port => External Port',
     :category => '2.Cluster',

@@ -63,10 +63,10 @@ def del_server(server_key)
 end
 
 
-computes = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Compute/}
-computes.each do |compute|
+node.lb_members.each do |compute|
 
   ip = compute["ciAttributes"]["private_ip"] 
+    
   server_key = ip
   next if ip.nil?
 
