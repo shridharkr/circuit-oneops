@@ -24,10 +24,14 @@ os_type = node[:workorder][:rfcCi][:ciAttributes][:ostype]
 Chef::Log.info("node[os_type]: #{os_type} ...")
 
 #Symlinks for windows
-["etc","opt","var"].each do |dir_name|
-  link "C:/#{dir_name}" do
-    to "C:/cygwin64/#{dir_name}"
-    only_if{::File.directory?("C:/cygwin64/#{dir_name}")}
+if os_type =~ /windows/
+  execute "chown -R oneops:Administrators /var/log /var/lib /var/cache /var/run /etc /opt"
+  
+  ["etc","opt","var"].each do |dir_name|
+    link "C:/#{dir_name}" do
+      to "C:/cygwin64/#{dir_name}"
+      only_if{::File.directory?("C:/cygwin64/#{dir_name}")}
+    end
   end
 end
 
