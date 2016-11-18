@@ -36,7 +36,7 @@ resource "os",
   :design => true,
   :requires => {
     "constraint" => "1..1",
-    "services" => "compute"
+    "services" => "compute,*ntp"
   },
   :attributes => {
     "ostype"  => "windows_2012_r2"
