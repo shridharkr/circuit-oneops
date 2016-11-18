@@ -28,9 +28,9 @@ end
 # kubectl expose deployment <container_name> --type="LoadBalancer"
 #
 
-ruby_block "delete service #{node[:container_name]}" do
+ruby_block "delete service #{node[:service_name]}" do
   block do
-    kubectl_expose = "kubectl delete service #{node[:container_name]} 2>&1"
+    kubectl_expose = "kubectl delete service #{node[:service_name]} 2>&1"
     Chef::Log.info(kubectl_expose)
     result = `#{kubectl_expose}`
     Chef::Log.info(result)
