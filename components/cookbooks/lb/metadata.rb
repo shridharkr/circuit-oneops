@@ -23,6 +23,7 @@ attribute 'listeners',
   :data_type => "array",
   :default => "[\"http 80 http 8080\"]",
   :format => {
+    :important => true,
     :category => '1.Global',
     :order => 1,
     :pattern => '(http|https|tcp|udp|ssl_bridge|any) (\d+|all|\d+:\/.*?) (http|https|tcp|udp|ssl_bridge|any) (\d+|all)',

@@ -35,6 +35,7 @@ def get_probes_from_wo
 
   listeners = get_listeners_from_wo()
 
+
   ecvs = Array.new
   ecvs_raw = JSON.parse(ci[:ciAttributes][:ecv_map])
   if ecvs_raw && listeners
@@ -54,9 +55,16 @@ def get_probes_from_wo
       num_probes = 3
 
 
-      listener = listeners[index]
+      the_listener = nil
+      listeners.each do |listener|
+        listen_port = listener[:iport].to_i
+        if listen_port == port
+          the_listener = listener
+          break
+        end
+      end
 
-      if listener && listener.iprotocol.upcase == "HTTPS"
+      if the_listener && (the_listener[:iprotocol].upcase == "TCP" || the_listener[:iprotocol].upcase == "HTTPS")
         protocol = Azure::ARM::Network::Models::ProbeProtocol::Tcp
         request_path = nil  #If Protocol is set to TCP, this value MUST BE NULL.
       else
@@ -94,13 +102,50 @@ def get_probes(subscription_id, resource_group_name, lb_name)
 end
 
 def get_listeners_from_wo
+  ci = {}
+  if node.workorder.has_key?("rfcCi")
+    ci = node.workorder.rfcCi
+  else
+    ci = node.workorder.ci
+  end
+
   listeners = Array.new
 
-  if node["loadbalancers"]
-    raw_data = node['loadbalancers']
-    raw_data.each do |listener|
-      listeners.push(listener)
+  if ci
+    listeners_raw = ci['ciAttributes']['listeners']
+    ciId = ci['ciId']
+
+    listeners = Array.new
+
+    if listeners_raw
+      listener_map = JSON.parse(listeners_raw)
+
+      listener_map.each do |item|
+        parts = item.split(' ')
+        vproto = parts[0]
+        vport = parts[1]
+        iproto = parts[2]
+        iport = parts[3]
+
+        listen_name = "listener-#{ciId}_#{vproto}_#{vport}_#{iproto}_#{iport}"
+        OOLog.info("Listener name: #{listen_name}")
+        OOLog.info("Listener vprotocol: #{vproto}")
+        OOLog.info("Listener vport: #{vport}")
+        OOLog.info("Listener iprotocol: #{iproto}")
+        OOLog.info("Listener iport: #{iport}")
+
+        listener = {
+            :name => listen_name,
+            :iport => iport,
+            :vport => vport,
+            :vprotocol => vproto,
+            :iprotocol => iproto
+        }
+
+        listeners.push(listener)
+      end
     end
+    return listeners
   end
 
   return listeners
@@ -119,23 +164,31 @@ def get_loadbalancer_rules(env_name, platform_name, probes, frontend_ipconfig, b
   listeners = get_listeners_from_wo()
 
   listeners.each do |listener|
-    lb_rule_name = "#{env_name}.#{platform_name}-#{listener.vport}_#{listener.iport}tcp-#{ci[:ciId]}-lbrule"
-    frontend_port = listener.vport
-    backend_port = listener.iport
+    lb_rule_name = "#{env_name}.#{platform_name}-#{listener[:vport]}_#{listener[:iport]}tcp-#{ci[:ciId]}-lbrule"
+    frontend_port = listener[:vport]
+    backend_port = listener[:iport]
     protocol = Azure::ARM::Network::Models::TransportProtocol::Tcp
     load_distribution = Azure::ARM::Network::Models::LoadDistribution::Default
 
-    probe = nil
-    if probes.length > 0
-      probe = probes[0]
+    ### Select the right probe for the lb rule. Ports must match
+    the_probe = nil
+    probes.each do |probe|
+      back_port = backend_port.to_i
+      probe_port = probe.properties.port.to_i
+
+      if back_port == probe_port
+        the_probe = probe
+        break
+      end
     end
 
-    lb_rule = AzureNetwork::LoadBalancer.create_lb_rule(lb_rule_name, load_distribution, protocol, frontend_port, backend_port, probe, frontend_ipconfig, backend_address_pool)
+    lb_rule = AzureNetwork::LoadBalancer.create_lb_rule(lb_rule_name, load_distribution, protocol, frontend_port, backend_port, the_probe, frontend_ipconfig, backend_address_pool)
     OOLog.info("LB Rule: #{lb_rule_name}")
     OOLog.info("LB Rule Frontend port: #{frontend_port}")
     OOLog.info("LB Rule Backend port: #{backend_port}")
     OOLog.info("LB Rule Protocol: #{protocol}")
-    # OOLog.info("LB Rule Probe: #{lb_rule.}")
+    OOLog.info("LB Rule Probe port: #{lb_rule.properties.probe.properties.port}")
+    OOLog.info("LB Rule Probe protocol: #{lb_rule.properties.probe.properties.protocol}")
     OOLog.info("LB Rule Load Distribution: #{load_distribution}")
     lb_rules.push(lb_rule)
   end
@@ -158,9 +211,9 @@ def get_dc_lb_names()
   vnames = { }
   listeners = get_listeners_from_wo()
   listeners.each do |listener|
-    frontend_port = listener.vport
+    frontend_port = listener[:vport]
 
-    service_type = listener.vprotocol
+    service_type = listener[:vprotocol]
     if service_type == "HTTPS"
       service_type = "SSL"
     end
@@ -374,7 +427,6 @@ else
   public_ip = create_publicip(credentials, subscription_id, location, resource_group_name, public_ip_name)
 
   OOLog.info("PublicIP created. PIP: #{public_ip.name}")
-
 end
 
 
@@ -414,12 +466,15 @@ lb_props = AzureNetwork::LoadBalancer.create_lb_props(frontend_ipconfigs, backen
 lb_svc = AzureNetwork::LoadBalancer.new(credentials, subscription_id)
 
 lb = nil
-
 begin
   lb = lb_svc.create_update(location, resource_group_name, lb_name, lb_props)
+  OOLog.info("Load Balancer '#{lb_name}' created!")
 rescue
 
 end
+
+
+
 if lb.nil?
   OOLog.fatal("Load Balancer '#{lb.name}' could not be created")
 else

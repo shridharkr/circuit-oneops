@@ -19,17 +19,20 @@
 
 include_recipe "rackspace::get_lb_service"
 
-computes = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Compute/ }
+#computes = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Compute/ }
+computes = node[:lb_members]
 certs = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Certificate/ }
 ecv_map = JSON.parse(node.workorder.rfcCi.ciAttributes.ecv_map)
 
+Chef::Log.debug("COMPUTES: #{computes}")
+
 node.loadbalancers.each do |lb_def|
-  
+
   Chef::Log.info("lb name: "+lb_def[:name])
-    
+
   conn = node[:rackspace_lb_service]
   lbs = conn.load_balancers.all.select{| clb| clb.name == lb_def[:name] }
-  
+
   if lbs.length >0
    lb = lbs.first
   end
@@ -37,29 +40,29 @@ node.loadbalancers.each do |lb_def|
   nodes = []
   computes.each do |compute|
     nodes.push({
-      :address => compute[:ciAttributes][:public_ip], 
-      :condition => "ENABLED", 
-      :port => lb_def[:iport] 
+      :address => compute[:ciAttributes][:private_ip],
+      :condition => "ENABLED",
+      :port => lb_def[:iport]
     })
   end
 
 
-  if lb.nil?  
+  if lb.nil?
     Chef::Log.info("creating lb")
-   
+
     # lb = conn.load_balancers.first
     lb = conn.load_balancers.create(
-      :name => lb_def[:name], 
-      :port => lb_def[:vport], 
-      :protocol => lb_def[:iprotocol].upcase, 
+      :name => lb_def[:name],
+      :port => lb_def[:vport],
+      :protocol => lb_def[:iprotocol].upcase,
       :virtual_ips => [{:type => 'PUBLIC'}],
       :nodes => nodes
     )
-    lb.wait_for { ready? }  
+    lb.wait_for { ready? }
   end
-  
+
   Chef::Log.info("lb: #{lb.inspect}")
-  
+
   nodes.each do |n|
     begin
       lb.nodes.create n
@@ -67,32 +70,32 @@ node.loadbalancers.each do |lb_def|
       if e.message !~ /Duplicate/
         raise e
       end
-    end      
+    end
   end
-  
+
   if (node.lb.stickiness == "true" &&
      lb.session_persistence.nil? ) ||
      (node.lb.stickiness == "false" &&
-     !lb.session_persistence.nil? ) 
-         
+     !lb.session_persistence.nil? )
+
     if node.lb.stickiness == "true"
       lb.enable_session_persistence("HTTP_COOKIE")
       Chef::Log.info("enable persistence")
     else
       begin
-        lb.disable_session_persistence 
+        lb.disable_session_persistence
         Chef::Log.info("disable persistence")
       rescue Fog::Rackspace::LoadBalancers::BadRequest => e
         Chef::Log.info("lb.session_persistence: "+lb.session_persistence.inspect)
       end
-      
+
     end
     lb.wait_for { ready? }
   else
-    Chef::Log.info("persistence ok")    
+    Chef::Log.info("persistence ok")
   end
-  
-  
+
+
   ecv_map.keys.each do |port|
     next if port.to_i != lb_def[:iport].to_i
     options = {
@@ -108,7 +111,7 @@ node.loadbalancers.each do |lb_def|
       options
     )
   end
-  
+
   Chef::Log.info( "health_monitor: "+lb.health_monitor.inspect.gsub("\n","") )
   Chef::Log.info( lb.inspect.gsub("<","").gsub(">","").gsub("\n","") )
   Chef::Log.info( lb.virtual_ips.inspect.gsub("<","").gsub(">","").gsub("\n","") )
@@ -126,23 +129,23 @@ node.loadbalancers.each do |lb_def|
     end
     next
   end
-    
+
   cert = certs.first
   options = {:enabled=> true}
   if cert[:ciAttributes].has_key?("cacertkey")
     options[:intermediate_certificate] = cert[:ciAttributes][:cacertkey]
   end
-  
+
   Chef::Log.info("ssl_termination using key and cert")
-  
+
   vservices = lb.ssl_termination
-  
+
   Chef::Log.info("vservices:"+vservices.inspect)
-  
+
   lb.enable_ssl_termination(
     443,
     cert[:ciAttributes][:key],
     cert[:ciAttributes][:cert],
-    options  
+    options
   )
 end

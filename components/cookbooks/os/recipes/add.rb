@@ -23,22 +23,35 @@ Chef::Log.info("provider: #{provider} ..")
 os_type = node[:workorder][:rfcCi][:ciAttributes][:ostype]
 Chef::Log.info("node[os_type]: #{os_type} ...")
 
+#Symlinks for windows
 if os_type =~ /windows/
-  Chef::Log.info("os type is windows !")
-  include_recipe "windowsos::add"
-  return true
+  execute "chown -R oneops:Administrators /var/log /var/lib /var/cache /var/run /etc /opt"
+  
+  ["etc","opt","var"].each do |dir_name|
+    link "C:/#{dir_name}" do
+      to "C:/cygwin64/#{dir_name}"
+      only_if{::File.directory?("C:/cygwin64/#{dir_name}")}
+    end
+  end
 end
 
+include_recipe "os::time"
+include_recipe "os::perf_forwarder" 
+
+if os_type =~ /windows/
+  Chef::Log.info("os type is windows !")
+  return true
+end
+	
 # common plugins dir that components put their check scripts
 execute "mkdir -p /opt/nagios/libexec"
 
 include_recipe "os::packages"
 include_recipe "os::network"
 include_recipe "os::proxy"
-include_recipe "os::time"
 include_recipe "os::kernel" unless provider == "docker"
 include_recipe "os::security" unless provider == "docker"
-include_recipe "os::perf_forwarder"
+
 
 template "/etc/logrotate.d/oneops" do
   source "logrotate.erb"
