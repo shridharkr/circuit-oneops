@@ -1,4 +1,4 @@
-# Cookbook Name:: replication
+# Cookbook Name:: set
 # Recipe:: add
 #
 # Copyright 2016, Walmart Stores, Inc.
@@ -40,11 +40,11 @@ Chef::Log.info("Container Cloud Service: #{cloud_service[:ciClassName]}")
 
 case cloud_service[:ciClassName].split(".").last.downcase
 when /kubernetes/
-  include_recipe "kubernetes::add_replication"
+  include_recipe "kubernetes::add_set"
 when /swarm/
-  include_recipe "swarm::add_replication"
+  include_recipe "swarm::add_set"
 when /ecs/
-  include_recipe "ecs::add_replication"
+  include_recipe "ecs::add_set"
 else
   Chef::Log.fatal!("Container Cloud Service: #{cloud_service[:ciClassName]}")
 end

@@ -1,5 +1,5 @@
-name             "Replication"
-description      "Container Replication"
+name             "Set"
+description      "Container Set"
 version          "0.1"
 maintainer       "OneOps"
 maintainer_email "support@oneops.com"
@@ -16,6 +16,7 @@ grouping 'bom',
 
 attribute 'replicas',
   :description => "Replicas",
+  :required => "required",
   :default => '3',
   :format => {
     :help => 'Number of replicas',
@@ -23,12 +24,23 @@ attribute 'replicas',
     :order => 1
   }
 
+attribute 'parallelism',
+  :description => "Parallelism",
+  :required => "required",
+  :default => '1',
+  :format => {
+    :help => 'Maximum number of replicas to be updated in parallel',
+    :category => '2.Update Strategy',
+    :order => 1
+  }
+
+# bom only
 attribute 'nodes',
   :description => "Cluster Nodes",
   :grouping => 'bom',
   :data_type => "array",
   :format => {
-    :help => 'List of cluster nodes/hosts used for the replication',
+    :help => 'List of cluster nodes/hosts used for the set',
     :category => '2.Cluster',
     :order => 1
   }
