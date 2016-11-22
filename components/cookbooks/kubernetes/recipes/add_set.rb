@@ -2,7 +2,7 @@ require 'json'
 
 cloud_name = node[:workorder][:cloud][:ciName]
 container_service = node[:workorder][:services][:container][cloud_name][:ciAttributes]
-replication = node[:workorder][:rfcCi]
+set = node[:workorder][:rfcCi]
 
 #
 # 1. construct the kubectl command arguments to scale deployment
@@ -11,7 +11,7 @@ replication = node[:workorder][:rfcCi]
 
 ruby_block "scale #{node[:container_name]}" do
   block do
-    replicas = replication[:ciAttributes][:replicas]
+    replicas = set[:ciAttributes][:replicas]
     kubectl_scale = "kubectl scale deployment #{node[:container_name]} --replicas=#{replicas} 2>&1"
     Chef::Log.info(kubectl_scale)
     result = `#{kubectl_scale}`

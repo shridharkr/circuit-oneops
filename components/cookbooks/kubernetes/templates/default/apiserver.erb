@@ -52,7 +52,7 @@ KUBE_AUTH_ARGS="<%= auth_args.join(' ') %>"
 KUBE_AUTH_ARGS=""
 <% end %>
 
-# How the replication controller and scheduler find the kube-apiserver
+# How the set controller and scheduler find the kube-apiserver
 KUBE_MASTER="--master=localhost:<%= node['kube']['api']['bind-port'] %>"
 
 # Port minions listen on
