@@ -18,15 +18,17 @@ resource "container",
   :design => true,
   :requires => { "constraint" => "1..1", "services" => "container" }
 
-resource "replication",
-  :cookbook => "oneops.1.replication",
+resource "set",
+  :cookbook => "oneops.1.set",
   :design => true,
   :requires => { "constraint" => "1..1", "services" => "container" },
   :attributes => {
-    :replicas => '3'
+    :replicas => '3',
+    :parallelism => '1'
   }
 
 resource "lb",
+  :except => [ 'single' ],
   :design => true,
   :cookbook => "oneops.1.lb",
   :requires => { "constraint" => "1..1", "services" => "lb,dns" },
@@ -103,7 +105,7 @@ resource "fqdn",
          }
        ]
     }'
-  }, 
+  },
 'activeclouds' => {
     'description' => 'activeclouds',
     'definition' => '{
@@ -382,27 +384,50 @@ resource "fqdn",
 
 # depends_on
 
-[ 'lb' ].each do |from|
-  relation "#{from}::depends_on::replication-redundant",
-    :only => [ 'redundant' ],
+#single
+[ 'fqdn' ].each do |from|
+  relation "#{from}::depends_on::set",
+    :only => [ 'single' ],
     :design => false,
     :relation_name => 'DependsOn',
     :from_resource => from,
-    :to_resource   => 'replication',
-    :attributes    => { "propagate_to" => 'from', "flex" => true, "current" =>3, "min" => 3, "max" => 10}
+    :to_resource   => 'set',
+    :attributes    => { "propagate_to" => 'from' }
+end
+
+#redundant
+[ 'fqdn' ].each do |from|
+  relation "#{from}::depends_on::lb",
+    :except => [ 'single' ],
+    :design => true,
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'lb',
+    :attributes    => { "propagate_to" => 'from' }
 end
 
 [ 'lb' ].each do |from|
-  relation "#{from}::depends_on::replication",
-    :except => [ 'redundant' ],
+  relation "#{from}::depends_on::set",
+    :except => [ 'single' ],
+    :design => true,
     :relation_name => 'DependsOn',
     :from_resource => from,
-    :to_resource   => 'replication',
-    :attributes    => { "propagate_to" => 'from', "flex" => false }
+    :to_resource   => 'set',
+    :attributes    => { "propagate_to" => 'from', "flex" => true, "current" =>2, "min" => 2, "max" => 10 }
 end
 
-[ { :from => 'replication', :to => 'container' },
-  { :from => 'fqdn',	      :to => 'lb' } ].each do |link|
+# save for replicated
+# [ 'lb' ].each do |from|
+#   relation "#{from}::depends_on::container",
+#     :only => [ 'redundant' ],
+#     :design => false,
+#     :relation_name => 'DependsOn',
+#     :from_resource => from,
+#     :to_resource   => 'container',
+#     :attributes    => { "propagate_to" => 'from', "flex" => true, "current" =>2, "min" => 2, "max" => 10}
+# end
+
+[ { :from => 'set',  :to => 'container' } ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
     :relation_name => 'DependsOn',
     :from_resource => link[:from],
