@@ -64,6 +64,7 @@ attribute 'url',
   :default => '',
   :format => {
     :help => 'URL context per https://docs.docker.com/engine/reference/commandline/build/',
+    :important => true,
     :category => '1.Image',
     :order => 4,
     :filter => {:all => {:visible => 'image_type:eq:dockerfile'}}
@@ -74,6 +75,7 @@ attribute 'tag',
   :default => 'latest',
   :format => {
     :help => 'Use cache when building the image',
+    :important => true,
     :category => '1.Image',
     :order => 5,
     :filter => {:all => {:visible => 'image_type:eq:dockerfile'}}

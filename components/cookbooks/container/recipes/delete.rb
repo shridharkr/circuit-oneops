@@ -34,6 +34,20 @@ end
 
 Chef::Log.info("Container Cloud Service: #{cloud_service[:ciClassName]}")
 
+# check if we need to delete image
+container = rfcCi[:ciAttributes]
+case container[:image_type]
+when 'registry'
+  Chef::Log.info("Using image #{container[:image]} from registry")
+  node.set[:image_name] = container[:image]
+when 'dockerfile'
+  Chef::Log.info("Delete image required")
+  node.set[:image_name] = container_name + ":" + container[:tag]
+  include_recipe "container::delete_image"
+else
+  Chef::Log.fatal!("I don't know how to deal with image type #{container[:image_type]}")
+end
+
 case cloud_service[:ciClassName].split(".").last.downcase
 when /kubernetes/
   include_recipe "kubernetes::delete_container"
