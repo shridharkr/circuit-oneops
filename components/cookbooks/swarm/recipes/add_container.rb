@@ -30,7 +30,7 @@ ports = container[:ciAttributes][:ports]
 JSON.parse(ports).each { |key, value| create.push("-p=#{value}") } if !ports.empty?
 
 #image
-create.push("#{container[:ciAttributes][:image]}")
+create.push("#{node[:image_name]}")
 
 #command
 create.push(container[:ciAttributes][:command])

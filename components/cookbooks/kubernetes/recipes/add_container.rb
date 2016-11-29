@@ -12,7 +12,7 @@ container = node[:workorder][:rfcCi]
 kubectl = [ "run", node[:container_name] ]
 
 #image
-kubectl.push("--image=#{container[:ciAttributes][:image]}")
+kubectl.push("--image=#{node[:image_name]}")
 
 #env
 env = container[:ciAttributes][:env]

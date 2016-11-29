@@ -16,7 +16,12 @@ platform :attributes => {
 resource "container",
   :cookbook => "oneops.1.container",
   :design => true,
-  :requires => { "constraint" => "1..1", "services" => "container" }
+  :requires => { "constraint" => "1..1", "services" => "container" },
+  :attributes => {
+    :image_type => 'registry',
+    :image => 'nginx',
+    :ports => [ 'http' => '80' ]
+  }
 
 resource "set",
   :cookbook => "oneops.1.set",
