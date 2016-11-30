@@ -23,6 +23,7 @@ end
 
 # If URL not found in cloud/comp mirrors use defaults
 if base_url.empty? 
+  node.set[:elasticsearch][:repository]    = "elasticsearch/elasticsearch"
   node.set[:elasticsearch][:download_url]  = [node.elasticsearch[:host], node.elasticsearch[:repository], node.elasticsearch[:filename]].join('/')  
 else
   node.set[:elasticsearch][:download_url]  = [base_url, node.elasticsearch[:repository], node.elasticsearch[:filename]].join('/')

@@ -15,6 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+windows_platform = node['platform_family'] == 'windows'
+
 p = node.workorder.rfcCi.ciAttributes[:path]
 c = node.workorder.rfcCi.ciAttributes[:content]
 e = node.workorder.rfcCi.ciAttributes[:exec_cmd]
@@ -22,8 +24,8 @@ e = node.workorder.rfcCi.ciAttributes[:exec_cmd]
 d = File.dirname(p)
 
 directory "#{d}" do
-  owner "root"
-  group "root"
+  owner "root" unless windows_platform
+  group "root" unless windows_platform
   mode "0755"
   recursive true
   action :create
@@ -31,8 +33,8 @@ directory "#{d}" do
 end
 
 file "#{p}" do
-  owner "root"
-  group "root"
+  owner "root" unless windows_platform
+  group "root" unless windows_platform
   mode "0755"
   content "#{c}".gsub(/\r\n?/,"\n")
   action :create

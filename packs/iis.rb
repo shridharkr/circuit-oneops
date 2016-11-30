@@ -124,33 +124,18 @@ resource "nuget-package",
   }
 
 resource "secgroup",
-  :cookbook   => "oneops.1.secgroup",
-  :design     => true,
   :attributes => {
     "inbound" => '[ "22 22 tcp 0.0.0.0/0", "3389 3389 tcp 0.0.0.0/0", "80 80 tcp 0.0.0.0/0"]'
-  },
-  :requires     => {
-    :constraint => "1..1",
-    :services   => "compute"
   }
 
 resource "os",
-  :cookbook => "oneops.1.os",
-  :design => true,
-  :requires => {
-    "constraint" => "1..1",
-    "services" => "compute"
-  },
   :attributes => {
     "ostype"  => "windows_2012_r2"
   }
 
 resource "volume",
-  :cookbook       => "oneops.1.volume",
-  :design         => true,
   :requires       => {
-    :constraint   => "1..1",
-    :services     => "compute"
+    :constraint   => "1..1"
   },
   :attributes     => {
     "mount_point" => '$OO_LOCAL{drive_name}'
