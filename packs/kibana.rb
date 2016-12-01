@@ -136,6 +136,7 @@ resource "hostname",
  {:from => 'user-app', :to => 'compute'},
  {:from => 'volume-app', :to => 'user-app'},
  {:from => 'volume-log', :to => 'volume-app'},
+ {:from => 'kibana', :to => 'daemon'},
  {:from => 'kibana', :to => 'volume-log'}
 ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
