@@ -56,6 +56,7 @@ end
 
 #Create LSF config file
 template "/etc/logstash-forwarder/perf-agent-lsf.conf" do
+  cookbook 'os'
   source "logstash-forwarder.conf.erb"
   mode 0640
   variables({
@@ -69,6 +70,7 @@ end
 
 #Get LSF executable from cookbook
 cookbook_file "/opt/logstash-forwarder/bin/#{exe_file}" do
+  cookbook 'os'
   source exe_file
   owner root_user
   group root_group
@@ -84,6 +86,7 @@ if File.directory?("/usr/lib/systemd/system")
 end
 
 template template_name do
+  cookbook 'os'
   source source_name
   variables({
     :log_dir => "/opt/oneops/log"
@@ -110,6 +113,7 @@ end
 
 #Add a new conf file for rsyslog and restart it, only for linux VMs
 template "/etc/rsyslog.d/oneops-perf-agent.conf" do
+  cookbook 'os'
   source "log-conf.erb"
   owner root_user
   group root_group
