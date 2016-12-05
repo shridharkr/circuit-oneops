@@ -29,10 +29,24 @@ if !node.workorder.services["container"].nil? &&
 end
 
 if cloud_service.nil?
-  Chef::Log.fatal!("no container cloud service defined. services: "+node.workorder.services.inspect)
+  Chef::Log.fatal("no container cloud service defined. services: "+node.workorder.services.inspect)
 end
 
 Chef::Log.info("Container Cloud Service: #{cloud_service[:ciClassName]}")
+
+# check if we need to build image
+container = rfcCi[:ciAttributes]
+case container[:image_type]
+when 'registry'
+  Chef::Log.info("Using image #{container[:image]} from registry")
+  node.set[:image_name] = container[:image]
+when 'dockerfile'
+  Chef::Log.info("Build image using a Dockerfile")
+  node.set[:image_name] = container_name + ":" + container[:tag]
+  include_recipe "container::add_image"
+else
+  Chef::Log.fatal!("I don't know how to deal with image type #{container[:image_type]}")
+end
 
 case cloud_service[:ciClassName].split(".").last.downcase
 when /kubernetes/

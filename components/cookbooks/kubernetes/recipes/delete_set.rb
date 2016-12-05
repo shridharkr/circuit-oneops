@@ -2,7 +2,7 @@ require 'json'
 
 cloud_name = node[:workorder][:cloud][:ciName]
 container_service = node[:workorder][:services][:container][cloud_name][:ciAttributes]
-replication = node[:workorder][:rfcCi]
+set = node[:workorder][:rfcCi]
 
 #
 # 1. construct the kubectl command arguments to scale deployment
