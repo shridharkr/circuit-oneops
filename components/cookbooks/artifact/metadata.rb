@@ -39,28 +39,28 @@ grouping 'default',
 # after_deploy               | A proc containing resources to be executed after the deploy process ends             | Proc    |
 # ssl_verify                 | Used to set whether or not communications with a Nexus server should be SSL verified | Boolean | true
 # remove_top_level_directory | Deletes a top level directory from the extracted zip file                            | Boolean | false
-# skip_manifest_check        | Skips the manifest check for idempotency when the version attribute is not changing  | Boolean | false 
+# skip_manifest_check        | Skips the manifest check for idempotency when the version attribute is not changing  | Boolean | false
 # remove_on_force            | Removes the current version directory contents when force is set                     | Boolean | false
 
 attribute 'url',
   :description => "Repository URL",
   :default => '',
-  :format => { 
+  :format => {
     :help => 'Nexus repository URL',
     :category => '1.Repository',
     :order => 1
   }
 
 attribute 'repository',
-  :description => "Repository Name",
+  :description => "Repository",
   :required => "required",
   :default => '',
-  :format => { 
+  :format => {
     :help => 'Repository',
     :category => '1.Repository',
     :order => 2
   }
-  
+
 attribute 'username',
   :description => "Username",
   :format => {
@@ -82,13 +82,13 @@ attribute 'location',
   :description => "Identifier",
   :required => "required",
   :default => '',
-  :format => { 
+  :format => {
     :help => 'URL, S3 path, local path, or Maven identifier of the artifact package to download',
     :important => true,
     :category => '3.Artifact',
     :order => 1
   }
-  
+
 attribute 'version',
   :description => "Version",
   :required => "required",
@@ -119,12 +119,12 @@ attribute 'path',
   }
 
 attribute 'install_dir',
-  :description => "Install Directory",  
+  :description => "Install Directory",
   :format => {
     :help => 'Directory path where the artifact will be downloaded and versions will be kept',
     :category => '4.Destination',
     :order => 1,
-    :pattern => '^((?:[\/\$][\$\{\}a-zA-Z0-9]+(?:_[\$\{\}a-zA-Z0-9]+)*(?:\-[\$\{\}a-zA-Z0-9]+)*)+)$'
+    :pattern => '^((?:[${}a-zA-Z]:){0,1}(?:[\\\/$][${}a-zA-Z0-9]+(?:_[${}a-zA-Z0-9]+)*(?:-[${}a-zA-Z0-9]+)*)+)$'
   }
 
 attribute 'as_user',
@@ -144,7 +144,7 @@ attribute 'as_group',
     :category => '4.Destination',
     :order => 3
   }
-  
+
 attribute 'environment',
   :description => "Environment Variables",
   :data_type => 'hash',
@@ -164,16 +164,16 @@ attribute 'persist',
     :category => '4.Destination',
     :order => 5
   }
-  
+
 attribute 'should_expand',
   :description => "Expand",
   :default => 'true',
   :format => {
     :help => 'By default (from open source version) will expand tgz, tar.gz, tar, zip, jar, war.',
     :category => '4.Destination',
-    :form => { 'field' => 'checkbox' },    
+    :form => { 'field' => 'checkbox' },
     :order => 6
-  }  
+  }
 
 attribute 'configure',
   :description => "Configure",
@@ -183,7 +183,7 @@ attribute 'configure',
     :category => '5.Stages',
     :order => 1
   }
-  
+
 attribute 'migrate',
   :description => "Migrate",
   :data_type => "text",
@@ -201,6 +201,6 @@ attribute 'restart',
     :category => '5.Stages',
     :order => 3
   }
-    
+
 recipe "redeploy", "Re-Deploy"
 recipe "repair", "Repair"

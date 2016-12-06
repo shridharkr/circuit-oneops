@@ -8,6 +8,7 @@ depends          "netscaler"
 depends          "azure_lb"
 depends          "neutron"
 depends          "f5-bigip"
+depends          "haproxy"
 
 grouping 'default',
   :access => "global",
@@ -22,9 +23,10 @@ attribute 'listeners',
   :data_type => "array",
   :default => "[\"http 80 http 8080\"]",
   :format => {
+    :important => true,
     :category => '1.Global',
     :order => 1,
-    :pattern => '(http|https|tcp|udp|ssl_bridge) \d+ (http|https|tcp|udp|ssl_bridge) \d+',
+    :pattern => '(http|https|tcp|udp|ssl_bridge|any) (\d+|all|\d+:\/.*?) (http|https|tcp|udp|ssl_bridge|any) (\d+|all)',
     :help => 'Virtual/External protocol and port, then Internal/Compute-Level protocol and port.  4 values space separated: "vprotocol vport iprotocol iport" ex) "https 443 http 8080" or "tcp 5432 tcp 5432"'
   }
 

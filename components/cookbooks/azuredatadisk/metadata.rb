@@ -4,6 +4,7 @@ maintainer_email 'kowsalya.palaniappan@walmart.com'
 license          'Apache License, Version 2.0'
 description      'Installs/Configures azuredatadisk'
 version          '0.1.0'
+depends          "azure_base"
 
 grouping 'default',
          :access => "global",
@@ -56,16 +57,26 @@ attribute 'master_rg',
           :default => "",
           :format => {
               :help => 'master resource group to hold the storage account',
-              :category => '2.config',
+              :category => '2.Config',
               :order => 1
           }
-attribute 'storage_account',
-          :description => "Azure Storage Account Name",       
+attribute 'storage_account_std',
+          :description => "Azure Standard Storage Account Name",       
           :required => "required",
           :default => "",
           :format => {
-              :help => 'storage account name',
-              :category => '2.config',
+              :help => 'standard storage account name',
+              :category => '2.Config',
+              :order => 2
+          }
+
+attribute 'storage_account_prm',
+          :description => "Azure Premium Storage Account Name",       
+          :required => "required",
+          :default => "",
+          :format => {
+              :help => 'premium storage account name',
+              :category => '2.Config',
               :order => 2
           }
 
@@ -87,5 +98,3 @@ attribute 'region',
               }
           }
 
-
-recipe "check_subscription_status", "Check Subscription Status"

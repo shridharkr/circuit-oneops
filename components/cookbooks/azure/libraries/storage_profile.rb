@@ -19,7 +19,7 @@ module AzureCompute
 
     end
 
-    def build_profile(node, ephemeral_disk_sizemap)
+    def build_profile(node)
       #==================================================
       #Get the information from the workload in order to
       #extract the platform name and generate
@@ -80,6 +80,15 @@ module AzureCompute
         OOLog.info("No need to create Storage Account: #{storage_account_name}")
       end
 
+      i = 0
+      until storage_account_created?(storage_account_name) do 
+        if(i >= 10) 
+          OOLog.fatal("***FAULT:FATAL=Timeout. Could not find storage account #{storage_account_name}")
+        end
+        i += 1
+        sleep 30
+      end
+        
       OOLog.info("ImageID: #{node['image_id']}")
 
       # image_id is expected to be in this format; Publisher:Offer:Sku:Version (ie: OpenLogic:CentOS:6.6:latest)
@@ -114,26 +123,6 @@ module AzureCompute
       storage_profile.os_disk.caching = Azure::ARM::Compute::Models::CachingTypes::ReadWrite
       storage_profile.os_disk.create_option = Azure::ARM::Compute::Models::DiskCreateOptionTypes::FromImage
 
-      disk_size_map = JSON.parse(ephemeral_disk_sizemap)
-      vm_size = node['workorder']['rfcCi']['ciAttributes']['size']
-      OOLog.info("data disk size from size map: #{disk_size_map[vm_size]} ")
-      #if the VM exists already data disk property need not be updated. Updating the datadisk size will result in an error.
-
-      if node.VM_exists == false
-        OOLog.info("WM Doesn't exist, create the second disk")
-        #Add a data disk
-        data_disk1 = Azure::ARM::Compute::Models::DataDisk.new
-        data_disk1.name = "#{server_name}-datadisk"
-        data_disk1.lun = 0
-        data_disk1.disk_size_gb = disk_size_map[vm_size]
-        data_disk1.vhd = Azure::ARM::Compute::Models::VirtualHardDisk.new
-        data_disk1.vhd.uri = "https://#{storage_account_name}.blob.core.windows.net/vhds/#{storage_account_name}-#{server_name}-data1.vhd"
-        data_disk1.caching = Azure::ARM::Compute::Models::CachingTypes::ReadWrite
-        data_disk1.create_option = Azure::ARM::Compute::Models::DiskCreateOptionTypes::Empty
-        storage_profile.data_disks = Array.[](data_disk1)
-        OOLog.info("Data Disk Name is: '#{data_disk1.name}' ")
-        OOLog.info("Data Disk VHD URI is: #{data_disk1.vhd.uri}")
-      end
 
       return storage_profile
     end
@@ -211,6 +200,22 @@ private
          return nil
        rescue => ex
          OOLog.fatal("Error checking availability of #{storage_account_name}: #{ex.message}")
+       end
+    end
+
+    def storage_account_created?(storage_account_name)
+      begin
+         promise =
+            @storage_client.storage_accounts.get_properties(@resource_group_name, storage_account_name)
+         response = promise.value!
+         result = response.body
+         OOLog.info("Storage Account Provisioning State: #{result.properties.provisioning_state}")
+         return result.properties.provisioning_state == "Succeeded"
+       rescue  MsRestAzure::AzureOperationError => e
+         OOLog.info("#ERROR Body: #{e.body}")
+         return false
+       rescue => ex
+         OOLog.fatal("Error getting properties of #{storage_account_name}: #{ex.message}")
        end
     end
 

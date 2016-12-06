@@ -54,7 +54,6 @@ resource "lb",
     }
   }
 
-
 resource "lb-certificate",
   :cookbook => "oneops.1.certificate",
   :design => true,
@@ -95,6 +94,15 @@ end
 
 
 [ 'fqdn' ].each do |from|
+  relation "#{from}::depends_on::lb",
+    :except => [ '_default', 'single' ],
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'lb',
+    :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
+end
+
+[ 'firewall' ].each do |from|
   relation "#{from}::depends_on::lb",
     :except => [ '_default', 'single' ],
     :relation_name => 'DependsOn',

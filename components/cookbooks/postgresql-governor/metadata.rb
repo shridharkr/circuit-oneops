@@ -46,16 +46,26 @@ attribute 'postgresql_conf',
 
 
 attribute 'etcd_ttl',
-:description => "Etcd TTL (s)",
-:required => "required",
-:default => "30",
-:format => {
+  :description => "Etcd TTL (s)",
+  :required => "required",
+  :default => "30",
+  :format => {
     :help => 'TTL to acquire the leader lock. Think of it as the length of time before automatic failover process is initiated',
     :category => '3.Governor',
     :order => 1,
     :pattern => "[0-9\.]+"
 }
 
+attribute 'maximum_lag_on_failover',
+  :description => "Maximum Lag on xLog when failover",
+  :required => "required",
+  :default => "8388608",
+  :format => {
+    :help => 'The maximum lag on WAL between the Postgres master/leader and slave when the slave could still be considered as the candidate for Postgres master when the failover happens',
+    :category => '3.Governor',
+    :order => 2,
+    :pattern => "[0-9\.]+"
+}
 recipe "status", "Postgresql Status"
 recipe "start", "Start Postgresql"
 recipe "stop", "Stop Postgresql"

@@ -4,6 +4,8 @@ description   "Kibana"
 type          "Platform"
 category      "Search Engine"
 
+platform :attributes => {'autoreplace' => 'false'}
+
 environment "single", {}
 environment "redundant", {}
 
@@ -13,6 +15,15 @@ resource 'compute',
          :attributes => {'ostype' => 'default-cloud',
                          'size' => 'S'
          }
+
+resource "lb",
+  :except => [ 'single' ],
+  :design => true,
+  :cookbook => "oneops.1.lb",
+  :requires => { "constraint" => "1..1", "services" => "compute,lb,dns" },
+  :attributes => {
+    "listeners" => '["http 5601 http 5601"]',
+}
 
 resource "user-app",
          :cookbook => "oneops.1.user",
@@ -34,8 +45,8 @@ resource "kibana",
              'install_type' => 'binary',
              'src_url' => 'https://download.elastic.co/kibana/kibana',
              'install_path' => '/app/kibana',
-             'version' => '4.1',
-             'port' => '2601',
+             'version' => '4.1.2',
+             'port' => '5601',
              'kibana_user' => 'app',
              'kibana_group' => 'app',
              'log_dir' =>'/log/kibana'
@@ -125,6 +136,7 @@ resource "hostname",
  {:from => 'user-app', :to => 'compute'},
  {:from => 'volume-app', :to => 'user-app'},
  {:from => 'volume-log', :to => 'volume-app'},
+ {:from => 'kibana', :to => 'daemon'},
  {:from => 'kibana', :to => 'volume-log'}
 ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",

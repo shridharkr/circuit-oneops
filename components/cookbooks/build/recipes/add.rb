@@ -18,13 +18,6 @@ end
 
 pkgs = [ "git", "git-core", "subversion" ]
 
-case node.platform 
-when "redhat","centos","fedora"
-  pkgs.push "java-1.6.0-openjdk-devel"
-  pkgs.push "perl-Digest-SHA"
-else
-  pkgs.push "openjdk-6-jdk"
-end
 
 pkgs.each do |pkg|
    

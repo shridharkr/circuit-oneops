@@ -56,30 +56,34 @@ cleanup_servicegroups.each do |sg|
   n.run_action(:delete)
 end
 
-include_recipe "netscaler::add_monitor"
-
 
 # cleanup different servicetype for other clouds' in same dc
 if node.workorder.rfcCi.has_key?("ciBaseAttributes") &&
    node.workorder.rfcCi.ciBaseAttributes.has_key?("listeners")
 
-  old_servicetypes = []
+  old_svc_port = {}
   JSON.parse(node.workorder.rfcCi.ciBaseAttributes.listeners).each do |listener|
     servicetype = listener.split(" ")[2].upcase
     servicetype = "SSL" if servicetype == "HTTPS"
-    old_servicetypes.push(servicetype)
+    vservicetype = listener.split(" ")[0].upcase
+    vservicetype = "SSL" if vservicetype == "HTTPS"
+    vsvc_vport = vservicetype+"_"+listener.split(" ")[1]
+    old_svc_port["#{vsvc_vport}"] = servicetype
   end
   
   # filter out new types 
   JSON.parse(node.workorder.rfcCi.ciAttributes.listeners).each do |listener|
     servicetype = listener.split(" ")[2].upcase
     servicetype = "SSL" if servicetype == "HTTPS"
-    old_servicetypes.delete(servicetype)
+    vservicetype = listener.split(" ")[0].upcase
+    vservicetype = "SSL" if vservicetype == "HTTPS"
+    vsvc_vport = vservicetype+"_"+listener.split(" ")[1]
+    old_svc_port.delete("#{vsvc_vport}") if old_svc_port["#{vsvc_vport}"] == servicetype
   end
   
-  Chef::Log.info("old servicetypes: #{old_servicetypes.inspect}")  
+  Chef::Log.info("old services port: #{old_svc_port.inspect}")
   # servicegroup servicetype changed
-  if old_servicetypes.size > 0
+  if !old_svc_port.empty?
    
     node.dcloadbalancers.each do |lb|
       lb_name = lb[:name]
@@ -99,7 +103,11 @@ if node.workorder.rfcCi.has_key?("ciBaseAttributes") &&
         
         sg = resp_obj["servicegroup"][0]
         
-        next if !old_servicetypes.include?(sg["servicetype"])
+        old_svc_port.each do |vsvc_vport, stype|
+          if lb_name.include?(vsvc_vport)
+            next if !stype.include?(sg["servicetype"])
+          end
+        end
     
         binding = { :name => lb_name, :servicegroupname => old_sg_name }
         req = 'object={"params":{"action": "unbind"}, "lbvserver_servicegroup_binding" : ' + JSON.dump(binding) + '}'
@@ -152,9 +160,7 @@ lbs.each do |lb|
 
   # delete members no longer in the sg
   ip_map = {}
-  computes = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Compute/ }
-
-  computes.each do |compute|
+  node.lb_members.each do |compute|
     ip = compute["ciAttributes"]["private_ip"]
     next if ip.nil?
     ip_map[ip]=1
@@ -204,7 +210,7 @@ lbs.each do |lb|
 
 
   # add members
-  computes.each do |compute|
+  node.lb_members.each do |compute|
 
     ip = compute["ciAttributes"]["private_ip"]
     server_name = ip
@@ -216,10 +222,15 @@ lbs.each do |lb|
       server_name = compute["ciAttributes"]["instance_name"]
     end
 
+    port = lb[:iport]
+    if lb[:iport] == 'all'
+      port = '*'
+    end
+    
     req = {"servicegroup_servicegroupmember_binding" => {
              "servicegroupname" => sg_name,
              "servername" => server_name,
-             "port" => lb[:iport]
+             "port" => port
              }
            }
 
@@ -235,7 +246,10 @@ lbs.each do |lb|
 
   end
 
+  
+  include_recipe "netscaler::add_monitor"  
 
+  # bind monitors
   node.monitors.each do |mon|
     next if mon[:iport] != lb[:iport]
     

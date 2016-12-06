@@ -33,6 +33,8 @@ Chef::Log.info("Cloud Provider: #{provider}")
 # refactoring azure specific recipe to an azure folder to make it easier to manage all the files.
 if provider =~ /azure/
   include_recipe 'azure::add_node'
+elsif provider =~ /vsphere/
+  include_recipe 'vsphere::add_node'
 else
   include_recipe "compute::add_node_"+provider
 end
@@ -52,6 +54,8 @@ if node.workorder.rfcCi.has_key?(:ciState) && node.workorder.rfcCi.ciState == "r
   case provider_service
   when /infoblox/
     provider = "infoblox"
+  when /azuredns/
+    provider = "azuredns"
   when /designate/
     provider = "designate"
   end
@@ -67,6 +71,15 @@ if provider == "ec2"
   end
 elsif provider == "docker"
   sleep_time = 1
+end
+
+Chef::Log.info("Action is: #{node.workorder.rfcCi.rfcAction}")
+
+if node.workorder.rfcCi.rfcAction !~ /update/
+  # need to sleep a long time for windows to be ready
+  if node[:ostype] =~ /windows/
+    sleep_time = 240
+  end
 end
 
 ruby_block "wait for boot" do

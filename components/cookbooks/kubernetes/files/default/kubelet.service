@@ -1,21 +1,21 @@
 [Unit]
 Description=Kubernetes Kubelet Server
-Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+Documentation=https://github.com/kubernetes/kubernetes
 After=docker.socket cadvisor.service
 Requires=docker.socket
 
 [Service]
 EnvironmentFile=-/etc/kubernetes/config
 EnvironmentFile=-/etc/kubernetes/kubelet
+
 ExecStart=/usr/bin/kubelet \
-	    ${KUBE_LOGTOSTDERR} \
-	    ${KUBE_LOG_LEVEL} \
-	    ${KUBELET_API_SERVERS} \
-	    ${KUBELET_ADDRESS} \
-	    ${KUBELET_PORT} \
-	    ${KUBELET_HOSTNAME} \
-	    ${KUBE_ALLOW_PRIV} \
-	    ${KUBELET_ARGS}
+	    $KUBELET_ARGS \
+	    $KUBELET_API_SERVERS \
+	    $KUBELET_ADDRESS \
+	    $KUBELET_PORT \
+	    $KUBE_ALLOW_PRIV \
+	    $KUBE_AUTH_ARGS \
+	    $KUBE_LOG_LEVEL
 Restart=on-failure
 
 [Install]

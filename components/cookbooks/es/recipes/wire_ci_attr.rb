@@ -17,12 +17,13 @@ base_url = ''
 base_url = comp_mirrors[0] if !comp_mirrors.empty?
 # Search for cloud mirror if no mirrors added
 if base_url.empty?
-  cloud_mirrors = JSON.parse(node[:workorder][:services][:mirror][@cloud_name][:ciAttributes][:mirrors]) 
+  cloud_mirrors = JSON.parse(node[:workorder][:services][:mirror][@cloud_name][:ciAttributes][:mirrors])
   base_url = cloud_mirrors[@cookbook_name] if !cloud_mirrors.nil? && cloud_mirrors.has_key?(@cookbook_name)
-end  
+end
 
 # If URL not found in cloud/comp mirrors use defaults
 if base_url.empty? 
+  node.set[:elasticsearch][:repository]    = "elasticsearch/elasticsearch"
   node.set[:elasticsearch][:download_url]  = [node.elasticsearch[:host], node.elasticsearch[:repository], node.elasticsearch[:filename]].join('/')  
 else
   node.set[:elasticsearch][:download_url]  = [base_url, node.elasticsearch[:repository], node.elasticsearch[:filename]].join('/')
@@ -34,7 +35,7 @@ end
 node.set[:elasticsearch][:cluster][:name] = ci["cluster_name"]
 
 if node[:elasticsearch][:version].start_with?("2")
-  node.set[:elasticsearch][:network][:host] = "0.0.0.0"
+  node.set[:elasticsearch][:network][:host] = node[:ipaddress]
 end
 
 # === INDEX

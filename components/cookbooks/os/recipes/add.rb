@@ -20,17 +20,34 @@ cloud_name = node[:workorder][:cloud][:ciName]
 provider = node[:workorder][:services][:compute][cloud_name][:ciClassName].gsub("cloud.service.","").downcase
 
 Chef::Log.info("provider: #{provider} ..")
+os_type = node[:workorder][:rfcCi][:ciAttributes][:ostype]
+Chef::Log.info("node[os_type]: #{os_type} ...")
 
+#Symlinks for windows
+["etc","opt","var"].each do |dir_name|
+  link "C:/#{dir_name}" do
+    to "C:/cygwin64/#{dir_name}"
+    only_if{::File.directory?("C:/cygwin64/#{dir_name}")}
+  end
+end
+
+include_recipe "os::time"
+include_recipe "os::perf_forwarder" 
+
+if os_type =~ /windows/
+  Chef::Log.info("os type is windows !")
+  return true
+end
+	
 # common plugins dir that components put their check scripts
 execute "mkdir -p /opt/nagios/libexec"
 
 include_recipe "os::packages"
 include_recipe "os::network"
 include_recipe "os::proxy"
-include_recipe "os::time"
 include_recipe "os::kernel" unless provider == "docker"
 include_recipe "os::security" unless provider == "docker"
-include_recipe "os::perf_forwarder"
+
 
 template "/etc/logrotate.d/oneops" do
   source "logrotate.erb"

@@ -4,5 +4,12 @@
 # Author : OneOps
 # Apache License, Version 2.0
 
-include_recipe 'etcd::delete'
+extend Etcd::Util
+Chef::Resource::RubyBlock.send(:include, Etcd::Util)
+
+if depend_on_hostname_ptr?
+  include_recipe 'etcd::delete'
+  include_recipe 'etcd::register_new_node'  
+end
+
 include_recipe 'etcd::add'

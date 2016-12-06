@@ -23,6 +23,8 @@ cloud_name = node.workorder.cloud.ciName
 local_cloud_service = node[:workorder][:services][:gdns][cloud_name]
 gdns = node[:workorder][:services][:gdns][cloud_name][:ciAttributes]
 
+node.set["gslb_has_changes"] = false
+
 
 # this could be a compute/server or lb
 ci = node.workorder.payLoad.DependsOn[0]
@@ -35,6 +37,7 @@ gslb_service_state = "ENABLED"
 
 # default / use 80 if exists
 gslb_port = 80
+instance_port = 80
 gslb_protocol = "HTTP"
 lb = node.workorder.payLoad.lb.first
 listeners = JSON.parse( lb[:ciAttributes][:listeners] )
@@ -45,6 +48,7 @@ listeners.each do |l|
     gslb_protocol = "SSL"
   end
   gslb_port = lb_attrs[1].to_i
+  instance_port = lb_attrs[3].to_i
   break if gslb_protocol == "HTTP"
 end
 
@@ -73,6 +77,7 @@ n = netscaler_gslb_service gslb_service_name do
   serverip server_ip
   servicetype gslb_protocol
   port gslb_port
+  iport instance_port
   connection node.ns_conn  
   action :nothing  
 end
@@ -133,7 +138,7 @@ remote_sites.each do |cloud_service|
     connection conn  
     action :nothing    
   end
-  n.run_action(:default)
+  n.run_action(:default) if node.gslb_has_changes
 
 end
 
@@ -187,7 +192,7 @@ authoritative_servers.each do |dns_server|
     connection conn  
     action :nothing    
   end
-  n.run_action(:default)
+  n.run_action(:default) if node.gslb_has_changes
   
 
 end

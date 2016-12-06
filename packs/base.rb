@@ -18,7 +18,7 @@ platform :attributes => {
 resource "compute",
   :cookbook => "oneops.1.compute",
   :design => true,
-  :requires => { "constraint" => "1..1", "services" => "compute,dns" },
+  :requires => { "constraint" => "1..1", "services" => "compute,dns,*mirror" },
   :attributes => { "size"    => "S"
                  },
   :monitors => {
@@ -59,7 +59,7 @@ resource "compute",
 resource "os",
   :cookbook => "oneops.1.os",
   :design => true,
-  :requires => { "constraint" => "1..1", "services" => "compute,dns,*ntp" },
+  :requires => { "constraint" => "1..1", "services" => "compute,dns,*mirror,*ntp" },
   :attributes => { "ostype"  => "centos-7.0",
                    "dhclient"  => 'true'
                  },
@@ -191,7 +191,7 @@ resource 'logstash',
 resource "fqdn",
   :cookbook => "oneops.1.fqdn",
   :design => true,
-  :requires => { "constraint" => "1..1", "services" => "compute,dns,*gdns,lb" },
+  :requires => { "constraint" => "1..1", "services" => "compute,dns,*gdns" },
   :attributes => { "aliases" => '[]' },
   :payloads => {
 'environment' => {
@@ -219,7 +219,7 @@ resource "fqdn",
          }
        ]
     }'
-  },
+  }, 
 'activeclouds' => {
     'description' => 'activeclouds',
     'definition' => '{
@@ -277,7 +277,7 @@ resource "fqdn",
                    "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
                    "direction": "from",
                    "targetClassName": "cloud.service.oneops.1.Rackspacedns"
-                 },    
+                 },
                  { "returnObject": true,
                    "returnRelation": false,
                    "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
@@ -457,7 +457,7 @@ resource "fqdn",
                        "relationAttrs":[{"attributeName":"service", "condition":"eq", "avalue":"gdns"}],
                        "direction": "from",
                        "targetClassName": "cloud.service.Netscaler"
-                     },       
+                     },
                      { "returnObject": true,
                         "returnRelation": false,
                         "relationName": "base.Provides",
@@ -505,6 +505,15 @@ resource "job",
   :design => true,
   :requires => { "constraint" => "0..*" }
 
+resource "objectstore",
+  :cookbook => "oneops.1.objectstore",
+  :design => true,
+  :requires => {"constraint" => "0..1",:services => "filestore"},
+  :attributes => {
+    "username" => "",
+    "password" => ""
+  }
+
 resource "storage",
   :cookbook => "oneops.1.storage",
   :design => true,
@@ -512,7 +521,27 @@ resource "storage",
     "size"        => '20G',
     "slice_count" => '1'
   },
-  :requires => { "constraint" => "0..*", "services" => "storage" }
+  :requires => { "constraint" => "0..*", "services" => "storage" },
+  :payloads => {
+    'volumes' => {
+     'description' => 'volumes',
+     'definition' => '{
+       "returnObject": false,
+       "returnRelation": false,
+       "relationName": "base.RealizedAs",
+       "direction": "to",
+       "targetClassName": "manifest.oneops.1.Storage",
+       "relations": [
+         { "returnObject": true,
+           "returnRelation": false,
+           "relationName": "manifest.DependsOn",
+           "direction": "to",
+           "targetClassName": "manifest.oneops.1.Volume"
+         }
+       ]
+     }'
+   }
+  }
 
 resource "volume",
   :cookbook => "oneops.1.volume",
@@ -535,35 +564,7 @@ resource "volume",
                     'LowDiskInode' => threshold('5m','avg','inode_used',trigger('>',90,5,1),reset('<',90,5,1)),
                   },
                 },
-    },
-  :payloads => { 'region' => {
-    'description' => 'Region',
-    'definition' => '{
-       "returnObject": false,
-       "returnRelation": false,
-       "relationName": "base.DeployedTo",
-       "direction": "from",
-       "targetClassName": "account.provider.Binding",
-       "relations": [
-         { "returnObject": false,
-           "returnRelation": false,
-           "relationName": "base.BindsTo",
-           "direction": "from",
-           "targetClassName": "account.provider.Zone",
-           "relations": [
-             { "returnObject": true,
-               "returnRelation": false,
-               "relationName": "base.Provides",
-               "direction": "to",
-               "targetClassName": "account.provider.Region"
-             }
-           ]
-         }
-       ]
-    }'
-  }
-
-  }
+    }
 
 resource "share",
   :cookbook => "oneops.1.glusterfs",
@@ -614,7 +615,7 @@ resource "daemon",
                   :metrics =>  {
                     'up'   => metric( :unit => '%', :description => 'Percent Up'),
                   },
-                  :thresholds => {  
+                  :thresholds => {
                      'ProcessDown' => threshold('1m','avg','up',trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
                   }
                 }
@@ -636,33 +637,7 @@ resource "sshkeys",
        "relationName": "bom.SecuredBy",
        "direction": "to"
     }'
-    },
-    'region' => {
-    'description' => 'Region',
-    'definition' => '{
-       "returnObject": false,
-       "returnRelation": false,
-       "relationName": "base.DeployedTo",
-       "direction": "from",
-       "targetClassName": "account.provider.Binding",
-       "relations": [
-         { "returnObject": false,
-           "returnRelation": false,
-           "relationName": "base.BindsTo",
-           "direction": "from",
-           "targetClassName": "account.provider.Zone",
-           "relations": [
-             { "returnObject": true,
-               "returnRelation": false,
-               "relationName": "base.Provides",
-               "direction": "to",
-               "targetClassName": "account.provider.Region"
-             }
-           ]
-         }
-       ]
-    }'
-  }
+    }
 
   }
 
@@ -690,8 +665,54 @@ resource "hostname",
     :constraint => "0..1",
     :services => "dns",
     :help => "optional hostname dns entry"
-  }           
-           
+  }
+
+resource "sensuclient",
+   :cookbook => "oneops.1.sensuclient",
+   :design => true,
+   :requires => {"constraint" => "0..1"}
+
+resource "firewall",
+ :cookbook => "oneops.1.firewall",
+ :design => true,
+ :requires => {
+   "constraint" => "0..1",
+   'services' => 'firewall'
+ },
+ :payloads => {
+   'computes' => {
+     'description' => 'computes',
+     'definition' => '{
+       "returnObject": false,
+       "returnRelation": false,
+       "relationName": "base.RealizedAs",
+       "direction": "to",
+       "targetClassName": "manifest.oneops.1.Firewall",
+       "relations": [
+         { "returnObject": false,
+           "returnRelation": false,
+           "relationName": "manifest.DependsOn",
+           "direction": "from",
+           "targetClassName": "manifest.oneops.1.Compute",
+           "relations": [
+             { "returnObject": true,
+             "returnRelation": false,
+             "relationName": "base.RealizedAs",
+             "direction": "from",
+             "targetClassName": "bom.oneops.1.Compute"
+             }
+           ]
+         }
+       ]
+     }'
+   }
+ }
+ 
+resource "artifact",
+  :cookbook => "oneops.1.artifact",
+  :design => true,
+  :requires => { "constraint" => "0..*" }
+
 # depends_on
 [ { :from => 'compute',     :to => 'secgroup' } ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
@@ -701,10 +722,9 @@ resource "hostname",
     :attributes    => { "flex" => false, "converge" => true, "min" => 1, "max" => 1 }
 end
 
-[ { :from => 'os',          :to => 'compute' },
-  { :from => 'hostname',    :to => 'compute'},
-  { :from => 'hostname',    :to => 'os' },
+[ { :from => 'hostname',    :to => 'os' },
   { :from => 'user',        :to => 'os' },
+  { :from => 'job',         :to => 'user' },    
   { :from => 'job',         :to => 'os' },
   { :from => 'volume',      :to => 'os' },
   { :from => 'certificate', :to => 'os' },
@@ -712,7 +732,6 @@ end
   { :from => 'logstash',    :to => 'os' },
   { :from => 'logstash',    :to => 'compute' },
   { :from => 'storage',     :to => 'compute' },
-  { :from => 'volume',      :to => 'storage' },
   { :from => 'share',       :to => 'volume'  },
   { :from => 'volume',      :to => 'user' },
   { :from => 'daemon',      :to => 'os' },
@@ -721,7 +740,11 @@ end
   { :from => 'download',    :to => 'os' },
   { :from => 'file',        :to => 'volume' },
   { :from => 'file',        :to => 'os' },
-  { :from => 'library',     :to => 'os' }
+  { :from => 'artifact',    :to => 'os' },    
+  { :from => 'sensuclient', :to => 'compute'  },
+  { :from => 'library',     :to => 'os' },
+  { :from => 'objectstore',  :to => 'compute'},
+  { :from => 'objectstore',  :to => 'user'}
 ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
     :relation_name => 'DependsOn',
@@ -739,9 +762,36 @@ end
     :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
 end
 
+[ 'firewall' ].each do |from|
+  relation "#{from}::depends_on::compute",
+    :only => [ '_default', 'single' ],
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'compute',
+    :attributes    => { "propagate_to" => 'both', "flex" => false, "min" => 1, "max" => 1 }
+end
+
+[{ :from => 'volume',      :to => 'storage' }
+].each do |link|
+  relation "#{link[:from]}::depends_on::#{link[:to]}",
+    :relation_name => 'DependsOn',
+    :from_resource => link[:from],
+    :to_resource   => link[:to],
+    :attributes    => { "propagate_to" => 'from',"flex" => false, "min" => 1, "max" => 1 }
+end
+
+# propagation rule for replace and updating /etc/profile.d/oneops.sh
+[ 'hostname','os' ].each do |from|
+  relation "#{from}::depends_on::compute",
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'compute',
+    :attributes    => { 'propagate_to' => 'from' }
+end
 
 # managed_via
-[ "os", 'user', 'job', 'file', 'volume', 'share', 'download', 'library', 'daemon', 'certificate', 'logstash' ].each do |from|
+[ 'os', 'user', 'job', 'file', 'volume', 'share', 'download', 'library', 'daemon', 
+  'certificate', 'logstash', 'sensuclient', 'artifact', 'objectstore'].each do |from|
   relation "#{from}::managed_via::compute",
     :except => [ '_default' ],
     :relation_name => 'ManagedVia',

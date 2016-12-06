@@ -37,6 +37,13 @@ bash "remove the elasticsearch user home" do
   only_if "test -d #{node.elasticsearch[:dir]}/elasticsearch"
 end
 
+ci = node.workorder.rfcCi
+version_update = ci.has_key?("ciBaseAttributes") && ci["ciBaseAttributes"].has_key?("version") && ci["ciBaseAttributes"]["version"] != ci["ciAttributes"]["version"]
+Chef::Log.info("version_update value is #{version_update}")
+   service 'elasticsearch' do
+     action :stop unless !version_update
+   end
+
 # Create ES directories
 #
 [ node.elasticsearch[:path][:conf], node.elasticsearch[:path][:logs], node.elasticsearch[:pid_path] ].each do |path|
@@ -147,8 +154,6 @@ node.set['elasticsearch']['action']['destructive_requires_name'] = true
 # we don't want all of the nodes in the cluster to restart when a new node joins
   node.set['elasticsearch']['skip_restart'] = true
 
-
-  
 # Update discovery configurations
 #
 ci = node.workorder.rfcCi
@@ -156,24 +161,49 @@ cloud_index = ci[:ciName].split('-').reverse[1].to_i
 # get only local computes in the cloud
 computes = node.workorder.payLoad.has_key?('RequiresComputes')? 
       node.workorder.payLoad.RequiresComputes : {}
-  
-#numMasterNodes = (computes.length / 2).floor + 1
-unicastNodes = ''
-# build a list of nodes in the cluster
+
+# This will add all the computes from the data nodes and master nodes
+fqdn_depends_on = node.workorder.payLoad.DependsOn.reject { |d| d['ciClassName'] != 'bom.oneops.1.Fqdn' }
+Chef::Log.info("----fqdn_depends_on #{fqdn_depends_on}--------------------------")
+unicastNodes = '['
 computes.each do |cm|
-  unless cm[:ciAttributes][:private_ip].nil?
-    if unicastNodes == ''
-      unicastNodes = cm[:ciAttributes][:private_ip]
+  if !fqdn_depends_on.empty? && !cm[:ciAttributes][:hostname].nil?
+    if unicastNodes == '['
+      unicastNodes = '["'+cm[:ciAttributes][:hostname]+'"'
     else
-      unicastNodes += ',' + cm[:ciAttributes][:private_ip]
+      unicastNodes += ',' + '"'+cm[:ciAttributes][:hostname]+'"'
+    end
+  else
+    unless cm[:ciAttributes][:private_ip].nil?
+      if unicastNodes == '['
+        unicastNodes = '["'+cm[:ciAttributes][:private_ip]+'"'
+      else
+        unicastNodes += ',' + '"'+cm[:ciAttributes][:private_ip]+'"'
+      end
     end
   end
-end  
-
+end
+unicastNodes+=']'
 nodes = unicastNodes.split(",").length
-numMasterNodes = (nodes / 2).floor + 1   
-node.default['elasticsearch']['discovery']['zen']['minimum_master_nodes']= numMasterNodes  
-node.set['elasticsearch']['discovery']['zen']['ping']['unicast']['hosts'] = unicastNodes  
+Chef::Log.info("----number of nodes #{nodes}--------------------------")
+Chef::Log.info("----all the nodes in cluster master+ data #{unicastNodes}--------------------------")
+node.set['elasticsearch']['discovery']['zen']['ping']['unicast']['hosts'] = unicastNodes
+
+# Get the total number of master nodes if any
+totalNumMasterNodes = 0
+computes.each do |cm|
+  unless cm[:ciName].nil?
+    if cm[:ciName].start_with? 'master-compute'
+      totalNumMasterNodes += 1
+    end
+    Chef::Log.debug("totalNumMasterNodes  from master cluster  #{totalNumMasterNodes}")
+  end
+end
+if totalNumMasterNodes == 0
+  totalNumMasterNodes = (nodes / 2).floor + 1
+  Chef::Log.debug("totalNumMasterNodes  is taken from all nodes in the absence of dedicated master nodes  #{totalNumMasterNodes}")
+end
+node.default['elasticsearch']['discovery']['zen']['minimum_master_nodes']= totalNumMasterNodes
     
     
 # Update cluster awareness attributes
@@ -201,7 +231,7 @@ end
 #TODO : Can externalize  in meta-data. For now adding just the KOPF plugin
 
 if node.elasticsearch[:download_url].include? "download.elastic.co"
-  install_plugin 'lmenezes/elasticsearch-kopf' , 'version' => '#{node.elasticsearch[:version]}'
+  install_plugin 'lmenezes/elasticsearch-kopf' , 'version' => "#{node.elasticsearch[:version]}"
 else
   url = node.elasticsearch[:base_url]
   install_plugin "elasticsearch-kopf", 'url' => "#{url}", 'version' => "#{node.elasticsearch[:version]}"
@@ -232,5 +262,5 @@ end
 
 # restart the service unless its update
 service 'elasticsearch' do
-  action :restart unless node.workorder.rfcCi.rfcAction == 'update'
+  action :restart unless node.workorder.rfcCi.rfcAction == 'update' && !version_update
 end

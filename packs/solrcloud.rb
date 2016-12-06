@@ -9,7 +9,7 @@ include_pack "genericlb"
 name "solrcloud"
 description "SolrCloud"
 category "Search"
-type		'Platform'
+type    'Platform'
 
 environment "single", {}
 environment "redundant", {}
@@ -46,7 +46,7 @@ resource "artifact-app",
          :requires => { "constraint" => "0..*" }
 
 resource 'volume-app',
-  	     :cookbook => "oneops.1.volume",
+         :cookbook => "oneops.1.volume",
          :requires => {'constraint' => '1..1', 'services' => 'compute'},
          :attributes => {'mount_point' => '/app/',
                          'size' => '100%FREE',
@@ -57,7 +57,22 @@ resource 'volume-app',
 resource "solrcloud",
          :cookbook => "oneops.1.solrcloud",
          :design => true,
-         :requires => { "constraint" => "1..1"}
+         :requires => { "constraint" => "1..1"},
+         :monitors => {
+          'solrprocess' => {
+            :description => 'SolrProcess',
+            :source => '',
+            :chart => {'min' => '0', 'max' => '100', 'unit' => 'Percent'},
+            :cmd => 'check_solrprocess!:::node.workorder.rfcCi.ciAttributes.port_no:::',
+            :cmd_line => '/opt/nagios/libexec/check_solrprocess.sh "$ARG1$"',
+            :metrics => {
+              'up' => metric(:unit => '%', :description => 'Percent Up'),
+            },
+            :thresholds => {
+              'SolrProcessDown' => threshold('1m', 'avg', 'up', trigger('<=', 98, 1, 1), reset('>', 95, 1, 1))
+            }
+          }
+      }
 
 resource "secgroup",
          :cookbook => "oneops.1.secgroup",
@@ -72,7 +87,7 @@ resource "tomcat-daemon",
          :cookbook => "oneops.1.daemon",
          :design => true,
          :requires => {
-             :constraint => "1..1",
+             :constraint => "0..1",
              :help => "Restarts Tomcat"
          },
          :attributes => {
@@ -99,7 +114,7 @@ resource "tomcat",
   :cookbook => "oneops.1.tomcat",
   :design => true,
   :requires => {
-      :constraint => "1..*",
+      :constraint => "0..*",
       :services=> "mirror" },
    :attributes => {
        'install_type' => 'binary',
@@ -237,6 +252,3 @@ relation "solrcloud::depends_on::tomcat",
     :to_resource   => 'compute',
     :attributes    => { }
 end
-
-
-

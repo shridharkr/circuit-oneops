@@ -1,4 +1,5 @@
 # module to contain classes for dealing with the Azure Network features.
+require 'azure_mgmt_network'
 module AzureNetwork
 
   # thie class has all the methods in it to handle Azure's subnet.
@@ -42,6 +43,8 @@ module AzureNetwork
     # ips
     def get_subnet_with_available_ips(subnets, express_route_enabled)
       subnets.each do |subnet|
+        next if subnet.name.downcase == "gatewaysubnet"
+
         OOLog.info('checking for ip availability in ' + subnet.name)
         address_prefix = subnet.properties.address_prefix
 

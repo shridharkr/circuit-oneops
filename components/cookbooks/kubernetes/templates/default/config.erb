@@ -12,14 +12,14 @@
 #   kubelet.service
 #   kube-proxy.service
 
-# Comma seperated list of nodes in the etcd cluster
-KUBE_ETCD_SERVERS="--etcd_servers=<%= node['etcd']['servers'] %>"
+# Comma seperated list of nodes in the etcd cluster      
+KUBE_ETCD_SERVERS="--etcd-servers=<%= node['etcd']['servers'] %>"
 
 # logging to stderr means we get it in the systemd journal
 KUBE_LOGTOSTDERR="--logtostderr=true"
 
-# journal message level, 0 is debug
-KUBE_LOG_LEVEL="--v=0"
+# glog level - 0 - 4
+KUBE_LOG_LEVEL="--v=<%= node.kubernetes.log_level %>"
 
 # Should this cluster be allowed to run privleged docker containers
 KUBE_ALLOW_PRIV="--allow_privileged=false"

@@ -17,15 +17,14 @@
 # Recipe:: add
 #
 
-#include_recipe "java::#{node[:java][:flavor]}"
 
 Chef::Log.info("Executing Dotnet CLI add script")
 
-#binarydistname = node[:dotnetcli][:mirror_loc].split('/').last 	#Centos-0.0.5.tar.gz
+#binarydistname = node[:dotnetcli][:mirror_loc].split('/').last
 filePath = node.workorder.rfcCi.ciAttributes[:folderpath]
 operatingsystem = node.workorder.rfcCi.ciAttributes[:ostype]
 url_public = node.workorder.rfcCi.ciAttributes[:src_url]
-destfile = "#{filePath}/Centos-0.0.5.tar.gz"
+destfile = "#{filePath}/dotnet-core-1.0-Centos.tar.gz"
 
 Chef::Log.info("DotNet Installation directory [ #{filePath} ]")
 Chef::Log.info("DotNet destination file [ #{destfile} ]")
@@ -71,8 +70,20 @@ sleep timewait
 Chef::Log.info("Installing..")
 
 execute "extract_tar" do
-  command "yum install libunwind"
-  command "yum install icu"
-  command "tar -zxf #{destfile}"
   cwd "#{filePath}"
+  command "sudo tar -zxf #{destfile}"
 end
+
+Chef::Log.info("Extracted binary file to destination")
+
+execute "create link" do
+  command "sudo ln -sf #{filePath}/dotnet /usr/local/bin"
+end
+
+Chef::Log.info("Link created")
+
+execute "installing packages" do
+  command "sudo yum install libunwind libicu -y || true"
+end
+
+Chef::Log.info("Dotnet Pack Installed and ready.")

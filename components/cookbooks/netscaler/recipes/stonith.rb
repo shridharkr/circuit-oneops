@@ -30,26 +30,36 @@ cloud_services = node.workorder.payLoad["stonithlbservice"]
 lbs = node.workorder.payLoad["stonithlb"]
 
 cloud_services.each do |lb_service|
-  
-  username = lb_service[:ciAttributes][:username]
-  password = lb_service[:ciAttributes][:password]
-  host = lb_service[:ciAttributes][:host]
-
-  Chef::Log.info("connecting to netscaler: #{host}")
-  encoded = Base64.encode64("#{username}:#{password}").gsub("\n","")
-  conn = Excon.new('https://'+host, 
-    :headers => {'Authorization' => "Basic #{encoded}", 'Content-Type' => 'application/x-www-form-urlencoded'},
-    :ssl_verify_peer => false)
-  
-  dc_name = lb_service[:ciAttributes][:gslb_site_dns_id]  
-  Chef::Log.info("stonith: #{dc_name} via host: #{host}")
-    
+      
   lbs.each do |lb|
 
+    dc_name = lb_service[:ciAttributes][:gslb_site_dns_id]  
+    
+    if lb['ciAttributes'].has_key?('availability_zone') &&
+       !lb['ciAttributes']['availability_zone'].empty?
+     
+      availability_zones = JSON.parse(lb_service[:ciAttributes][:availability_zones])
+      az = lb['ciAttributes']['availability_zone']      
+      host = availability_zones[az]
+    else
+      Chef::Log.info("no lb az - skipping stonith for #{dc_name}")
+      next
+    end
+    Chef::Log.info("stonith: #{dc_name} via host: #{host}")
+
+    username = lb_service[:ciAttributes][:username]
+    password = lb_service[:ciAttributes][:password]
+  
+    Chef::Log.info("connecting to netscaler: #{host}")
+    encoded = Base64.encode64("#{username}:#{password}").gsub("\n","")
+    conn = Excon.new('https://'+host, 
+      :headers => {'Authorization' => "Basic #{encoded}", 'Content-Type' => 'application/x-www-form-urlencoded'},
+      :ssl_verify_peer => false)
+    
     lb_name = ""
     vnames_map = {}
     if lb[:ciAttributes].has_key?("vnames")
-      JSON.parse(lb[:ciAttributes][:vnames])
+      vnames_map = JSON.parse(lb[:ciAttributes][:vnames])
     end
     vnames_map.keys.each do |key|
       if key =~ /#{dc_name}/

@@ -15,29 +15,37 @@
 #
 # storage::add
 #
-# adds block storage ... volume component will attach and create raid device and filesystem 
+# adds block storage ... volume component will attach and create raid device and filesystem
 #
 
-  
+
 # TODO: fix fog/aws devices to remove the /dev/[s|vx]d\d+ limitation
 # only 15*8 devices available from sdi1-sdp15 (efgh used for ephemeral)
 #
 
-# PGPDBAAS 2613 & 3322 
+# PGPDBAAS 2613 & 3322
+require File.expand_path('../../../azure_base/libraries/utils.rb', __FILE__)
+
 include_recipe 'shared::set_provider'
+
 require 'json'
 provider = node['provider_class']
 
 size_config = node.workorder.rfcCi.ciAttributes["size"]
 size_scale = size_config[-1,1]
 size = size_config[0..-2].to_i
-
+action = node.workorder.rfcCi.rfcAction
+if node.workorder.has_key?("payLoad") && node.workorder.payLoad.has_key?("volumes")
+  mode = node.workorder.payLoad.volumes[0].ciAttributes["mode"]
+else
+  mode = "no-raid"
+end
 
     Chef::Log.info("----------------------------------------------------------")
     Chef::Log.info("Storage Requested : " + size_config)
     Chef::Log.info("----------------------------------------------------------")
 
- if size_config == "-1" 
+ if size_config == "-1"
    Chef::Log.info("Skipping Storage Allocation Due to Size is -1")
    return true
   end
@@ -54,28 +62,102 @@ if size_scale == "T"
   size *= 1024
 end
 if size < 10
-  size = 10
+  puts "***FAULT:FATAL=Minimum size should be 10G"
+  e = Exception.new("no backtrace")
+  e.set_backtrace(" ")
+  raise e
 end
 
 if slice_count == 1
   slice_size = size.to_i
- else
- slice_size = (size.to_f / slice_count.to_f).ceil * 2
-end 
+elsif mode == "no-raid" || mode == "raid0"
+  slice_size = (size.to_f / slice_count.to_f).ceil
+elsif mode == "raid1" || mode == "raid10"
+  slice_size = (size.to_f / slice_count.to_f).ceil * 2
+elsif mode == "raid5"
+  slice_size = size.to_f/(slice_count.to_i-1).ceil
+end
 
 Chef::Log.info("raid10 - #{slice_count} slices of: #{slice_size}")
-          
+
 # Create the dev/vols and store the map to device_map attr ... volume::add will attach them to the compute
 dev_list = ""
 vols = Array.new
-
+old_slice_count = slice_count
+old_size = size
+if action == "update"
+  if mode != "no-raid"
+    puts "***FAULT:FATAL=Could not extend volume for raid mode. Recreate volumes in no-raid mode for volume extension support"
+    e = Exception.new("no backtrace")
+    e.set_backtrace("")
+    raise e
+  end
+  if node.workorder.rfcCi.ciBaseAttributes.has_key?("size")
+    old_size = node.workorder.rfcCi.ciBaseAttributes["size"]
+  else
+    Chef::Log.info("Storage requested is same as before. #{old_size}G")
+    return true
+  end
+  if node.workorder.rfcCi.ciBaseAttributes.has_key?("slice_count")
+    old_slice_count = node.workorder.rfcCi.ciBaseAttributes["slice_count"].to_i
+  end
+  scale = old_size[-1,1]
+  oldsize = old_size[0..-2].to_i
+  size = size.to_i
+  old_size = old_size.to_i
+  if old_slice_count > slice_count
+    puts "***FAULT:FATAL=Slice count cant be decreased"
+    e = Exception.new("no backtrace")
+    e.set_backtrace("")
+    raise e
+  else
+    slice_count = slice_count - old_slice_count
+    if slice_count == 0
+      slice_count = 1
+    end
+  end
+  if scale == "T"
+    old_size *= 1024
+  end
+  if size > old_size
+    slice_size = size - old_size
+    if slice_size < 10
+      puts "***FAULT:FATAL=Size requested is too small"
+      e = Exception.new("no backtrace")
+      e.set_backtrace("")
+      raise e
+    end
+  elsif size == old_size
+    Chef::Log.info("Storage requested is same as before. #{old_size}G")
+    return true
+  else
+    puts "***FAULT:FATAL=Size of storage can not be decreased"
+    e = Exception.new("no backtrace")
+    e.set_backtrace("")
+    raise e
+  end
+  if node.workorder.rfcCi.ciAttributes.has_key?("device_map")
+    vols = node.workorder.rfcCi.ciAttributes["device_map"].split(" ")
+  end
+  if mode == "no-raid" || mode == "raid0"
+    slice_size = (slice_size.to_f / slice_count.to_f).ceil
+  else
+    slice_size = (slice_size.to_f / slice_count.to_f).ceil*2
+  end
+end
+if slice_size < 10
+  puts "***FAULT:FATAL=Minimum slice size should be 10G"
+  e = Exception.new("no backtrace")
+  e.set_backtrace(" ")
+  raise e
+end
 # fog/aws need to use sdf-sdp for ebs devices - e-h used by ephemeral
 # find the first unused block device
 
 # openstack+kvm doesn't use explicit device names, just set and order
 openstack_dev_set = ['b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v']
 block_index = ""
-["p","o","n","m","l","k","j","i"].each do |i|      
+["p","o","n","m","l","k","j","i"].each do |i|
   dev = "/dev/vxd#{i}0"
   if !::File.exists?(dev)
     block_index = i
@@ -89,7 +171,7 @@ Array(1..slice_count).each do |i|
   if node.storage_provider_class =~ /cinder/
     dev = "/dev/vd#{openstack_dev_set[i]}"
   elsif node.storage_provider_class =~ /azure/
-    dev = "/dev/sd#{openstack_dev_set[i+1]}"
+    dev = "/dev/sd#{openstack_dev_set[i]}"
   else
     dev = "/dev/xvd#{block_index}#{i.to_s}"
   end
@@ -98,29 +180,22 @@ Array(1..slice_count).each do |i|
   Chef::Log.info("node.storage_provider_class"+node.storage_provider_class)
 
   volume = nil
-  volType = "GENERAL"
   case node.storage_provider_class
   when /cinder/
-    
     begin
-      vol_name = node["workorder"]["rfcCi"]["ciName"]+"-"+node["workorder"]["rfcCi"]["ciId"].to_s
-      if node.workorder.payLoad.has_key?("offerings")
-        spec = node.workorder.payLoad.offerings.first.ciAttributes.specification
-        spec = JSON.parse spec.gsub('=>', ':')
-        volType = spec["volume_type"]
-      end
-      if volType == "GENERAL"
-        volType = ""
-      end
-      volume = node.storage_provider.volumes.new :device => dev, :size => slice_size, :name => vol_name, 
-        :description => dev, :display_name => vol_name, :volume_type => volType
+      include_recipe 'storage::node_lookup'
+      vol_name = node["workorder"]["rfcCi"]["ciName"]+"-"+node["workorder"]["rfcCi"]["ciId"].to_s                  
+      Chef::Log.info("Volume type selected in the storage component:"+node.volume_type_from_map)
+      Chef::Log.info("Creating volume of size:#{slice_size} , volume_type:#{node.volume_type_from_map}, volume_name:#{vol_name} .... ")
+      volume = node.storage_provider.volumes.new :device => dev, :size => slice_size, :name => vol_name,
+        :description => dev, :display_name => vol_name, :volume_type => node.volume_type_from_map
       volume.save
     rescue Excon::Errors::RequestEntityTooLarge => e
       puts "***FAULT:FATAL="+JSON.parse(e.response[:body])["overLimit"]["message"]
       e = Exception.new("no backtrace")
       e.set_backtrace("")
       raise e
-    rescue Execption => e
+    rescue Exception => e
       puts "***FAULT:FATAL="+e.message
       e = Exception.new("no backtrace")
       e.set_backtrace("")
@@ -130,35 +205,35 @@ Array(1..slice_count).each do |i|
   when /rackspace/
 
     begin
-      vol_name = node["workorder"]["rfcCi"]["ciName"]+"-"+node["workorder"]["rfcCi"]["ciId"].to_s          
+      vol_name = node["workorder"]["rfcCi"]["ciName"]+"-"+node["workorder"]["rfcCi"]["ciId"].to_s
       volume = node.storage_provider.volumes.new :display_name => vol_name, :size => slice_size.to_i
-      volume.save      
+      volume.save
     rescue Exception => e
       Chef::Log.info("exception: "+e.inspect)
     end
-    
+
   when /ibm/
     volume = node.storage_provider.volumes.new({
       :name => node.workorder.rfcCi.ciName,
       :format => "RAW",
-      :location_id => "41", 
+      :location_id => "41",
       :size => "60",
       :offering_id => "20035200"
-    })        
+    })
     volume.save
-    # takes ~5min, lets sleep 1min, then try for 10min to wait for Detached state, 
-    # because volume::add will error if not in Detached state 
+    # takes ~5min, lets sleep 1min, then try for 10min to wait for Detached state,
+    # because volume::add will error if not in Detached state
     sleep 60
     max_retry_count = 10
     retry_count = 0
     vol = node.storage_provider.volumes.get volume.id
     while vol.state != "Detached" && retry_count < max_retry_count
       sleep 60
-      vol = provider.volumes.get volume.id        
+      vol = provider.volumes.get volume.id
       retry_count += 1
       Chef::Log.info("vol state: "+vol.state)
     end
-    
+
     if retry_count >= max_retry_count
       Chef::Log.error("took more than 10minutes for volume: "+volume.id.to_s+" to be ready and still isn't")
     end
@@ -168,7 +243,15 @@ Array(1..slice_count).each do |i|
         cloud_name = node[:workorder][:cloud][:ciName]
         storage_service = node[:workorder][:services][:storage][cloud_name]
         storage = storage_service["ciAttributes"]
-        volume = storage.master_rg+":"+storage.storage_account+":"+(node.workorder.rfcCi.ciId).to_s+":"+slice_size.to_s
+        size = node[:workorder][:payLoad][:RequiresComputes][0][:ciAttributes][:size]
+        
+        if Utils.is_prm(size, false)
+          volume = storage.master_rg+":"+storage.storage_account_prm+":"+(node.workorder.rfcCi.ciId).to_s+":"+slice_size.to_s
+          Chef::Log.info("Choosing Premium Storage Account: #{storage.storage_account_prm}") 
+        else
+          volume = storage.master_rg+":"+storage.storage_account_std+":"+(node.workorder.rfcCi.ciId).to_s+":"+slice_size.to_s
+          Chef::Log.info("Choosing Standard Storage Account: #{storage.storage_account_std}") 
+        end       
       end
 
     else
@@ -181,13 +264,14 @@ Array(1..slice_count).each do |i|
         break
       end
     end
-    volume = node.storage_provider.volumes.new :device => dev, :size => slice_size, :availability_zone => avail_zone        
-    volume.save
+    volume = node.storage_provider.volumes.new :device => dev, :size => slice_size, :availability_zone => avail_zone
   end
 
   if node.storage_provider_class =~ /azure/
-    Chef::Log.error("Adding #{dev} to the device list")
+    Chef::Log.info("Adding #{dev} to the device list")
     vols.push(volume.to_s+":"+dev)
+    node.set["device_map"] = vols.join(" ")
+    include_recipe "azuredatadisk::add" #Create datadisk, but doesn't attach it to the compute
   else
     Chef::Log.info("added "+volume.id.to_s)
     vols.push(volume.id.to_s+":"+dev)

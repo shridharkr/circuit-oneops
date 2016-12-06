@@ -19,10 +19,10 @@
 
 include_recipe "secgroup::setup"
 
-if node[:provider_class] =~ /ec2|openstack/
+if node[:provider_class] =~ /ec2|openstack|aliyun/
   include_recipe "secgroup::del_secgroup_"+node[:provider_class]
 elsif node[:provider_class] =~ /azure/
-  include_recipe "azure::del_net_sec_group"
+  include_recipe "azuresecgroup::del_net_sec_group"
 else
   Chef::Log.info("secgroup delete not implemented for provider")
 end

@@ -35,13 +35,24 @@ attribute 'full_aliases',
     :order => 2
   }
 
+attribute 'hijackable_full_aliases',
+  :description => "Hijackable Full CNAME",
+  :required => true,
+  :default => "false",
+  :format => {
+    :help => 'Enable/Check this to create TXT record allowing deletion of an unknown value. Use with caution: a dev env with same cname as prod would hijack it if the prod env had this flag enabled.',
+    :category => '1.Global',
+    :form => { 'field' => 'checkbox' },
+    :order => 3
+  }  
+  
 attribute 'ttl',
   :description => "Time to Live",
   :default => '60',
   :format => {
     :help => 'DNS entries',
     :category => '1.Global',
-    :order => 3
+    :order => 4
   }
 
 
@@ -53,7 +64,7 @@ attribute 'ptr_enabled',
     :help => 'Enable/Check this to create PTR record from ip to dns name from PTR Source attribute.',
     :category => '1.Global',
     :form => { 'field' => 'checkbox' },
-    :order => 4
+    :order => 5
   }
 
 attribute 'ptr_source',
@@ -63,7 +74,7 @@ attribute 'ptr_source',
   :format => {
     :help => 'The source of the ptr name. Instance would get from the A-Record name. Platform would use the platform-level name.',
     :category => '1.Global',
-    :order => 5,
+    :order => 6,
     :form => { 'field' => 'select', 'options_for_select' => [
       ['Instance','instance'],
       ['Platform','platform']
@@ -78,7 +89,7 @@ attribute 'entries',
     :important => true,
     :help => 'DNS entries',
     :category => '1.Global',
-    :order => 6
+    :order => 7
   }
 
 attribute 'distribution',
@@ -88,7 +99,7 @@ attribute 'distribution',
   :format => {
     :help => 'DNS distribution / GSLB lbmethod',
     :category => '1.Global',
-    :order => 7,
+    :order => 8,
     :form => { 'field' => 'select', 'options_for_select' => [
       ['Proximity','proximity'],
       ['Latency','latency'],
@@ -104,8 +115,9 @@ attribute 'gslb_vnames',
   :format => {
     :help => 'GSLB vserver name to domain map',
     :category => '1.Global',
-    :order => 8
+    :order => 9
   }
 
+  
 recipe "repair", "Repair"
 recipe "gslbstatus", "GSLB Status"
