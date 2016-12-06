@@ -5,6 +5,7 @@ Gemfile.lock
 .arcconfig
 **/.DS_Store
 .rspec
+.DS_Store
 
 # Berkshelf
 .vagrant
