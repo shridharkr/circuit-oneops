@@ -13,7 +13,7 @@ Dotnet framework component gives an ability to install different .net frameworks
 
 Parameter              | Description                                            | Comments    
 ---------              |-------------                                           |-----    
-Package url            | Url of the chocolatey repository                       | Add the url of the chocolatey package source,this will be overridden if mirror cloud service has been defined. <br> In the mirror cloud service the key to used be is "chocolatey-repo". For each cloud you define the chocolatey package source. <br> ![alt text](chocolatey-repo.png )
+Package url            | Url of the chocolatey repository                       | Add the url of the chocolatey package source, this will be overridden if mirror cloud service has been defined. <br> In the mirror cloud service the key to used be is "chocolatey-repo".
 Net Framework version  |  Add the .net framework version details.               | Format: <br> .Net framework version = chocolatey package name <br> Examples: <br> .Net 3.5 = dotnet3.5 <br> .Net 4.5.2 = dotnet4.5.2 <br> By default, .net version 4.6 is added. <br>
 
 ### How it looks?
