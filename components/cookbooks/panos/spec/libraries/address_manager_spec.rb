@@ -1,5 +1,4 @@
 require 'spec_helper'
-# require 'panos/libraries/address_manager'
 
 require File.expand_path('../../../libraries/address_manager.rb', __FILE__)
 
