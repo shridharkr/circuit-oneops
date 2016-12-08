@@ -22,21 +22,9 @@ default[:swift][:username] = username
 default[:swift][:password] = password
 default[:swift][:authstrategy] = cloud_service[:ciAttributes][:authstrategy]
 default[:swift][:homepath]= '/etc'
-default[:swift][:platform] = 'rhel'
+
 for entry in node.workorder.payLoad.DependsOn
   if entry.ciAttributes.has_key?("home_directory")
     default[:swift][:homepath]=entry.ciAttributes[:home_directory]
   end
-end
-case platform_family
-  when 'debian'
-    default[:swift][:platform] = {
-	'swift_client_packages' => ['python-swiftclient', 'python-keystoneclient'],
-	'override_options' => "-o Dpkg::Options:='--force-confold' -o Dpkg::Option:='--force-confdef'"
-  }
-  when 'rhel'
-    default[:swift][:platform] = {
-        'swift_client_packages' => ['python-swiftclient', 'python-keystoneclient'],
-        'override_options' => ""
-  }
 end
