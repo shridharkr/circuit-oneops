@@ -12,12 +12,28 @@ if !input_version.nil? && ! input_version.empty?
 end
 
 tmp = Chef::Config[:file_cache_path]
-# [node.logstash[:host], node.logstash[:repository], node.logstash[:filename]].join('/')
-source_list = [node.logstash[:download_url],"https://download.elasticsearch.org/logstash/logstash/logstash-"+node.logstash[:version]+".tar.gz"]
-dest_file = "#{tmp}/"+node.logstash[:filename]
-Chef::Log.info("Download URL::" + node.logstash[:download_url])
+file_name="logstash-"+node.logstash.version+".tar.gz"
+dest_file = "#{tmp}/"+file_name
+
+cloud_name = node[:workorder][:cloud][:ciName]
+  if node[:workorder][:services].has_key? "mirror"
+    mirrors = JSON.parse(node[:workorder][:services][:mirror][cloud_name][:ciAttributes][:mirrors])
+  else
+    exit_with_error "Cloud Mirror Service has not been defined"
+  end
+
+logstash_source = mirrors['logstash']
+if logstash_source.nil?
+  exit_with_error "logstash source has not beed defined in cloud mirror service"
+else
+  Chef::Log.info("logstash source has been defined in cloud mirror service #{logstash_source}")
+end
+
+logstash_download_url="#{logstash_source}/"+node.logstash.version+"/"+file_name
+Chef::Log.info("Logstash downlaod url is #{logstash_download_url}")
+
 remote_file dest_file do
-  source node.logstash[:download_url]
+  source logstash_download_url
 end
 
 untar_dir = "/opt/logstash-"+node.logstash[:version]
