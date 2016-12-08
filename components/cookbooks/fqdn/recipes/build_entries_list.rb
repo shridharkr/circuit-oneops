@@ -57,7 +57,7 @@ else
 
     ci_name = node.workorder.payLoad.RealizedAs.first['ciName']
     Chef::Log.info("using the manifest/RealizedAs ciName: #{ci_name}")
-    dns_name = (ci_name + customer_domain).downcase
+    dns_name = (ci_name + "." + node.workorder.box.ciName + customer_domain).downcase
    
   else
 
