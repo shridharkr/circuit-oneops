@@ -19,10 +19,8 @@ container = node.workorder.payLoad.DependsOn.select { |o| o[:ciClassName].split(
 Chef::Log.debug("container: #{container.inspect}")
 node.set[:container] = container
 nsPathParts = container["nsPath"].split("/")
-container_name = node.workorder.box.ciName+'-'+nsPathParts[3]+'-'+nsPathParts[2]+'-'+nsPathParts[1]+'-'+ container["ciId"].to_s
-node.set[:container_name] = container_name
-service_name = node.workorder.box.ciName+'-'+node.workorder.rfcCi.ciId.to_s
-node.set[:service_name] = service_name
+node.set[:container_name] = node.workorder.box.ciName
+node.set[:service_name] = node[:container_name]
 
 cloud_name = node.workorder.cloud.ciName
 

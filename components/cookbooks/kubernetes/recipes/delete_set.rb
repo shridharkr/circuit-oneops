@@ -4,6 +4,8 @@ cloud_name = node[:workorder][:cloud][:ciName]
 container_service = node[:workorder][:services][:container][cloud_name][:ciAttributes]
 set = node[:workorder][:rfcCi]
 
+namespace = node.workorder.rfcCi.nsPath.split("/")[1..3].join("-").to_s
+
 #
 # 1. construct the kubectl command arguments to scale deployment
 # kubectl scale deployment <container_name> --replicas=N
@@ -11,28 +13,30 @@ set = node[:workorder][:rfcCi]
 
 ruby_block "scale #{node[:container_name]}" do
   block do
-    kubectl_scale = "kubectl scale deployment #{node[:container_name]} --replicas=1 2>&1"
+    kubectl_scale = "kubectl scale deployment #{node[:container_name]} -n #{namespace} --replicas=1 2>&1"
     Chef::Log.info(kubectl_scale)
     result = `#{kubectl_scale}`
     if $?.success?
       Chef::Log.info(result)
     else
-      Chef::Log.fatal!(result)
+      raise result
     end
   end
 end
-# TODO check if all replicas are in ready state before proceeding
 
 #
-# 2. construct the kubectl command arguments to expose as external service
-# kubectl expose deployment <container_name> --type="LoadBalancer"
+# 2. wait for the status to be rolled out
 #
-
-ruby_block "delete service #{node[:service_name]}" do
+ruby_block "deployment #{node[:container_name]} status" do
   block do
-    kubectl_expose = "kubectl delete service #{node[:service_name]} 2>&1"
-    Chef::Log.info(kubectl_expose)
-    result = `#{kubectl_expose}`
-    Chef::Log.info(result)
+    Chef::Log.info("kubectl rollout status deployment #{node[:container_name]} -n #{namespace} 2>&1`")
+    result = `kubectl rollout status deployment #{node[:container_name]} -n #{namespace} 2>&1`
+    if $?.success?
+      Chef::Log.info(result)
+    else
+      raise result
+    end
   end
 end
+
+# TODO check if all replicas are in ready state before proceeding

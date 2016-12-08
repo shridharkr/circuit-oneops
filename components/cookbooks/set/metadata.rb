@@ -34,25 +34,4 @@ attribute 'parallelism',
     :order => 1
   }
 
-# bom only
-attribute 'nodes',
-  :description => "Cluster Nodes",
-  :grouping => 'bom',
-  :data_type => "array",
-  :format => {
-    :help => 'List of cluster nodes/hosts used for the set',
-    :category => '2.Cluster',
-    :order => 1
-  }
-
-attribute 'ports',
-  :description => "PAT Ports",
-  :grouping => 'bom',
-  :data_type => "hash",
-  :format => {
-    :help => 'PAT Ports. Internal Port => External Port',
-    :category => '2.Cluster',
-    :order => 2
-  }
-
 recipe "repair", "Repair"
