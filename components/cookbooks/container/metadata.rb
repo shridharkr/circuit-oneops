@@ -14,92 +14,13 @@ grouping 'bom',
   :packages => [ 'bom' ]
 
 
-# Image
-
-attribute 'image_type',
-  :description => "Image Type",
-  :required => "required",
-  :default => "registry",
-  :format => {
-    :category => '1.Image',
-    :important => true,
-    :help => 'Select image type',
-    :order => 1,
-    :form => {
-      'field' => 'select',
-      'options_for_select' => [
-        ['Use image from registry','registry'],
-        ['Build image using Dockerfile','dockerfile']
-      ]
-    }
-  }
-
-# registry
-attribute 'image',
-  :description => "Image Name",
-  :default => "alpine",
-  :format => {
-    :help => 'Reference to an image name in the registry',
-    :category => '1.Image',
-    :important => true,
-    :order => 2,
-    :filter => {:all => {:visible => 'image_type:eq:registry'}}
-  }
-
-# dockerfile
-attribute 'dockerfile',
-  :description => 'Dockerfile Content',
-  :data_type => "text",
-  :default => '',
-  :format => {
-    :help => 'Insert Dockerfile content needed to create the image',
-    :category => '1.Image',
-    :order => 3,
-    :tip => 'Leave empty to use Dockerfile from the URL context',
-    :filter => {:all => {:visible => 'image_type:eq:dockerfile'}}
-  }
-
-attribute 'url',
-  :description => 'URL',
-  :default => '',
-  :format => {
-    :help => 'URL context per https://docs.docker.com/engine/reference/commandline/build/',
-    :important => true,
-    :category => '1.Image',
-    :order => 4,
-    :filter => {:all => {:visible => 'image_type:eq:dockerfile'}}
-  }
-
-attribute 'tag',
-  :description => "Tag",
-  :default => 'latest',
-  :format => {
-    :help => 'Use cache when building the image',
-    :important => true,
-    :category => '1.Image',
-    :order => 5,
-    :filter => {:all => {:visible => 'image_type:eq:dockerfile'}}
-  }
-
-attribute 'cache',
-  :description => "Cache",
-  :default => 'true',
-  :format => {
-    :help => 'Use cache when building the image',
-    :category => '1.Image',
-    :form => { 'field' => 'checkbox' },
-    :order => 6,
-    :filter => {:all => {:visible => 'image_type:eq:dockerfile'}}
-  }
-
-
 
 # Run
 attribute 'command',
   :description => "Command",
   :format => {
     :help => 'Command to use as entrypoint to start the container',
-    :category => '2.Run',
+    :category => '1.Run',
     :order => 1
   }
 
@@ -109,7 +30,7 @@ attribute 'args',
   :default => '[]',
   :format => {
     :help => 'Command arguments to use as entrypoint to start the container',
-    :category => '2.Run',
+    :category => '1.Run',
     :order => 2
   }
 
@@ -119,7 +40,7 @@ attribute 'env',
   :default => '{}',
   :format => {
     :help => '',
-    :category => '2.Run',
+    :category => '1.Run',
     :order => 3
   }
 
@@ -130,18 +51,17 @@ attribute 'ports',
   :format => {
     :help => 'Map of port name (a DNS_LABEL) and value as <port-number>[/<port-protocol>]. Example ssh=22/tcp',
     :important => true,
-    :category => '2.Run',
+    :category => '1.Run',
     :order => 4
   }
 
 
 # Resources
-
 attribute 'cpu',
   :description => "CPU",
   :format => {
     :help => 'CPUs to reserve for each container. Default is whole CPUs; scale suffixes (e.g. 100m for one hundred milli-CPUs) are supported',
-    :category => '3.Resources',
+    :category => '2.Resources',
     :order => 1
   }
 
@@ -149,7 +69,29 @@ attribute 'memory',
   :description => "Memory",
   :format => {
     :help => 'Memory to reserve for each container. Default is bytes; binary scale suffixes (e.g. 100Mi for one hundred mebibytes) are supported',
-    :category => '3.Resources',
+    :category => '2.Resources',
+    :order => 2
+  }
+
+
+# bom only
+attribute 'nodes',
+  :description => "Cluster Nodes",
+  :grouping => 'bom',
+  :data_type => "array",
+  :format => {
+    :help => 'List of cluster nodes/hosts used for the set',
+    :category => '3.Cluster',
+    :order => 1
+  }
+
+attribute 'node_ports',
+  :description => "Node Forwarded Ports",
+  :grouping => 'bom',
+  :data_type => "hash",
+  :format => {
+    :help => 'Forwarded Ports on the Cluster Nodes. Internal Port => External Port',
+    :category => '3.Cluster',
     :order => 2
   }
 

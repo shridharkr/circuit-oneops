@@ -17,7 +17,12 @@ ruby_block "delete service #{node[:container_name]}" do
     if $?.success?
       Chef::Log.info(result)
     else
-      Chef::Log.fatal!(result)
+      Chef::Log.error(result)
+      if result.match("service #{node[:container_name]} not found")
+        Chef::Log.info("Looks like service was already deleted")
+      else
+        raise
+      end
     end
   end
 end

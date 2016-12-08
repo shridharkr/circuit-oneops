@@ -1,6 +1,3 @@
-# Cookbook Name:: container
-# Recipe:: add
-#
 # Copyright 2016, Walmart Stores, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,29 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-rfcCi = node["workorder"]["rfcCi"]
-nsPathParts = rfcCi["nsPath"].split("/")
-# TODO if entrypoint payload use platform name, otherwise use component name
-#node.set[:container_name] = node.workorder.box.ciName+'-'+rfcCi["ciId"].to_s
-node.set[:container_name] = node.workorder.box.ciName
-node.set[:container_labels] = {
-  'organization' => nsPathParts[1],
-  'assembly' => nsPathParts[2],
-  'environment' => nsPathParts[3]
-}
+#
+# Cookbook Name:: Realm
+# Recipe:: add
+#
 
-image = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Image/ }
-if image.empty?
-  raise "Not able to get image dependency"
-else
-  image_name = image.first['ciAttributes']['image_url']
-  if image_name && !image_name.empty?
-    Chef::Log.info("Using image name #{image_name}")
-    node.set[:image_name] = image_name
-  else
-    raise "Empty image name attribute"
-  end
-end
+
+ci = node.workorder.rfcCi
+node.set[:realm] = ci.nsPath.split("/")[1..3].join("-").to_s
 
 cloud_name = node.workorder.cloud.ciName
 
@@ -53,13 +35,14 @@ end
 
 Chef::Log.info("Container Cloud Service: #{cloud_service[:ciClassName]}")
 
+
 case cloud_service[:ciClassName].split(".").last.downcase
 when /kubernetes/
-  include_recipe "kubernetes::add_container"
+  include_recipe "kubernetes::add_realm"
 when /swarm/
-  include_recipe "swarm::add_container"
+  include_recipe "swarm::add_realm"
 when /ecs/
-  include_recipe "ecs::add_container"
+  include_recipe "ecs::add_realm"
 else
   Chef::Log.error("Container Cloud Service: #{cloud_service[:ciClassName]}")
   raise
