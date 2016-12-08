@@ -53,27 +53,18 @@ elsif lbs.size > 0
 else
   os = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Os/ }
 
-  if os.size > 1
-    fail_with_error "unsupported usecase - need to check why there are multiple os for same fqdn"
-  end
-  is_hostname_entry = true
   if os.size == 0
-    # When no OS is specified, the fqdn recipe cannot get the host name
-    # from the OS component.  In this case, get the name from the first
-    # alias specified.
 
-    if node.workorder.rfcCi.ciAttributes.has_key?("aliases")
-      begin
-        aliases = JSON.parse(node.workorder.rfcCi.ciAttributes.aliases)
-      rescue Exception =>e
-        Chef::Log.info("could not parse aliases json: "+node.workorder.rfcCi.ciAttributes.aliases)
-      end
-    end
-
-    # Use the first alias as the name for the fqdn, and append the
-    # platform name to it to avoid DNS name conflicts.
-    dns_name = (aliases[0] + "." + node.workorder.box.ciName + customer_domain).downcase
+    ci_name = node.workorder.payLoad.RealizedAs.first['ciName']
+    Chef::Log.info("using the manifest/RealizedAs ciName: #{ci_name}")
+    dns_name = (ci_name + customer_domain).downcase
+   
   else
+
+    if os.size > 1
+      fail_with_error "unsupported usecase - need to check why there are multiple os for same fqdn"
+    end
+    is_hostname_entry = true
     ci = os.first
 
     provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase

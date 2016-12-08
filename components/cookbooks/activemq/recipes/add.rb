@@ -254,7 +254,7 @@ end
 
 ruby_block 'Encryption-Not-Required' do
   block do
-    node[:activemq][:adminencpwd]=node[:activemq][:adminpassword]
+    node.set[:activemq][:adminencpwd] =node[:activemq][:adminpassword]
     JSON.parse(node[:activemq][:users]).each do |key,val|
         encypwdusers["#{key}"] ="#{val}"
      end
