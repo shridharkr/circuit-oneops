@@ -21,6 +21,7 @@
 extend Fqdn::Base
 Chef::Resource::RubyBlock.send(:include, Fqdn::Base)
 
+return 0
 
 # cleanup old platform version entries
 if node.workorder.box.ciAttributes.is_active == "false"

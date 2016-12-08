@@ -6,7 +6,7 @@ class StatusRequest
   def initialize(url, key)
     fail ArgumentError, 'url cannot be nil' if url.nil?
     fail ArgumentError, 'key cannot be nil' if key.nil?
-    fail ArgumentError, 'key must be of type Key' if !key.is_a? Key
+    fail ArgumentError, 'key must be of type Key' unless key.is_a? Key
 
     @baseurl = url
     @key = key
@@ -42,7 +42,8 @@ class StatusRequest
   end
 
   def job_complete?(job)
-    fail ArgumentError, 'job must be of type PanosJob' if !job.is_a? PanosJob
+    fail ArgumentError, 'job must be of type PanosJob' unless job.is_a? PanosJob
+
     status = get_status(job.id)
     if status.status == 'FIN' && status.progress == 100
       if status.result == 'OK'
@@ -90,7 +91,7 @@ class StatusRequest
               # check the failed entries
               if entry['result'] =~ /FAIL/
                 if entry['details']['msg']['errors']['line'] =~ /Another commit/
-                  Chef::Log.info("Another commit is in progress.  Let it do the commit, returning true...")
+                  Chef::Log.info('Another commit is in progress.  Let it do the commit, returning true...')
                   error = false
                   complete = true
                 else
@@ -107,7 +108,7 @@ class StatusRequest
             return complete
           else
             if status.device_entry['details']['msg']['errors']['line'] =~ /Another commit/
-              Chef::Log.info("Another commit is in progress.  Let it do the commit, returning true...")
+              Chef::Log.info('Another commit is in progress.  Let it do the commit, returning true...')
               return true
             else
               # must have failed for a different reason

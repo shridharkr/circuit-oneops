@@ -4,6 +4,12 @@ require File.expand_path('../../../../libraries/dataaccess/commit_request.rb', _
 require File.expand_path('../../../../libraries/models/key.rb', __FILE__)
 
 describe 'Commit Request' do
+
+  before do
+    key = Key.new('key')
+    @commitrequest = CommitRequest.new('url', key)
+  end
+
   context 'initialize' do
     it 'fails when key is nil' do
       expect{CommitRequest.new('url', nil)}.to raise_error(ArgumentError)
@@ -14,9 +20,7 @@ describe 'Commit Request' do
     end
 
     it 'succeeds when key is of type Key' do
-      key = Key.new('value')
-      address_req = CommitRequest.new('url', key)
-      expect(address_req).to be_a CommitRequest
+      expect{@commitrequest}.to be_a CommitRequest
     end
 
     it 'fails when url is nil' do
@@ -26,9 +30,36 @@ describe 'Commit Request' do
   end
 
   context 'commit configs' do
-    it 'returns a valid panos_job object'
+    it 'returns a valid job object' do
+      response = "<response status='success'><result><job>1</job></result></response>"
+      allow(RestClient::Request).to receive(:execute).and_return(response)
+      job = @commitrequest.commit_configs('group')
+      expect{job.is_a?(Job)}
+    end
 
-    it 'throws an exception when there was an error from the firewall'
+    it 'returns nil if no result' do
+      response = "<response status='success'></response>"
+      allow(RestClient::Request).to receive(:execute).and_return(response)
+      job = @commitrequest.commit_configs('group')
+      expect{job.nil?}
+    end
 
+    it 'returns nil if no job in the result' do
+      response = "<response status='success'><result></result></response>"
+      allow(RestClient::Request).to receive(:execute).and_return(response)
+      job = @commitrequest.commit_configs('group')
+      expect{job.nil?}
+    end
+
+    it 'throws an exception when there was an error from the firewall' do
+      response = "<response status = 'error' code = '403'><result><msg>Invalid credentials.</msg></result></response>"
+      allow(RestClient::Request).to receive(:execute).and_return(response)
+      expect{@commitrequest.commit_configs('group')}.to raise_error(Exception)
+    end
+
+    it 'throws an exception making the rest call' do
+      allow(RestClient::Request).to receive(:execute).and_raise(Exception)
+      expect{@commitrequest.commit_configs('group')}.to raise_error(Exception)
+    end
   end
 end

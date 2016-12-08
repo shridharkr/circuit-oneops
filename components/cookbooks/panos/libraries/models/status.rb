@@ -6,7 +6,7 @@ class Status
     fail ArgumentError, 'status cannot be nil' if status.nil?
     fail ArgumentError, 'result cannot be nil' if result.nil?
     fail ArgumentError, 'progress cannot be nil' if progress.nil?
-    fail ArgumentError, 'progress must be an Integer' if !progress.is_a? Integer
+    fail ArgumentError, 'progress must be an Integer' unless progress.is_a? Integer
 
     super()
     @status = status
