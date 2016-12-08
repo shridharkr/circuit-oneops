@@ -92,28 +92,28 @@ listeners = JSON.parse(ci[:ciAttributes][:listeners])
 # map for iport to node port
 override_iport_map = {}
 node.workorder.payLoad.DependsOn.each do |dep|
-  if dep['ciClassName'] =~ /Replication/
-    JSON.parse(dep['ciAttributes']['ports']).each_pair do |internal_port,external_port|
+  if dep['ciClassName'] =~ /Container/
+    JSON.parse(dep['ciAttributes']['node_ports']).each_pair do |internal_port,external_port|
       override_iport_map[internal_port] = external_port
     end
-    puts "override_iport_map: #{override_iport_map.inspect}"    
+    puts "override_iport_map: #{override_iport_map.inspect}"
   end
-end 
-  
+end
+
 listeners.each do |l|
-  
+
   acl = ''
   lb_attrs = l.split(" ")
   vproto = lb_attrs[0]
   vport = lb_attrs[1]
   if vport.include?(':')
     vport_parts = vport.split(':')
-    vport = vport_parts[0]    
+    vport = vport_parts[0]
     acl = vport_parts[1]
   end
   iproto = lb_attrs[2]
   iport = lb_attrs[3]
-  
+
   if override_iport_map.has_key?(iport)
     Chef::Log.info("using container PAT: #{iport} to #{override_iport_map[iport]}")
     iport = override_iport_map[iport]
@@ -125,11 +125,11 @@ listeners.each do |l|
 
   # primary lb - neteng convention
   if cloud_dns_id.nil?
-    lb_name = [env_name, platform_name, dns_zone].join(".") + '-'+vprotocol+"_"+vport+"tcp" +'-' + ci[:ciId].to_s + "-lb"   
+    lb_name = [env_name, platform_name, dns_zone].join(".") + '-'+vprotocol+"_"+vport+"tcp" +'-' + ci[:ciId].to_s + "-lb"
   else
     lb_name = [env_name, platform_name, cloud_dns_id, dns_zone].join(".") + '-'+vprotocol+"_"+vport+"tcp" +'-' + ci[:ciId].to_s + "-lb"
-  end   
-   
+  end
+
 
   # elb 32char limit
   if cloud_service[:ciClassName] =~ /Elb/
@@ -158,7 +158,7 @@ listeners.each do |l|
     :name => dc_lb_name,
     :iport => iport,
     :vport => vport,
-    :acl => acl,    
+    :acl => acl,
     :sg_name => sg_name,
     :vprotocol => vprotocol,
     :iprotocol => iprotocol
@@ -194,9 +194,9 @@ listeners_old.each do |ol|
   vport_old = lb_attrs_old[1]
   if vport_old.include?(':')
     vport_parts = vport_old.split(':')
-    vport_old = vport_parts[0]    
+    vport_old = vport_parts[0]
     acl_old = vport_parts[1]
-  end  
+  end
   iproto_old = lb_attrs_old[2]
   iport_old = lb_attrs_old[3]
 
@@ -209,8 +209,8 @@ listeners_old.each do |ol|
     :name => lb_name,
     :iport => iport_old,
     :vport => vport_old,
-    :acl => acl_old,    
-    :sg_name => sg_name,    
+    :acl => acl_old,
+    :sg_name => sg_name,
     :vprotocol => vprotocol_old
   }
 
@@ -242,7 +242,7 @@ listeners_old.each do |ol|
     dc_lb = {
       :name => dc_lb_name,
       :vport => vport_old,
-      :acl => acl_old,       
+      :acl => acl_old,
       :sg_name => sg_name,
       :vprotocol => vprotocol_old
     }
@@ -261,16 +261,16 @@ if cloud_service[:ciClassName] != ("cloud.service.Netscaler" || "cloud.service.F
 end
 
 computes = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Compute/ }
-replications = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Replication/}
-if replications.size >0
-  replication = replications.first
+containers = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Container/}
+if containers.size >0
+  container = containers.first
   computes = []
-  JSON.parse(replication['ciAttributes']['nodes']).each do |ip|
+  JSON.parse(container['ciAttributes']['nodes']).each do |ip|
     server = {}
-    server['private_ip'] = ip    
+    server['private_ip'] = ip
     computes.push({'ciAttributes'=>server})
   end
-  
-  Chef::Log.info("replication based computes: #{computes.inspect}")
+
+  Chef::Log.info("container based computes: #{computes.inspect}")
 end
 node.set['lb_members'] = computes
