@@ -56,6 +56,10 @@ package "lvm2"
 package "mdadm"
 
 
+storageUpdated = false
+if !storage.nil?
+   storageUpdated = storage.ciBaseAttributes.has_key?("size")
+end
 cloud_name = node[:workorder][:cloud][:ciName]
 newDevicesAttached = ""
 mode = "no-raid"
