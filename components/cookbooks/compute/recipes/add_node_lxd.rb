@@ -46,7 +46,7 @@ ruby_block "create #{node[:server_name]}" do
     rescue Exception => e
       if e.class.name == 'Hyperkit::NotFound'
         Chef::Log.info("create server")
-        create = lxd.create_container(node[:server_name], alias: "centos")
+        create = lxd.create_container(node[:server_name], alias: node[:image_id])
         Chef::Log.debug(create.inspect)
       else
         raise e.inspect
