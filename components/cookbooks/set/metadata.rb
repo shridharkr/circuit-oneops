@@ -1,5 +1,5 @@
-name             "Replication"
-description      "Container Replication"
+name             "Set"
+description      "Container Set"
 version          "0.1"
 maintainer       "OneOps"
 maintainer_email "support@oneops.com"
@@ -16,6 +16,7 @@ grouping 'bom',
 
 attribute 'replicas',
   :description => "Replicas",
+  :required => "required",
   :default => '3',
   :format => {
     :help => 'Number of replicas',
@@ -23,24 +24,14 @@ attribute 'replicas',
     :order => 1
   }
 
-attribute 'nodes',
-  :description => "Cluster Nodes",
-  :grouping => 'bom',
-  :data_type => "array",
+attribute 'parallelism',
+  :description => "Parallelism",
+  :required => "required",
+  :default => '1',
   :format => {
-    :help => 'List of cluster nodes/hosts used for the replication',
-    :category => '2.Cluster',
+    :help => 'Maximum number of replicas to be updated in parallel',
+    :category => '2.Update Strategy',
     :order => 1
-  }
-
-attribute 'ports',
-  :description => "PAT Ports",
-  :grouping => 'bom',
-  :data_type => "hash",
-  :format => {
-    :help => 'PAT Ports. Internal Port => External Port',
-    :category => '2.Cluster',
-    :order => 2
   }
 
 recipe "repair", "Repair"

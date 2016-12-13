@@ -14,22 +14,14 @@ grouping 'bom',
   :packages => [ 'bom' ]
 
 
-# http://kubernetes.io/docs/user-guide/pods/multi-container/#containers
 
-attribute 'image',
-  :description => "Image Name",
-  :format => {
-    :help => 'Reference to an image name in the registry',
-    :category => '1.Launch',
-    :order => 1
-  }
-
+# Run
 attribute 'command',
   :description => "Command",
   :format => {
     :help => 'Command to use as entrypoint to start the container',
-    :category => '1.Launch',
-    :order => 2
+    :category => '1.Run',
+    :order => 1
   }
 
 attribute 'args',
@@ -38,8 +30,8 @@ attribute 'args',
   :default => '[]',
   :format => {
     :help => 'Command arguments to use as entrypoint to start the container',
-    :category => '1.Launch',
-    :order => 3
+    :category => '1.Run',
+    :order => 2
   }
 
 attribute 'env',
@@ -48,8 +40,8 @@ attribute 'env',
   :default => '{}',
   :format => {
     :help => '',
-    :category => '1.Launch',
-    :order => 4
+    :category => '1.Run',
+    :order => 3
   }
 
 attribute 'ports',
@@ -58,10 +50,13 @@ attribute 'ports',
   :default => '{}',
   :format => {
     :help => 'Map of port name (a DNS_LABEL) and value as <port-number>[/<port-protocol>]. Example ssh=22/tcp',
-    :category => '1.Launch',
-    :order => 5
+    :important => true,
+    :category => '1.Run',
+    :order => 4
   }
 
+
+# Resources
 attribute 'cpu',
   :description => "CPU",
   :format => {
@@ -75,6 +70,28 @@ attribute 'memory',
   :format => {
     :help => 'Memory to reserve for each container. Default is bytes; binary scale suffixes (e.g. 100Mi for one hundred mebibytes) are supported',
     :category => '2.Resources',
+    :order => 2
+  }
+
+
+# bom only
+attribute 'nodes',
+  :description => "Cluster Nodes",
+  :grouping => 'bom',
+  :data_type => "array",
+  :format => {
+    :help => 'List of cluster nodes/hosts used for the set',
+    :category => '3.Cluster',
+    :order => 1
+  }
+
+attribute 'node_ports',
+  :description => "Node Forwarded Ports",
+  :grouping => 'bom',
+  :data_type => "hash",
+  :format => {
+    :help => 'Forwarded Ports on the Cluster Nodes. Internal Port => External Port',
+    :category => '3.Cluster',
     :order => 2
   }
 

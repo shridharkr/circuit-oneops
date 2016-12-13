@@ -17,8 +17,7 @@
 
 rfcCi = node["workorder"]["rfcCi"]
 nsPathParts = rfcCi["nsPath"].split("/")
-container_name = node.workorder.box.ciName+'-'+nsPathParts[3]+'-'+nsPathParts[2]+'-'+nsPathParts[1]+'-'+ rfcCi["ciId"].to_s
-node.set[:container_name] = container_name
+node.set[:container_name] = node.workorder.box.ciName
 
 cloud_name = node.workorder.cloud.ciName
 
@@ -29,10 +28,11 @@ if !node.workorder.services["container"].nil? &&
 end
 
 if cloud_service.nil?
-  Chef::Log.fatal!("no container cloud service defined. services: "+node.workorder.services.inspect)
+  raise "no container cloud service defined. services: "+node.workorder.services.inspect
 end
 
 Chef::Log.info("Container Cloud Service: #{cloud_service[:ciClassName]}")
+
 
 case cloud_service[:ciClassName].split(".").last.downcase
 when /kubernetes/
@@ -42,5 +42,5 @@ when /swarm/
 when /ecs/
   include_recipe "ecs::delete_container"
 else
-  Chef::Log.fatal!("Container Cloud Service: #{cloud_service[:ciClassName]}")
+  raise "Container Cloud Service: #{cloud_service[:ciClassName]}"
 end

@@ -13,20 +13,52 @@ platform :attributes => {
                 "replace_after_repairs" => 3
         }
 
+
+resource "image",
+  :cookbook => "oneops.1.image",
+  :design => true,
+  :requires => { "constraint" => "1..1", "services" => "*registry" },
+  :attributes => {
+    :image_type => 'registry',
+    :image => 'nginx'
+  }
+
+resource "storage",
+  :cookbook => "oneops.1.storage",
+  :design => true,
+  :attributes => {
+    "size"        => '20G',
+    "slice_count" => '1'
+  },
+  :requires => { "constraint" => "0..*", "services" => "storage" }
+
+resource "realm",
+  :cookbook => "oneops.1.realm",
+  :design => true,
+  :requires => { "constraint" => "1..1", "services" => "container" },
+  :attributes => {}
+
 resource "container",
   :cookbook => "oneops.1.container",
   :design => true,
-  :requires => { "constraint" => "1..1", "services" => "container" }
+  :requires => { "constraint" => "1..1", "services" => "container" },
+  :attributes => {
+    :image_type => 'registry',
+    :image => 'nginx',
+    :ports => '{"http":"80"}'
+  }
 
-resource "replication",
-  :cookbook => "oneops.1.replication",
+resource "set",
+  :cookbook => "oneops.1.set",
   :design => true,
   :requires => { "constraint" => "1..1", "services" => "container" },
   :attributes => {
-    :replicas => '3'
+    :replicas => '3',
+    :parallelism => '1'
   }
 
 resource "lb",
+  :except => [ 'single' ],
   :design => true,
   :cookbook => "oneops.1.lb",
   :requires => { "constraint" => "1..1", "services" => "lb,dns" },
@@ -103,7 +135,7 @@ resource "fqdn",
          }
        ]
     }'
-  }, 
+  },
 'activeclouds' => {
     'description' => 'activeclouds',
     'definition' => '{
@@ -382,30 +414,61 @@ resource "fqdn",
 
 # depends_on
 
-[ 'lb' ].each do |from|
-  relation "#{from}::depends_on::replication-redundant",
-    :only => [ 'redundant' ],
+#single
+[ 'fqdn' ].each do |from|
+  relation "#{from}::depends_on::container",
+    :only => [ 'single' ],
     :design => false,
     :relation_name => 'DependsOn',
     :from_resource => from,
-    :to_resource   => 'replication',
-    :attributes    => { "propagate_to" => 'from', "flex" => true, "current" =>3, "min" => 3, "max" => 10}
+    :to_resource   => 'container',
+    :attributes    => { "propagate_to" => 'from' }
+end
+
+#redundant
+[ 'fqdn' ].each do |from|
+  relation "#{from}::depends_on::lb",
+    :except => [ 'single' ],
+    :design => true,
+    :relation_name => 'DependsOn',
+    :from_resource => from,
+    :to_resource   => 'lb',
+    :attributes    => { "propagate_to" => 'from' }
 end
 
 [ 'lb' ].each do |from|
-  relation "#{from}::depends_on::replication",
-    :except => [ 'redundant' ],
+  relation "#{from}::depends_on::container",
+    :except => [ 'single' ],
+    :design => true,
     :relation_name => 'DependsOn',
     :from_resource => from,
-    :to_resource   => 'replication',
-    :attributes    => { "propagate_to" => 'from', "flex" => false }
+    :to_resource   => 'container',
+    :attributes    => { "propagate_to" => 'from', "flex" => true, "current" =>3, "min" => 3, "max" => 10 }
 end
 
-[ { :from => 'replication', :to => 'container' },
-  { :from => 'fqdn',	      :to => 'lb' } ].each do |link|
+[ { :from => 'set',  :to => 'container' } ].each do |link|
+  relation "#{link[:from]}::depends_on::#{link[:to]}",
+    # :only => [ 'fungible' ],
+    :relation_name => 'DependsOn',
+    :from_resource => link[:from],
+    :to_resource   => link[:to],
+    :attributes    => { }
+end
+
+[ { :from => 'container',  :to => 'image' },
+  { :from => 'container',  :to => 'storage' } ].each do |link|
   relation "#{link[:from]}::depends_on::#{link[:to]}",
     :relation_name => 'DependsOn',
     :from_resource => link[:from],
     :to_resource   => link[:to],
-    :attributes    => { 'propagate_to' => 'from' }
+    :attributes    => { "propagate_to" => 'from' }
+end
+
+[ { :from => 'container',  :to => 'realm' },
+  { :from => 'storage',  :to => 'realm' } ].each do |link|
+  relation "#{link[:from]}::depends_on::#{link[:to]}",
+    :relation_name => 'DependsOn',
+    :from_resource => link[:from],
+    :to_resource   => link[:to],
+    :attributes    => { }
 end

@@ -1,4 +1,4 @@
-# Cookbook Name:: container
+# Cookbook Name:: set
 # Recipe:: add
 #
 # Copyright 2016, Walmart Stores, Inc.
@@ -15,29 +15,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-rfcCi = node["workorder"]["rfcCi"]
-nsPathParts = rfcCi["nsPath"].split("/")
-# TODO if entrypoint payload use platform name, otherwise use component name
-#node.set[:container_name] = node.workorder.box.ciName+'-'+rfcCi["ciId"].to_s
+container = node.workorder.payLoad.DependsOn.select { |o| o[:ciClassName].split('.').last == "Container" }.first
+Chef::Log.debug("container: #{container.inspect}")
+node.set[:container] = container
+nsPathParts = container["nsPath"].split("/")
 node.set[:container_name] = node.workorder.box.ciName
-node.set[:container_labels] = {
+node.set[:service_name] = node[:container_name]
+node.set[:service_labels] = {
   'organization' => nsPathParts[1],
   'assembly' => nsPathParts[2],
   'environment' => nsPathParts[3]
 }
-
-image = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Image/ }
-if image.empty?
-  raise "Not able to get image dependency"
-else
-  image_name = image.first['ciAttributes']['image_url']
-  if image_name && !image_name.empty?
-    Chef::Log.info("Using image name #{image_name}")
-    node.set[:image_name] = image_name
-  else
-    raise "Empty image name attribute"
-  end
-end
 
 cloud_name = node.workorder.cloud.ciName
 
@@ -48,19 +36,18 @@ if !node.workorder.services["container"].nil? &&
 end
 
 if cloud_service.nil?
-  Chef::Log.fatal("no container cloud service defined. services: "+node.workorder.services.inspect)
+  Chef::Log.fatal!("no container cloud service defined. services: "+node.workorder.services.inspect)
 end
 
 Chef::Log.info("Container Cloud Service: #{cloud_service[:ciClassName]}")
 
 case cloud_service[:ciClassName].split(".").last.downcase
 when /kubernetes/
-  include_recipe "kubernetes::add_container"
+  include_recipe "kubernetes::add_set"
 when /swarm/
-  include_recipe "swarm::add_container"
+  include_recipe "swarm::add_set"
 when /ecs/
-  include_recipe "ecs::add_container"
+  include_recipe "ecs::add_set"
 else
-  Chef::Log.error("Container Cloud Service: #{cloud_service[:ciClassName]}")
-  raise
+  Chef::Log.fatal!("Container Cloud Service: #{cloud_service[:ciClassName]}")
 end

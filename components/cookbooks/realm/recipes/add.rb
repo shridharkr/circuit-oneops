@@ -1,6 +1,3 @@
-# Cookbook Name:: replication
-# Recipe:: delete
-#
 # Copyright 2016, Walmart Stores, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-container = node.workorder.payLoad.DependsOn.select { |o| o[:ciClassName].split('.').last == "Container" }.first
-Chef::Log.debug("container: #{container.inspect}")
-node.set[:container] = container
-nsPathParts = container["nsPath"].split("/")
-container_name = node.workorder.box.ciName+'-'+nsPathParts[3]+'-'+nsPathParts[2]+'-'+nsPathParts[1]+'-'+ container["ciId"].to_s
-node.set[:container_name] = container_name
-service_name = node.workorder.box.ciName+'-'+node.workorder.rfcCi.ciId.to_s
-node.set[:service_name] = service_name
+#
+# Cookbook Name:: Realm
+# Recipe:: add
+#
+
+
+ci = node.workorder.rfcCi
+node.set[:realm] = ci.nsPath.split("/")[1..3].join("-").to_s
 
 cloud_name = node.workorder.cloud.ciName
 
@@ -33,18 +30,20 @@ if !node.workorder.services["container"].nil? &&
 end
 
 if cloud_service.nil?
-  Chef::Log.fatal!("no container cloud service defined. services: "+node.workorder.services.inspect)
+  Chef::Log.fatal("no container cloud service defined. services: "+node.workorder.services.inspect)
 end
 
 Chef::Log.info("Container Cloud Service: #{cloud_service[:ciClassName]}")
 
+
 case cloud_service[:ciClassName].split(".").last.downcase
 when /kubernetes/
-  include_recipe "kubernetes::delete_replication"
+  include_recipe "kubernetes::add_realm"
 when /swarm/
-  include_recipe "swarm::delete_replication"
+  include_recipe "swarm::add_realm"
 when /ecs/
-  include_recipe "ecs::delete_replication"
+  include_recipe "ecs::add_realm"
 else
-  Chef::Log.fatal!("Container Cloud Service: #{cloud_service[:ciClassName]}")
+  Chef::Log.error("Container Cloud Service: #{cloud_service[:ciClassName]}")
+  raise
 end
