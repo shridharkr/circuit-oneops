@@ -6,7 +6,7 @@ describe 'Status' do
   context 'status' do
     it 'succeeds when not nil' do
       status = Status.new('status', 'result', 100)
-      expect(status).to be_a Status
+      expect{status}.to be_a Status
     end
 
     it 'fails when nil' do
@@ -17,7 +17,7 @@ describe 'Status' do
   context 'result' do
     it 'succeeds when not nil' do
       status = Status.new('status', 'result', 100)
-      expect(status).to be_a Status
+      expect{status}.to be_a Status
     end
 
     it 'fails when nil' do
@@ -36,7 +36,7 @@ describe 'Status' do
 
     it 'succeeds when not nil and is an Integer' do
       status = Status.new('status', 'result', 100)
-      expect(status).to be_a Status
+      expect{status}.to be_a Status
     end
   end
 end

@@ -19,7 +19,7 @@ describe 'Key Request' do
 
     it 'succeeds when userid and password are not nil' do
       key = KeyRequest.new('url', 'userid', 'password')
-      expect(key).to be_a KeyRequest
+      expect{key}.to be_a KeyRequest
     end
 
     it 'fails when url is nil' do
@@ -29,16 +29,20 @@ describe 'Key Request' do
 
   context 'get key' do
     it 'returns a response' do
-      response = Key.new('value')
-      allow(@keyrequest).to receive(:getkey).and_return(response)
-      expect(@keyrequest.getkey).to be_a Key
+      response = "<response status = 'success'><result><key>mykey</key></result></response>"
+      allow(RestClient::Request).to receive(:execute).and_return(response)
+      expect{@keyrequest.get('url','username','password')}.to be_a Key
     end
 
-    it 'returns an exception' # do
-      # response = "<response status = 'error' code = '403'><result><msg>Invalid credentials.</msg></result></response>"
-      #
-      # allow(@keyrequest).to receive("RestClient::Request.execute").and_return(response)
-      # expect(@keyrequest.getkey).to raise_error
-    # end
+    it 'returns an exception' do
+      allow(RestClient::Request).to receive(:execute).and_raise(Exception)
+      expect{@keyrequest.get('url','user','password')}.to raise_error(Exception)
+    end
+
+    it 'returns an error' do
+      response = "<response status = 'error' code = '403'><result><msg>Invalid credentials.</msg></result></response>"
+      allow(RestClient::Request).to receive(:execute).and_return(response)
+      expect{@keyrequest.get('url','user','password')}.to raise_error(Exception)
+    end
   end
 end

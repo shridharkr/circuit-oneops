@@ -17,12 +17,14 @@ Chef::Log.info("ADDRESSES are: #{addresses}")
 
 address_group_name = PanosUtils.get_address_group_name(node)
 
+devicegroups = PanosUtils.get_device_groups(node)
+
 # create the dynamic address group and addresses for all the computes
 panos_firewall 'Delete Panos Firewall' do
   url_endpoint service[:url_endpoint]
   username service[:username]
   password service[:password]
-  devicegroups service[:devicegroups]
+  devicegroups devicegroups
   address_group_name address_group_name
   addresses addresses
   action :delete

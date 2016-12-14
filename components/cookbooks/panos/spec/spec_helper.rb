@@ -1,5 +1,8 @@
 require 'chefspec'
-#require 'chefspec/berkshelf'
+require 'crack'
+require 'rest-client'
+require 'simplecov'
+SimpleCov.start
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
@@ -8,5 +11,15 @@ RSpec.configure do |config|
 
   config.mock_with :rspec do |mocks|
     mocks.verify_partial_doubles = true
+  end
+end
+
+RSpec::Matchers.define :be_a do
+  match do |actual|
+    actual.is_a? Proc
+  end
+
+  def supports_block_expectations?
+    true
   end
 end

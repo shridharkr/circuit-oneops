@@ -25,7 +25,8 @@ if node[:workorder][:services].has_key?("gdns")
 end
 
 node.set["is_last_active_cloud_in_dc"] = true
-if node.workorder.box.ciAttributes.is_platform_enabled == 'true' &&
+if node.workorder.box.ciAttributes.has_key?("is_platform_enabled") &&
+   node.workorder.box.ciAttributes.is_platform_enabled == 'true' &&
    node.workorder.payLoad.has_key?("activeclouds") && !cloud_service.nil?
    node.workorder.payLoad["activeclouds"].each do |service|
 
@@ -40,7 +41,8 @@ if node.workorder.box.ciAttributes.is_platform_enabled == 'true' &&
 end
 
 node.set["is_last_active_cloud"] = true
-if node.workorder.box.ciAttributes.is_platform_enabled == 'true' &&
+if node.workorder.box.ciAttributes.has_key?("is_platform_enabled") &&
+   node.workorder.box.ciAttributes.is_platform_enabled == 'true' &&
    node.workorder.payLoad.has_key?("activeclouds") && !cloud_service.nil?
    node.workorder.payLoad["activeclouds"].each do |service|
 

@@ -47,8 +47,8 @@ end
 
 cloud = node.workorder.cloud.ciName
 
-#Lets use the apache mirrors for the US when the mirror service is not available for the cloud
-default_base_url="http://www-us.apache.org/dist/"
+#Lets use the apache mirrors for archive when the mirror service is not available for the cloud
+default_base_url="http://archive.apache.org/dist/"
 mirror_url_key = "apache"
 Chef::Log.info("Getting mirror service for #{mirror_url_key}, cloud: #{cloud}")
 
