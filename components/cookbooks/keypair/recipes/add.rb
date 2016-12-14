@@ -19,7 +19,7 @@
 include_recipe "keypair::setup"
 
 case node[:provider_class]
-when /vagrant|aliyun/
+when /vagrant|lxd|aliyun/
   Chef::Log.info("keypair add not implemented for provider")
 when /azure/
     include_recipe "azurekeypair::add"
