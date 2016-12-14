@@ -56,6 +56,10 @@ package "lvm2"
 package "mdadm"
 
 
+storageUpdated = false
+if !storage.nil?
+   storageUpdated = storage.ciBaseAttributes.has_key?("size")
+end
 cloud_name = node[:workorder][:cloud][:ciName]
 newDevicesAttached = ""
 mode = "no-raid"
@@ -446,7 +450,7 @@ ruby_block 'create-ephemeral-volume-on-azure-vm' do
       `echo "mkfs -t #{_fstype} -f /dev/#{platform_name}-eph/#{logical_name}" >> #{script_fullpath_name}`
     end
     `echo "fi" >> #{script_fullpath_name}`
-    `echo "mkdir #{_mount_point}" >> #{script_fullpath_name}`
+    `echo "mkdir -p #{_mount_point}" >> #{script_fullpath_name}`
     `echo "mount /dev/#{platform_name}-eph/#{logical_name} #{_mount_point}" >> #{script_fullpath_name}`
     `sudo chmod +x #{script_fullpath_name}`
      awk_cmd = "awk /#{logical_name}.sh/ /etc/rc.local | wc -l"   

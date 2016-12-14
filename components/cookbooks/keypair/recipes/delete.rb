@@ -23,7 +23,7 @@ node.set["keypair"] = kp
 include_recipe "keypair::setup"
 
 case node[:provider_class]
-when /vagrant|aliyun/
+when /vagrant|aliyun|lxd/
   Chef::Log.info("keypair delete not implemented for provider")
 when /azure/
     include_recipe "azurekeypair::delete"
