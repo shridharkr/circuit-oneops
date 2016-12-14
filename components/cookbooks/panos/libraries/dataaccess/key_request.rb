@@ -12,8 +12,7 @@ class KeyRequest
     @password = password
   end
 
-  def getkey()
-    Chef::Log.info("PANOS URL is: #{@url}")
+  def getkey
     begin
       key_response = RestClient::Request.execute(
         :method => :get,
@@ -30,7 +29,6 @@ class KeyRequest
       # parse the xml to get the key
       key_hash = Crack::XML.parse(key_response)
       Chef::Log.info("key_hash is: #{key_hash}")
-
       raise Exception.new("PANOS Error getting key: #{key_hash['response']['msg']}") if key_hash['response']['status'] == 'error'
 
       key = Key.new(key_hash['response']['result']['key'])

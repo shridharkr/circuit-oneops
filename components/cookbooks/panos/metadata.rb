@@ -40,14 +40,3 @@ attribute 'password',
    :category => '1.Authentication',
    :order => 3
  }
-
-attribute 'devicegroups',
- :description => "Device Groups",
- :required => true,
- :data_type => "array",
- :default => '[]',
- :format => {
-   :help => 'Device Groups - all the device groups where dynamic address groups will be created',
-   :category => '2.Configuration',
-   :order => 1
- }

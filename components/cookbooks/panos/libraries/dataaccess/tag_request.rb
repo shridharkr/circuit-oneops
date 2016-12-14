@@ -5,7 +5,7 @@ class TagRequest
   def initialize(url, key)
     fail ArgumentError, 'url cannot be nil' if url.nil?
     fail ArgumentError, 'key cannot be nil' if key.nil?
-    fail ArgumentError, 'key must be of type Key' if !key.is_a? Key
+    fail ArgumentError, 'key must be of type Key' unless key.is_a? Key
 
     @baseurl = url
     @key = key

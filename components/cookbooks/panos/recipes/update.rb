@@ -17,13 +17,15 @@ Chef::Log.info("ADDRESSES are: #{addresses}")
 
 tag = PanosUtils.get_tag_name(node)
 
+devicegroups = PanosUtils.get_device_groups(node)
+
 # update the firewall
 # could be scaling up/down or replacing a VM (which would be updating an existing address)
 panos_firewall 'Update Panos Firewall' do
   url_endpoint service[:url_endpoint]
   username service[:username]
   password service[:password]
-  devicegroups service[:devicegroups]
+  devicegroups devicegroups
   tag tag
   addresses addresses
   action :update

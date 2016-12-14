@@ -1,5 +1,6 @@
 require File.expand_path('../dataaccess/tag_request.rb', __FILE__)
 require File.expand_path('../dataaccess/address_group_request.rb', __FILE__)
+require File.expand_path('../models/address_group.rb', __FILE__)
 require File.expand_path('../dataaccess/key_request.rb', __FILE__)
 require File.expand_path('../models/key.rb', __FILE__)
 require File.expand_path('../dataaccess/address_request.rb', __FILE__)
@@ -17,7 +18,7 @@ class AddressManager
   def initialize(url, username, password)
     # get the key
     keyrequest = KeyRequest.new(url, username, password)
-    @key = keyrequest.getkey()
+    @key = keyrequest.getkey
     @url = url
   end
 
@@ -28,7 +29,7 @@ class AddressManager
       # do this for easier comparison of the existing addresses in the firewall
       deploy_addresses = []
       addresses['entries'].each do |deploy_addr|
-        deploy_addresses.push(Address.new(deploy_addr['name'], 'IP_NETMASK', deploy_addr['ip_address'], tag_name))
+        deploy_addresses.push(Address.new(deploy_addr['name'], 'IP_NETMASK', deploy_addr['ip_address'], device_group, tag_name))
       end
 
       address = AddressRequest.new(@url, @key)
@@ -77,7 +78,7 @@ class AddressManager
       Chef::Log.info("Create address are: #{create_address}")
       if create_address.size > 0
         create_address.each do |create_addr|
-          address.create(create_addr.name, create_addr.address, create_addr.tags, device_group)
+          address.create(create_addr)
         end
       end
 
@@ -85,7 +86,7 @@ class AddressManager
       Chef::Log.info("Update address are: #{update_address}")
       if update_address.size > 0
         update_address.each do |update_addr|
-          address.update(update_addr, device_group)
+          address.update(update_addr)
         end
       end
     end
@@ -101,8 +102,9 @@ class AddressManager
       tag_request.create(tag, device_group)
 
       # create a DAG
+      addr_group = AddressGroup.new(address_group_name, 'Dynamic', tag, device_group)
       dag_request = AddressGroupRequest.new(@url, @key)
-      dag_request.create_dynamic(address_group_name, tag, device_group)
+      dag_request.create(addr_group)
 
       # create the address
       address_request = AddressRequest.new(@url, @key)
@@ -110,7 +112,7 @@ class AddressManager
         Chef::Log.info("Address is: #{address}")
         Chef::Log.info("NAME is: #{address['name']}")
         Chef::Log.info("IP Address is: #{address['ip_address']}")
-        address_request.create(address['name'], address['ip_address'], tag, device_group)
+        address_request.create(Address.new(address['name'], 'IP_NETMASK', address['ip_address'], device_group, tag))
       end
     end
 

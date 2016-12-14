@@ -15,9 +15,6 @@ module PanosUtils
       service_hash[:url_endpoint] = fw_attributes[:endpoint]
       service_hash[:username] = fw_attributes[:username]
       service_hash[:password] = fw_attributes[:password]
-      devicegroups = []
-      devicegroups = JSON.parse(fw_attributes[:devicegroups])
-      service_hash[:devicegroups] = devicegroups
     end
 
     service_hash
@@ -77,6 +74,11 @@ module PanosUtils
     tag
   end
 
-  module_function :get_service_info, :get_computes, :get_address_group_name, :get_tag_name
+  def get_device_groups(node)
+    devicegroups = JSON.parse(node[:workorder][:rfcCi][:ciAttributes][:devicegroups])
+    devicegroups
+  end
+
+  module_function :get_service_info, :get_computes, :get_address_group_name, :get_tag_name, :get_device_groups
 
 end
