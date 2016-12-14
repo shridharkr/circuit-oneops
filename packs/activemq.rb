@@ -396,7 +396,7 @@ resource 'user-activemq',
     :attributes => {
       :username => 'activemq',
       :description => 'Activemq User',
-      :home_directory => '/',
+      :home_directory => '/home/activemq',
       :system_account => true,
       :sudoer => true
 }
