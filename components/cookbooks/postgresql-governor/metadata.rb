@@ -21,6 +21,16 @@ attribute 'version',
     :form => { 'field' => 'select', 'options_for_select' => [['9.4','9.4'], ['9.5','9.5']] },
     :pattern => "[0-9\.]+"
   }
+attribute 'governor_download',
+ :description => "Governor Package Download URL",
+ :required => "required",
+ :default => "https://github.com/compose/governor/archive/master.zip",
+ :format => {
+    :important => true,
+    :help => 'The URL of the zip file for PostgreSQL Governor',
+    :category => '1.Global',
+    :order => 2
+}
 
 attribute 'port',
   :description => "Listen port",

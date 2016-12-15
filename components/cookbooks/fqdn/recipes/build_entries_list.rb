@@ -53,17 +53,26 @@ elsif lbs.size > 0
 else
   os = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Os/ }
 
-  if os.size > 1
-    fail_with_error "unsupported usecase - need to check why there are multiple os for same fqdn"
-  end
-  is_hostname_entry = true
-  ci = os.first
+  if os.size == 0
 
-  provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
-  if provider_service =~ /azuredns/
-    dns_name = (ci[:ciAttributes][:hostname]).downcase
+    ci_name = node.workorder.payLoad.RealizedAs.first['ciName']
+    Chef::Log.info("using the manifest/RealizedAs ciName: #{ci_name}")
+    dns_name = (ci_name + "." + node.workorder.box.ciName + customer_domain).downcase
+   
   else
-    dns_name = (ci[:ciAttributes][:hostname] + customer_domain).downcase
+
+    if os.size > 1
+      fail_with_error "unsupported usecase - need to check why there are multiple os for same fqdn"
+    end
+    is_hostname_entry = true
+    ci = os.first
+
+    provider_service = node[:workorder][:services][:dns][cloud_name][:ciClassName].split(".").last.downcase
+    if provider_service =~ /azuredns/
+      dns_name = (ci[:ciAttributes][:hostname]).downcase
+    else
+      dns_name = (ci[:ciAttributes][:hostname] + customer_domain).downcase
+    end
   end
 end
 

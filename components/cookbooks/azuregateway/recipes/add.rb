@@ -93,6 +93,15 @@ if ag_service.nil?
   OOLog.fatal('missing application gateway service')
 end
 
+compute_service = nil
+if !node.workorder.services['compute'].nil? && !node.workorder.services['compute'][cloud_name].nil?
+  compute_service = node.workorder.services['compute'][cloud_name]
+end
+
+if compute_service.nil?
+  OOLog.fatal('missing compute service')
+end
+
 platform_name = node.workorder.box.ciName
 environment_name = node.workorder.payLoad.Environment[0]['ciName']
 assembly_name = node.workorder.payLoad.Assembly[0]['ciName']
@@ -110,6 +119,8 @@ ag_name = "ag-#{plat_name}"
 tenant_id = ag_service[:ciAttributes][:tenant_id]
 client_id = ag_service[:ciAttributes][:client_id]
 client_secret = ag_service[:ciAttributes][:client_secret]
+
+network_address = compute_service[:ciAttributes][:network_address].strip
 
 OOLog.info("Cloud Name: #{cloud_name}")
 OOLog.info("Org: #{org_name}")
@@ -157,7 +168,7 @@ begin
   else
     # Create public IP
     public_ip = create_public_ip(credentials, subscription_id, location, resource_group_name)
-    vnet_name = 'vnet_' + resource_group_name
+    vnet_name = 'vnet_' + network_address.gsub('.','_').gsub('/', '_')
     vnet = get_vnet(resource_group_name, vnet_name, vnet_obj)
   end
 

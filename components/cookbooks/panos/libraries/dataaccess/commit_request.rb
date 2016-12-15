@@ -6,7 +6,7 @@ class CommitRequest
   def initialize(url, key)
     fail ArgumentError, 'url cannot be nil' if url.nil?
     fail ArgumentError, 'key cannot be nil' if key.nil?
-    fail ArgumentError, 'key must be of type Key' if !key.is_a? Key
+    fail ArgumentError, 'key must be of type Key' unless key.is_a? Key
 
     @baseurl = url
     @key = key
@@ -35,7 +35,7 @@ class CommitRequest
           # a commit is already in progress, need to sleep and try again
           Chef::Log.info('Sleeping 30 seconds and trying commit again...')
           sleep(30)
-          commit_configs()
+          commit_configs(device_group)
         else
           raise Exception.new("PANOS Error committing: #{commit_hash['response']['msg']}")
         end
@@ -43,7 +43,7 @@ class CommitRequest
 
       if commit_hash['response'].has_key?('result')
         # if job exists in the payload that means a job was submitted to commit the changes.
-        if commit_hash['response']['result'].has_key?('job')
+        if !commit_hash['response']['result'].nil? && commit_hash['response']['result'].has_key?('job')
           job = PanosJob.new(commit_hash['response']['result']['job'].to_i)
           Chef::Log.info("PANOS Jobid is: #{job}")
           return job

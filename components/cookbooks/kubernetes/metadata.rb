@@ -15,7 +15,7 @@ grouping 'cluster',
 
 grouping 'service',
   :access => "global",
-  :packages => [ 'service.kubernetes', 'mgmt.cloud.service', 'cloud.service' ]
+  :packages => [ 'service.container', 'service.orchestrator', 'mgmt.cloud.service', 'cloud.service' ]
 
 # attrs for cloud service
 attribute 'endpoint',
@@ -27,7 +27,7 @@ attribute 'endpoint',
     :help => 'Endpoint of kubernetes cluster',
     :category => '1.General',
     :order => 1
-  }    
+  }
 
 attribute 'namespace',
   :grouping => 'service',
@@ -39,7 +39,7 @@ attribute 'namespace',
     :help => 'Namespace',
     :category => '1.General',
     :order => 2
-  }    
+  }
 
 attribute 'username',
   :grouping => 'service',
@@ -50,39 +50,39 @@ attribute 'username',
     :help => 'Username',
     :category => '1.General',
     :order => 3
-  }      
+  }
 
 attribute 'password',
   :grouping => 'service',
   :description => "Password",
-  :encrypted => true, 
+  :encrypted => true,
   :format => {
     :help => 'Password',
     :category => '1.General',
     :order => 4
-  }      
+  }
 
 attribute 'key',
   :grouping => 'service',
   :description => "Client Key",
-  :encrypted => true, 
+  :encrypted => true,
   :format => {
     :help => 'Value passed to kubectl set-credentials --client-key',
     :category => '1.General',
     :order => 5
-  }    
-  
+  }
+
   attribute 'cert',
   :grouping => 'service',
   :description => "Client Certificate",
-  :encrypted => false, 
+  :encrypted => false,
   :format => {
     :help => 'Value passed to kubectl set-credentials --client-certificate',
     :category => '1.General',
     :order => 6
   }
-  
-          
+
+
 # attrs for cluster
 attribute 'version',
   :grouping => 'cluster',
@@ -95,7 +95,7 @@ attribute 'version',
     :category => '1.Shared',
     :order => 1
   }
-  
+
 attribute 'network',
   :grouping => 'cluster',
   :description => "Network overlay",
@@ -106,7 +106,7 @@ attribute 'network',
     :help => 'Network overlay - flannel or openvswitch',
     :category => '1.Shared',
     :order => 2
-  }        
+  }
 
 attribute 'api_port',
   :grouping => 'cluster',
@@ -130,8 +130,8 @@ attribute 'api_port_secure',
     :help => 'API Port',
     :category => '1.Master',
     :order => 3
-  }  
-  
+  }
+
 attribute 'log_level',
   :grouping => 'cluster',
   :description => "log_level",
@@ -142,7 +142,7 @@ attribute 'log_level',
     :help => 'Log Level - 0 to 4 (min to max) ',
     :category => '1.Master',
     :order => 4
-  }    
+  }
 
 attribute 'service_addresses',
   :grouping => 'cluster',
@@ -168,7 +168,7 @@ attribute 'controller_manager_args',
     :category => '1.Master',
     :order => 6
   }
-    
+
 attribute 'scheduler_args',
   :grouping => 'cluster',
   :description => "Scheduler Args",
@@ -191,7 +191,7 @@ attribute 'api_args',
     :help => 'API Args',
     :category => '1.Master',
     :order => 8
-  }    
+  }
 
 attribute 'cluster_cloud_map',
   :grouping => 'cluster',
@@ -216,8 +216,8 @@ attribute 'download_args',
     :category => '1.Master',
     :order => 10
   }
-      
-  
+
+
 attribute 'security_enabled',
   :description => 'Enable SSL/TLS',
   :default => 'false',
@@ -235,10 +235,10 @@ attribute 'etcd_security_enabled',
       :help => 'Enable SSL/TLS',
       :category => '2.Authentication',
       :form => {:field => 'checkbox'},
-      :filter => {:all => {:visible => 'security_enabled:eq:true'}},      
+      :filter => {:all => {:visible => 'security_enabled:eq:true'}},
       :order => 2
-  }  
-  
+  }
+
 attribute 'security_certificate',
   :description => 'Server Certificate',
   :data_type => 'text',
@@ -286,8 +286,8 @@ attribute 'security_path',
 attribute 'basic_auth_users',
   :description => 'Basic Auth Users',
   :data_type => 'text',
-  :encrypted => true, 
-  :default => '',  
+  :encrypted => true,
+  :default => '',
   :format => {
       :help => 'Kubernetes (basic) auth user file content. format: password,user,uid',
       :category => '2.Authentication',
@@ -298,15 +298,15 @@ attribute 'basic_auth_users',
 attribute 'token_auth_users',
   :description => 'Token Auth Users',
   :data_type => 'text',
-  :encrypted => true, 
-  :default => '',  
+  :encrypted => true,
+  :default => '',
   :format => {
       :help => 'Kubernetes (token) auth user file content. format: token,user,uid,"group1,group2,group3"',
       :category => '2.Authentication',
       :filter => {:all => {:visible => 'security_enabled:eq:true'}},
       :order => 8
   }
-      
+
 attribute 'auth_policy',
   :description => 'Auth Policy',
   :data_type => 'text',
@@ -325,8 +325,8 @@ attribute 'auth_policy',
       :filter => {:all => {:visible => 'security_enabled:eq:true'}},
       :order => 9
   }
-        
-    
+
+
 attribute 'kubelet_port',
   :grouping => 'cluster',
   :description => "kubelet bind port",
@@ -337,7 +337,7 @@ attribute 'kubelet_port',
     :category => '1.Worker',
     :order => 1
   }
-  
+
 attribute 'kubelet_args',
   :grouping => 'cluster',
   :description => "kubelet args",
@@ -350,7 +350,7 @@ attribute 'kubelet_args',
     :help => 'Kubelet Args',
     :category => '1.Worker',
     :order => 1
-  }  
+  }
 
 attribute 'proxy_args',
   :grouping => 'cluster',
@@ -362,7 +362,7 @@ attribute 'proxy_args',
     :help => 'Proxy Args',
     :category => '1.Worker',
     :order => 1
-  }  
+  }
 
 attribute 'interface',
   :grouping => 'cluster',
@@ -373,4 +373,4 @@ attribute 'interface',
     :help => 'Interface',
     :category => '1.Worker',
     :order => 1
-  }    
+  }

@@ -14,7 +14,7 @@ describe 'Panos Job' do
 
     it 'succeeds when not nil and is an Integer' do
       job = PanosJob.new(25)
-      expect(job).to be_a PanosJob
+      expect{job}.to be_a PanosJob
     end
   end
 end

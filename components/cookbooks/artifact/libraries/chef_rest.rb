@@ -12,7 +12,7 @@ class Chef
 			parts_details = []
 
 			headers = probe_url(url)
-			content_length = headers["content-length"][0].to_i
+			content_length = headers["content-length"].nil? ? 0 : headers["content-length"][0].to_i
 			accept_ranges = (headers["accept-ranges"].nil? || headers["accept-ranges"].empty?) ? "" : headers["accept-ranges"][0]
 			remote_url = headers["location"].nil? ? url : headers["location"][0]
 			local_tmp = nil
@@ -98,7 +98,7 @@ class Chef
 			parts.each do |part|
 				part_file = "#{local_path}.#{part['slot']}.tmp"
 				size = File.size(part_file)
-				if part['end'] != '' 
+				if part['end'] != ''
 					part_size = (part['slot'] + 1 == parts.length) ? part['size'] : part['size'] + 1
 					if size != part_size
 						Chef::Log.debug("slot: #{part['slot']} comparing #{part_size} == #{part['size']}   fize_size = #{size}")
@@ -169,7 +169,7 @@ class Chef
 		def calculate_parts(content_length,parts=10,chunk_size=1048576)
 			parts_details = []
 			chunk_parts = content_length / chunk_size
-			
+
 			if chunk_parts >= parts
 				chunk_size = content_length / parts
 				chunk_parts = parts
@@ -221,4 +221,3 @@ class Chef
 		end
 	end
 end
-
