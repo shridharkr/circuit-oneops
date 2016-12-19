@@ -16,20 +16,21 @@ file_name="logstash-"+node.logstash.version+".tar.gz"
 dest_file = "#{tmp}/"+file_name
 
 cloud_name = node[:workorder][:cloud][:ciName]
-  if node[:workorder][:services].has_key? "mirror"
-    mirrors = JSON.parse(node[:workorder][:services][:mirror][cloud_name][:ciAttributes][:mirrors])
-  else
-    exit_with_error "Cloud Mirror Service has not been defined"
-  end
+if node[:workorder][:services].has_key? "mirror"
+  mirrors = JSON.parse(node[:workorder][:services][:mirror][cloud_name][:ciAttributes][:mirrors])
+else
+  exit_with_error "Cloud Mirror Service has not been defined"
+end
 
 logstash_source = mirrors['logstash']
 if logstash_source.nil?
-  exit_with_error "logstash source has not beed defined in cloud mirror service"
+  Chef::Log.info("logstash source has not beed defined in cloud mirror service.. Taking default value #{node.logstash.source}")
+  logstash_download_url="#{node.logstash.source}"+file_name
 else
   Chef::Log.info("logstash source has been defined in cloud mirror service #{logstash_source}")
+  logstash_download_url="#{logstash_source}/"+node.logstash.version+"/"+file_name
 end
 
-logstash_download_url="#{logstash_source}/"+node.logstash.version+"/"+file_name
 Chef::Log.info("Logstash downlaod url is #{logstash_download_url}")
 
 remote_file dest_file do
