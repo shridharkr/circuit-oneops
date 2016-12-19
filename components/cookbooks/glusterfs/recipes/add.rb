@@ -46,8 +46,18 @@ template "/etc/yum.repos.d/glusterfs.repo" do
   })
 end
 
-['glusterfs-client','glusterfs-server','glusterfs-common','glusterfs-devel'].each do |p|
-  package "#{p}"
+%w{glusterfs glusterfs-libs}.each do |p|
+  package p do
+    action :remove
+  end
+end
+
+%w{glusterfs-client glusterfs-server glusterfs-common glusterfs-devel}.each do |p|
+  bash "installing package #{p}" do
+    code <<-EOH
+      yum --assumeyes --disablerepo "*" --enablerepo "glusterfs" install #{p}
+    EOH
+  end
 end
 
 service "glusterd" do
