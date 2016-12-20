@@ -42,6 +42,8 @@ bash "put_files" do
   cd /opt
   if [ -f /tmp/jboss-#{jboss_version}.tar.gz ]; then
     mv /tmp/jboss-#{jboss_version}.tar.gz /tmp/#{base_name}.tar.gz
+    elif [ -f /tmp/#{base_name}-#{jboss_version}.tar.gz ]; then
+    mv /tmp/#{base_name}-#{jboss_version}.tar.gz /tmp/#{base_name}.tar.gz
   fi  
   tar -zxf /tmp/#{base_name}.tar.gz
   ln -s /opt/#{base_name} #{jboss_home}
