@@ -3,7 +3,9 @@ image = rfcCi["ciAttributes"]
 
 # set working directory
 path = "#{Chef::Config['file_cache_path']}/#{rfcCi['ciId']}"
-directory "#{path}"
+directory "#{path}" do
+  recursive true
+end
 
 docker_build = "docker -H=127.0.0.1 build --force-rm --tag #{node[:image_name]}"
 docker_push = "docker -H=127.0.0.1 push #{node[:image_name]}"
@@ -31,7 +33,9 @@ when 'dockerfile'
       action :deploy
     end
   else
-    directory "#{path}/current"
+    directory "#{path}/current" do
+      recursive true
+    end
   end
   # create Dockerfile in the working directory
   if !image[:dockerfile].empty?

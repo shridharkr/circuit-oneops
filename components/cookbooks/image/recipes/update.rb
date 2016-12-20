@@ -3,5 +3,4 @@
 # Recipe:: update
 #
 
-include_recipe "secgroup::add"
-
+include_recipe "image::add"

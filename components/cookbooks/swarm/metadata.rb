@@ -15,6 +15,7 @@ attribute 'endpoint',
   :default => "",
   :format => {
     :help => 'API Endpoint Host',
+    :important => true,
     :category => '1.Authentication',
     :order => 1
   }

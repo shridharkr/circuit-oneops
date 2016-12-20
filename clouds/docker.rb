@@ -10,10 +10,18 @@ repo_map = '{
 
 service "docker",
   :cookbook => 'docker',
-  :source => [Chef::Config[:register], Chef::Config[:version].split(".").first].join('.'), 
+  :source => [Chef::Config[:register], Chef::Config[:version].split(".").first].join('.'),
   :provides => { :service => 'compute' },
   :attributes => {
     :path => '~/Docker',
     :repo_map => repo_map,
     :network => 'hostonly'
+  }
+
+service "docker-hub",
+  :cookbook => 'registry',
+  :source => [Chef::Config[:register], Chef::Config[:version].split(".").first].join('.'),
+  :provides => { :service => 'registry' },
+  :attributes => {
+    :location => ''
   }

@@ -19,6 +19,21 @@ rfcCi = node["workorder"]["rfcCi"]
 nsPathParts = rfcCi["nsPath"].split("/")
 node.set[:container_name] = node.workorder.box.ciName
 
+image = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Image/ }
+if image.empty?
+  raise "Not able to get image dependency"
+else
+  image_name = image.first['ciAttributes']['image_url']
+  image_type = image.first['ciAttributes']['image_type']
+  if image_name && !image_name.empty?
+    Chef::Log.info("Using image name #{image_name}")
+    node.set[:image_name] = image_name
+    node.set[:image_type] = image_type
+  else
+    raise "Empty image name attribute"
+  end
+end
+
 cloud_name = node.workorder.cloud.ciName
 
 cloud_service = nil

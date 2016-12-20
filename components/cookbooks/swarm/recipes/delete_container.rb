@@ -26,3 +26,24 @@ ruby_block "delete service #{node[:container_name]}" do
     end
   end
 end
+
+# rmi custom build image from the docker swarm
+if node[:image_type] != 'registry'
+  ruby_block "delete image #{node[:image_name]}" do
+    block do
+      sleep 5
+      Chef::Log.info("#{docker} rmi #{node[:image_name]}")
+      result = `#{docker} rmi #{node[:image_name]} 2>&1`
+      if $?.success?
+        Chef::Log.info(result)
+      else
+        Chef::Log.error(result)
+        if result.match("No such image: #{node[:image_name]}")
+          Chef::Log.info("Looks like image was already deleted")
+        else
+          raise
+        end
+      end
+    end
+  end
+end
