@@ -7,3 +7,5 @@ node.default[:logstash] ||= {}
 node.normal[:logstash]  ||= {}
 node.normal[:logstash]    = DeepMerge.merge(node.default[:logstash].to_hash, node.normal[:logstash].to_hash)
 node.normal[:logstash]    = DeepMerge.merge(node.normal[:logstash].to_hash, settings.to_hash)
+
+default["logstash"]["source"]="https://artifacts.elastic.co/downloads/logstash/"
