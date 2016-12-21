@@ -3,6 +3,8 @@ description "Containerized Application"
 type "Platform"
 category "Other"
 
+ignore true
+
 environment "single", {}
 environment "redundant", {}
 
