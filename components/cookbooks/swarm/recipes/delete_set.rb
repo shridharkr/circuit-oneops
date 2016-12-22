@@ -22,7 +22,7 @@ ruby_block "scale #{node[:container_name]}" do
     if $?.success?
       Chef::Log.info(result)
     else
-      Chef::Log.fatal!(result)
+      raise result
     end
   end
 end
