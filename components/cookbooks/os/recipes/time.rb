@@ -1,7 +1,18 @@
 #set timezone
 timezone = node.workorder.rfcCi.ciAttributes.timezone
 if node['platform'] == "windows"
-  execute "tzutil.exe /s #{timezone}"
+
+  powershell_script 'Change-timezone' do
+    code "tzutil.exe /s '#{timezone}'"
+    not_if "tzutil.exe /g | grep -x '#{timezone}'"
+  end
+
+  bash 'Adjust-TZ' do
+    code 'export TZ=$(tzset)'
+    subscribes :run, 'powershell_script[Change-timezone]'  
+    action :nothing
+  end
+  
 else
   execute "rm -f /etc/localtime"
   execute "ln -s /usr/share/zoneinfo/#{timezone} /etc/localtime"
