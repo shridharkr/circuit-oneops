@@ -1,12 +1,11 @@
 <%
-	_port = node.workorder.rfcCi.ciAttributes.port
-	_root = node.workorder.rfcCi.ciAttributes.root	
-	_extra = node.workorder.rfcCi.ciAttributes.extra	
-	_location = ''
-	if node.workorder.rfcCi.ciAttributes.has_key?("location")
-		_location = node.workorder.rfcCi.ciAttributes.location
-	end	
-
+        _port = node[:website][:port]
+        _root = node[:website][:root]
+        _extra = node[:website][:extra]
+        _location = ''
+        if node[:website].has_key?('location')
+                _location = node[:website][:location]
+        end
 %>
 
 server {
@@ -19,7 +18,7 @@ server {
   <% if node[:website].has_key?('root') && !node[:website][:root].empty? %>
   	root <%= node[:website][:root] %>
   <% end %>
-  
+
   <% if node[:website].has_key?('ssl') && node[:website][:ssl] == "on" %>
 	  ssl on
 	  ssl_certificate     <%= node[:website][:dir] %>/ssl/<%= node[:website][:name] %>.crt
@@ -27,8 +26,8 @@ server {
 	  ssl_protocols        SSLv3 TLSv1 TLSv1.1 TLSv1.2;
       ssl_ciphers          HIGH:!aNULL:!MD5;
   <% end %>
-  
+
   <%= _extra.gsub(/\r\n?/,"\n") %>
-  
+
   <%= _location.gsub(/\r\n?/,"\n") %>
 }
