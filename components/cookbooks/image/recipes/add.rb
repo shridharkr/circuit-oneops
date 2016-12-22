@@ -17,8 +17,9 @@
 # Recipe:: add
 #
 ci = node.workorder.rfcCi
+image = ci[:ciAttributes]
 node.set[:realm] = ci.nsPath.split("/")[1..3].join("-").to_s
-image_name = [node.workorder.box.ciName,ci.ciId.to_s].join("-")
+node.set[:tag_name] = "#{node[:realm]}-#{[node.workorder.box.ciName,ci.ciId.to_s].join("-")}-#{image[:tag]}"
 
 cloud_name = node.workorder.cloud.ciName
 
@@ -30,26 +31,23 @@ end
 
 if cloud_service.nil?
   Chef::Log.info("Registry cloud service not defined. Services: "+node.workorder.services.inspect)
-  node.set[:registry] = "registry:5000"
+  node.set[:registry] = ""
 else
   Chef::Log.info("Registry cloud service: #{cloud_service[:ciClassName]}")
-  # fix later
+  node.set[:registry] = cloud_service[:ciAttributes][:location].empty? ? "" : cloud_service[:ciAttributes][:location]+'/'
 end
 
-image = ci[:ciAttributes]
-
-node.set[:image_name] = "#{node[:registry]}/#{node[:realm]}/#{image_name}:#{image[:tag]}"
-
+node.set[:image_name] = "#{node[:registry]}#{image[:image]}:#{node[:tag_name]}"
 
 # check if we need to build image
 case image[:image_type]
 when 'registry'
   Chef::Log.info("Using image #{image[:image]} from registry")
 when 'url'
-  Chef::Log.info("Build image using Dockerfile from a URL context")
+  Chef::Log.info("Build image #{node[:image_name]} using Dockerfile from a URL context")
   include_recipe "image::build"
 when 'dockerfile'
-  Chef::Log.info("Build image by specifying custom Dockerfile")
+  Chef::Log.info("Build image #{node[:image_name]} by specifying custom Dockerfile")
   include_recipe "image::build"
 else
   Chef::Log.error("I don't know how to deal with image type #{image[:image_type]}")

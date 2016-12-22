@@ -4,6 +4,8 @@ cloud_name = node[:workorder][:cloud][:ciName]
 container_service = node[:workorder][:services][:container][cloud_name][:ciAttributes]
 container = node[:workorder][:rfcCi]
 
+network = node.workorder.rfcCi.nsPath.split("/")[1..3].join("-").to_s
+
 # NOTE: to use a swarm running on the same server as the inductors create_args file
 # cat /etc/systemd/system/docker.service.d/api.conf
 # [Service]
@@ -17,12 +19,19 @@ Chef::Log.debug("DOCKER: #{docker}")
 #
 # 1. construct the docker service command arguments
 #
+# TODO waiting for implementation of namespaces or --network-alias for unique names
+# currently using simple platform names as service names, but not unique globally
+# https://github.com/docker/docker/issues/24787
+# https://github.com/docker/docker/issues/25369
+#
+
 env = JSON.parse(container[:ciAttributes][:env])
 ports = JSON.parse(container[:ciAttributes][:ports]).values.sort.uniq
 args = JSON.parse(container[:ciAttributes][:args])
 
 # create
 create_args = [ "--name=#{node[:container_name]}" ]
+create_args.push("--network=#{network}")
 env.each { |key, value| create_args.push("-e=\"#{key}=#{value}\"") } if !env.empty?
 ports.each { |port| create_args.push("-p=#{port}") } if !ports.empty?
 create_args.push("#{node[:image_name]}")
@@ -81,8 +90,7 @@ ruby_block "container #{node[:container_name]}" do
       end
     else
       # something went wrong with the get call
-      Chef::Log.error(service.inspect)
-      raise
+      raise service.inspect
     end
   end
 end
@@ -110,7 +118,35 @@ ruby_block "container #{node[:container_name]} status" do
       end
     end
     if !complete
-      Chef::Log.fatal!("service #{node[:instance_name]} failed to complete #{service.inspect}")
+      raise "service #{node[:instance_name]} failed to complete #{service.inspect}"
     end
+  end
+end
+
+ruby_block "get published port for #{node[:container_name]}" do
+  block do
+
+    # ports
+    service = JSON.parse(`#{docker} #{inspect}`)
+    Chef::Log.debug("ports: #{service.first['Endpoint']['Ports']}")
+    ports = {}
+    service.first['Endpoint']['Ports'].each do |service_port|
+      internal_port = service_port['TargetPort']
+      ports[internal_port] = service_port['PublishedPort'].to_s
+    end
+    puts "***RESULT:ports="+JSON.generate(ports)
+
+    # nodes
+    nodes = Array.new
+    nodes_list = `#{docker} node ls | grep -v ID`
+    nodes_list.gsub!(/\r\n?/, "\n")
+    nodes_list.each_line do |node|
+      node_id = node.gsub(/\s+/m, ' ').strip.split(" ").first
+      address = `#{docker} node inspect --format '{{ .ManagerStatus.Addr }}' #{node_id}`.split(':').first
+      Chef::Log.debug("node: #{address}")
+      nodes.push(address) if address =~ /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/
+    end
+    puts "***RESULT:nodes="+JSON.generate(nodes)
+
   end
 end
